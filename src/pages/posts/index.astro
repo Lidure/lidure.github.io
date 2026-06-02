@@ -7,7 +7,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 const projects = await getGitHubProjects();
 ---
-<BaseLayout title="归档 | Lidure 的小窝" description="按时间整理的博客文章，并同步展示我的 GitHub 项目。">
+<BaseLayout title="归档 | 搁浅 的小窝" description="按时间整理的博客文章，并同步展示我的 GitHub 项目。">
   <section class="archive-shell">
     <span class="kicker">Archive</span>
     <h1>文章归档</h1>
