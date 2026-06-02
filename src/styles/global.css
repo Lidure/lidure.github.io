@@ -136,6 +136,15 @@ img {
   overflow: hidden;
 }
 
+.hero,
+.card,
+.profile-card,
+.link-card,
+.button,
+.avatar {
+  animation: soft-fade-up 700ms ease both;
+}
+
 .hero::after {
   content: '';
   position: absolute;
@@ -156,6 +165,41 @@ img {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 207, 122, 0.55), transparent 72%);
   filter: blur(2px);
+}
+
+.floating-shape {
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+  opacity: 0.7;
+  filter: blur(1px);
+}
+
+.floating-shape-a {
+  top: 24px;
+  left: 18px;
+  width: 14px;
+  height: 14px;
+  background: rgba(255, 143, 179, 0.7);
+  animation: float-y 7s ease-in-out infinite;
+}
+
+.floating-shape-b {
+  bottom: 30px;
+  left: 42%;
+  width: 10px;
+  height: 10px;
+  background: rgba(168, 140, 255, 0.65);
+  animation: float-y 9s ease-in-out infinite reverse;
+}
+
+.floating-shape-c {
+  top: 48%;
+  right: 22px;
+  width: 18px;
+  height: 18px;
+  background: rgba(255, 207, 122, 0.68);
+  animation: float-x 8s ease-in-out infinite;
 }
 
 .kicker {
@@ -204,6 +248,14 @@ img {
   margin-top: 24px;
 }
 
+.hero-actions .button {
+  animation-delay: 180ms;
+}
+
+.hero-actions .button.primary {
+  animation-delay: 260ms;
+}
+
 .profile-card {
   display: grid;
   gap: 18px;
@@ -217,6 +269,7 @@ img {
   object-fit: cover;
   border: 3px solid rgba(255, 143, 179, 0.24);
   box-shadow: 0 20px 60px rgba(170, 104, 133, 0.16);
+  animation: float-y 6s ease-in-out infinite;
 }
 
 .profile-card h2 {
@@ -299,6 +352,10 @@ img {
 .button:hover {
   transform: translateY(-1px);
   border-color: rgba(255, 143, 179, 0.3);
+}
+
+.animated-card {
+  animation-delay: 120ms;
 }
 
 .section-title {
@@ -457,6 +514,53 @@ img {
   margin-top: 18px;
 }
 
+@keyframes soft-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes float-x {
+  0%,
+  100% {
+    transform: translateX(0px);
+  }
+
+  50% {
+    transform: translateX(-10px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero,
+  .card,
+  .profile-card,
+  .link-card,
+  .button,
+  .avatar,
+  .floating-shape {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 @media (max-width: 720px) {
   .site-shell {
     width: min(calc(100% - 20px), var(--container));
@@ -484,5 +588,10 @@ img {
   .topbar {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .floating-shape-b,
+  .floating-shape-c {
+    display: none;
   }
 }

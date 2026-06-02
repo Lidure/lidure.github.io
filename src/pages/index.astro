@@ -34,6 +34,9 @@ const quickLinks = [
 <BaseLayout title="Lidure 的小窝" description="一个带有粉彩少女风的 GitHub Pages 个人博客，使用 Astro、Markdown 和自动部署。">
   <section class="hero-grid">
     <section class="hero">
+      <span class="floating-shape floating-shape-a" aria-hidden="true"></span>
+      <span class="floating-shape floating-shape-b" aria-hidden="true"></span>
+      <span class="floating-shape floating-shape-c" aria-hidden="true"></span>
       <span class="kicker">Sweet Blog Corner</span>
       <h1>把喜欢的东西，认真地收进小站里。</h1>
       <p>
@@ -92,7 +95,7 @@ const quickLinks = [
 
   <section class="posts-grid">
     {latestPosts.map((post) => (
-      <article class="card">
+      <article class="card animated-card" style={`animation-delay: ${posts.indexOf(post) * 90}ms`}>
         <div class="meta">
           <span>{post.data.pubDate.toLocaleDateString('zh-CN')}</span>
           <span>{Math.ceil(post.body.length / 800)} 分钟阅读</span>
