@@ -1,0 +1,40 @@
+---
+import { getCollection } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+  return posts.map((post) => ({
+    params: { slug: post.slug },
+    props: { post },
+  }));
+}
+
+type Props = {
+  post: CollectionEntry<'blog'>;
+};
+
+const { post } = Astro.props as Props;
+const { Content } = await post.render();
+const updatedDate = post.data.updatedDate ?? post.data.pubDate;
+---
+<BaseLayout title={`${post.data.title} | Lidure Blog`} description={post.data.description}>
+  <article class="post-shell">
+    <span class="kicker">Article</span>
+    <h1>{post.data.title}</h1>
+    <div class="meta">
+      <span>发布于 {post.data.pubDate.toLocaleDateString('zh-CN')}</span>
+      <span>最后更新 {updatedDate.toLocaleDateString('zh-CN')}</span>
+      <span>{post.data.tags.length} tags</span>
+    </div>
+    <div class="tag-list">
+      {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+    </div>
+
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>

@@ -1,0 +1,10 @@
+node_modules
+.dist
+.dist/
+.astro/
+.astro.data.json
+dist
+.env
+.env.*
+!.env.example
+.DS_Store

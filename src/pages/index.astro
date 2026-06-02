@@ -1,0 +1,98 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const featuredPost = posts.find((post) => post.data.featured) ?? posts[0];
+const latestPosts = posts.slice(0, 3);
+
+const quickLinks = [
+  {
+    label: 'GitHub Repository',
+    href: 'https://github.com/Lidure/lidure.github.io',
+    description: '查看站点源码与部署流程。',
+  },
+  {
+    label: '文章归档',
+    href: '/posts',
+    description: '按照时间顺序浏览全部文章。',
+  },
+  {
+    label: '精选文章',
+    href: featuredPost ? `/posts/${featuredPost.slug}` : '/posts',
+    description: '直接进入当前置顶内容。',
+  },
+];
+---
+<BaseLayout title="Lidure Blog" description="一个面向 GitHub Pages 的个人博客，使用 Astro、Markdown 和自动部署。">
+  <section class="hero-grid">
+    <section class="hero">
+      <span class="kicker">GitHub Pages Blog</span>
+      <h1>记录想法、项目和长期积累。</h1>
+      <p>
+        这是一个基于 Astro 的个人博客，专注于 Markdown 写作、文章归档和 GitHub Actions 自动部署到 GitHub Pages。
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="/posts">浏览文章</a>
+        {featuredPost && <a class="button" href={`/posts/${featuredPost.slug}`}>阅读精选文章</a>}
+      </div>
+    </section>
+
+    <aside class="profile-card card">
+      <img class="avatar" src="/avatar.svg" alt="Lidure 的头像" width="112" height="112" />
+      <div>
+        <span class="kicker">About</span>
+        <h2>Lidure</h2>
+        <p class="intro">
+          一个偏实用主义的个人站点。这里会记录项目笔记、工具整理、写作碎片和长期可复用的经验。
+        </p>
+      </div>
+      <div class="mini-stats">
+        <div>
+          <strong>{posts.length}</strong>
+          <span>Articles</span>
+        </div>
+        <div>
+          <strong>Astro</strong>
+          <span>Stack</span>
+        </div>
+        <div>
+          <strong>Pages</strong>
+          <span>Deploy</span>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="link-grid">
+    {quickLinks.map((link) => (
+      <a class="card link-card" href={link.href}>
+        <span class="link-label">{link.label}</span>
+        <p>{link.description}</p>
+      </a>
+    ))}
+  </section>
+
+  <section class="section-title">
+    <h2>Latest Posts</h2>
+    <a class="button" href="/posts">View all</a>
+  </section>
+
+  <section class="posts-grid">
+    {latestPosts.map((post) => (
+      <article class="card">
+        <div class="meta">
+          <span>{post.data.pubDate.toLocaleDateString('zh-CN')}</span>
+          <span>{Math.ceil(post.body.length / 800)} min read</span>
+        </div>
+        <h3><a href={`/posts/${post.slug}`}>{post.data.title}</a></h3>
+        <p>{post.data.description}</p>
+        <div class="tag-list">
+          {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+        </div>
+      </article>
+    ))}
+  </section>
+</BaseLayout>

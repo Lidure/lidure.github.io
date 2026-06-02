@@ -1,0 +1,19 @@
+{
+  "name": "lidure-github-io",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.5",
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.9.0",
+    "typescript": "^5.8.3"
+  }
+}
