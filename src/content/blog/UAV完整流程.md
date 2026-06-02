@@ -1,3 +1,16 @@
+---
+title: "多旋翼UAV设计方案"
+description: "自研四旋翼无人机实时仿地与避障系统：完整操作流程手册"
+pubDate: 2026-06-02
+updatedDate: 2026-06-02
+tags:
+  - UAV
+  - ROS
+  - 树莓派
+featured: true
+draft: false
+---
+
 # 自研四旋翼无人机实时仿地与避障系统：完整操作流程手册
 
 > 说明：树莓派 5 现阶段建议直接使用 Ubuntu 24.04 LTS（ARM64）+ ROS2 Jazzy。本文已按这条路线更新；如果你坚持用 Ubuntu 22.04/Humble，请改走容器或源码编译，不建议把 22.04 作为树莓派 5 的默认系统。
