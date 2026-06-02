@@ -1,15 +1,17 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getGitHubProjects } from '../../lib/github-projects';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const projects = await getGitHubProjects();
 ---
-<BaseLayout title="文章 | Lidure Blog" description="按时间整理的博客文章。">
+<BaseLayout title="归档 | Lidure 的小窝" description="按时间整理的博客文章，并同步展示我的 GitHub 项目。">
   <section class="archive-shell">
     <span class="kicker">Archive</span>
     <h1>文章归档</h1>
-    <p>按时间倒序查看全部文章。所有内容都来自 Markdown 文件，适合长期维护。</p>
+    <p>按时间倒序查看全部文章。下面也同步了我的 GitHub 公共项目，方便把写作和项目放在同一个页面里看。</p>
 
     <div class="archive-list">
       {posts.map((post) => (
@@ -26,5 +28,34 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
         </article>
       ))}
     </div>
+
+    <section class="archive-subsection">
+      <div class="section-title">
+        <h2>GitHub 项目</h2>
+      </div>
+
+      {projects.length > 0 ? (
+        <div class="project-grid">
+          {projects.map((project) => (
+            <article class="card project-card">
+              <div class="project-topline">
+                <span class="project-pill">{project.language}</span>
+                <span class="project-stars">★ {project.stars}</span>
+              </div>
+              <h3><a href={project.htmlUrl} target="_blank" rel="noreferrer">{project.name}</a></h3>
+              <p>{project.description}</p>
+              <div class="project-footer">
+                <span>更新于 {new Date(project.pushedAt).toLocaleDateString('zh-CN')}</span>
+                {project.homepage && <a href={project.homepage} target="_blank" rel="noreferrer">官网</a>}
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : (
+        <div class="card project-empty">
+          <p>暂时没有拉到公开项目，可能是 GitHub API 请求失败或者当前账号没有公开仓库。</p>
+        </div>
+      )}
+    </section>
   </section>
 </BaseLayout>
