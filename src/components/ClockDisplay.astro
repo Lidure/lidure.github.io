@@ -1,8 +1,4 @@
 ---
-/**
- * 客户端动态时间显示组件。
- * 首次渲染时显示服务端时间，随后由 JS 在客户端实时更新。
- */
 const now = new Date();
 const serverTime = now.toLocaleString('zh-CN', {
   year: 'numeric',
@@ -14,7 +10,64 @@ const serverTime = now.toLocaleString('zh-CN', {
   second: '2-digit',
 });
 ---
-<span id="clock-display" class="clock-text">{serverTime}</span>
+<section class="clock-kawaii" aria-label="当前时间">
+  <span class="clock-icon" aria-hidden="true">⏰</span>
+  <span id="clock-display" class="clock-text-kawaii">{serverTime}</span>
+</section>
+
+<style>
+.clock-kawaii {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 28px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(255, 143, 179, 0.13), rgba(168, 140, 255, 0.10));
+  border: 1.5px solid rgba(255, 143, 179, 0.18);
+  backdrop-filter: blur(4px);
+  box-shadow: 0 4px 20px rgba(170, 104, 133, 0.08);
+}
+
+[data-theme="dark"] .clock-kawaii {
+  background: linear-gradient(135deg, rgba(255, 127, 168, 0.12), rgba(155, 123, 230, 0.10));
+  border-color: rgba(255, 127, 168, 0.16);
+}
+
+.clock-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(255, 143, 179, 0.2));
+  animation: clock-bounce 2s ease-in-out infinite;
+}
+
+.clock-text-kawaii {
+  font-family: 'Ma Shan Zheng', cursive;
+  font-size: 1.15rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+[data-theme="dark"] .clock-text-kawaii {
+  color: #f0c8d8;
+}
+
+@keyframes clock-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@media (max-width: 720px) {
+  .clock-kawaii {
+    padding: 8px 20px;
+    gap: 10px;
+  }
+  .clock-text-kawaii {
+    font-size: 1rem;
+  }
+}
+</style>
 
 <script>
 function pad(n: number): string {
@@ -24,10 +77,10 @@ function pad(n: number): string {
 const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
 
 function tick() {
-  const d = new Date();
   const el = document.getElementById('clock-display');
   if (!el) return;
-  el.textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${weekdays[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  const d = new Date();
+  el.textContent = `${d.getFullYear()} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日 ${weekdays[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
 }
 
 tick();

@@ -201,16 +201,6 @@ img {
   gap: 8px;
 }
 
-.clock-text {
-  display: inline-block;
-  padding: 6px 16px;
-  border-radius: 999px;
-  background: var(--clock-bg);
-  color: var(--muted);
-  font-size: 0.88rem;
-  font-weight: 500;
-}
-
 .hero,
 .card,
 .post-shell,
@@ -440,13 +430,23 @@ img {
   font-weight: 700;
   border: 1px solid var(--panel-border);
   background: rgba(255, 255, 255, 0.88);
+  color: var(--text-soft);
   transition: transform 240ms ease, border-color 240ms ease, background 240ms ease, box-shadow 240ms ease;
+}
+
+[data-theme="dark"] .button {
+  background: rgba(40, 26, 48, 0.88);
+  color: var(--text);
 }
 
 .button.primary {
   color: white;
   background: linear-gradient(135deg, var(--accent), var(--accent-3));
   border-color: transparent;
+}
+
+[data-theme="dark"] .button.primary {
+  color: #ffffff;
 }
 
 .button.primary:hover {
