@@ -1,0 +1,48 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog', ({ data }) => !data.draft);
+  const tags = new Set<string>();
+
+  for (const post of posts) {
+    for (const tag of post.data.tags) {
+      tags.add(tag);
+    }
+  }
+
+  return [...tags].map((tag) => ({ params: { tag }, props: { tag } }));
+}
+
+type Props = { tag: string };
+
+const { tag } = Astro.props as Props;
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+const filtered = allPosts
+  .filter((post) => post.data.tags.includes(tag))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+---
+<BaseLayout title={`#${tag} | 搁浅 的小窝`} description={`所有带有 #${tag} 标签的文章。`}>
+  <section class="archive-shell">
+    <span class="kicker">Tag</span>
+    <h1># {tag}</h1>
+    <p>共 {filtered.length} 篇文章。</p>
+
+    <div class="archive-list">
+      {filtered.map((post) => (
+        <article class="card">
+          <div class="meta">
+            <span>{post.data.pubDate.toLocaleDateString('zh-CN')}</span>
+            {post.data.updatedDate && <span>更新于 {post.data.updatedDate.toLocaleDateString('zh-CN')}</span>}
+          </div>
+          <h3><a href={`/posts/${post.slug}`}>{post.data.title}</a></h3>
+          <p>{post.data.description}</p>
+          <div class="tag-list">
+            {post.data.tags.map((t) => <span class="tag">#{t}</span>)}
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,102 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const jsonData = JSON.stringify(
+  allPosts.map((p) => ({
+    title: p.data.title,
+    description: p.data.description,
+    slug: p.slug,
+    tags: p.data.tags,
+    pubDate: p.data.pubDate.valueOf(),
+  })),
+);
+---
+<BaseLayout title="搜索 | 搁浅 的小窝" description="在全站文章中搜索关键字。">
+  <section class="archive-shell">
+    <span class="kicker">Search</span>
+    <h1>搜索</h1>
+
+    <div class="search-bar">
+      <input type="search" id="search-input" placeholder="输入关键字搜索文章…" autofocus />
+      <span id="search-count" class="search-count"></span>
+    </div>
+
+    <div id="search-results" class="archive-list"></div>
+
+    <noscript>
+      <p>需要启用 JavaScript 才能使用搜索功能。</p>
+    </noscript>
+  </section>
+</BaseLayout>
+
+<script is:inline>
+document.currentScript?.insertAdjacentHTML(
+  'afterend',
+  `<script id="__SEARCH_DATA" type="application/json">${jsonData}<\/script>`,
+);
+</script>
+
+<script>
+import Fuse from 'fuse.js';
+
+interface PostDoc {
+  title: string;
+  description: string;
+  slug: string;
+  tags: string[];
+  pubDate: number;
+}
+
+const script = document.getElementById('__SEARCH_DATA');
+const posts: PostDoc[] = JSON.parse(script!.textContent!.toString());
+
+const fuse = new Fuse(posts, {
+  keys: ['title', 'description', 'tags'],
+  threshold: 0.4,
+  includeScore: true,
+});
+
+const input = document.getElementById('search-input') as HTMLInputElement | null;
+const results = document.getElementById('search-results')!;
+const count = document.getElementById('search-count')!;
+
+function render(items: PostDoc[]): void {
+  if (items.length === 0) {
+    results.innerHTML = '<p class="search-empty">没有找到匹配的文章。</p>';
+    count.textContent = '';
+    return;
+  }
+
+  count.textContent = `${items.length} 篇匹配`;
+
+  results.innerHTML = items
+    .map(
+      (p: PostDoc) => `
+    <article class="card">
+      <div class="meta">
+        <span>${new Date(p.pubDate).toLocaleDateString('zh-CN')}</span>
+      </div>
+      <h3><a href="/posts/${p.slug}">${p.title}</a></h3>
+      <p>${p.description}</p>
+      <div class="tag-list">
+        ${p.tags.map((t: string) => `<span class="tag">#${t}</span>`).join('')}
+      </div>
+    </article>`,
+    )
+    .join('');
+}
+
+input?.addEventListener('input', () => {
+  const query = input.value.trim();
+  if (!query) {
+    results.innerHTML = '';
+    count.textContent = '';
+    return;
+  }
+  render(fuse.search(query).map((r) => r.item));
+});
+</script>

@@ -1,0 +1,35 @@
+---
+/**
+ * 客户端动态时间显示组件。
+ * 首次渲染时显示服务端时间，随后由 JS 在客户端实时更新。
+ */
+const now = new Date();
+const serverTime = now.toLocaleString('zh-CN', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  weekday: 'long',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+});
+---
+<span id="clock-display" class="clock-text">{serverTime}</span>
+
+<script>
+function pad(n: number): string {
+  return n < 10 ? '0' + n : String(n);
+}
+
+const weekdays = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'];
+
+function tick() {
+  const d = new Date();
+  const el = document.getElementById('clock-display');
+  if (!el) return;
+  el.textContent = `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日 ${weekdays[d.getDay()]} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+
+tick();
+setInterval(tick, 1000);
+</script>

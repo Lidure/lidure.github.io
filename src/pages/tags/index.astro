@@ -1,0 +1,31 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+const tagCounts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+
+const sortedTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
+---
+<BaseLayout title="标签 | 搁浅 的小窝" description="按标签分类浏览博客文章。">
+  <section class="archive-shell">
+    <span class="kicker">Tags</span>
+    <h1>标签</h1>
+    <p>共有 {sortedTags.length} 个标签，点击可查看对应文章。</p>
+
+    <div class="tag-cloud">
+      {sortedTags.map(([tag, count]) => (
+        <a class="tag-pill" href={`/tags/${encodeURIComponent(tag)}`}>
+          {tag}
+          <sup>{count}</sup>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

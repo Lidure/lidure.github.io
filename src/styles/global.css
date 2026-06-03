@@ -111,6 +111,35 @@ img {
   font-size: 0.92rem;
 }
 
+.footer-inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.footer-inner p {
+  margin: 0;
+}
+
+.clock-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.clock-text {
+  display: inline-block;
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(255, 143, 179, 0.10);
+  color: var(--muted);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
 .hero,
 .card,
 .post-shell,
@@ -512,6 +541,101 @@ img {
 
 .project-empty {
   margin-top: 18px;
+}
+
+/* ── Tag Cloud ── */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255, 247, 250, 0.95), rgba(255, 236, 244, 0.95));
+  border: 1px solid rgba(245, 160, 183, 0.18);
+  color: #9b5573;
+  font-weight: 700;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.tag-pill:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 143, 179, 0.34);
+  box-shadow: 0 8px 24px rgba(170, 104, 133, 0.12);
+}
+
+.tag-pill sup {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+/* ── Search ── */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.search-bar input[type="search"] {
+  flex: 1;
+  padding: 14px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(245, 160, 183, 0.26);
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.search-bar input[type="search"]:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px rgba(255, 143, 179, 0.12);
+}
+
+.search-count {
+  flex-shrink: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.search-empty {
+  margin-top: 20px;
+  color: var(--muted);
+}
+
+/* ── Comments ── */
+.comments-section {
+  margin-top: 40px;
+}
+
+.comments-placeholder {
+  padding: 24px;
+  color: var(--muted);
+}
+
+.comments-placeholder code {
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.3rem;
+  background: rgba(255, 143, 179, 0.12);
+}
+
+.comments-placeholder a {
+  color: var(--accent);
+}
+
+.comments-placeholder a:hover {
+  text-decoration: underline;
 }
 
 @keyframes soft-fade-up {

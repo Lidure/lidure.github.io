@@ -1,0 +1,68 @@
+---
+/**
+ * Giscus 评论组件。
+ * 需要先在 GitHub 上安装 Giscus App 并配置好仓库。
+ * 若未配置，组件不会在页面中渲染任何内容。
+ */
+const repo = 'Lidure/lidure.github.io';
+const repoId = '';       // 请替换为你的 repo ID
+const category = '';     // 请替换为你的 Discussion 分类名称
+const categoryId = '';   // 请替换为你的分类 ID
+
+const enabled = Boolean(repoId && categoryId);
+---
+
+{
+  enabled ? (
+    <section class="comments-section">
+      <div class="section-title"><h2>评论</h2></div>
+      <div class="giscus"></div>
+    </section>
+  ) : (
+    <section class="comments-section">
+      <div class="section-title"><h2>评论</h2></div>
+      <div class="card comments-placeholder">
+        <p>
+          评论功能尚未配置。如需启用，请在 GitHub 安装
+          <a href="https://github.com/apps/giscus" target="_blank" rel="noreferrer">Giscus App</a>，
+          并填写 <code>src/components/Comments.astro</code> 中的 <code>repoId</code>、<code>category</code> 和 <code>categoryId</code>。
+        </p>
+      </div>
+    </section>
+  )
+}
+
+<script>
+const giscusScript = document.createElement('script');
+giscusScript.src = 'https://giscus.app/client.js';
+giscusScript.setAttribute('data-repo', '{repo}');
+giscusScript.setAttribute('data-repo-id', '{repoId}');
+giscusScript.setAttribute('data-category', '{category}');
+giscusScript.setAttribute('data-category-id', '{categoryId}');
+giscusScript.setAttribute('data-mapping', 'pathname');
+giscusScript.setAttribute('data-strict', '0');
+giscusScript.setAttribute('data-reactions-enabled', '1');
+giscusScript.setAttribute('data-emit-metadata', '0');
+giscusScript.setAttribute('data-input-position', 'bottom');
+giscusScript.setAttribute('data-lang', 'zh-CN');
+giscusScript.setAttribute('data-loading', 'lazy');
+giscusScript.setAttribute('crossorigin', 'anonymous');
+giscusScript.async = true;
+
+const container = document.querySelector('.giscus');
+if (container && !container.hasAttribute('data-loaded')) {
+  container.setAttribute('data-loaded', 'true');
+  container.appendChild(giscusScript);
+}
+</script>
+
+<style>
+.comments-section {
+  margin-top: 40px;
+}
+
+.comments-placeholder {
+  padding: 24px;
+  color: var(--muted);
+}
+</style>
