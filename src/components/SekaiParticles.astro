@@ -1,48 +1,107 @@
 ---
-/** Project SEKAI 风格世界碎片 —— 客户端 JS 实时创建，不受构建时区影响。 */
+/** Project SEKAI 世界碎片 — Canvas 粒子系统，不受系统动效设置影响。 */
 ---
-<div id="sekai-container" class="sekai-container" aria-hidden="true"></div>
-
-<script>
-(function() {
-  const container = document.getElementById('sekai-container');
-  if (!container) return;
-
-  const colors = [
-    '#ff8bb5', '#6090dd', '#50c0a8',
-    '#f08050', '#ecc030', '#b070cc',
-  ];
-
-  for (let i = 0; i < 30; i++) {
-    const el = document.createElement('span');
-    const size = 6 + Math.random() * 16;
-    el.style.cssText = [
-      'position: fixed',
-      'pointer-events: none',
-      'z-index: 9999',
-      'bottom: -30px',
-      `left: ${Math.random() * 96 + 2}%`,
-      `width: ${size}px`,
-      `height: ${size}px`,
-      'border-radius: 3px',
-      'transform: rotate(45deg)',
-      `background: ${colors[i % colors.length]}`,
-      `opacity: ${0.35 + Math.random() * 0.35}`,
-      `animation: sekai-drift ${14 + Math.random() * 20}s linear infinite`,
-      `animation-delay: ${Math.random() * 20}s`,
-    ].join(';');
-    container.appendChild(el);
-  }
-})();
-</script>
+<canvas id="sekai-canvas" aria-hidden="true"></canvas>
 
 <style>
-.sekai-container { display: none; }
-
-@keyframes sekai-drift {
-  0%   { transform: translateY(0) rotate(45deg); opacity: 0; }
-  5%   { opacity: 1; }
-  85%  { opacity: 1; }
-  100% { transform: translateY(-120vh) rotate(135deg); opacity: 0; }
+#sekai-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  display: block;
 }
 </style>
+
+<script is:inline>
+(function() {
+  var canvas = document.getElementById('sekai-canvas');
+  if (!canvas || !canvas.getContext) return;
+
+  const ctx = canvas.getContext('2d');
+
+  const colors = [
+    'rgba(255,139,181,',
+    'rgba(96,144,221,',
+    'rgba(80,192,168,',
+    'rgba(240,128,80,',
+    'rgba(236,192,48,',
+    'rgba(176,112,204,',
+  ];
+
+  let W, H;
+  const particles = [];
+
+  function makeParticle(resetY) {
+    W = canvas.width;
+    H = canvas.height;
+    return {
+      x: Math.random() * W,
+      y: resetY ? -20 - Math.random() * H * 0.5 : Math.random() * H,
+      size: 3 + Math.random() * 10,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      speedY: 0.2 + Math.random() * 0.5,
+      speedX: (Math.random() - 0.5) * 0.3,
+      opacity: 0.25 + Math.random() * 0.35,
+      rotation: Math.random() * Math.PI,
+      rotationSpeed: (Math.random() - 0.5) * 0.02,
+    };
+  }
+
+  function update(p) {
+    p.y += p.speedY;
+    p.x += p.speedX;
+    p.rotation += p.rotationSpeed;
+    if (p.y > H + 20) {
+      var n = makeParticle(true);
+      p.x = n.x; p.y = -20; p.size = n.size;
+      p.color = n.color; p.speedY = n.speedY; p.speedX = n.speedX;
+      p.opacity = n.opacity; p.rotation = n.rotation; p.rotationSpeed = n.rotationSpeed;
+    }
+  }
+
+  function draw(p) {
+    ctx.save();
+    ctx.translate(p.x, p.y);
+    ctx.rotate(p.rotation);
+    ctx.globalAlpha = p.opacity;
+    ctx.fillStyle = p.color + p.opacity + ')';
+    ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+    ctx.restore();
+  }
+
+  function resize() {
+    var dpr = window.devicePixelRatio || 1;
+    W = window.innerWidth;
+    H = window.innerHeight;
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    canvas.style.width = W + 'px';
+    canvas.style.height = H + 'px';
+    ctx.scale(dpr, dpr);
+  }
+
+  function init(count) {
+    resize();
+    particles.length = 0;
+    for (var i = 0; i < count; i++) {
+      particles.push(makeParticle(false));
+    }
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, W, H);
+    for (var i = 0; i < particles.length; i++) {
+      update(particles[i]);
+      draw(particles[i]);
+    }
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', resize);
+  init(40);
+  animate();
+})();
+</script>
