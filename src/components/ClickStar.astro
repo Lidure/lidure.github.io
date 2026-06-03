@@ -1,0 +1,80 @@
+---
+/**
+ * 可爱的悬浮互动装饰。
+ * 主页 Hero 区域的一组可点击小元素 —— 点击后会弹出小心心 ✨
+ */
+---
+<span class="interactive-star" id="click-star" aria-label="点一下有惊喜" title="戳戳我">
+  ✨
+  <span class="click-hint">戳我</span>
+</span>
+
+<style>
+.interactive-star {
+  position: absolute;
+  bottom: 24px;
+  right: 90px;
+  font-size: 1.6rem;
+  cursor: pointer;
+  z-index: 2;
+  filter: drop-shadow(0 2px 8px rgba(255, 143, 179, 0.2));
+  transition: transform 180ms ease;
+  user-select: none;
+}
+
+.interactive-star:hover {
+  transform: scale(1.25) rotate(15deg);
+}
+
+.interactive-star:active {
+  transform: scale(0.9) rotate(-10deg);
+}
+
+.click-hint {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.7rem;
+  color: var(--muted);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 240ms ease;
+}
+
+.interactive-star:hover .click-hint {
+  opacity: 1;
+}
+
+@media (max-width: 720px) {
+  .interactive-star {
+    right: 40px;
+    bottom: 16px;
+    font-size: 1.3rem;
+  }
+}
+</style>
+
+<script>
+const star = document.getElementById('click-star');
+if (star) {
+  star.addEventListener('click', (e: MouseEvent) => {
+    const emojis = ['❤️', '💖', '💕', '🌸', '⭐', '💗'];
+    for (let i = 0; i < 6; i++) {
+      const heart = document.createElement('span');
+      heart.textContent = emojis[i % emojis.length];
+      heart.style.cssText = `
+        position: fixed;
+        pointer-events: none;
+        z-index: 9999;
+        font-size: ${1 + Math.random()}rem;
+        left: ${e.clientX + (Math.random() - 0.5) * 40}px;
+        top: ${e.clientY + (Math.random() - 0.5) * 40}px;
+        animation: star-pop 0.8s ease-out forwards;
+      `;
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 800);
+    }
+  });
+}
+</script>

@@ -1,0 +1,55 @@
+---
+/**
+ * 访问计数组件 —— 使用 Busuanzi（不蒜子）。
+ * 纯前端，无需后端和注册，适合 GitHub Pages。
+ * 首次部署后数据自动累积。
+ */
+---
+<aside class="visitor-counter" aria-label="站点访问统计">
+  <span class="visitor-item">
+    <span class="visitor-icon">👀</span>
+    <span>本站总访问量 <strong id="busuanzi_value_site_pv"><span class="loading-dots">加载中</span></strong> 次</span>
+  </span>
+  <span class="visitor-divider" aria-hidden="true">·</span>
+  <span class="visitor-item">
+    <span class="visitor-icon">👤</span>
+    <span>访客 <strong id="busuanzi_value_site_uv"><span class="loading-dots">加载中</span></strong> 人</span>
+  </span>
+</aside>
+
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+<style>
+.visitor-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.visitor-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.visitor-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.visitor-divider {
+  color: var(--panel-border);
+}
+
+.visitor-counter strong {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.loading-dots {
+  font-size: 0.8rem;
+}
+</style>

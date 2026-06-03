@@ -1,6 +1,9 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Greeting from '../components/Greeting.astro';
+import ClickStar from '../components/ClickStar.astro';
+import VisitorCounter from '../components/VisitorCounter.astro';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
@@ -39,6 +42,7 @@ const quickLinks = [
       <span class="floating-shape floating-shape-c" aria-hidden="true"></span>
       <span class="kicker">Sweet Blog Corner</span>
       <h1>把喜欢的东西，认真地收进小站里。</h1>
+      <Greeting />
       <p>
         这是一个基于 Astro 的个人博客，做成了简易风的粉彩小站，适合记录日常、灵感、项目和长期积累。
       </p>
@@ -46,6 +50,7 @@ const quickLinks = [
         <a class="button primary" href="/posts">去看文章</a>
         {featuredPost && <a class="button" href={`/posts/${featuredPost.slug}`}>打开置顶</a>}
       </div>
+      <ClickStar />
     </section>
 
     <aside class="profile-card card">
@@ -107,5 +112,9 @@ const quickLinks = [
         </div>
       </article>
     ))}
+
+  <div class="home-footer-stats">
+    <VisitorCounter />
+  </div>
   </section>
 </BaseLayout>
