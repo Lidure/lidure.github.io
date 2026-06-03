@@ -5,9 +5,16 @@
  * 若未配置，组件不会在页面中渲染任何内容。
  */
 const repo = 'Lidure/lidure.github.io';
-const repoId = 'R_kgDOSudWDQ';       // 请替换为你的 repo ID
-const category = 'Announcements';     // 请替换为你的 Discussion 分类名称
-const categoryId = 'DIC_kwDOSudWDc4C-ZFg';   // 请替换为你的分类 ID
+const repoId = 'R_kgDOSudWDQ';
+const category = 'Announcements';
+const categoryId = 'DIC_kwDOSudWDc4C-ZFg';
+const mapping = 'pathname';
+const strict = '0';
+const reactionsEnabled = '1';
+const emitMetadata = '0';
+const inputPosition = 'bottom';
+const lang = 'zh-CN';
+const loading = 'lazy';
 
 const enabled = Boolean(repoId && categoryId);
 ---
@@ -32,27 +39,27 @@ const enabled = Boolean(repoId && categoryId);
   )
 }
 
-<script>
-const giscusScript = document.createElement('script');
-giscusScript.src = 'https://giscus.app/client.js';
-giscusScript.setAttribute('data-repo', '{repo}');
-giscusScript.setAttribute('data-repo-id', '{repoId}');
-giscusScript.setAttribute('data-category', '{category}');
-giscusScript.setAttribute('data-category-id', '{categoryId}');
-giscusScript.setAttribute('data-mapping', 'pathname');
-giscusScript.setAttribute('data-strict', '0');
-giscusScript.setAttribute('data-reactions-enabled', '1');
-giscusScript.setAttribute('data-emit-metadata', '0');
-giscusScript.setAttribute('data-input-position', 'bottom');
-giscusScript.setAttribute('data-lang', 'zh-CN');
-giscusScript.setAttribute('data-loading', 'lazy');
-giscusScript.setAttribute('crossorigin', 'anonymous');
-giscusScript.async = true;
+<script define:vars={{ repo, repoId, category, categoryId, mapping, lang }}>
+const s = document.createElement('script');
+s.src = 'https://giscus.app/client.js';
+s.setAttribute('data-repo', repo);
+s.setAttribute('data-repo-id', repoId);
+s.setAttribute('data-category', category);
+s.setAttribute('data-category-id', categoryId);
+s.setAttribute('data-mapping', mapping);
+s.setAttribute('data-strict', '0');
+s.setAttribute('data-reactions-enabled', '1');
+s.setAttribute('data-emit-metadata', '0');
+s.setAttribute('data-input-position', 'bottom');
+s.setAttribute('data-lang', lang);
+s.setAttribute('data-loading', 'lazy');
+s.setAttribute('crossorigin', 'anonymous');
+s.async = true;
 
-const container = document.querySelector('.giscus');
-if (container && !container.hasAttribute('data-loaded')) {
-  container.setAttribute('data-loaded', 'true');
-  container.appendChild(giscusScript);
+const c = document.querySelector('.giscus');
+if (c && !c.hasAttribute('data-loaded')) {
+  c.setAttribute('data-loaded', 'true');
+  c.appendChild(s);
 }
 </script>
 
