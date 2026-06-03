@@ -1,17 +1,17 @@
 ---
-/** Project SEKAI 风格世界碎片 —— CSS 自下而上飘浮粒子。纯装饰，无交互。 */
+/** Project SEKAI 风格世界碎片 —— 在最顶层缓慢飘浮，极低透明度。 */
 ---
 <div class="sekai-particles" aria-hidden="true">
   {Array.from({ length: 20 }).map((_, i) => (
     <span
       class={`particle particle--${(i % 6) + 1}`}
       style={{
-        left: `${Math.random() * 100}%`,
-        width: `${12 + Math.random() * 18}px`,
-        height: `${12 + Math.random() * 18}px`,
-        animationDelay: `${Math.random() * 14}s`,
-        animationDuration: `${12 + Math.random() * 14}s`,
-        opacity: 0.25 + Math.random() * 0.35,
+        left: `${5 + Math.random() * 90}%`,
+        width: `${8 + Math.random() * 14}px`,
+        height: `${8 + Math.random() * 14}px`,
+        animationDelay: `${Math.random() * 18}s`,
+        animationDuration: `${16 + Math.random() * 18}s`,
+        opacity: 0.12 + Math.random() * 0.18,
       }}
       aria-hidden="true"
     />
@@ -23,48 +23,30 @@
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 9999;
   overflow: hidden;
 }
 
 .particle {
   position: absolute;
-  bottom: -80px;
-  border-radius: 5px;
+  bottom: -40px;
+  border-radius: 3px;
   transform: rotate(45deg);
   animation: sekai-float linear infinite;
 }
 
-/* 各碎片颜色 —— Project SEKAI 六团色，提高明度与不透明度 */
-.particle--1 { background: linear-gradient(135deg, #ff8bb5, #ffb0cc); box-shadow: 0 0 10px rgba(255,120,160,0.3); }
-.particle--2 { background: linear-gradient(135deg, #90b4ee, #5588DD); box-shadow: 0 0 10px rgba(80,130,220,0.3); }
-.particle--3 { background: linear-gradient(135deg, #80d0be, #40b098); box-shadow: 0 0 10px rgba(50,180,150,0.3); }
-.particle--4 { background: linear-gradient(135deg, #f58a60, #dd6633); box-shadow: 0 0 10px rgba(220,100,40,0.3); }
-.particle--5 { background: linear-gradient(135deg, #f5cc44, #dbaa00); box-shadow: 0 0 10px rgba(220,180,0,0.3); }
-.particle--6 { background: linear-gradient(135deg, #c078d0, #9a4ab0); box-shadow: 0 0 10px rgba(150,60,180,0.3); }
-
-[data-theme="dark"] .particle--1 { background: linear-gradient(135deg, #ff88b0, #dd6088); }
-[data-theme="dark"] .particle--2 { background: linear-gradient(135deg, #6090d0, #4060b0); }
-[data-theme="dark"] .particle--3 { background: linear-gradient(135deg, #60c0a8, #309078); }
-[data-theme="dark"] .particle--4 { background: linear-gradient(135deg, #e07848, #bb4820); }
-[data-theme="dark"] .particle--5 { background: linear-gradient(135deg, #e0b830, #b88800); }
-[data-theme="dark"] .particle--6 { background: linear-gradient(135deg, #a860c0, #8030a0); }
+.particle--1 { background: #ff8bb5; }
+.particle--2 { background: #6090dd; }
+.particle--3 { background: #50c0a8; }
+.particle--4 { background: #f08050; }
+.particle--5 { background: #ecc030; }
+.particle--6 { background: #b070cc; }
 
 @keyframes sekai-float {
-  0% {
-    transform: translateY(0) rotate(45deg) scale(1);
-    opacity: 0;
-  }
-  5% {
-    opacity: 0.7;
-  }
-  85% {
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(-110vh) rotate(135deg) scale(0.5);
-    opacity: 0;
-  }
+  0%   { transform: translateY(0) rotate(45deg); opacity: 0; }
+  8%   { opacity: 1; }
+  82%  { opacity: 1; }
+  100% { transform: translateY(-110vh) rotate(135deg); opacity: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
