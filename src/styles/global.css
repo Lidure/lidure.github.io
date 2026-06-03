@@ -122,6 +122,8 @@ img {
   width: min(calc(100% - 32px), var(--container));
   margin: 0 auto;
   padding: 28px 0 40px;
+  position: relative;
+  z-index: 2;
 }
 
 .topbar {
@@ -717,6 +719,20 @@ img {
 /* ── Comments ── */
 .comments-section {
   margin-top: 40px;
+}
+
+.giscus {
+  min-height: 200px;
+  background: var(--panel-gradient);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  padding: 8px;
+  overflow: hidden;
+}
+
+.giscus-frame {
+  width: 100%;
+  border: none;
 }
 
 .comments-placeholder {

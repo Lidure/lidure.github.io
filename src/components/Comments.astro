@@ -40,6 +40,11 @@ const enabled = Boolean(repoId && categoryId);
 }
 
 <script define:vars={{ repo, repoId, category, categoryId, mapping, lang }}>
+function getGiscusTheme() {
+  const theme = document.documentElement.getAttribute('data-theme');
+  return theme === 'dark' ? 'dark' : 'light';
+}
+
 const s = document.createElement('script');
 s.src = 'https://giscus.app/client.js';
 s.setAttribute('data-repo', repo);
@@ -53,6 +58,7 @@ s.setAttribute('data-emit-metadata', '0');
 s.setAttribute('data-input-position', 'bottom');
 s.setAttribute('data-lang', lang);
 s.setAttribute('data-loading', 'lazy');
+s.setAttribute('data-theme', getGiscusTheme());
 s.setAttribute('crossorigin', 'anonymous');
 s.async = true;
 
@@ -61,6 +67,16 @@ if (c && !c.hasAttribute('data-loaded')) {
   c.setAttribute('data-loaded', 'true');
   c.appendChild(s);
 }
+
+// 监听主题切换，自动更新 Giscus 主题
+const observer = new MutationObserver(() => {
+  const msg = { type: 'set-theme', theme: getGiscusTheme() };
+  const iframe = document.querySelector('iframe.giscus-frame');
+  if (iframe?.contentWindow) {
+    iframe.contentWindow.postMessage(msg, 'https://giscus.app');
+  }
+});
+observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 </script>
 
 <style>
