@@ -3,6 +3,7 @@ const { title = '搁浅 的小窝', description = '一个使用 Astro 和 GitHub
 import '../styles/global.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import SekaiParticles from '../components/SekaiParticles.astro';
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -25,6 +26,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
     </script>
   </head>
   <body>
+    <SekaiParticles />
     <div class="site-shell">
       <header class="topbar">
         <a class="brand" href="/">Lidure</a>

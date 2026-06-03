@@ -1,0 +1,74 @@
+---
+/** Project SEKAI 风格世界碎片 —— CSS 自下而上飘浮粒子。纯装饰，无交互。 */
+---
+<div class="sekai-particles" aria-hidden="true">
+  {Array.from({ length: 20 }).map((_, i) => (
+    <span
+      class={`particle particle--${(i % 6) + 1}`}
+      style={{
+        left: `${Math.random() * 100}%`,
+        width: `${12 + Math.random() * 18}px`,
+        height: `${12 + Math.random() * 18}px`,
+        animationDelay: `${Math.random() * 14}s`,
+        animationDuration: `${12 + Math.random() * 14}s`,
+        opacity: 0.25 + Math.random() * 0.35,
+      }}
+      aria-hidden="true"
+    />
+  ))}
+</div>
+
+<style>
+.sekai-particles {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  bottom: -60px;
+  border-radius: 4px;
+  transform: rotate(45deg);
+  animation: sekai-float linear infinite;
+  will-change: transform, opacity;
+}
+
+/* 各碎片颜色 —— Project SEKAI 六团色 */
+.particle--1 { background: linear-gradient(135deg, #ff6fa0, #ff8fb3); }  /* 粉 — 通用 */
+.particle--2 { background: linear-gradient(135deg, #7fa0e0, #4466BB); }  /* 蓝 — Leo/need */
+.particle--3 { background: linear-gradient(135deg, #70c4b0, #2a9d84); }  /* 绿 — MMJ */
+.particle--4 { background: linear-gradient(135deg, #f07a4a, #cc4d1a); }  /* 橙 — VBS */
+.particle--5 { background: linear-gradient(135deg, #f0c040, #c98d00); }  /* 黄 — WxS */
+.particle--6 { background: linear-gradient(135deg, #b568c8, #7a2e8a); }  /* 紫 — 25時 */
+
+[data-theme="dark"] .particle--1 { background: linear-gradient(135deg, #ff7fa8, #d06080); }
+[data-theme="dark"] .particle--2 { background: linear-gradient(135deg, #6080c0, #3855aa); }
+[data-theme="dark"] .particle--3 { background: linear-gradient(135deg, #58b0a0, #228870); }
+[data-theme="dark"] .particle--4 { background: linear-gradient(135deg, #d86838, #aa3a10); }
+[data-theme="dark"] .particle--5 { background: linear-gradient(135deg, #d8aa28, #a87800); }
+[data-theme="dark"] .particle--6 { background: linear-gradient(135deg, #9a50b0, #602070); }
+
+@keyframes sekai-float {
+  0% {
+    transform: translateY(0) rotate(45deg) scale(1);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  90% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-110vh) rotate(135deg) scale(0.6);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sekai-particles { display: none; }
+}
+</style>
