@@ -1,55 +1,48 @@
 ---
-/** Project SEKAI 风格世界碎片 —— 在最顶层缓慢飘浮，极低透明度。 */
+/** Project SEKAI 风格世界碎片 —— 客户端 JS 实时创建，不受构建时区影响。 */
 ---
-<div class="sekai-particles" aria-hidden="true">
-  {Array.from({ length: 20 }).map((_, i) => (
-    <span
-      class={`particle particle--${(i % 6) + 1}`}
-      style={{
-        left: `${5 + Math.random() * 90}%`,
-        width: `${8 + Math.random() * 14}px`,
-        height: `${8 + Math.random() * 14}px`,
-        animationDelay: `${Math.random() * 18}s`,
-        animationDuration: `${16 + Math.random() * 18}s`,
-        opacity: 0.12 + Math.random() * 0.18,
-      }}
-      aria-hidden="true"
-    />
-  ))}
-</div>
+<div id="sekai-container" class="sekai-container" aria-hidden="true"></div>
+
+<script>
+(function() {
+  const container = document.getElementById('sekai-container');
+  if (!container) return;
+
+  const colors = [
+    '#ff8bb5', '#6090dd', '#50c0a8',
+    '#f08050', '#ecc030', '#b070cc',
+  ];
+
+  for (let i = 0; i < 30; i++) {
+    const el = document.createElement('span');
+    const size = 6 + Math.random() * 16;
+    el.style.cssText = [
+      'position: fixed',
+      'pointer-events: none',
+      'z-index: 9999',
+      'bottom: -30px',
+      `left: ${Math.random() * 96 + 2}%`,
+      `width: ${size}px`,
+      `height: ${size}px`,
+      'border-radius: 3px',
+      'transform: rotate(45deg)',
+      `background: ${colors[i % colors.length]}`,
+      `opacity: ${0.35 + Math.random() * 0.35}`,
+      `animation: sekai-drift ${14 + Math.random() * 20}s linear infinite`,
+      `animation-delay: ${Math.random() * 20}s`,
+    ].join(';');
+    container.appendChild(el);
+  }
+})();
+</script>
 
 <style>
-.sekai-particles {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-  overflow: hidden;
-}
+.sekai-container { display: none; }
 
-.particle {
-  position: absolute;
-  bottom: -40px;
-  border-radius: 3px;
-  transform: rotate(45deg);
-  animation: sekai-float linear infinite;
-}
-
-.particle--1 { background: #ff8bb5; }
-.particle--2 { background: #6090dd; }
-.particle--3 { background: #50c0a8; }
-.particle--4 { background: #f08050; }
-.particle--5 { background: #ecc030; }
-.particle--6 { background: #b070cc; }
-
-@keyframes sekai-float {
+@keyframes sekai-drift {
   0%   { transform: translateY(0) rotate(45deg); opacity: 0; }
-  8%   { opacity: 1; }
-  82%  { opacity: 1; }
-  100% { transform: translateY(-110vh) rotate(135deg); opacity: 0; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sekai-particles { display: none; }
+  5%   { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { transform: translateY(-120vh) rotate(135deg); opacity: 0; }
 }
 </style>
