@@ -10,19 +10,18 @@ const projects = await getGitHubProjects();
 <BaseLayout title="归档 | 搁浅 的小窝" description="按时间整理的博客文章，并同步展示我的 GitHub 项目。">
   <section class="archive-shell">
     <span class="kicker">Archive</span>
-    <h1>文章归档</h1>
-    <p>按时间倒序查看全部文章。下面也同步了我的 GitHub 公共项目，方便把写作和项目放在同一个页面里看。</p>
+    <h1>文章时间线</h1>
+    <p>按时间倒序排列的全部文章，下方同步展示 GitHub 项目。</p>
 
-    <div class="archive-list">
+    <div class="timeline">
       {posts.map((post) => (
-        <article class="card">
-          <div class="meta">
-            <span>{post.data.pubDate.toLocaleDateString('zh-CN')}</span>
-            {post.data.updatedDate && <span>更新于 {post.data.updatedDate.toLocaleDateString('zh-CN')}</span>}
+        <article class="timeline-item">
+          <div class="timeline-date">{post.data.pubDate.toLocaleDateString('zh-CN')}
+            {post.data.updatedDate && <span style="margin-left: 8px; color: var(--muted); font-weight:400;">更新于 {post.data.updatedDate.toLocaleDateString('zh-CN')}</span>}
           </div>
           <h3><a href={`/posts/${post.slug}`}>{post.data.title}</a></h3>
           <p>{post.data.description}</p>
-          <div class="tag-list">
+          <div class="tag-list" style="margin-top: 10px;">
             {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
           </div>
         </article>
@@ -30,6 +29,7 @@ const projects = await getGitHubProjects();
     </div>
 
     <section class="archive-subsection">
+      <div class="sekai-divider">✦ SEKAI ✦</div>
       <div class="section-title">
         <h2>GitHub 项目</h2>
       </div>

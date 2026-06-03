@@ -1,11 +1,10 @@
 ---
-/** 根据时段显示可爱问候语 */
-const now = new Date();
-const hour = now.getHours();
+/** 根据访客本地时段显示可爱问候语（客户端动态计算） */
+---
+<span id="greeting-text" class="greeting-text"></span>
 
-type Greeting = { emoji: string; text: string };
-
-const greetings: Record<string, Greeting> = {
+<script>
+const greetings: Record<string, { emoji: string; text: string }> = {
   dawn:   { emoji: '🌅', text: '清晨好呀，今天也一起加油吧 ～' },
   morning:{ emoji: '☀️', text: '早上好～ 愿你今天也有好心情！' },
   noon:   { emoji: '🌞', text: '中午啦，记得好好吃饭哦 ～' },
@@ -15,6 +14,7 @@ const greetings: Record<string, Greeting> = {
   late:   { emoji: '💫', text: '还没睡吗？注意身体呀～' },
 };
 
+const hour = new Date().getHours();
 let key: string;
 if (hour >= 5 && hour < 8) key = 'dawn';
 else if (hour >= 8 && hour < 11) key = 'morning';
@@ -24,9 +24,10 @@ else if (hour >= 17 && hour < 19) key = 'dusk';
 else if (hour >= 19 && hour < 23) key = 'night';
 else key = 'late';
 
-const greeting = greetings[key];
----
-<span class="greeting-text">{greeting.emoji} {greeting.text}</span>
+const g = greetings[key];
+const el = document.getElementById('greeting-text');
+if (el) el.textContent = `${g.emoji} ${g.text}`;
+</script>
 
 <style>
 .greeting-text {
