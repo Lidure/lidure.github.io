@@ -17,16 +17,9 @@
 
 .sakura-petal {
   position: absolute;
-  top: -50px;
-  animation: sakuraFall linear forwards;
+  top: 0;
   text-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
-}
-
-@keyframes sakuraFall {
-  0% { transform: translateY(0) rotate(0deg) translateX(0); opacity: 0; }
-  10% { opacity: 1; }
-  90% { opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg) translateX(100px); opacity: 0; }
+  will-change: transform, opacity;
 }
 </style>
 
@@ -41,15 +34,58 @@
     var petal = document.createElement('div');
     petal.className = 'sakura-petal';
     petal.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
-    petal.style.left = Math.random() * 100 + 'vw';
-    petal.style.fontSize = (Math.random() * 10 + 10) + 'px';
-    petal.style.animationDuration = (Math.random() * 5 + 8) + 's';
-    petal.style.opacity = Math.random() * 0.5 + 0.3;
+
+    var pixelX = Math.random() * window.innerWidth;
+    var size = Math.random() * 14 + 10;
+    var duration = Math.random() * 5 + 6;
+    var drift = (Math.random() - 0.5) * 120;
+    var swayAmp = (Math.random() - 0.5) * 40;
+    var rotateEnd = (Math.random() * 4 - 2) * 360;
+    var opacity = Math.random() * 0.4 + 0.3;
+    var startY = -50 - Math.random() * 200;
+    var endY = window.innerHeight + 60;
+
+    petal.style.cssText = [
+      'position:absolute',
+      'font-size:' + size + 'px',
+      'opacity:0',
+      'pointer-events:none',
+      'text-shadow:0 0 10px rgba(255,182,193,0.5)',
+      'will-change:transform'
+    ].join(';');
+
     container.appendChild(petal);
-    setTimeout(function() { petal.remove(); }, 13000);
+
+    var startTime = null;
+
+    function animate(ts) {
+      if (!startTime) startTime = ts;
+      var elapsed = (ts - startTime) / 1000;
+      var progress = Math.min(elapsed / duration, 1);
+
+      var swayX = Math.sin(progress * Math.PI * 3) * swayAmp;
+      var driftX = drift * progress;
+      var y = startY + progress * (endY - startY);
+      var scale = 1 - progress * 0.1;
+      var rot = rotateEnd * progress;
+      var fadeIn = Math.min(progress * 10, 1);
+      var fadeOut = progress > 0.9 ? (1 - (progress - 0.9) / 0.1) : 1;
+      var op = opacity * fadeIn * fadeOut;
+
+      petal.style.transform = 'translate(' + (pixelX + swayX + driftX) + 'px, ' + y + 'px) rotate(' + rot + 'deg) scale(' + scale + ')';
+      petal.style.opacity = op;
+
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        petal.remove();
+      }
+    }
+
+    requestAnimationFrame(animate);
   }
 
   createSakura();
-  setInterval(createSakura, 800);
+  setInterval(createSakura, 600);
 })();
 </script>
