@@ -117,7 +117,7 @@
     { title: '余花にみとれて', artist: '25時、ナイトコードで。', url: '/music/余花にみとれて - 25時、ナイトコードで。.mp3' },
     { title: '心做し', artist: '25時、ナイトコードで。', url: '/music/心做し - 25時、ナイトコードで。.mp3' },
     { title: '泥中に咲く', artist: '25時、ナイトコードで。', url: '/music/泥中に咲く - 25時、ナイトコードで。.mp3' },
-    { title: '心拍数#0822', artist: 'Leoneed', url: '/music/心拍数#0822 - Leoneed.mp3' },
+    { title: '心拍数#0822', artist: 'Leoneed', url: '/music/心拍数♯0822 - Leoneed.mp3' },
   ];
 
   var currentIndex = 0;
@@ -135,7 +135,7 @@
         '<div class="sekai-pl-icon">' + icon + '</div>' +
         '<div class="sekai-pl-info">' +
           '<div class="sekai-pl-title">' + track.title + '</div>' +
-          '<div class="sekai-pl-sub">' + (i === currentIndex ? '正在播放' : '点击播放') + '</div>' +
+          '<div class="sekai-pl-sub">' + track.artist + '</div>' +
         '</div>';
       item.addEventListener('click', function(e) { e.stopPropagation(); loadTrack(i); play(); });
       playlistEl.appendChild(item);
