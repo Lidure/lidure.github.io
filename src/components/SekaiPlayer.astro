@@ -1,0 +1,222 @@
+---
+/** SEKAI 播放器 */
+---
+<button id="sekaiPlayerBtn" class="sekai-player-btn" title="SEKAI 播放器" aria-label="打开SEKAI播放器">🎶</button>
+
+<div id="sekaiPlayerPanel" class="sekai-player-panel hidden" role="dialog" aria-label="SEKAI 播放器">
+  <div class="sekai-player-header">
+    <span class="sekai-player-title">🎵 SEKAI</span>
+    <button id="sekaiPlayerCloseBtn" class="sekai-player-close" title="关闭">✕</button>
+  </div>
+  <div class="sekai-player-body">
+    <div class="sekai-top-section">
+      <div class="sekai-cover-wrap">
+        <div class="sekai-cd" id="sekaiCd">
+          <img class="sekai-cover" id="sekaiCover" src="" alt="封面" style="display:none;" />
+          <div class="sekai-cover-fallback" id="sekaiCoverFallback">🎶</div>
+        </div>
+      </div>
+      <div class="sekai-now-playing">
+        <div class="sekai-track-title" id="sekaiTrackTitle">选择一首歌曲</div>
+        <div class="sekai-track-artist" id="sekaiTrackArtist">-</div>
+        <div class="sekai-progress">
+          <span id="sekaiCurrentTime">0:00</span>
+          <input type="range" id="sekaiProgressBar" min="0" max="100" value="0" step="0.1" />
+          <span id="sekaiTotalTime">0:00</span>
+        </div>
+        <div class="sekai-controls">
+          <button id="sekaiPrevBtn" class="sekai-ctrl-btn" title="上一首">⏮</button>
+          <button id="sekaiPlayPauseBtn" class="sekai-ctrl-btn sekai-play-btn" title="播放/暂停">▶</button>
+          <button id="sekaiNextBtn" class="sekai-ctrl-btn" title="下一首">⏭</button>
+        </div>
+      </div>
+    </div>
+    <div class="sekai-volume">
+      <span>🔊</span>
+      <input type="range" id="sekaiVolumeSlider" min="0" max="1" step="0.01" value="0.5" />
+    </div>
+    <div class="sekai-playlist-label">📋 播放列表</div>
+    <div class="sekai-playlist" id="sekaiPlaylist"></div>
+  </div>
+</div>
+
+<audio id="sekaiAudio" preload="metadata"></audio>
+
+<style>
+/* Player shell — Astro scoped */
+.sekai-player-btn { position:fixed; bottom:24px; right:24px; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#FF69B4,#FF1493); border:2px solid rgba(255,255,255,0.2); color:white; font-size:1.4rem; cursor:pointer; z-index:10000; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(255,20,147,0.4); transition:all .3s; user-select:none; }
+.sekai-player-btn:hover { transform:scale(1.1); box-shadow:0 6px 30px rgba(255,20,147,0.6); }
+.sekai-player-btn.playing { animation:sekaiPulse 1.5s ease-in-out infinite; }
+@keyframes sekaiPulse { 0%,100% { box-shadow:0 4px 20px rgba(255,20,147,0.4); } 50% { box-shadow:0 4px 35px rgba(255,20,147,0.8); } }
+.sekai-player-panel { position:fixed; bottom:90px; right:24px; width:340px; max-height:520px; background:rgba(15,15,25,0.96); border:1px solid rgba(168,85,247,0.22); border-radius:16px; backdrop-filter:blur(20px) saturate(160%); z-index:10000; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,0.07); transition:opacity .2s,transform .2s; }
+.sekai-player-panel.hidden { opacity:0; transform:translateY(10px) scale(0.97); pointer-events:none; visibility:hidden; }
+.sekai-player-panel:not(.hidden) { opacity:1; transform:translateY(0) scale(1); visibility:visible; }
+.sekai-player-header { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.08); background:linear-gradient(to bottom,rgba(255,255,255,.02),transparent); }
+.sekai-player-title { font-size:.9rem; font-weight:700; background:linear-gradient(135deg,#FF69B4,#FF1493); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.sekai-player-close { background:none; border:none; color:rgba(255,255,255,.4); cursor:pointer; font-size:1rem; padding:4px 8px; border-radius:6px; transition:all .2s; }
+.sekai-player-close:hover { color:white; background:rgba(255,255,255,.1); }
+.sekai-player-body { padding:14px 16px; display:flex; flex-direction:column; gap:10px; }
+.sekai-top-section { display:flex; gap:14px; align-items:center; }
+.sekai-cover-wrap { flex-shrink:0; }
+.sekai-cd { width:88px; height:88px; border-radius:50%; background:linear-gradient(135deg,#2a1a3a,#1a1028); display:flex; align-items:center; justify-content:center; box-shadow:0 0 16px rgba(255,105,180,.25); position:relative; }
+.sekai-cd::before { content:''; position:absolute; width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#FF69B4,#FF1493); }
+.sekai-cd::after { content:''; position:absolute; width:6px; height:6px; border-radius:50%; background:white; z-index:1; }
+.sekai-cover,.sekai-cover-fallback { width:88px; height:88px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+.sekai-cover { object-fit:cover; }
+.sekai-cover-fallback { font-size:1.7rem; animation:sekaiCdSpin 8s linear infinite; }
+.sekai-cd.paused .sekai-cover-fallback,.sekai-cd.paused .sekai-cover { animation-play-state:paused; }
+@keyframes sekaiCdSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+.sekai-now-playing { flex:1; min-width:0; }
+.sekai-track-title { font-size:.9rem; font-weight:700; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
+.sekai-track-artist { font-size:.72rem; color:rgba(255,182,193,.65); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px; }
+.sekai-progress { display:flex; align-items:center; gap:6px; font-size:.7rem; color:rgba(255,255,255,.45); font-variant-numeric:tabular-nums; }
+.sekai-progress input[type=range] { flex:1; height:3px; -webkit-appearance:none; background:rgba(255,255,255,.12); border-radius:3px; cursor:pointer; }
+.sekai-progress input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:11px; height:11px; border-radius:50%; background:linear-gradient(135deg,#FF69B4,#FF1493); cursor:pointer; }
+.sekai-controls { display:flex; align-items:center; gap:10px; margin-top:2px; }
+.sekai-ctrl-btn { background:none; border:none; color:white; font-size:1.05rem; cursor:pointer; padding:5px; border-radius:50%; transition:all .2s; display:flex; align-items:center; justify-content:center; }
+.sekai-ctrl-btn:hover { background:rgba(255,255,255,.1); transform:scale(1.1); }
+.sekai-play-btn { width:36px; height:36px; background:linear-gradient(135deg,#FF69B4,#FF1493)!important; border-radius:50%!important; font-size:1rem!important; box-shadow:0 3px 12px rgba(255,20,147,.4); }
+.sekai-play-btn:hover { box-shadow:0 5px 20px rgba(255,20,147,.6); }
+.sekai-volume { display:flex; align-items:center; gap:8px; font-size:.75rem; color:rgba(255,255,255,.45); }
+.sekai-volume input[type=range] { flex:1; height:3px; -webkit-appearance:none; background:rgba(255,255,255,.12); border-radius:3px; cursor:pointer; }
+.sekai-volume input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:11px; height:11px; border-radius:50%; background:linear-gradient(135deg,#FF69B4,#FF1493); cursor:pointer; }
+.sekai-playlist-label { font-size:.75rem; color:rgba(255,255,255,.35); letter-spacing:.05em; text-transform:uppercase; border-top:1px solid rgba(255,255,255,.06); padding-top:8px; }
+@media(max-width:480px){.sekai-player-panel{right:12px;width:calc(100vw - 24px);max-width:340px} .sekai-player-btn{right:16px;bottom:16px;width:46px;height:46px;font-size:1.2rem}}
+</style>
+
+<script is:inline>
+(function() {
+  var btn = document.getElementById('sekaiPlayerBtn');
+  var panel = document.getElementById('sekaiPlayerPanel');
+  var closeBtn = document.getElementById('sekaiPlayerCloseBtn');
+  var audio = document.getElementById('sekaiAudio');
+  var playPauseBtn = document.getElementById('sekaiPlayPauseBtn');
+  var prevBtn = document.getElementById('sekaiPrevBtn');
+  var nextBtn = document.getElementById('sekaiNextBtn');
+  var progressBar = document.getElementById('sekaiProgressBar');
+  var currentTimeEl = document.getElementById('sekaiCurrentTime');
+  var totalTimeEl = document.getElementById('sekaiTotalTime');
+  var volumeSlider = document.getElementById('sekaiVolumeSlider');
+  var trackTitleEl = document.getElementById('sekaiTrackTitle');
+  var trackArtistEl = document.getElementById('sekaiTrackArtist');
+  var playlistEl = document.getElementById('sekaiPlaylist');
+  var cdEl = document.getElementById('sekaiCd');
+  var coverImg = document.getElementById('sekaiCover');
+  var coverFallback = document.getElementById('sekaiCoverFallback');
+
+  var tracks = [
+    { title: '命に嫌われている', artist: '25時、ナイトコードで。', url: '/music/命に嫌われている (被生命所厌恶) - 25時、ナイトコードで。.mp3' },
+    { title: '悔やみと書いてミライ', artist: '25時、ナイトコードで。', url: '/music/悔やむと書いてミライ (写作悔恨的未来) - 25時、ナイトコードで。.mp3' },
+    { title: 'カトラリー', artist: '25時、ナイトコードで。', url: '/music/カトラリー (餐具) - 25時、ナイトコードで。.mp3' },
+    { title: 'メリュー', artist: '25時、ナイトコードで。', url: '/music/メリュー - 25時、ナイトコードで。.mp3' },
+    { title: '25時の情熱', artist: '25時、ナイトコードで。', url: '/music/25時の情熱 - 25時、ナイトコードで。.mp3' },
+    { title: 'それがあなたの幸せとしても', artist: '25時、ナイトコードで。', url: '/music/それがあなたの幸せとしても - 25時、ナイトコードで。.mp3' },
+    { title: 'とても素敵な六月でした', artist: '25時、ナイトコードで。', url: '/music/とても素敵な六月でした - 25時、ナイトコードで。.mp3' },
+    { title: 'Shadow Shadow', artist: '25時、ナイトコードで。', url: '/music/Shadow Shadow - 25時、ナイトコードで。.mp3' },
+    { title: '妄想感傷代償連盟', artist: '25時、ナイトコードで。', url: '/music/妄想感傷代償連盟 - 25時、ナイトコードで。.mp3' },
+    { title: '余花にみとれて', artist: '25時、ナイトコードで。', url: '/music/余花にみとれて - 25時、ナイトコードで。.mp3' },
+    { title: '心做し', artist: '25時、ナイトコードで。', url: '/music/心做し - 25時、ナイトコードで。.mp3' },
+    { title: '泥中に咲く', artist: '25時、ナイトコードで。', url: '/music/泥中に咲く - 25時、ナイトコードで。.mp3' },
+    { title: '心拍数#0822', artist: 'Leoneed', url: '/music/心拍数#0822 - Leoneed.mp3' },
+  ];
+
+  var currentIndex = 0;
+  var isPlaying = false;
+  audio.volume = 0.5;
+  volumeSlider.value = 0.5;
+
+  function renderPlaylist() {
+    playlistEl.innerHTML = '';
+    tracks.forEach(function(track, i) {
+      var item = document.createElement('div');
+      item.className = 'sekai-playlist-item' + (i === currentIndex ? ' active' : '');
+      var icon = i === currentIndex ? '▶' : '♪';
+      item.innerHTML =
+        '<div class="sekai-pl-icon">' + icon + '</div>' +
+        '<div class="sekai-pl-info">' +
+          '<div class="sekai-pl-title">' + track.title + '</div>' +
+          '<div class="sekai-pl-sub">' + (i === currentIndex ? '正在播放' : '点击播放') + '</div>' +
+        '</div>';
+      item.addEventListener('click', function(e) { e.stopPropagation(); loadTrack(i); play(); });
+      playlistEl.appendChild(item);
+    });
+  }
+
+  function loadTrack(index) {
+    if (index < 0 || index >= tracks.length) return;
+    currentIndex = index;
+    var track = tracks[index];
+    audio.src = track.url;
+    audio.load();
+    trackTitleEl.textContent = track.title;
+    trackArtistEl.textContent = track.artist;
+    coverImg.style.display = 'none';
+    coverFallback.style.display = 'flex';
+    renderPlaylist();
+    currentTimeEl.textContent = '0:00';
+    totalTimeEl.textContent = '0:00';
+    progressBar.value = 0;
+  }
+
+  function play() {
+    if (!audio.src && tracks.length > 0) loadTrack(0);
+    audio.play().then(function() {
+      isPlaying = true;
+      playPauseBtn.textContent = '⏸';
+      cdEl.classList.remove('paused');
+      btn.classList.add('playing');
+    }).catch(function() {});
+  }
+
+  function pause() {
+    audio.pause();
+    isPlaying = false;
+    playPauseBtn.textContent = '▶';
+    cdEl.classList.add('paused');
+    btn.classList.remove('playing');
+  }
+
+  function togglePlay(e) { if (e) e.stopPropagation(); isPlaying ? pause() : play(); }
+  function prevTrack(e) { if (e) e.stopPropagation(); loadTrack((currentIndex - 1 + tracks.length) % tracks.length); if (isPlaying) play(); }
+  function nextTrack(e) { if (e) e.stopPropagation(); loadTrack((currentIndex + 1) % tracks.length); if (isPlaying) play(); }
+
+  function fmt(s) {
+    if (!s || isNaN(s)) return '0:00';
+    var m = Math.floor(s / 60);
+    var sec = Math.floor(s % 60);
+    return m + ':' + (sec < 10 ? '0' + sec : sec);
+  }
+
+  btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden') && !audio.src) loadTrack(0);
+  });
+  closeBtn.addEventListener('click', function(e) { e.stopPropagation(); panel.classList.add('hidden'); });
+  playPauseBtn.addEventListener('click', togglePlay);
+  prevBtn.addEventListener('click', prevTrack);
+  nextBtn.addEventListener('click', nextTrack);
+
+  audio.addEventListener('timeupdate', function() {
+    if (audio.duration) {
+      progressBar.value = (audio.currentTime / audio.duration) * 100;
+      currentTimeEl.textContent = fmt(audio.currentTime);
+    }
+  });
+  audio.addEventListener('loadedmetadata', function() {
+    totalTimeEl.textContent = fmt(audio.duration);
+  });
+  audio.addEventListener('ended', function() { nextTrack(); });
+  progressBar.addEventListener('input', function(e) { e.stopPropagation(); if (audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration; });
+  volumeSlider.addEventListener('input', function(e) { e.stopPropagation(); audio.volume = volumeSlider.value; });
+
+  document.addEventListener('click', function(e) {
+    if (!panel.classList.contains('hidden') && !panel.contains(e.target) && !btn.contains(e.target)) panel.classList.add('hidden');
+  });
+  panel.addEventListener('click', function(e) { e.stopPropagation(); });
+
+  renderPlaylist();
+  loadTrack(0);
+})();
+</script>
+</parameter>

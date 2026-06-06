@@ -1027,3 +1027,75 @@ html {
     display: none;
   }
 }
+
+/* SEKAI 播放列表（JS动态生成，全局作用域） */
+.sekai-playlist {
+  display: flex; flex-direction: column; gap: 6px; max-height: 200px;
+  overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;
+  scrollbar-color: rgba(99,102,241,0.3) transparent; padding-right: 2px; width: 100%; box-sizing: border-box;
+}
+.sekai-playlist::-webkit-scrollbar { width: 4px; }
+.sekai-playlist::-webkit-scrollbar-thumb { background: rgba(99,102,241,0.3); border-radius: 2px; }
+.sekai-playlist-item {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 12px; padding: 9px 12px; cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  display: flex; align-items: center; gap: 12px;
+  user-select: none; position: relative; overflow: hidden;
+  width: 100%; box-sizing: border-box; min-width: 0; flex-shrink: 0;
+}
+.sekai-playlist-item:hover {
+  background: rgba(99,102,241,0.13); border-color: rgba(99,102,241,0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(99,102,241,0.15);
+}
+.sekai-playlist-item:active { transform: scale(0.97); }
+.sekai-playlist-item.active {
+  background: linear-gradient(135deg,rgba(99,102,241,0.2),rgba(168,85,247,0.2));
+  border-color: rgba(99,102,241,0.5);
+  box-shadow: 0 4px 16px rgba(99,102,241,0.18);
+}
+.sekai-playlist-item.active:hover {
+  background: linear-gradient(135deg,rgba(99,102,241,0.26),rgba(168,85,247,0.26));
+  box-shadow: 0 8px 24px rgba(99,102,241,0.25);
+}
+.sekai-pl-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: rgba(255,255,255,0.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1rem; flex-shrink: 0;
+  transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  color: rgba(255,255,255,0.3);
+}
+.sekai-playlist-item:hover .sekai-pl-icon {
+  background: rgba(99,102,241,0.2);
+  color: rgba(130,160,255,1);
+  transform: scale(1.08) rotate(-3deg);
+  box-shadow: 0 3px 10px rgba(99,102,241,0.25);
+}
+.sekai-playlist-item.active .sekai-pl-icon {
+  background: linear-gradient(135deg,#FF69B4,#FF1493);
+  box-shadow: 0 3px 12px rgba(255,20,147,0.4);
+  color: white;
+}
+.sekai-playlist-item.active:hover .sekai-pl-icon {
+  background: linear-gradient(135deg,#FF85C0,#FF50B8);
+  box-shadow: 0 5px 16px rgba(255,20,147,0.5);
+}
+.sekai-pl-info {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.sekai-pl-title {
+  font-size: 0.85rem; color: rgba(255,255,255,0.82); font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  line-height: 1.3; transition: color 0.22s;
+}
+.sekai-playlist-item:hover .sekai-pl-title { color: rgba(255,255,255,0.97); }
+.sekai-playlist-item.active .sekai-pl-title { color: white; }
+.sekai-pl-sub {
+  font-size: 0.7rem; color: rgba(255,255,255,0.32);
+  transition: color 0.22s;
+}
+.sekai-playlist-item:hover .sekai-pl-sub { color: rgba(99,102,241,0.8); }
+.sekai-playlist-item.active .sekai-pl-sub { color: rgba(200,160,255,0.88); }
