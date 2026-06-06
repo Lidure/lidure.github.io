@@ -122,8 +122,60 @@
 
   var currentIndex = 0;
   var isPlaying = false;
+  var isRestoring = false;
   audio.volume = 0.5;
   volumeSlider.value = 0.5;
+
+  function saveState() {
+    if (isRestoring) return;
+    try {
+      sessionStorage.setItem('sekai_player', JSON.stringify({
+        i: currentIndex,
+        t: audio.currentTime || 0,
+        p: isPlaying ? 1 : 0
+      }));
+    } catch(e) {}
+  }
+
+  function restoreState() {
+    try {
+      var raw = sessionStorage.getItem('sekai_player');
+      if (!raw) return;
+      var state = JSON.parse(raw);
+      if (state == null) return;
+      isRestoring = true;
+      currentIndex = state.i || 0;
+      isPlaying = state.p === 1;
+      var savedTime = state.t || 0;
+      var track = tracks[currentIndex];
+      if (!track) { isRestoring = false; return; }
+      audio.src = track.url;
+      trackTitleEl.textContent = track.title;
+      trackArtistEl.textContent = track.artist;
+      coverImg.style.display = 'none';
+      coverFallback.style.display = 'flex';
+      renderPlaylist();
+      // 等 audio 加载完元数据后再设置播放时间和恢复播放
+      audio.addEventListener('loadedmetadata', function onMeta() {
+        audio.removeEventListener('loadedmetadata', onMeta);
+        audio.currentTime = savedTime;
+        if (isPlaying) {
+          audio.play().then(function() {
+            playPauseBtn.textContent = '⏸';
+            cdEl.classList.remove('paused');
+            btn.classList.add('playing');
+          }).catch(function() {});
+        } else {
+          currentTimeEl.textContent = fmt(savedTime);
+          if (audio.duration) progressBar.value = (savedTime / audio.duration) * 100;
+        }
+        isRestoring = false;
+      });
+    } catch(e) { isRestoring = false; }
+  }
+
+  // 每 2 秒自动保存进度
+  setInterval(saveState, 2000);
 
   function renderPlaylist() {
     playlistEl.innerHTML = '';
@@ -137,12 +189,12 @@
           '<div class="sekai-pl-title">' + track.title + '</div>' +
           '<div class="sekai-pl-sub">' + track.artist + '</div>' +
         '</div>';
-      item.addEventListener('click', function(e) { e.stopPropagation(); loadTrack(i); play(); });
+      item.addEventListener('click', function(e) { e.stopPropagation(); loadTrack(i, true); });
       playlistEl.appendChild(item);
     });
   }
 
-  function loadTrack(index) {
+  function loadTrack(index, autoPlay) {
     if (index < 0 || index >= tracks.length) return;
     currentIndex = index;
     var track = tracks[index];
@@ -156,10 +208,12 @@
     currentTimeEl.textContent = '0:00';
     totalTimeEl.textContent = '0:00';
     progressBar.value = 0;
+    saveState();
+    if (autoPlay) play();
   }
 
   function play() {
-    if (!audio.src && tracks.length > 0) loadTrack(0);
+    if (!audio.src && tracks.length > 0) loadTrack(0, false);
     audio.play().then(function() {
       isPlaying = true;
       playPauseBtn.textContent = '⏸';
@@ -174,11 +228,12 @@
     playPauseBtn.textContent = '▶';
     cdEl.classList.add('paused');
     btn.classList.remove('playing');
+    saveState();
   }
 
   function togglePlay(e) { if (e) e.stopPropagation(); isPlaying ? pause() : play(); }
-  function prevTrack(e) { if (e) e.stopPropagation(); loadTrack((currentIndex - 1 + tracks.length) % tracks.length); if (isPlaying) play(); }
-  function nextTrack(e) { if (e) e.stopPropagation(); loadTrack((currentIndex + 1) % tracks.length); if (isPlaying) play(); }
+  function prevTrack(e) { if (e) e.stopPropagation(); loadTrack((currentIndex - 1 + tracks.length) % tracks.length, isPlaying); }
+  function nextTrack(e) { if (e) e.stopPropagation(); loadTrack((currentIndex + 1) % tracks.length, isPlaying); }
 
   function fmt(s) {
     if (!s || isNaN(s)) return '0:00';
@@ -216,7 +271,7 @@
   panel.addEventListener('click', function(e) { e.stopPropagation(); });
 
   renderPlaylist();
-  loadTrack(0);
+  restoreState();
 })();
 </script>
 </parameter>
