@@ -17,9 +17,7 @@
 
 .sakura-petal {
   position: absolute;
-  top: 0;
   text-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
-  will-change: transform, opacity;
 }
 </style>
 
@@ -35,23 +33,21 @@
     petal.className = 'sakura-petal';
     petal.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
 
-    var pixelX = Math.random() * window.innerWidth;
-    var size = Math.random() * 14 + 10;
-    var duration = Math.random() * 5 + 6;
-    var drift = (Math.random() - 0.5) * 120;
-    var swayAmp = (Math.random() - 0.5) * 40;
-    var rotateEnd = (Math.random() * 4 - 2) * 360;
-    var opacity = Math.random() * 0.4 + 0.3;
-    var startY = -50 - Math.random() * 200;
-    var endY = window.innerHeight + 60;
+    var pixelX = Math.random() * (window.innerWidth - 30);
+    var size = Math.random() * 10 + 10;
+    var duration = Math.random() * 5 + 8;
+    var swayAmp = (Math.random() - 0.3) * 80;
+    var swayFreq = Math.random() * 2 + 1.5;
+    var opacity = Math.random() * 0.5 + 0.3;
+    var startY = -50;
+    var endY = window.innerHeight + 50;
 
     petal.style.cssText = [
       'position:absolute',
+      'left:' + pixelX + 'px',
       'font-size:' + size + 'px',
       'opacity:0',
-      'pointer-events:none',
-      'text-shadow:0 0 10px rgba(255,182,193,0.5)',
-      'will-change:transform'
+      'pointer-events:none'
     ].join(';');
 
     container.appendChild(petal);
@@ -60,21 +56,14 @@
 
     function animate(ts) {
       if (!startTime) startTime = ts;
-      var elapsed = (ts - startTime) / 1000;
-      var progress = Math.min(elapsed / duration, 1);
-
-      var swayX = Math.sin(progress * Math.PI * 3) * swayAmp;
-      var driftX = drift * progress;
-      var y = startY + progress * (endY - startY);
-      var scale = 1 - progress * 0.1;
-      var rot = rotateEnd * progress;
-      var fadeIn = Math.min(progress * 10, 1);
+      var progress = Math.min((ts - startTime) / 1000 / duration, 1);
+      var y = startY + (endY - startY) * progress;
+      var x = pixelX + Math.sin(progress * Math.PI * swayFreq) * swayAmp;
+      var rot = 720 * progress;
+      var fadeIn = Math.min(progress * 20, 1);
       var fadeOut = progress > 0.9 ? (1 - (progress - 0.9) / 0.1) : 1;
-      var op = opacity * fadeIn * fadeOut;
-
-      petal.style.transform = 'translate(' + (pixelX + swayX + driftX) + 'px, ' + y + 'px) rotate(' + rot + 'deg) scale(' + scale + ')';
-      petal.style.opacity = op;
-
+      petal.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + rot + 'deg)';
+      petal.style.opacity = opacity * fadeIn * fadeOut;
       if (progress < 1) {
         requestAnimationFrame(animate);
       } else {
@@ -86,6 +75,6 @@
   }
 
   createSakura();
-  setInterval(createSakura, 600);
+  setInterval(createSakura, 800);
 })();
 </script>
