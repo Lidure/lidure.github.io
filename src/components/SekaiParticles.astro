@@ -14,11 +14,6 @@
   z-index: 9999;
   overflow: hidden;
 }
-
-.sakura-petal {
-  position: absolute;
-  text-shadow: 0 0 10px rgba(255, 182, 193, 0.5);
-}
 </style>
 
 <script is:inline>
@@ -27,17 +22,17 @@
   if (!container) return;
 
   var emojis = ['🌸', '💮', '✿', '❀'];
+  var MAX_PETALS = 30;
 
   function createSakura() {
+    if (container.children.length >= MAX_PETALS) return;
+
     var petal = document.createElement('div');
-    petal.className = 'sakura-petal';
     petal.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
 
     var pixelX = Math.random() * (window.innerWidth - 30);
     var size = Math.random() * 10 + 10;
     var duration = Math.random() * 5 + 8;
-    var swayAmp = (Math.random() - 0.3) * 80;
-    var swayFreq = Math.random() * 2 + 1.5;
     var opacity = Math.random() * 0.5 + 0.3;
     var startY = -50;
     var endY = window.innerHeight + 50;
@@ -47,24 +42,33 @@
       'left:' + pixelX + 'px',
       'font-size:' + size + 'px',
       'opacity:0',
-      'pointer-events:none'
+      'pointer-events:none',
+      'text-shadow:0 0 10px rgba(255,182,193,0.5)',
+      'will-change:transform,opacity'
     ].join(';');
 
     container.appendChild(petal);
 
     var startTime = null;
+    var lastTs = null;
 
     function animate(ts) {
       if (!startTime) startTime = ts;
+      // 页面后台恢复后时间戳可能跳跃过大，直接移除花瓣避免堆积
+      if (lastTs !== null && ts - lastTs > 1000) {
+        petal.remove();
+        return;
+      }
       var progress = Math.min((ts - startTime) / 1000 / duration, 1);
       var y = startY + (endY - startY) * progress;
-      var x = pixelX + Math.sin(progress * Math.PI * swayFreq) * swayAmp;
+      var x = pixelX + 100 * progress + Math.sin(progress * Math.PI * 3) * 20;
       var rot = 720 * progress;
-      var fadeIn = Math.min(progress * 20, 1);
+      var fadeIn = Math.min(progress * 10, 1);
       var fadeOut = progress > 0.9 ? (1 - (progress - 0.9) / 0.1) : 1;
       petal.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + rot + 'deg)';
       petal.style.opacity = opacity * fadeIn * fadeOut;
       if (progress < 1) {
+        lastTs = ts;
         requestAnimationFrame(animate);
       } else {
         petal.remove();
@@ -76,5 +80,13 @@
 
   createSakura();
   setInterval(createSakura, 800);
+
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') {
+      container._hiddenTime = Date.now();
+    } else if (container._hiddenTime && Date.now() - container._hiddenTime > 10000) {
+      container.innerHTML = '';
+    }
+  });
 })();
 </script>
