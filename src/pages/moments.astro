@@ -4,7 +4,7 @@ import { moments, categoryMeta, categoryOrder } from '../data/moments';
 import type { MomentCategory } from '../data/moments';
 
 const sortedMoments = [...moments].sort(
-  (a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf()
+  (a, b) => toSortTime(b.date) - toSortTime(a.date)
 );
 
 const stats = categoryOrder.map((cat) => ({
@@ -15,10 +15,21 @@ const total = sortedMoments.length;
 const rawImageBase = 'https://raw.githubusercontent.com/Lidure/lidure.github.io/main/public/moments/';
 const legacyImageBase = 'https://lidure.github.io/moments/';
 
+function toSortTime(value: string) {
+  const normalized = value.includes('T') ? value : `${value}T00:00`;
+  const time = new Date(normalized).valueOf();
+  return Number.isNaN(time) ? 0 : time;
+}
+
+function formatMomentDate(value: string) {
+  const [datePart, timePart] = value.split('T');
+  return timePart ? `${datePart} ${timePart.slice(0, 5)}` : datePart;
+}
+
 function momentImageSrc(src: string) {
-  if (src.startsWith(rawImageBase)) return src;
-  if (src.startsWith(legacyImageBase)) return rawImageBase + encodeURIComponent(src.slice(legacyImageBase.length));
-  if (src.startsWith('/moments/')) return rawImageBase + encodeURIComponent(src.slice('/moments/'.length));
+  if (src.startsWith(rawImageBase)) return `/moments/${src.slice(rawImageBase.length)}`;
+  if (src.startsWith(legacyImageBase)) return `/moments/${src.slice(legacyImageBase.length)}`;
+  if (src.startsWith('/moments/')) return src;
   return src;
 }
 ---
@@ -71,8 +82,8 @@ function momentImageSrc(src: string) {
       <form id="publish-form" class="publish-form">
         <div class="form-row">
           <label class="field">
-            <span class="field-label">📅 日期</span>
-            <input type="date" name="date" required />
+            <span class="field-label">🕒 时间</span>
+            <input type="datetime-local" name="date" required />
           </label>
           <label class="field">
             <span class="field-label">🏷️ 分类</span>
@@ -128,7 +139,7 @@ function momentImageSrc(src: string) {
                 {categoryMeta[moment.category as MomentCategory].icon}
                 {categoryMeta[moment.category as MomentCategory].label}
               </span>
-              <time class="card-date">{moment.date}</time>
+              <time class="card-date" datetime={moment.date}>{formatMomentDate(moment.date)}</time>
             </div>
             <p class="card-text">{moment.text}</p>
             {moment.images && moment.images.length > 0 && (
@@ -842,25 +853,148 @@ function momentImageSrc(src: string) {
   const msg = document.getElementById('form-message');
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
   const selectedImages: Array<{ id: string; file: File; previewUrl: string; remoteUrl?: string }> = [];
+  const githubOwner = 'Lidure';
+  const githubRepo = 'lidure.github.io';
+  const githubBranch = 'main';
+  const momentsPath = 'src/data/moments.json';
+  const imageDir = 'public/moments';
   const maxImages = 9;
+  const maxImageBytes = 8 * 1024 * 1024;
 
-  async function readApiResponse(res: Response) {
+  type GitHubContentPayload = {
+    sha?: string;
+    content?: string;
+    message?: string;
+  };
+
+  type MomentPayload = {
+    date: string;
+    category: string;
+    text: string;
+    link?: string;
+    images?: string[];
+  };
+
+  function localDateTimeValue(date = new Date()) {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+    return local.toISOString().slice(0, 16);
+  }
+
+  function githubHeaders(token: string, withJson = false) {
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${token}`,
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+    };
+
+    if (withJson) headers['Content-Type'] = 'application/json';
+
+    return headers;
+  }
+
+  async function readGitHubResponse(res: Response): Promise<GitHubContentPayload> {
     const text = await res.text();
-    let result: { success?: boolean; error?: string; url?: string } = {};
+    let result: GitHubContentPayload = {};
 
     if (text) {
       try {
         result = JSON.parse(text);
       } catch {
-        result = { error: text.slice(0, 500) };
+        result = { message: text.slice(0, 500) };
       }
     }
 
-    if (!res.ok && !result.error) {
-      result.error = `HTTP ${res.status}`;
+    if (!res.ok) {
+      throw new Error(result.message ?? `GitHub API HTTP ${res.status}`);
     }
 
     return result;
+  }
+
+  function arrayBufferToBase64(buffer: ArrayBuffer) {
+    const bytes = new Uint8Array(buffer);
+    const chunkSize = 0x8000;
+    let binary = '';
+
+    for (let i = 0; i < bytes.length; i += chunkSize) {
+      const chunk = bytes.subarray(i, i + chunkSize);
+      binary += String.fromCharCode(...chunk);
+    }
+
+    return btoa(binary);
+  }
+
+  function stringToBase64(value: string) {
+    const bytes = new TextEncoder().encode(value);
+    const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+    return arrayBufferToBase64(buffer);
+  }
+
+  function base64ToString(value: string) {
+    const binary = atob(value.replace(/\s/g, ''));
+    const bytes = new Uint8Array(binary.length);
+
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+
+    return new TextDecoder().decode(bytes);
+  }
+
+  function safeFileName(file: File) {
+    const baseName = file.name.trim().replace(/[^a-zA-Z0-9._-]/g, '_').replace(/^_+/, '');
+    return `${Date.now()}-${baseName || 'image.png'}`;
+  }
+
+  async function fetchCurrentMoments(token: string) {
+    const res = await fetch(
+      `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${momentsPath}?ref=${githubBranch}`,
+      { headers: githubHeaders(token) }
+    );
+
+    if (res.status === 404) return { moments: [] as MomentPayload[], sha: undefined };
+
+    const result = await readGitHubResponse(res);
+    if (!result.content || !result.sha) {
+      throw new Error('GitHub 返回的 moments.json 内容不完整');
+    }
+
+    const parsed = JSON.parse(base64ToString(result.content));
+    return {
+      moments: Array.isArray(parsed) ? parsed as MomentPayload[] : [],
+      sha: result.sha,
+    };
+  }
+
+  async function putGitHubFile(token: string, path: string, content: string, message: string, sha?: string) {
+    const res = await fetch(
+      `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${path}`,
+      {
+        method: 'PUT',
+        headers: githubHeaders(token, true),
+        body: JSON.stringify({
+          message,
+          content,
+          ...(sha && { sha }),
+          branch: githubBranch,
+        }),
+      }
+    );
+
+    return readGitHubResponse(res);
+  }
+
+  async function publishMoment(token: string, moment: MomentPayload) {
+    const current = await fetchCurrentMoments(token);
+    const momentsJson = JSON.stringify([moment, ...current.moments], null, 2) + '\n';
+
+    await putGitHubFile(
+      token,
+      momentsPath,
+      stringToBase64(momentsJson),
+      `Add moment: ${moment.text.slice(0, 30)}${moment.text.length > 30 ? '...' : ''}`,
+      current.sha
+    );
   }
 
   function setMessage(text: string, type: 'success' | 'error' | '') {
@@ -927,20 +1061,29 @@ function momentImageSrc(src: string) {
 
       setPreviewStatus(item.id, '上传中...', 'uploading');
 
-      const fd = new FormData();
-      fd.append('file', item.file);
-      fd.append('githubToken', token);
-
-      const res = await fetch('/api/moments', { method: 'PUT', body: fd });
-      const result = await readApiResponse(res);
-
-      if (!result.success || !result.url) {
-        setPreviewStatus(item.id, '失败', 'failed');
-        throw new Error(result.error ?? '图片上传失败');
+      if (item.file.size > maxImageBytes) {
+        setPreviewStatus(item.id, '过大', 'failed');
+        throw new Error('图片过大，请控制在 8 MB 以内');
       }
 
-      item.remoteUrl = result.url;
-      urls.push(result.url);
+      const fileName = safeFileName(item.file);
+      const repoPath = `${imageDir}/${fileName}`;
+      const publicUrl = `/moments/${encodeURIComponent(fileName)}`;
+
+      try {
+        await putGitHubFile(
+          token,
+          repoPath,
+          arrayBufferToBase64(await item.file.arrayBuffer()),
+          `Upload moment image: ${fileName}`
+        );
+      } catch (err) {
+        setPreviewStatus(item.id, '失败', 'failed');
+        throw err;
+      }
+
+      item.remoteUrl = publicUrl;
+      urls.push(publicUrl);
       setPreviewStatus(item.id, '已上传', 'uploaded');
     }
 
@@ -982,7 +1125,7 @@ function momentImageSrc(src: string) {
 
   if (form && msg && submitBtn) {
     const dateInput = form.querySelector<HTMLInputElement>('input[name="date"]');
-    if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+    if (dateInput) dateInput.value = localDateTimeValue();
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -994,32 +1137,29 @@ function momentImageSrc(src: string) {
       setMessage('', '');
 
       try {
+        const link = String(fd.get('link') ?? '').trim();
+        const baseMoment: MomentPayload = {
+          date: String(fd.get('date') ?? '').trim(),
+          category: String(fd.get('category') ?? '').trim(),
+          text: String(fd.get('text') ?? '').trim(),
+          ...(link && { link }),
+        };
+
+        if (!githubToken) throw new Error('请填写 GitHub Token');
+        if (!baseMoment.date || !baseMoment.category || !baseMoment.text) throw new Error('请填写时间、分类和内容');
+
         const imageUrls = selectedImages.length > 0 ? await uploadSelectedImages(githubToken) : [];
-        const data = {
-          date: fd.get('date'),
-          category: fd.get('category'),
-          text: fd.get('text'),
-          link: fd.get('link') || undefined,
-          images: imageUrls.length > 0 ? imageUrls : undefined,
-          githubToken,
+        const moment: MomentPayload = {
+          ...baseMoment,
+          ...(imageUrls.length > 0 && { images: imageUrls }),
         };
 
         submitBtn.textContent = '发布中...';
-        const res = await fetch('/api/moments', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        });
-        const result = await readApiResponse(res);
-        if (result.success) {
-          setMessage('✅ 发布成功！页面将自动刷新...', 'success');
-          setTimeout(() => location.reload(), 1500);
-        } else {
-          setMessage('❌ ' + (result.error ?? '发布失败'), 'error');
-        }
+        await publishMoment(githubToken, moment);
+        setMessage('✅ 已提交到 GitHub。等待 GitHub Pages 构建完成后刷新页面查看。', 'success');
       } catch (err) {
         const detail = err instanceof Error ? err.message : String(err);
-        setMessage('❌ 网络错误: ' + detail.slice(0, 120), 'error');
+        setMessage('❌ 发布失败: ' + detail.slice(0, 160), 'error');
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '🚀 发布';

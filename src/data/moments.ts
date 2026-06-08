@@ -3,7 +3,7 @@ import rawMoments from './moments.json';
 export type MomentCategory = '游戏' | '音乐' | '生活';
 
 export interface Moment {
-  /** 日期，格式 YYYY-MM-DD */
+  /** 时间，格式 YYYY-MM-DD 或 YYYY-MM-DDTHH:mm */
   date: string;
   /** 分类，决定图标与筛选分组 */
   category: MomentCategory;
