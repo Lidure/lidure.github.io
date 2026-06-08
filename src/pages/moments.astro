@@ -98,7 +98,7 @@ const sortedMoments = [...moments].sort(
           <p class="moment-text">{moment.text}</p>
           {moment.images && moment.images.length > 0 && (
             <div class="moment-images">
-              {moment.images.map((img) => (
+              {moment.images.map((img: string) => (
                 <img src={img} alt="" loading="lazy" />
               ))}
             </div>
@@ -628,7 +628,7 @@ const sortedMoments = [...moments].sort(
         }
       } catch {
         const previewEl = document.getElementById(previewId);
-        const progress = previewEl?.querySelector('.upload-progress');
+        const progress = previewEl?.querySelector<HTMLElement><HTMLElement>('.upload-progress');
         if (progress) {
           progress.textContent = '❌';
           progress.style.color = '#d94040';

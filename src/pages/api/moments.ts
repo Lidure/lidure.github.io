@@ -53,7 +53,7 @@ export const categoryOrder: MomentCategory[] = ['游戏', '音乐', '生活'];`;
         const linkStr = m.link ? `, link: '${m.link}'` : '';
         const imgStr =
           m.images && m.images.length > 0
-            ? `, images: [${m.images.map((img) => `'${img}'`).join(', ')}]`
+            ? `, images: [${m.images.map((img: string) => `'${img}'`).join(', ')}]`
             : '';
         return `  { date: '${m.date}', category: '${m.category}', text: '${textEscaped}'${linkStr}${imgStr} }`;
       })

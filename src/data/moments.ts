@@ -9,6 +9,8 @@ export interface Moment {
   text: string;
   /** 可选：相关链接（外链或站内路径），填了文字就会变成链接 */
   link?: string;
+  /** 可选：图片 URL 数组 */
+  images?: string[];
 }
 
 /** 各分类的图标与展示名，想加新分类就在这里和上面的类型里各加一项 */
