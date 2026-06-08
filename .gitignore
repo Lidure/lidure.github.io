@@ -2,6 +2,7 @@ node_modules
 .dist
 .dist/
 .astro/
+.wrangler/deploy/
 .astro.data.json
 dist
 .env
