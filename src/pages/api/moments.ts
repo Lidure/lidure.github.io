@@ -104,7 +104,7 @@ ${momentsArray}
         },
         body: JSON.stringify({
           message: `✨ 新增碎碎念: ${text.slice(0, 30)}${text.length > 30 ? '...' : ''}`,
-          content: btoa(unescape(encodeURIComponent(fileContent))),
+          content: Buffer.from(new TextEncoder().encode(fileContent)).toString('base64'),
           sha,
           branch,
         }),
@@ -158,9 +158,7 @@ export const PUT: APIRoute = async ({ request }) => {
     const path = `public/moments/${fileName}`;
 
     const arrayBuffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
-    const binary = String.fromCharCode(...bytes);
-    const contentBase64 = globalThis.btoa(binary);
+    const contentBase64 = Buffer.from(arrayBuffer).toString('base64');
 
     const getShaRes = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,
