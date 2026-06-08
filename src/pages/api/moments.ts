@@ -158,11 +158,9 @@ export const PUT: APIRoute = async ({ request }) => {
     const path = `public/moments/${fileName}`;
 
     const arrayBuffer = await file.arrayBuffer();
-    const contentBase64 = btoa(
-      [...new Uint8Array(arrayBuffer)]
-        .map((b) => String.fromCharCode(b))
-        .join('')
-    );
+    const bytes = new Uint8Array(arrayBuffer);
+    const binary = String.fromCharCode(...bytes);
+    const contentBase64 = globalThis.btoa(binary);
 
     const getShaRes = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,
