@@ -104,7 +104,7 @@ ${momentsArray}
         },
         body: JSON.stringify({
           message: `✨ 新增碎碎念: ${text.slice(0, 30)}${text.length > 30 ? '...' : ''}`,
-          content: Buffer.from(new TextEncoder().encode(fileContent)).toString('base64'),
+          content: Buffer.from(fileContent, 'utf-8').toString('base64'),
           sha,
           branch,
         }),
@@ -127,8 +127,10 @@ ${momentsArray}
         headers: { 'Content-Type': 'application/json' },
       }
     );
-  } catch {
-    return new Response(JSON.stringify({ error: '服务器错误' }), {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[API POST error]', message);
+    return new Response(JSON.stringify({ error: '服务器错误: ' + message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
@@ -206,8 +208,10 @@ export const PUT: APIRoute = async ({ request }) => {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
     });
-  } catch {
-    return new Response(JSON.stringify({ error: '图片上传失败' }), {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('[API PUT error]', message);
+    return new Response(JSON.stringify({ error: '图片上传失败: ' + message }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

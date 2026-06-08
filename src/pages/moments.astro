@@ -879,8 +879,9 @@ const total = sortedMoments.length;
           msg.textContent = '❌ ' + (result.error ?? '发布失败');
           msg.className = 'error';
         }
-      } catch {
-        msg.textContent = '❌ 网络错误，请检查 Token 和网络连接';
+      } catch (err) {
+        const detail = err instanceof Error ? err.message : String(err);
+        msg.textContent = '❌ 网络错误: ' + detail.slice(0, 80);
         msg.className = 'error';
       } finally {
         submitBtn.disabled = false;
