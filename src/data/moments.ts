@@ -9,20 +9,18 @@ export interface Moment {
   category: MomentCategory;
   /** 一句话碎碎念 */
   text: string;
-  /** 可选：相关链接（外链或站内路径），填了文字就会变成链接 */
+  /** 可选：相关链接 */
   link?: string;
   /** 可选：图片 URL 数组 */
   images?: string[];
 }
 
-/** 各分类的图标与展示名，想加新分类就在这里和上面的类型里各加一项 */
 export const categoryMeta: Record<MomentCategory, { icon: string; label: string }> = {
   游戏: { icon: '🎮', label: '游戏' },
   音乐: { icon: '🎵', label: '音乐' },
   生活: { icon: '☕', label: '生活' },
 };
 
-/** 筛选条里的分类顺序 */
 export const categoryOrder: MomentCategory[] = ['游戏', '音乐', '生活'];
 
 /**

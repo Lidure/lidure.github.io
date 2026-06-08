@@ -1,6 +1,14 @@
 [
   {
     "date": "2026-06-08",
+    "category": "生活",
+    "text": "组会~",
+    "images": [
+      "https://raw.githubusercontent.com/Lidure/lidure.github.io/main/public/moments/1780926612309-145508830_p0.jpg"
+    ]
+  },
+  {
+    "date": "2026-06-08",
     "category": "游戏",
     "text": "在打《艾尔登法环》DLC，被女武神打到自闭，但风景是真的美。"
   },
