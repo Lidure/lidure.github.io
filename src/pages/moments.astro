@@ -783,6 +783,25 @@ const total = sortedMoments.length;
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
   const uploadedImages: string[] = [];
 
+  async function readApiResponse(res: Response) {
+    const text = await res.text();
+    let result: { success?: boolean; error?: string; url?: string } = {};
+
+    if (text) {
+      try {
+        result = JSON.parse(text);
+      } catch {
+        result = { error: text.slice(0, 500) };
+      }
+    }
+
+    if (!res.ok && !result.error) {
+      result.error = `HTTP ${res.status}`;
+    }
+
+    return result;
+  }
+
   uploadPlaceholder?.addEventListener('click', () => imageInput?.click());
   uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadPlaceholder?.classList.add('drag-over'); });
   uploadArea?.addEventListener('dragleave', () => { uploadPlaceholder?.classList.remove('drag-over'); });
@@ -826,9 +845,9 @@ const total = sortedMoments.length;
         fd.append('file', file);
         fd.append('githubToken', token);
         const res = await fetch('/api/moments', { method: 'PUT', body: fd });
-        const result = await res.json();
+        const result = await readApiResponse(res);
         const previewEl = document.getElementById(previewId);
-        if (result.success) {
+        if (result.success && result.url) {
           uploadedImages.push(result.url);
           const p = previewEl?.querySelector<HTMLElement>('.upload-progress');
           if (p) { p.textContent = '✅'; setTimeout(() => p.remove(), 1000); }
@@ -870,7 +889,7 @@ const total = sortedMoments.length;
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data),
         });
-        const result = await res.json();
+        const result = await readApiResponse(res);
         if (result.success) {
           msg.textContent = '✅ 发布成功！页面将自动刷新...';
           msg.className = 'success';

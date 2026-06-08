@@ -1,0 +1,16 @@
+
+--- 2026-06-08T13:39:43.543Z debug
+🪵  Writing logs to "F:\NORMAL\My_blog\lidure.github.io\.tmp\xdg\.wrangler\logs\wrangler-2026-06-08_13-39-43_127.log"
+---
+
+--- 2026-06-08T13:39:43.543Z debug
+local dev variables file not found at ".dev.vars". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---
+
+--- 2026-06-08T13:39:43.544Z debug
+.env file not found at "F:\NORMAL\My_blog\lidure.github.io\.env". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---
+
+--- 2026-06-08T13:39:43.544Z debug
+.env file not found at "F:\NORMAL\My_blog\lidure.github.io\.env.local". Continuing... For more details, refer to https://developers.cloudflare.com/workers/wrangler/system-environment-variables/
+---

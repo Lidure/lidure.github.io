@@ -2,30 +2,110 @@ import type { APIRoute } from 'astro';
 import { moments } from '../../data/moments';
 import type { Moment } from '../../data/moments';
 
-export const POST: APIRoute = async ({ request }) => {
+const owner = 'Lidure';
+const repo = 'lidure.github.io';
+const branch = 'main';
+const userAgent = 'lidure-blog-moments';
+
+function json(data: unknown, init: ResponseInit = {}) {
+  const headers = new Headers(init.headers);
+  headers.set('Content-Type', 'application/json; charset=utf-8');
+  return new Response(JSON.stringify(data), { ...init, headers });
+}
+
+function githubHeaders(githubToken: string, withJson = false) {
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${githubToken}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'User-Agent': userAgent,
+  };
+
+  if (withJson) headers['Content-Type'] = 'application/json';
+
+  return headers;
+}
+
+async function readResponseBody(response: Response): Promise<unknown> {
+  const text = await response.text();
+  if (!text) return undefined;
+
   try {
-    const body = await request.json();
-    const { date, category, text, link, images, githubToken } = body;
+    return JSON.parse(text) as unknown;
+  } catch {
+    return text.trim() || text;
+  }
+}
 
-    if (!date || !category || !text || !githubToken) {
-      return new Response(JSON.stringify({ error: '缺少必要字段' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
-    }
+function responseMessage(payload: unknown, fallback: string) {
+  if (typeof payload === 'string') return payload.slice(0, 500);
+  if (payload && typeof payload === 'object' && 'message' in payload) {
+    const message = (payload as { message?: unknown }).message;
+    if (typeof message === 'string') return message;
+  }
+  return fallback;
+}
 
-    const newMoment: Moment = {
-      date,
-      category,
-      text,
-      ...(link && { link }),
-      ...(images && images.length > 0 && { images }),
-    };
+function hasSha(payload: unknown): payload is { sha: string } {
+  return (
+    !!payload &&
+    typeof payload === 'object' &&
+    'sha' in payload &&
+    typeof (payload as { sha?: unknown }).sha === 'string'
+  );
+}
 
-    const updatedMoments = [newMoment, ...moments];
+function hasCommitUrl(payload: unknown): payload is { commit: { html_url: string } } {
+  const commit = payload && typeof payload === 'object'
+    ? (payload as { commit?: unknown }).commit
+    : undefined;
 
-    const typeDef = `export type MomentCategory = '游戏' | '音乐' | '生活';`;
-    const interfaceDef = `
+  return (
+    !!commit &&
+    typeof commit === 'object' &&
+    'html_url' in commit &&
+    typeof (commit as { html_url?: unknown }).html_url === 'string'
+  );
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer) {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000;
+  let binary = '';
+
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    binary += String.fromCharCode(...chunk);
+  }
+
+  return btoa(binary);
+}
+
+function stringToBase64(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
+  return arrayBufferToBase64(buffer);
+}
+
+function quote(value: string) {
+  return JSON.stringify(value);
+}
+
+function serializeMoment(moment: Moment) {
+  const linkStr = moment.link ? `, link: ${quote(moment.link)}` : '';
+  const imgStr =
+    moment.images && moment.images.length > 0
+      ? `, images: [${moment.images.map((img) => quote(img)).join(', ')}]`
+      : '';
+
+  return `  { date: ${quote(moment.date)}, category: ${quote(moment.category)}, text: ${quote(moment.text)}${linkStr}${imgStr} }`;
+}
+
+function createMomentsFileContent(updatedMoments: Moment[]) {
+  const momentsArray = updatedMoments.map(serializeMoment).join(',\n');
+
+  return `export type MomentCategory = '游戏' | '音乐' | '生活';
+
 export interface Moment {
   /** 日期，格式 YYYY-MM-DD */
   date: string;
@@ -33,107 +113,93 @@ export interface Moment {
   category: MomentCategory;
   /** 一句话碎碎念 */
   text: string;
-  /** 可选：相关链接（外链或站内路径），填了文字就会变成链接 */
+  /** 可选：相关链接 */
   link?: string;
   /** 可选：图片 URL 数组 */
   images?: string[];
-}`;
-    const metaStr = `/** 各分类的图标与展示名，想加新分类就在这里和上面的类型里各加一项 */
+}
+
 export const categoryMeta: Record<MomentCategory, { icon: string; label: string }> = {
   游戏: { icon: '🎮', label: '游戏' },
   音乐: { icon: '🎵', label: '音乐' },
   生活: { icon: '☕', label: '生活' },
-};`;
-    const orderStr = `/** 筛选条里的分类顺序 */
-export const categoryOrder: MomentCategory[] = ['游戏', '音乐', '生活'];`;
+};
 
-    const momentsArray = updatedMoments
-      .map((m) => {
-        const textEscaped = m.text.replace(/'/g, "\\'");
-        const linkStr = m.link ? `, link: '${m.link}'` : '';
-        const imgStr =
-          m.images && m.images.length > 0
-            ? `, images: [${m.images.map((img: string) => `'${img}'`).join(', ')}]`
-            : '';
-        return `  { date: '${m.date}', category: '${m.category}', text: '${textEscaped}'${linkStr}${imgStr} }`;
-      })
-      .join(',\n');
+export const categoryOrder: MomentCategory[] = ['游戏', '音乐', '生活'];
 
-    const fileContent = `${typeDef}
-${interfaceDef}
-${metaStr}
-${orderStr}
-
-/**
- * 碎碎念列表 —— 发新动态只需在数组最前面加一行：
- *   { date: '2026-06-09', category: '游戏', text: '今天在玩……' }
- * 顺序无所谓，页面会自动按日期倒序排列。
- */
 export const moments: Moment[] = [
 ${momentsArray}
-];`;
+];
+`;
+}
 
-    const owner = 'Lidure';
-    const repo = 'lidure.github.io';
+export const POST: APIRoute = async ({ request }) => {
+  try {
+    const body = await request.json();
+    const { date, category, text, link, images, githubToken } = body;
+
+    if (!date || !category || !text || !githubToken) {
+      return json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    const newMoment: Moment = {
+      date,
+      category,
+      text,
+      ...(link && { link }),
+      ...(Array.isArray(images) && images.length > 0 && { images }),
+    };
+
+    const fileContent = createMomentsFileContent([newMoment, ...moments]);
     const momentsPath = 'src/data/moments.ts';
-    const branch = 'main';
 
     const getShaRes = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${momentsPath}?ref=${branch}`,
-      {
-        headers: {
-          Authorization: `Bearer ${githubToken}`,
-          Accept: 'application/vnd.github.v3+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      }
+      { headers: githubHeaders(githubToken) }
     );
 
-    const shaData = await getShaRes.json();
-    const sha = shaData.sha;
+    const shaData = await readResponseBody(getShaRes);
+    if (!getShaRes.ok) {
+      return json(
+        { error: responseMessage(shaData, 'Failed to fetch moments file metadata') },
+        { status: getShaRes.status }
+      );
+    }
+
+    if (!hasSha(shaData)) {
+      return json({ error: 'GitHub response did not include a file sha' }, { status: 502 });
+    }
 
     const commitRes = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${momentsPath}`,
       {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${githubToken}`,
-          Accept: 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
+        headers: githubHeaders(githubToken, true),
         body: JSON.stringify({
-          message: `✨ 新增碎碎念: ${text.slice(0, 30)}${text.length > 30 ? '...' : ''}`,
-          content: Buffer.from(fileContent, 'utf-8').toString('base64'),
-          sha,
+          message: `Add moment: ${String(text).slice(0, 30)}${String(text).length > 30 ? '...' : ''}`,
+          content: stringToBase64(fileContent),
+          sha: shaData.sha,
           branch,
         }),
       }
     );
 
-    const commitData = await commitRes.json();
-
+    const commitData = await readResponseBody(commitRes);
     if (!commitRes.ok) {
-      return new Response(JSON.stringify({ error: commitData.message }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return json(
+        { error: responseMessage(commitData, 'Failed to commit moments file') },
+        { status: commitRes.status }
+      );
     }
 
-    return new Response(
-      JSON.stringify({ success: true, commit: commitData.commit.html_url }),
-      {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      }
+    return json(
+      { success: true, commit: hasCommitUrl(commitData) ? commitData.commit.html_url : undefined },
+      { status: 200 }
     );
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error('[API POST error]', message);
-    return new Response(JSON.stringify({ error: '服务器错误: ' + message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Server error: ' + message }, { status: 500 });
   }
 };
 
@@ -141,51 +207,38 @@ export const PUT: APIRoute = async ({ request }) => {
   try {
     const formData = await request.formData();
     const file = formData.get('file') as File | null;
-    const githubToken = formData.get('githubToken') as string;
+    const githubToken = formData.get('githubToken') as string | null;
 
     if (!file || !githubToken) {
-      return new Response(JSON.stringify({ error: '缺少文件或 Token' }), {
-        status: 400,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return json({ error: 'Missing file or GitHub token' }, { status: 400 });
     }
 
-    const owner = 'Lidure';
-    const repo = 'lidure.github.io';
-    const branch = 'main';
-
-    const ext = file.name.split('.').pop() ?? 'png';
     const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
     const fileName = `${Date.now()}-${safeName}`;
     const path = `public/moments/${fileName}`;
-
-    const arrayBuffer = await file.arrayBuffer();
-    const contentBase64 = Buffer.from(arrayBuffer).toString('base64');
+    const contentBase64 = arrayBufferToBase64(await file.arrayBuffer());
 
     const getShaRes = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${path}?ref=${branch}`,
-      {
-        headers: {
-          Authorization: `Bearer ${githubToken}`,
-          Accept: 'application/vnd.github.v3+json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
-      }
+      { headers: githubHeaders(githubToken) }
     );
-    const existingSha = getShaRes.ok ? (await getShaRes.json()).sha : undefined;
 
+    const existingData = await readResponseBody(getShaRes);
+    if (!getShaRes.ok && getShaRes.status !== 404) {
+      return json(
+        { error: responseMessage(existingData, 'Failed to check image file metadata') },
+        { status: getShaRes.status }
+      );
+    }
+
+    const existingSha = hasSha(existingData) ? existingData.sha : undefined;
     const uploadRes = await fetch(
       `https://api.github.com/repos/${owner}/${repo}/contents/${path}`,
       {
         method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${githubToken}`,
-          Accept: 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-          'X-GitHub-Api-Version': '2022-11-28',
-        },
+        headers: githubHeaders(githubToken, true),
         body: JSON.stringify({
-          message: `📷 上传碎碎念图片: ${fileName}`,
+          message: `Upload moment image: ${fileName}`,
           content: contentBase64,
           ...(existingSha && { sha: existingSha }),
           branch,
@@ -193,27 +246,18 @@ export const PUT: APIRoute = async ({ request }) => {
       }
     );
 
-    const uploadData = await uploadRes.json();
-
+    const uploadData = await readResponseBody(uploadRes);
     if (!uploadRes.ok) {
-      return new Response(JSON.stringify({ error: uploadData.message }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return json(
+        { error: responseMessage(uploadData, 'Failed to upload image to GitHub') },
+        { status: uploadRes.status }
+      );
     }
 
-    const imageUrl = `https://lidure.github.io/moments/${fileName}`;
-
-    return new Response(JSON.stringify({ success: true, url: imageUrl }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ success: true, url: `https://lidure.github.io/moments/${fileName}` }, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error('[API PUT error]', message);
-    return new Response(JSON.stringify({ error: '图片上传失败: ' + message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Image upload failed: ' + message }, { status: 500 });
   }
 };
