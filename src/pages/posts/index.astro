@@ -19,7 +19,7 @@ const projects = await getGitHubProjects();
           <div class="timeline-date">{post.data.pubDate.toLocaleDateString('zh-CN')}
             {post.data.updatedDate && <span style="margin-left: 8px; color: var(--muted); font-weight:400;">更新于 {post.data.updatedDate.toLocaleDateString('zh-CN')}</span>}
           </div>
-          <h3><a href={`/posts/${post.slug}`}>{post.data.title}</a></h3>
+          <h3><a href={`/posts/${post.id.replace(/\.md$/, '')}`}>{post.data.title}</a></h3>
           <p>{post.data.description}</p>
           <div class="tag-list" style="margin-top: 10px;">
             {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}

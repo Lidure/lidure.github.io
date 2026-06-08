@@ -36,7 +36,7 @@ const filtered = allPosts
             <span>{post.data.pubDate.toLocaleDateString('zh-CN')}</span>
             {post.data.updatedDate && <span>更新于 {post.data.updatedDate.toLocaleDateString('zh-CN')}</span>}
           </div>
-          <h3><a href={`/posts/${post.slug}`}>{post.data.title}</a></h3>
+          <h3><a href={`/posts/${post.id.replace(/\.md$/, '')}`}>{post.data.title}</a></h3>
           <p>{post.data.description}</p>
           <div class="tag-list">
             {post.data.tags.map((t) => <span class="tag">#{t}</span>)}

@@ -1,6 +1,5 @@
 ---
-import { getCollection } from 'astro:content';
-import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Comments from '../../components/Comments.astro';
 
@@ -8,17 +7,13 @@ export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
 
   return posts.map((post) => ({
-    params: { slug: post.slug },
+    params: { slug: post.id.replace(/\.md$/, '') },
     props: { post },
   }));
 }
 
-type Props = {
-  post: CollectionEntry<'blog'>;
-};
-
-const { post } = Astro.props as Props;
-const { Content } = await post.render();
+const { post } = Astro.props;
+const { Content } = await render(post);
 const updatedDate = post.data.updatedDate ?? post.data.pubDate;
 ---
 <BaseLayout title={`${post.data.title} | Lidure Blog`} description={post.data.description}>

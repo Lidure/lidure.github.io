@@ -9,7 +9,7 @@ const jsonData = JSON.stringify(
   allPosts.map((p) => ({
     title: p.data.title,
     description: p.data.description,
-    slug: p.slug,
+    slug: p.id.replace(/\.md$/, ''),
     tags: p.data.tags,
     pubDate: p.data.pubDate.valueOf(),
   })),

@@ -29,7 +29,7 @@ const quickLinks = [
   },
   {
     label: '精选文章',
-    href: featuredPost ? `/posts/${featuredPost.slug}` : '/posts',
+    href: featuredPost ? `/posts/${featuredPost.id.replace(/\.md$/, '')}` : '/posts',
     description: '直接进入当前置顶内容。',
   },
   {
@@ -53,7 +53,7 @@ const quickLinks = [
       </p>
       <div class="hero-actions">
         <a class="button primary" href="/posts">去看文章</a>
-        {featuredPost && <a class="button" href={`/posts/${featuredPost.slug}`}>打开置顶</a>}
+        {featuredPost && <a class="button" href={`/posts/${featuredPost.id.replace(/\.md$/, '')}`}>打开置顶</a>}
       </div>
       <ClickStar />
     </section>
@@ -108,9 +108,9 @@ const quickLinks = [
       <article class="card animated-card" style={`animation-delay: ${posts.indexOf(post) * 90}ms`}>
         <div class="meta">
           <span>{post.data.pubDate.toLocaleDateString('zh-CN')}</span>
-          <span>{Math.ceil(post.body.length / 800)} 分钟阅读</span>
+          <span>{Math.ceil((post.body ?? '').length / 800)} 分钟阅读</span>
         </div>
-        <h3><a href={`/posts/${post.slug}`}>{post.data.title}</a></h3>
+        <h3><a href={`/posts/${post.id.replace(/\.md$/, '')}`}>{post.data.title}</a></h3>
         <p>{post.data.description}</p>
         <div class="tag-list">
           {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}

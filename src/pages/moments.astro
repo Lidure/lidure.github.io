@@ -3,47 +3,70 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { moments, categoryMeta, categoryOrder } from '../data/moments';
 import type { MomentCategory } from '../data/moments';
 
-// 按日期倒序排列
 const sortedMoments = [...moments].sort(
   (a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf()
 );
----
-<BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏、音乐、生活，随时碎碎念。" showTime={true}>
-  <section class="moments-shell">
-    <span class="kicker">Moments</span>
-    <h1>碎碎念</h1>
-    <p>游戏、音乐、生活，随手记下的碎片。随时更新，想到什么说什么。</p>
 
-    <!-- 分类筛选 -->
-    <div class="category-tabs">
-      <button class="cat-tab active" data-category="all">全部</button>
-      {categoryOrder.map((cat) => (
-        <button class="cat-tab" data-category={cat}>
-          {categoryMeta[cat].icon} {categoryMeta[cat].label}
-        </button>
-      ))}
+const stats = categoryOrder.map((cat) => ({
+  cat,
+  count: sortedMoments.filter((m) => m.category === cat).length,
+}));
+const total = sortedMoments.length;
+---
+<BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏，音乐、生活，随时碎碎念。" showTime={true}>
+  <section class="moments-shell">
+
+    <!-- Hero -->
+    <div class="moments-hero">
+      <div class="hero-bubbles">
+        <span class="bubble b1"></span>
+        <span class="bubble b2"></span>
+        <span class="bubble b3"></span>
+      </div>
+      <span class="kicker">✨ Moments</span>
+      <h1>碎碎念</h1>
+      <p>随手记下的碎片，游戏 · 音乐 · 生活。随时更新，想到什么说什么。</p>
+      <div class="hero-stats">
+        <span class="stat-badge">
+          <strong>{total}</strong> 条动态
+        </span>
+        {stats.map((s) => (
+          <span class="stat-badge">
+            {categoryMeta[s.cat].icon} <strong>{s.count}</strong>
+          </span>
+        ))}
+      </div>
     </div>
 
-    <!-- 发布按钮 -->
-    <button class="publish-toggle button primary" id="publish-toggle">
-      <span id="toggle-icon">✏️</span>
-      <span id="toggle-text">发布新动态</span>
-    </button>
+    <!-- 控制栏：筛选 + 发布 -->
+    <div class="controls-bar">
+      <div class="cat-pills">
+        <button class="pill active" data-category="all">全部</button>
+        {categoryOrder.map((cat) => (
+          <button class="pill" data-category={cat}>
+            {categoryMeta[cat].icon}
+          </button>
+        ))}
+      </div>
+      <button class="fab" id="publish-toggle" aria-label="发布新动态">
+        <span id="toggle-icon">✏️</span>
+      </button>
+    </div>
 
     <!-- 发布面板 -->
-    <div class="publish-box card hidden" id="publish-box">
-      <div class="publish-header">
-        <h3>📝 发布新动态</h3>
-        <button type="button" class="close-btn" id="close-btn" aria-label="关闭">✕</button>
+    <div class="publish-panel hidden" id="publish-box">
+      <div class="panel-topbar">
+        <span class="panel-title">📝 发布新动态</span>
+        <button type="button" class="icon-btn" id="close-btn" aria-label="关闭">✕</button>
       </div>
-      <form id="publish-form">
+      <form id="publish-form" class="publish-form">
         <div class="form-row">
-          <label>
-            日期
+          <label class="field">
+            <span class="field-label">📅 日期</span>
             <input type="date" name="date" required />
           </label>
-          <label>
-            分类
+          <label class="field">
+            <span class="field-label">🏷️ 分类</span>
             <select name="category" required>
               <option value="">选择分类</option>
               {categoryOrder.map((cat) => (
@@ -52,62 +75,66 @@ const sortedMoments = [...moments].sort(
             </select>
           </label>
         </div>
-        <label class="full">
-          内容
+        <label class="field full">
+          <span class="field-label">✏️ 内容</span>
           <textarea name="text" rows="3" placeholder="想说点什么..." required></textarea>
         </label>
-        <label class="full">
-          链接（可选）
+        <label class="field full">
+          <span class="field-label">🔗 链接（可选）</span>
           <input type="url" name="link" placeholder="https://..." />
         </label>
 
-        <!-- 图片上传 -->
         <div class="image-upload-area" id="image-upload-area">
           <input type="file" id="image-input" accept="image/*" multiple hidden />
-          <div class="upload-placeholder" id="upload-placeholder">
-            <span>📷 点击或拖拽上传图片</span>
-            <span class="upload-hint">支持多张图片</span>
+          <div class="upload-dropzone" id="upload-placeholder">
+            <span>📷 点击上传 / 拖入图片（最多 9 张）</span>
           </div>
           <div class="image-previews" id="image-previews"></div>
         </div>
 
-        <label class="full token-label">
-          GitHub Token
-          <input type="password" name="githubToken" placeholder="ghp_xxxxxxxxxx" required />
-          <a href="https://github.com/settings/tokens/new?scopes=repo&description=Moments%20Blog" target="_blank" rel="noreferrer" class="token-hint">
-            生成 Token ↗
-          </a>
+        <label class="field full token-field">
+          <span class="field-label">🔑 GitHub Token</span>
+          <div class="token-input-wrap">
+            <input type="password" name="githubToken" placeholder="ghp_xxxxxxxxxx" required />
+            <a href="https://github.com/settings/tokens/new?scopes=repo&description=Moments%20Blog" target="_blank" rel="noreferrer" class="token-link">
+              如何获取？
+            </a>
+          </div>
         </label>
-        <button type="submit" class="button primary" id="submit-btn">发布</button>
-        <p class="form-note">⚠️ Token 需要 repo 权限，发布后会自动提交到 GitHub。</p>
+
+        <button type="submit" class="submit-btn" id="submit-btn">🚀 发布</button>
+        <p class="form-note">Token 需要 repo 权限，发布后自动提交 GitHub 并触发构建。</p>
       </form>
-      <div id="form-message" class="form-message"></div>
+      <div id="form-message"></div>
     </div>
 
-    <!-- 动态列表 -->
+    <!-- 时间线 -->
     <div class="moments-list">
-      {sortedMoments.map((moment) => (
-        <article class="moment-card card" data-category={moment.category}>
-          <div class="moment-header">
-            <span class="moment-cat">
-              {categoryMeta[moment.category as MomentCategory].icon}
-              {categoryMeta[moment.category as MomentCategory].label}
-            </span>
-            <span class="moment-date">{moment.date}</span>
-          </div>
-          <p class="moment-text">{moment.text}</p>
-          {moment.images && moment.images.length > 0 && (
-            <div class="moment-images">
-              {moment.images.map((img: string) => (
-                <img src={img} alt="" loading="lazy" />
-              ))}
+      {sortedMoments.map((moment, idx) => (
+        <article class="moment-card" data-category={moment.category} style={`--delay: ${idx * 60}ms`}>
+          <div class={`card-glow glow-${moment.category}`}></div>
+          <div class="card-content">
+            <div class="card-meta">
+              <span class={`cat-pill pill-${moment.category}`}>
+                {categoryMeta[moment.category as MomentCategory].icon}
+                {categoryMeta[moment.category as MomentCategory].label}
+              </span>
+              <time class="card-date">{moment.date}</time>
             </div>
-          )}
-          {moment.link && (
-            <a class="moment-link" href={moment.link} target="_blank" rel="noreferrer">
-              🔗 {moment.link.replace(/^https?:\/\//, '').split('/')[0]}
-            </a>
-          )}
+            <p class="card-text">{moment.text}</p>
+            {moment.images && moment.images.length > 0 && (
+              <div class="card-images">
+                {moment.images.map((img: string) => (
+                  <img src={img} alt="" loading="lazy" />
+                ))}
+              </div>
+            )}
+            {moment.link && (
+              <a class="card-link" href={moment.link} target="_blank" rel="noreferrer">
+                🔗 {moment.link.replace(/^https?:\/\//, '').split('/')[0]}
+              </a>
+            )}
+          </div>
         </article>
       ))}
     </div>
@@ -115,97 +142,290 @@ const sortedMoments = [...moments].sort(
 </BaseLayout>
 
 <style>
+  /* ===== 页面框架 ===== */
   .moments-shell {
-    max-width: 720px;
+    max-width: 760px;
     margin: 0 auto;
   }
 
-  .moments-shell h1 {
-    margin: 12px 0;
+  /* ===== Hero 区域 ===== */
+  .moments-hero {
+    position: relative;
+    padding: 40px 36px 32px;
+    margin-bottom: 28px;
+    background: var(--panel-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    text-align: center;
   }
 
-  .moments-shell > p {
-    margin-bottom: 28px;
+  .hero-bubbles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.15;
+    filter: blur(30px);
+  }
+
+  .b1 {
+    width: 200px; height: 200px;
+    background: var(--accent);
+    top: -60px; left: -40px;
+    animation: bubble-float 8s ease-in-out infinite;
+  }
+
+  .b2 {
+    width: 160px; height: 160px;
+    background: var(--accent-2);
+    bottom: -40px; right: 10%;
+    animation: bubble-float 10s ease-in-out infinite reverse;
+  }
+
+  .b3 {
+    width: 120px; height: 120px;
+    background: var(--accent-3);
+    top: 20px; right: -30px;
+    animation: bubble-float 7s ease-in-out infinite 2s;
+  }
+
+  @keyframes bubble-float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.05); }
+  }
+
+  .moments-hero .kicker {
+    position: relative;
+    z-index: 1;
+  }
+
+  .moments-hero h1 {
+    position: relative;
+    z-index: 1;
+    margin: 10px 0 10px;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: clamp(2.8rem, 7vw, 5rem);
+    letter-spacing: -0.02em;
+  }
+
+  .moments-hero p {
+    position: relative;
+    z-index: 1;
+    color: var(--muted);
+    margin: 0 0 20px;
+    font-size: 1.02rem;
+  }
+
+  .hero-stats {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .stat-badge {
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--tag-bg);
+    border: 1px solid var(--panel-border);
+    font-size: 0.85rem;
     color: var(--muted);
   }
 
-  /* 发布按钮 */
-  .publish-toggle {
-    width: 100%;
-    margin-bottom: 28px;
-    font-size: 0.95rem;
-    padding: 14px;
-    border-radius: var(--radius-md);
+  .stat-badge strong {
+    color: var(--accent);
+    font-weight: 700;
   }
 
-  /* 发布面板 */
-  .publish-box {
-    padding: 24px 26px;
-    margin-bottom: 28px;
-    transition: opacity 250ms ease, transform 250ms ease;
-  }
-
-  .publish-header {
+  /* ===== 控制栏 ===== */
+  .controls-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 18px;
+    gap: 12px;
+    margin-bottom: 24px;
   }
 
-  .publish-header h3 {
-    margin: 0;
-    font-size: 1.05rem;
+  .cat-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
-  .close-btn {
+  .pill {
+    padding: 7px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 180ms ease;
+  }
+
+  .pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .pill.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3);
+  }
+
+  .fab {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.35);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .fab:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(var(--accent-rgb), 0.45);
+  }
+
+  .fab:active {
+    transform: scale(0.95);
+  }
+
+  /* ===== 发布面板 ===== */
+  .publish-panel {
+    background: var(--panel-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    padding: 24px 26px;
+    margin-bottom: 28px;
+    backdrop-filter: blur(14px);
+  }
+
+  .panel-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .panel-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .icon-btn {
     background: none;
     border: none;
     cursor: pointer;
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: var(--muted);
-    padding: 4px 8px;
+    padding: 4px 10px;
     border-radius: 8px;
-    transition: color 180ms ease, background 180ms ease;
+    transition: all 180ms ease;
   }
 
-  .close-btn:hover {
+  .icon-btn:hover {
     color: var(--text);
     background: var(--tag-bg);
   }
 
-  /* 图片上传 */
-  .image-upload-area {
-    margin-bottom: 14px;
+  .publish-form {
+    display: grid;
+    gap: 14px;
   }
 
-  .upload-placeholder {
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field {
     display: flex;
     flex-direction: column;
+    gap: 6px;
+  }
+
+  .field.full {
+    grid-column: 1 / -1;
+  }
+
+  .field-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.93rem;
+    font-family: inherit;
+    transition: border-color 180ms ease;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  /* 图片上传 */
+  .image-upload-area {
+    grid-column: 1 / -1;
+  }
+
+  .upload-dropzone {
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
     padding: 20px;
     border: 2px dashed var(--panel-border);
     border-radius: 14px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     color: var(--muted);
-    transition: border-color 180ms ease, background 180ms ease;
+    transition: all 180ms ease;
   }
 
-  .upload-placeholder:hover {
+  .upload-dropzone:hover,
+  .upload-dropzone.drag-over {
     border-color: var(--accent);
     background: var(--tag-bg);
-  }
-
-  .upload-placeholder.drag-over {
-    border-color: var(--accent);
-    background: var(--tag-bg);
-  }
-
-  .upload-hint {
-    font-size: 0.78rem;
-    opacity: 0.7;
+    color: var(--accent);
   }
 
   .image-previews {
@@ -217,8 +437,8 @@ const sortedMoments = [...moments].sort(
 
   .preview-item {
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 72px;
+    height: 72px;
     border-radius: 10px;
     overflow: hidden;
     border: 1px solid var(--panel-border);
@@ -237,11 +457,11 @@ const sortedMoments = [...moments].sort(
     width: 20px;
     height: 20px;
     border-radius: 50%;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.65);
     color: white;
     border: none;
     cursor: pointer;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -256,125 +476,250 @@ const sortedMoments = [...moments].sort(
     justify-content: center;
     color: white;
     font-size: 0.75rem;
+    border-radius: 10px;
   }
 
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 14px;
+  /* Token */
+  .token-field {
+    grid-column: 1 / -1;
   }
 
-  label {
+  .token-input-wrap {
+    position: relative;
     display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--text-soft);
+    align-items: center;
+    gap: 10px;
   }
 
-  label.full {
-    margin-bottom: 14px;
-  }
-
-  input, select, textarea {
+  .token-input-wrap input {
+    flex: 1;
     padding: 10px 14px;
-    border-radius: 14px;
+    border-radius: 12px;
     border: 1px solid var(--panel-border);
     background: var(--bg);
     color: var(--text);
-    font-size: 0.95rem;
+    font-size: 0.93rem;
     font-family: inherit;
     transition: border-color 180ms ease;
   }
 
-  input:focus, select:focus, textarea:focus {
+  .token-input-wrap input:focus {
     outline: none;
     border-color: var(--accent);
   }
 
-  textarea {
-    resize: vertical;
-    min-height: 80px;
-  }
-
-  .token-label {
-    position: relative;
-  }
-
-  .token-hint {
+  .token-link {
     font-size: 0.8rem;
     color: var(--accent);
-    margin-top: 2px;
+    white-space: nowrap;
+    text-decoration: underline;
+    text-underline-offset: 3px;
   }
 
-  .token-hint:hover {
+  .token-link:hover {
     color: var(--accent-hover);
-    text-decoration: underline;
+  }
+
+  .submit-btn {
+    grid-column: 1 / -1;
+    padding: 13px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    color: white;
+    font-size: 0.97rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3);
+    transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.4);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
   }
 
   .form-note {
-    margin: 10px 0 0;
-    font-size: 0.82rem;
+    grid-column: 1 / -1;
+    font-size: 0.8rem;
     color: var(--muted);
+    margin: 0;
+    text-align: center;
   }
 
-  .form-message {
-    margin-top: 12px;
+  #form-message {
+    grid-column: 1 / -1;
     padding: 10px 14px;
     border-radius: 12px;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+    text-align: center;
+    margin-top: -4px;
   }
 
-  .form-message.success {
+  #form-message.success {
     background: rgba(80, 200, 120, 0.15);
     color: #3aaa5a;
   }
 
-  .form-message.error {
+  #form-message.error {
     background: rgba(255, 80, 80, 0.12);
     color: #d94040;
   }
 
-  #submit-btn {
-    width: 100%;
-    margin-top: 6px;
-  }
-
-  #submit-btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
-
-  .category-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
-
   /* 隐藏/展开动画 */
-  .publish-box.hidden {
+  .publish-panel.hidden {
     display: none;
   }
 
   @keyframes slide-down {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
   }
 
-  .publish-box:not(.hidden) {
+  .publish-panel:not(.hidden) {
     animation: slide-down 250ms ease both;
   }
 
-  /* 图片灯箱 */
+  /* ===== 时间线卡片 ===== */
+  .moments-list {
+    display: grid;
+    gap: 16px;
+    padding-left: 20px;
+    border-left: 2px solid var(--panel-border);
+    margin-left: 4px;
+  }
+
+  .moment-card {
+    position: relative;
+    margin-left: 20px;
+    background: var(--panel-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(14px);
+    transition: transform 220ms ease, box-shadow 220ms ease;
+    animation: card-in 400ms ease both;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .moment-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .moment-card::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 22px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .card-glow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  }
+
+  .glow-游戏 { background: linear-gradient(to bottom, #ff8fb3, #a88cff); }
+  .glow-音乐 { background: linear-gradient(to bottom, #ffcf7a, #ff8fb3); }
+  .glow-生活 { background: linear-gradient(to bottom, #a88cff, #ffcf7a); }
+
+  .card-content {
+    padding: 20px 22px 20px 26px;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .cat-pill {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  .pill-游戏 { background: rgba(255, 143, 179, 0.15); color: #ff6d9e; }
+  .pill-音乐 { background: rgba(255, 207, 122, 0.15); color: #e6a820; }
+  .pill-生活 { background: rgba(168, 140, 255, 0.15); color: #9b7be6; }
+
+  .card-date {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .card-text {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 1.02rem;
+    line-height: 1.75;
+  }
+
+  .card-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .card-images img {
+    width: 110px;
+    height: 110px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .card-images img:hover {
+    transform: scale(1.04);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .card-link {
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 180ms ease;
+  }
+
+  .card-link:hover {
+    color: var(--accent-hover);
+  }
+
+  .moment-card.hidden {
+    display: none !important;
+  }
+
+  /* ===== 图片灯箱 ===== */
   .lightbox-overlay {
     position: fixed;
     inset: 0;
@@ -392,123 +737,20 @@ const sortedMoments = [...moments].sort(
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
   }
-
-  .cat-tab {
-    padding: 8px 16px;
-    border-radius: 999px;
-    border: 1px solid var(--panel-border);
-    background: var(--panel);
-    color: var(--text-soft);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 180ms ease;
-  }
-
-  .cat-tab:hover {
-    border-color: var(--hover-border);
-    color: var(--accent);
-  }
-
-  .cat-tab.active {
-    background: linear-gradient(135deg, var(--accent), var(--accent-3));
-    color: white;
-    border-color: transparent;
-  }
-
-  .moments-list {
-    display: grid;
-    gap: 16px;
-  }
-
-  .moment-card {
-    padding: 22px 24px;
-  }
-
-  .moment-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 10px;
-  }
-
-  .moment-cat {
-    font-size: 0.82rem;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 0.05em;
-  }
-
-  .moment-date {
-    font-size: 0.82rem;
-    color: var(--muted);
-  }
-
-  .moment-text {
-    margin: 0 0 10px;
-    color: var(--text);
-    font-size: 1.02rem;
-    line-height: 1.7;
-  }
-
-  .moment-images {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 8px;
-  }
-
-  .moment-images img {
-    width: 120px;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 10px;
-    border: 1px solid var(--panel-border);
-    cursor: pointer;
-    transition: transform 180ms ease, box-shadow 180ms ease;
-  }
-
-  .moment-images img:hover {
-    transform: scale(1.03);
-    box-shadow: var(--shadow-soft);
-  }
-
-  .moment-link {
-    display: inline-block;
-    margin-top: 10px;
-    font-size: 0.85rem;
-    color: var(--accent);
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .moment-link:hover {
-    color: var(--accent-hover);
-  }
-
-  /* 隐藏被筛选掉的卡片 */
-  .moment-card.hidden {
-    display: none !important;
-  }
 </style>
 
 <script>
-  // 分类筛选功能
-  const tabs = document.querySelectorAll<HTMLButtonElement>('.cat-tab');
+  // 分类筛选
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.pill[data-category]');
   const cards = document.querySelectorAll<HTMLElement>('.moment-card');
 
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       tabs.forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
-
       const selected = tab.dataset.category ?? 'all';
       cards.forEach((card) => {
-        if (selected === 'all' || card.dataset.category === selected) {
-          card.classList.remove('hidden');
-        } else {
-          card.classList.add('hidden');
-        }
+        card.classList.toggle('hidden', selected !== 'all' && card.dataset.category !== selected);
       });
     });
   });
@@ -517,19 +759,18 @@ const sortedMoments = [...moments].sort(
   const toggleBtn = document.getElementById('publish-toggle');
   const publishBox = document.getElementById('publish-box');
   const closeBtn = document.getElementById('close-btn');
-  const toggleText = document.getElementById('toggle-text');
+  const toggleIcon = document.getElementById('toggle-icon');
 
   toggleBtn?.addEventListener('click', () => {
     publishBox?.classList.toggle('hidden');
     const isOpen = !publishBox?.classList.contains('hidden');
-    if (toggleText) toggleText.textContent = isOpen ? '取消发布' : '发布新动态';
-    if (toggleBtn) toggleBtn.querySelector('#toggle-icon')!.textContent = isOpen ? '🔼' : '✏️';
+    if (toggleIcon) toggleIcon.textContent = isOpen ? '🔼' : '✏️';
+    if (isOpen) publishBox?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 
   closeBtn?.addEventListener('click', () => {
     publishBox?.classList.add('hidden');
-    if (toggleText) toggleText.textContent = '发布新动态';
-    if (toggleBtn) toggleBtn.querySelector('#toggle-icon')!.textContent = '✏️';
+    if (toggleIcon) toggleIcon.textContent = '✏️';
   });
 
   // 图片上传
@@ -540,26 +781,17 @@ const sortedMoments = [...moments].sort(
   const form = document.getElementById('publish-form') as HTMLFormElement | null;
   const msg = document.getElementById('form-message');
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
-
-  // 已上传的图片 URL 列表
   const uploadedImages: string[] = [];
 
-  // 触发文件选择
   uploadPlaceholder?.addEventListener('click', () => imageInput?.click());
-  uploadArea?.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    uploadPlaceholder?.classList.add('drag-over');
-  });
-  uploadArea?.addEventListener('dragleave', () => {
-    uploadPlaceholder?.classList.remove('drag-over');
-  });
+  uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadPlaceholder?.classList.add('drag-over'); });
+  uploadArea?.addEventListener('dragleave', () => { uploadPlaceholder?.classList.remove('drag-over'); });
   uploadArea?.addEventListener('drop', (e) => {
     e.preventDefault();
     uploadPlaceholder?.classList.remove('drag-over');
     const files = (e as DragEvent).dataTransfer?.files;
     if (files) handleFiles(Array.from(files));
   });
-
   imageInput?.addEventListener('change', () => {
     if (imageInput.files) handleFiles(Array.from(imageInput.files));
     imageInput.value = '';
@@ -568,77 +800,47 @@ const sortedMoments = [...moments].sort(
   async function handleFiles(files: File[]) {
     const tokenInput = form?.querySelector<HTMLInputElement>('input[name="githubToken"]');
     const token = tokenInput?.value;
-    if (!token) {
-      alert('请先填写 GitHub Token');
-      return;
-    }
+    if (!token) { alert('请先填写 GitHub Token'); return; }
 
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
       const previewId = `preview-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-      // 显示本地预览
       const reader = new FileReader();
       reader.onload = (e) => {
         const div = document.createElement('div');
         div.className = 'preview-item';
         div.id = previewId;
-        div.innerHTML = `
-          <img src="${e.target?.result}" alt="" />
-          <div class="upload-progress">上传中...</div>
-          <button type="button" class="remove-img" data-id="${previewId}">✕</button>
-        `;
+        div.innerHTML = `<img src="${e.target?.result}" alt="" /><div class="upload-progress">上传中...</div><button type="button" class="remove-img">✕</button>`;
         imagePreviews?.appendChild(div);
-
-        // 绑定删除
         div.querySelector('.remove-img')?.addEventListener('click', () => {
           const idx = uploadedImages.indexOf(previewId);
           if (idx > -1) uploadedImages.splice(idx, 1);
           div.remove();
-          updatePlaceholder();
         });
-
-        updatePlaceholder();
       };
       reader.readAsDataURL(file);
 
-      // 上传到 GitHub
       try {
         const fd = new FormData();
         fd.append('file', file);
         fd.append('githubToken', token);
-
         const res = await fetch('/api/moments', { method: 'PUT', body: fd });
         const result = await res.json();
-
         const previewEl = document.getElementById(previewId);
         if (result.success) {
           uploadedImages.push(result.url);
-          const progress = previewEl?.querySelector('.upload-progress');
-          if (progress) {
-            progress.textContent = '✅';
-            setTimeout(() => progress.remove(), 1000);
-          }
+          const p = previewEl?.querySelector<HTMLElement>('.upload-progress');
+          if (p) { p.textContent = '✅'; setTimeout(() => p.remove(), 1000); }
         } else {
-          const el = previewEl?.querySelector('.upload-progress') as HTMLElement | null | undefined;
-          if (el) {
-            el.textContent = '❌';
-            el.style.color = '#d94040';
-          }
+          const p = previewEl?.querySelector<HTMLElement>('.upload-progress');
+          if (p) { p.textContent = '❌'; p.style.color = '#d94040'; }
         }
       } catch {
-        const el = document.getElementById(previewId)?.querySelector('.upload-progress') as HTMLElement | null | undefined;
-        if (el) {
-          el.textContent = '❌';
-          el.style.color = '#d94040';
-        }
+        const previewEl = document.getElementById(previewId);
+        const p = previewEl?.querySelector<HTMLElement>('.upload-progress');
+        if (p) { p.textContent = '❌'; p.style.color = '#d94040'; }
       }
-    }
-  }
-
-  function updatePlaceholder() {
-    if (uploadPlaceholder) {
-      uploadPlaceholder.style.display = uploadedImages.length >= 9 ? 'none' : 'flex';
     }
   }
 
@@ -657,11 +859,10 @@ const sortedMoments = [...moments].sort(
         images: uploadedImages.length > 0 ? [...uploadedImages] : undefined,
         githubToken: fd.get('githubToken'),
       };
-
       submitBtn.disabled = true;
       submitBtn.textContent = '发布中...';
       msg.textContent = '';
-      msg.className = 'form-message';
+      msg.className = '';
 
       try {
         const res = await fetch('/api/moments', {
@@ -670,27 +871,26 @@ const sortedMoments = [...moments].sort(
           body: JSON.stringify(data),
         });
         const result = await res.json();
-
         if (result.success) {
           msg.textContent = '✅ 发布成功！页面将自动刷新...';
-          msg.className = 'form-message success';
+          msg.className = 'success';
           setTimeout(() => location.reload(), 1500);
         } else {
           msg.textContent = '❌ ' + (result.error ?? '发布失败');
-          msg.className = 'form-message error';
+          msg.className = 'error';
         }
       } catch {
         msg.textContent = '❌ 网络错误，请检查 Token 和网络连接';
-        msg.className = 'form-message error';
+        msg.className = 'error';
       } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = '发布';
+        submitBtn.textContent = '🚀 发布';
       }
     });
   }
 
   // 图片灯箱
-  document.querySelectorAll('.moment-images img').forEach((img) => {
+  document.querySelectorAll('.card-images img').forEach((img) => {
     img.addEventListener('click', () => {
       const overlay = document.createElement('div');
       overlay.className = 'lightbox-overlay';
