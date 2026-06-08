@@ -12,6 +12,15 @@ const stats = categoryOrder.map((cat) => ({
   count: sortedMoments.filter((m) => m.category === cat).length,
 }));
 const total = sortedMoments.length;
+const rawImageBase = 'https://raw.githubusercontent.com/Lidure/lidure.github.io/main/public/moments/';
+const legacyImageBase = 'https://lidure.github.io/moments/';
+
+function momentImageSrc(src: string) {
+  if (src.startsWith(rawImageBase)) return src;
+  if (src.startsWith(legacyImageBase)) return rawImageBase + encodeURIComponent(src.slice(legacyImageBase.length));
+  if (src.startsWith('/moments/')) return rawImageBase + encodeURIComponent(src.slice('/moments/'.length));
+  return src;
+}
 ---
 <BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏，音乐、生活，随时碎碎念。" showTime={true}>
   <section class="moments-shell">
@@ -123,9 +132,9 @@ const total = sortedMoments.length;
             </div>
             <p class="card-text">{moment.text}</p>
             {moment.images && moment.images.length > 0 && (
-              <div class="card-images">
+              <div class="card-images" data-count={moment.images.length}>
                 {moment.images.map((img: string) => (
-                  <img src={img} alt="" loading="lazy" />
+                  <img src={momentImageSrc(img)} data-original-src={img} alt="" loading="lazy" decoding="async" />
                 ))}
               </div>
             )}
@@ -479,6 +488,18 @@ const total = sortedMoments.length;
     border-radius: 10px;
   }
 
+  .preview-item .upload-progress.hidden {
+    display: none;
+  }
+
+  .preview-item.uploaded .upload-progress {
+    background: rgba(40, 140, 80, 0.72);
+  }
+
+  .preview-item.failed .upload-progress {
+    background: rgba(160, 30, 30, 0.72);
+  }
+
   /* Token */
   .token-field {
     grid-column: 1 / -1;
@@ -682,20 +703,35 @@ const total = sortedMoments.length;
   }
 
   .card-images {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
-    margin-bottom: 6px;
+    max-width: 430px;
+    margin: 0 0 10px;
+  }
+
+  .card-images[data-count="1"] {
+    grid-template-columns: minmax(0, 360px);
+  }
+
+  .card-images[data-count="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 360px;
   }
 
   .card-images img {
-    width: 110px;
-    height: 110px;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    height: auto;
     object-fit: cover;
     border-radius: 10px;
     border: 1px solid var(--panel-border);
     cursor: pointer;
     transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .card-images[data-count="1"] img {
+    aspect-ratio: 4 / 3;
   }
 
   .card-images img:hover {
@@ -736,6 +772,30 @@ const total = sortedMoments.length;
     max-height: 90vh;
     border-radius: 12px;
     box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  @media (max-width: 640px) {
+    .moments-hero {
+      padding: 32px 20px 26px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .controls-bar {
+      align-items: flex-start;
+    }
+
+    .card-images,
+    .card-images[data-count="2"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: none;
+    }
+
+    .card-images[data-count="1"] {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
 
@@ -781,7 +841,8 @@ const total = sortedMoments.length;
   const form = document.getElementById('publish-form') as HTMLFormElement | null;
   const msg = document.getElementById('form-message');
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
-  const uploadedImages: string[] = [];
+  const selectedImages: Array<{ id: string; file: File; previewUrl: string; remoteUrl?: string }> = [];
+  const maxImages = 9;
 
   async function readApiResponse(res: Response) {
     const text = await res.text();
@@ -802,6 +863,90 @@ const total = sortedMoments.length;
     return result;
   }
 
+  function setMessage(text: string, type: 'success' | 'error' | '') {
+    if (!msg) return;
+    msg.textContent = text;
+    msg.className = type;
+  }
+
+  function setPreviewStatus(id: string, text: string, state: 'idle' | 'uploading' | 'uploaded' | 'failed') {
+    const item = document.getElementById(`preview-${id}`);
+    const progress = item?.querySelector<HTMLElement>('.upload-progress');
+    if (!item || !progress) return;
+
+    item.classList.toggle('uploaded', state === 'uploaded');
+    item.classList.toggle('failed', state === 'failed');
+    progress.classList.toggle('hidden', state === 'idle');
+    progress.textContent = text;
+  }
+
+  function renderPreviews() {
+    if (!imagePreviews) return;
+    imagePreviews.innerHTML = '';
+
+    selectedImages.forEach((item) => {
+      const div = document.createElement('div');
+      div.className = 'preview-item';
+      div.id = `preview-${item.id}`;
+
+      const img = document.createElement('img');
+      img.src = item.previewUrl;
+      img.alt = item.file.name;
+
+      const progress = document.createElement('div');
+      progress.className = 'upload-progress hidden';
+
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.className = 'remove-img';
+      removeBtn.textContent = '✕';
+      removeBtn.addEventListener('click', () => {
+        const index = selectedImages.findIndex((image) => image.id === item.id);
+        if (index > -1) {
+          URL.revokeObjectURL(selectedImages[index].previewUrl);
+          selectedImages.splice(index, 1);
+          renderPreviews();
+        }
+      });
+
+      div.append(img, progress, removeBtn);
+      imagePreviews.appendChild(div);
+
+      if (item.remoteUrl) setPreviewStatus(item.id, '已上传', 'uploaded');
+    });
+  }
+
+  async function uploadSelectedImages(token: string) {
+    const urls: string[] = [];
+
+    for (const item of selectedImages) {
+      if (item.remoteUrl) {
+        urls.push(item.remoteUrl);
+        continue;
+      }
+
+      setPreviewStatus(item.id, '上传中...', 'uploading');
+
+      const fd = new FormData();
+      fd.append('file', item.file);
+      fd.append('githubToken', token);
+
+      const res = await fetch('/api/moments', { method: 'PUT', body: fd });
+      const result = await readApiResponse(res);
+
+      if (!result.success || !result.url) {
+        setPreviewStatus(item.id, '失败', 'failed');
+        throw new Error(result.error ?? '图片上传失败');
+      }
+
+      item.remoteUrl = result.url;
+      urls.push(result.url);
+      setPreviewStatus(item.id, '已上传', 'uploaded');
+    }
+
+    return urls;
+  }
+
   uploadPlaceholder?.addEventListener('click', () => imageInput?.click());
   uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadPlaceholder?.classList.add('drag-over'); });
   uploadArea?.addEventListener('dragleave', () => { uploadPlaceholder?.classList.remove('drag-over'); });
@@ -817,50 +962,22 @@ const total = sortedMoments.length;
   });
 
   async function handleFiles(files: File[]) {
-    const tokenInput = form?.querySelector<HTMLInputElement>('input[name="githubToken"]');
-    const token = tokenInput?.value;
-    if (!token) { alert('请先填写 GitHub Token'); return; }
-
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
-      const previewId = `preview-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const div = document.createElement('div');
-        div.className = 'preview-item';
-        div.id = previewId;
-        div.innerHTML = `<img src="${e.target?.result}" alt="" /><div class="upload-progress">上传中...</div><button type="button" class="remove-img">✕</button>`;
-        imagePreviews?.appendChild(div);
-        div.querySelector('.remove-img')?.addEventListener('click', () => {
-          const idx = uploadedImages.indexOf(previewId);
-          if (idx > -1) uploadedImages.splice(idx, 1);
-          div.remove();
-        });
-      };
-      reader.readAsDataURL(file);
-
-      try {
-        const fd = new FormData();
-        fd.append('file', file);
-        fd.append('githubToken', token);
-        const res = await fetch('/api/moments', { method: 'PUT', body: fd });
-        const result = await readApiResponse(res);
-        const previewEl = document.getElementById(previewId);
-        if (result.success && result.url) {
-          uploadedImages.push(result.url);
-          const p = previewEl?.querySelector<HTMLElement>('.upload-progress');
-          if (p) { p.textContent = '✅'; setTimeout(() => p.remove(), 1000); }
-        } else {
-          const p = previewEl?.querySelector<HTMLElement>('.upload-progress');
-          if (p) { p.textContent = '❌'; p.style.color = '#d94040'; }
-        }
-      } catch {
-        const previewEl = document.getElementById(previewId);
-        const p = previewEl?.querySelector<HTMLElement>('.upload-progress');
-        if (p) { p.textContent = '❌'; p.style.color = '#d94040'; }
+      if (selectedImages.length >= maxImages) {
+        setMessage(`最多选择 ${maxImages} 张图片`, 'error');
+        break;
       }
+
+      selectedImages.push({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        file,
+        previewUrl: URL.createObjectURL(file),
+      });
     }
+
+    renderPreviews();
   }
 
   if (form && msg && submitBtn) {
@@ -870,20 +987,24 @@ const total = sortedMoments.length;
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
-      const data = {
-        date: fd.get('date'),
-        category: fd.get('category'),
-        text: fd.get('text'),
-        link: fd.get('link') || undefined,
-        images: uploadedImages.length > 0 ? [...uploadedImages] : undefined,
-        githubToken: fd.get('githubToken'),
-      };
+      const githubToken = String(fd.get('githubToken') ?? '');
+
       submitBtn.disabled = true;
-      submitBtn.textContent = '发布中...';
-      msg.textContent = '';
-      msg.className = '';
+      submitBtn.textContent = selectedImages.length > 0 ? '上传图片...' : '发布中...';
+      setMessage('', '');
 
       try {
+        const imageUrls = selectedImages.length > 0 ? await uploadSelectedImages(githubToken) : [];
+        const data = {
+          date: fd.get('date'),
+          category: fd.get('category'),
+          text: fd.get('text'),
+          link: fd.get('link') || undefined,
+          images: imageUrls.length > 0 ? imageUrls : undefined,
+          githubToken,
+        };
+
+        submitBtn.textContent = '发布中...';
         const res = await fetch('/api/moments', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -891,17 +1012,14 @@ const total = sortedMoments.length;
         });
         const result = await readApiResponse(res);
         if (result.success) {
-          msg.textContent = '✅ 发布成功！页面将自动刷新...';
-          msg.className = 'success';
+          setMessage('✅ 发布成功！页面将自动刷新...', 'success');
           setTimeout(() => location.reload(), 1500);
         } else {
-          msg.textContent = '❌ ' + (result.error ?? '发布失败');
-          msg.className = 'error';
+          setMessage('❌ ' + (result.error ?? '发布失败'), 'error');
         }
       } catch (err) {
         const detail = err instanceof Error ? err.message : String(err);
-        msg.textContent = '❌ 网络错误: ' + detail.slice(0, 80);
-        msg.className = 'error';
+        setMessage('❌ 网络错误: ' + detail.slice(0, 120), 'error');
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '🚀 发布';
