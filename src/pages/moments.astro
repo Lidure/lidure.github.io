@@ -1,0 +1,703 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { moments, categoryMeta, categoryOrder } from '../data/moments';
+import type { MomentCategory } from '../data/moments';
+
+// 按日期倒序排列
+const sortedMoments = [...moments].sort(
+  (a, b) => new Date(b.date).valueOf() - new Date(a.date).valueOf()
+);
+---
+<BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏、音乐、生活，随时碎碎念。" showTime={true}>
+  <section class="moments-shell">
+    <span class="kicker">Moments</span>
+    <h1>碎碎念</h1>
+    <p>游戏、音乐、生活，随手记下的碎片。随时更新，想到什么说什么。</p>
+
+    <!-- 分类筛选 -->
+    <div class="category-tabs">
+      <button class="cat-tab active" data-category="all">全部</button>
+      {categoryOrder.map((cat) => (
+        <button class="cat-tab" data-category={cat}>
+          {categoryMeta[cat].icon} {categoryMeta[cat].label}
+        </button>
+      ))}
+    </div>
+
+    <!-- 发布按钮 -->
+    <button class="publish-toggle button primary" id="publish-toggle">
+      <span id="toggle-icon">✏️</span>
+      <span id="toggle-text">发布新动态</span>
+    </button>
+
+    <!-- 发布面板 -->
+    <div class="publish-box card hidden" id="publish-box">
+      <div class="publish-header">
+        <h3>📝 发布新动态</h3>
+        <button type="button" class="close-btn" id="close-btn" aria-label="关闭">✕</button>
+      </div>
+      <form id="publish-form">
+        <div class="form-row">
+          <label>
+            日期
+            <input type="date" name="date" required />
+          </label>
+          <label>
+            分类
+            <select name="category" required>
+              <option value="">选择分类</option>
+              {categoryOrder.map((cat) => (
+                <option value={cat}>{categoryMeta[cat].icon} {cat}</option>
+              ))}
+            </select>
+          </label>
+        </div>
+        <label class="full">
+          内容
+          <textarea name="text" rows="3" placeholder="想说点什么..." required></textarea>
+        </label>
+        <label class="full">
+          链接（可选）
+          <input type="url" name="link" placeholder="https://..." />
+        </label>
+
+        <!-- 图片上传 -->
+        <div class="image-upload-area" id="image-upload-area">
+          <input type="file" id="image-input" accept="image/*" multiple hidden />
+          <div class="upload-placeholder" id="upload-placeholder">
+            <span>📷 点击或拖拽上传图片</span>
+            <span class="upload-hint">支持多张图片</span>
+          </div>
+          <div class="image-previews" id="image-previews"></div>
+        </div>
+
+        <label class="full token-label">
+          GitHub Token
+          <input type="password" name="githubToken" placeholder="ghp_xxxxxxxxxx" required />
+          <a href="https://github.com/settings/tokens/new?scopes=repo&description=Moments%20Blog" target="_blank" rel="noreferrer" class="token-hint">
+            生成 Token ↗
+          </a>
+        </label>
+        <button type="submit" class="button primary" id="submit-btn">发布</button>
+        <p class="form-note">⚠️ Token 需要 repo 权限，发布后会自动提交到 GitHub。</p>
+      </form>
+      <div id="form-message" class="form-message"></div>
+    </div>
+
+    <!-- 动态列表 -->
+    <div class="moments-list">
+      {sortedMoments.map((moment) => (
+        <article class="moment-card card" data-category={moment.category}>
+          <div class="moment-header">
+            <span class="moment-cat">
+              {categoryMeta[moment.category as MomentCategory].icon}
+              {categoryMeta[moment.category as MomentCategory].label}
+            </span>
+            <span class="moment-date">{moment.date}</span>
+          </div>
+          <p class="moment-text">{moment.text}</p>
+          {moment.images && moment.images.length > 0 && (
+            <div class="moment-images">
+              {moment.images.map((img) => (
+                <img src={img} alt="" loading="lazy" />
+              ))}
+            </div>
+          )}
+          {moment.link && (
+            <a class="moment-link" href={moment.link} target="_blank" rel="noreferrer">
+              🔗 {moment.link.replace(/^https?:\/\//, '').split('/')[0]}
+            </a>
+          )}
+        </article>
+      ))}
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .moments-shell {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .moments-shell h1 {
+    margin: 12px 0;
+  }
+
+  .moments-shell > p {
+    margin-bottom: 28px;
+    color: var(--muted);
+  }
+
+  /* 发布按钮 */
+  .publish-toggle {
+    width: 100%;
+    margin-bottom: 28px;
+    font-size: 0.95rem;
+    padding: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  /* 发布面板 */
+  .publish-box {
+    padding: 24px 26px;
+    margin-bottom: 28px;
+    transition: opacity 250ms ease, transform 250ms ease;
+  }
+
+  .publish-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  .publish-header h3 {
+    margin: 0;
+    font-size: 1.05rem;
+  }
+
+  .close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    color: var(--muted);
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: color 180ms ease, background 180ms ease;
+  }
+
+  .close-btn:hover {
+    color: var(--text);
+    background: var(--tag-bg);
+  }
+
+  /* 图片上传 */
+  .image-upload-area {
+    margin-bottom: 14px;
+  }
+
+  .upload-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 20px;
+    border: 2px dashed var(--panel-border);
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: var(--muted);
+    transition: border-color 180ms ease, background 180ms ease;
+  }
+
+  .upload-placeholder:hover {
+    border-color: var(--accent);
+    background: var(--tag-bg);
+  }
+
+  .upload-placeholder.drag-over {
+    border-color: var(--accent);
+    background: var(--tag-bg);
+  }
+
+  .upload-hint {
+    font-size: 0.78rem;
+    opacity: 0.7;
+  }
+
+  .image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .preview-item {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--panel-border);
+  }
+
+  .preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .preview-item .remove-img {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .preview-item .upload-progress {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-soft);
+  }
+
+  label.full {
+    margin-bottom: 14px;
+  }
+
+  input, select, textarea {
+    padding: 10px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.95rem;
+    font-family: inherit;
+    transition: border-color 180ms ease;
+  }
+
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .token-label {
+    position: relative;
+  }
+
+  .token-hint {
+    font-size: 0.8rem;
+    color: var(--accent);
+    margin-top: 2px;
+  }
+
+  .token-hint:hover {
+    color: var(--accent-hover);
+    text-decoration: underline;
+  }
+
+  .form-note {
+    margin: 10px 0 0;
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .form-message {
+    margin-top: 12px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+  }
+
+  .form-message.success {
+    background: rgba(80, 200, 120, 0.15);
+    color: #3aaa5a;
+  }
+
+  .form-message.error {
+    background: rgba(255, 80, 80, 0.12);
+    color: #d94040;
+  }
+
+  #submit-btn {
+    width: 100%;
+    margin-top: 6px;
+  }
+
+  #submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  .category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  /* 隐藏/展开动画 */
+  .publish-box.hidden {
+    display: none;
+  }
+
+  @keyframes slide-down {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .publish-box:not(.hidden) {
+    animation: slide-down 250ms ease both;
+  }
+
+  /* 图片灯箱 */
+  .lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    cursor: zoom-out;
+  }
+
+  .lightbox-overlay img {
+    max-width: 90vw;
+    max-height: 90vh;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  .cat-tab {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 180ms ease;
+  }
+
+  .cat-tab:hover {
+    border-color: var(--hover-border);
+    color: var(--accent);
+  }
+
+  .cat-tab.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    color: white;
+    border-color: transparent;
+  }
+
+  .moments-list {
+    display: grid;
+    gap: 16px;
+  }
+
+  .moment-card {
+    padding: 22px 24px;
+  }
+
+  .moment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .moment-cat {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .moment-date {
+    font-size: 0.82rem;
+    color: var(--muted);
+  }
+
+  .moment-text {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 1.02rem;
+    line-height: 1.7;
+  }
+
+  .moment-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .moment-images img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+  }
+
+  .moment-images img:hover {
+    transform: scale(1.03);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .moment-link {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .moment-link:hover {
+    color: var(--accent-hover);
+  }
+
+  /* 隐藏被筛选掉的卡片 */
+  .moment-card.hidden {
+    display: none !important;
+  }
+</style>
+
+<script>
+  // 分类筛选功能
+  const tabs = document.querySelectorAll<HTMLButtonElement>('.cat-tab');
+  const cards = document.querySelectorAll<HTMLElement>('.moment-card');
+
+  tabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.classList.remove('active'));
+      tab.classList.add('active');
+
+      const selected = tab.dataset.category ?? 'all';
+      cards.forEach((card) => {
+        if (selected === 'all' || card.dataset.category === selected) {
+          card.classList.remove('hidden');
+        } else {
+          card.classList.add('hidden');
+        }
+      });
+    });
+  });
+
+  // 发布面板开关
+  const toggleBtn = document.getElementById('publish-toggle');
+  const publishBox = document.getElementById('publish-box');
+  const closeBtn = document.getElementById('close-btn');
+  const toggleText = document.getElementById('toggle-text');
+
+  toggleBtn?.addEventListener('click', () => {
+    publishBox?.classList.toggle('hidden');
+    const isOpen = !publishBox?.classList.contains('hidden');
+    if (toggleText) toggleText.textContent = isOpen ? '取消发布' : '发布新动态';
+    if (toggleBtn) toggleBtn.querySelector('#toggle-icon')!.textContent = isOpen ? '🔼' : '✏️';
+  });
+
+  closeBtn?.addEventListener('click', () => {
+    publishBox?.classList.add('hidden');
+    if (toggleText) toggleText.textContent = '发布新动态';
+    if (toggleBtn) toggleBtn.querySelector('#toggle-icon')!.textContent = '✏️';
+  });
+
+  // 图片上传
+  const imageInput = document.getElementById('image-input') as HTMLInputElement | null;
+  const uploadPlaceholder = document.getElementById('upload-placeholder');
+  const imagePreviews = document.getElementById('image-previews');
+  const uploadArea = document.getElementById('image-upload-area');
+  const form = document.getElementById('publish-form') as HTMLFormElement | null;
+  const msg = document.getElementById('form-message');
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+
+  // 已上传的图片 URL 列表
+  const uploadedImages: string[] = [];
+
+  // 触发文件选择
+  uploadPlaceholder?.addEventListener('click', () => imageInput?.click());
+  uploadArea?.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    uploadPlaceholder?.classList.add('drag-over');
+  });
+  uploadArea?.addEventListener('dragleave', () => {
+    uploadPlaceholder?.classList.remove('drag-over');
+  });
+  uploadArea?.addEventListener('drop', (e) => {
+    e.preventDefault();
+    uploadPlaceholder?.classList.remove('drag-over');
+    const files = (e as DragEvent).dataTransfer?.files;
+    if (files) handleFiles(Array.from(files));
+  });
+
+  imageInput?.addEventListener('change', () => {
+    if (imageInput.files) handleFiles(Array.from(imageInput.files));
+    imageInput.value = '';
+  });
+
+  async function handleFiles(files: File[]) {
+    const tokenInput = form?.querySelector<HTMLInputElement>('input[name="githubToken"]');
+    const token = tokenInput?.value;
+    if (!token) {
+      alert('请先填写 GitHub Token');
+      return;
+    }
+
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) continue;
+      const previewId = `preview-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+      // 显示本地预览
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const div = document.createElement('div');
+        div.className = 'preview-item';
+        div.id = previewId;
+        div.innerHTML = `
+          <img src="${e.target?.result}" alt="" />
+          <div class="upload-progress">上传中...</div>
+          <button type="button" class="remove-img" data-id="${previewId}">✕</button>
+        `;
+        imagePreviews?.appendChild(div);
+
+        // 绑定删除
+        div.querySelector('.remove-img')?.addEventListener('click', () => {
+          const idx = uploadedImages.indexOf(previewId);
+          if (idx > -1) uploadedImages.splice(idx, 1);
+          div.remove();
+          updatePlaceholder();
+        });
+
+        updatePlaceholder();
+      };
+      reader.readAsDataURL(file);
+
+      // 上传到 GitHub
+      try {
+        const fd = new FormData();
+        fd.append('file', file);
+        fd.append('githubToken', token);
+
+        const res = await fetch('/api/moments', { method: 'PUT', body: fd });
+        const result = await res.json();
+
+        const previewEl = document.getElementById(previewId);
+        if (result.success) {
+          uploadedImages.push(result.url);
+          const progress = previewEl?.querySelector('.upload-progress');
+          if (progress) {
+            progress.textContent = '✅';
+            setTimeout(() => progress.remove(), 1000);
+          }
+        } else {
+          const progress = previewEl?.querySelector('.upload-progress');
+          if (progress) {
+            progress.textContent = '❌';
+            progress.style.color = '#d94040';
+          }
+        }
+      } catch {
+        const previewEl = document.getElementById(previewId);
+        const progress = previewEl?.querySelector('.upload-progress');
+        if (progress) {
+          progress.textContent = '❌';
+          progress.style.color = '#d94040';
+        }
+      }
+    }
+  }
+
+  function updatePlaceholder() {
+    if (uploadPlaceholder) {
+      uploadPlaceholder.style.display = uploadedImages.length >= 9 ? 'none' : 'flex';
+    }
+  }
+
+  if (form && msg && submitBtn) {
+    const dateInput = form.querySelector<HTMLInputElement>('input[name="date"]');
+    if (dateInput) dateInput.value = new Date().toISOString().slice(0, 10);
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fd = new FormData(form);
+      const data = {
+        date: fd.get('date'),
+        category: fd.get('category'),
+        text: fd.get('text'),
+        link: fd.get('link') || undefined,
+        images: uploadedImages.length > 0 ? [...uploadedImages] : undefined,
+        githubToken: fd.get('githubToken'),
+      };
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '发布中...';
+      msg.textContent = '';
+      msg.className = 'form-message';
+
+      try {
+        const res = await fetch('/api/moments', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          msg.textContent = '✅ 发布成功！页面将自动刷新...';
+          msg.className = 'form-message success';
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          msg.textContent = '❌ ' + (result.error ?? '发布失败');
+          msg.className = 'form-message error';
+        }
+      } catch {
+        msg.textContent = '❌ 网络错误，请检查 Token 和网络连接';
+        msg.className = 'form-message error';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '发布';
+      }
+    });
+  }
+
+  // 图片灯箱
+  document.querySelectorAll('.moment-images img').forEach((img) => {
+    img.addEventListener('click', () => {
+      const overlay = document.createElement('div');
+      overlay.className = 'lightbox-overlay';
+      overlay.innerHTML = `<img src="${(img as HTMLImageElement).src}" alt="" />`;
+      overlay.addEventListener('click', () => overlay.remove());
+      document.body.appendChild(overlay);
+    });
+  });
+</script>
