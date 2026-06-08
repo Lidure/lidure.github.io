@@ -620,18 +620,17 @@ const sortedMoments = [...moments].sort(
             setTimeout(() => progress.remove(), 1000);
           }
         } else {
-          const progress = previewEl?.querySelector('.upload-progress');
-          if (progress) {
-            progress.textContent = '❌';
-            progress.style.color = '#d94040';
+          const el = previewEl?.querySelector('.upload-progress') as HTMLElement | null | undefined;
+          if (el) {
+            el.textContent = '❌';
+            el.style.color = '#d94040';
           }
         }
       } catch {
-        const previewEl = document.getElementById(previewId);
-        const progress = previewEl?.querySelector<HTMLElement><HTMLElement>('.upload-progress');
-        if (progress) {
-          progress.textContent = '❌';
-          progress.style.color = '#d94040';
+        const el = document.getElementById(previewId)?.querySelector('.upload-progress') as HTMLElement | null | undefined;
+        if (el) {
+          el.textContent = '❌';
+          el.style.color = '#d94040';
         }
       }
     }
