@@ -6,5 +6,5 @@ export default defineConfig({
   site: 'https://lidure.github.io',
   integrations: [sitemap()],
   output: 'server',
-  adapter: cloudflare(),
+  adapter: cloudflare({ platformProxy: { enabled: true } }),
 });
