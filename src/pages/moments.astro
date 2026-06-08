@@ -145,7 +145,17 @@ function momentImageSrc(src: string) {
             {moment.images && moment.images.length > 0 && (
               <div class="card-images" data-count={moment.images.length}>
                 {moment.images.map((img: string) => (
-                  <img src={momentImageSrc(img)} data-original-src={img} alt="" loading="lazy" decoding="async" />
+                  <img
+                    src={momentImageSrc(img)}
+                    data-lightbox-src={momentImageSrc(img)}
+                    data-original-src={img}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                    role="button"
+                    tabindex="0"
+                    aria-label="Open image preview"
+                  />
                 ))}
               </div>
             )}
@@ -157,6 +167,16 @@ function momentImageSrc(src: string) {
           </div>
         </article>
       ))}
+    </div>
+
+    <div class="lightbox-overlay" id="moment-lightbox" aria-hidden="true" hidden>
+      <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close image preview">&times;</button>
+      <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous image">&#8249;</button>
+      <figure class="lightbox-stage" id="lightbox-stage">
+        <img class="lightbox-image" id="lightbox-image" src="" alt="" decoding="async" />
+        <figcaption class="lightbox-counter" id="lightbox-counter"></figcaption>
+      </figure>
+      <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next image">&#8250;</button>
     </div>
   </section>
 </BaseLayout>
@@ -767,22 +787,109 @@ function momentImageSrc(src: string) {
   }
 
   /* ===== 图片灯箱 ===== */
+  :global(body.lightbox-open) {
+    overflow: hidden;
+  }
+
   .lightbox-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.85);
+    z-index: 10000;
+    display: grid;
+    grid-template-columns: minmax(48px, 1fr) minmax(0, auto) minmax(48px, 1fr);
+    align-items: center;
+    justify-items: center;
+    gap: 18px;
+    padding: 28px;
+    background: rgba(8, 8, 12, 0.88);
+    backdrop-filter: blur(10px);
+  }
+
+  .lightbox-overlay[hidden],
+  .lightbox-nav[hidden] {
+    display: none;
+  }
+
+  .lightbox-stage {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: min(92vw, 1080px);
+    max-height: 90vh;
+    margin: 0;
+  }
+
+  .lightbox-image {
+    display: block;
+    max-width: min(92vw, 1080px);
+    max-height: calc(90vh - 38px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.52);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .lightbox-counter {
+    min-height: 20px;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 0.86rem;
+    line-height: 1.2;
+  }
+
+  .lightbox-close,
+  .lightbox-nav {
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
-    cursor: zoom-out;
+    transition: background 180ms ease, transform 180ms ease, border-color 180ms ease;
   }
 
-  .lightbox-overlay img {
-    max-width: 90vw;
-    max-height: 90vh;
-    border-radius: 12px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  .lightbox-close:hover,
+  .lightbox-nav:hover {
+    background: rgba(255, 255, 255, 0.24);
+    border-color: rgba(255, 255, 255, 0.34);
+  }
+
+  .lightbox-close:active,
+  .lightbox-nav:active {
+    transform: scale(0.96);
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 1.55rem;
+    line-height: 1;
+  }
+
+  .lightbox-nav {
+    width: 46px;
+    height: 64px;
+    border-radius: 999px;
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+
+  .lightbox-prev {
+    grid-column: 1;
+    justify-self: end;
+  }
+
+  .lightbox-next {
+    grid-column: 3;
+    justify-self: start;
   }
 
   @media (max-width: 640px) {
@@ -806,6 +913,47 @@ function momentImageSrc(src: string) {
 
     .card-images[data-count="1"] {
       grid-template-columns: 1fr;
+    }
+
+    .lightbox-overlay {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 54px 12px 74px;
+    }
+
+    .lightbox-stage {
+      grid-column: 1;
+      max-width: 96vw;
+      max-height: calc(100vh - 132px);
+    }
+
+    .lightbox-image {
+      max-width: 96vw;
+      max-height: calc(100vh - 154px);
+      border-radius: 8px;
+    }
+
+    .lightbox-close {
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+    }
+
+    .lightbox-nav {
+      position: fixed;
+      bottom: 16px;
+      width: 44px;
+      height: 44px;
+      font-size: 1.8rem;
+    }
+
+    .lightbox-prev {
+      left: calc(50% - 54px);
+    }
+
+    .lightbox-next {
+      right: calc(50% - 54px);
     }
   }
 </style>
@@ -1168,13 +1316,88 @@ function momentImageSrc(src: string) {
   }
 
   // 图片灯箱
-  document.querySelectorAll('.card-images img').forEach((img) => {
-    img.addEventListener('click', () => {
-      const overlay = document.createElement('div');
-      overlay.className = 'lightbox-overlay';
-      overlay.innerHTML = `<img src="${(img as HTMLImageElement).src}" alt="" />`;
-      overlay.addEventListener('click', () => overlay.remove());
-      document.body.appendChild(overlay);
+  const lightbox = document.getElementById('moment-lightbox') as HTMLElement | null;
+  const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
+  const lightboxCounter = document.getElementById('lightbox-counter');
+  const lightboxStage = document.getElementById('lightbox-stage');
+  const lightboxClose = document.getElementById('lightbox-close') as HTMLButtonElement | null;
+  const lightboxPrev = document.getElementById('lightbox-prev') as HTMLButtonElement | null;
+  const lightboxNext = document.getElementById('lightbox-next') as HTMLButtonElement | null;
+  let lightboxImages: HTMLImageElement[] = [];
+  let lightboxIndex = 0;
+  let returnFocusTarget: HTMLElement | null = null;
+
+  function setLightboxImage(index: number) {
+    if (!lightboxImage || !lightboxCounter || !lightboxPrev || !lightboxNext || lightboxImages.length === 0) return;
+
+    lightboxIndex = (index + lightboxImages.length) % lightboxImages.length;
+    const image = lightboxImages[lightboxIndex];
+    lightboxImage.src = image.dataset.lightboxSrc || image.currentSrc || image.src;
+    lightboxImage.alt = image.alt || '';
+
+    const hasMultipleImages = lightboxImages.length > 1;
+    lightboxCounter.textContent = hasMultipleImages ? `${lightboxIndex + 1} / ${lightboxImages.length}` : '';
+    lightboxPrev.hidden = !hasMultipleImages;
+    lightboxNext.hidden = !hasMultipleImages;
+  }
+
+  function openLightbox(target: HTMLImageElement) {
+    if (!lightbox || !lightboxImage) return;
+
+    const gallery = target.closest<HTMLElement>('.card-images');
+    lightboxImages = gallery ? Array.from(gallery.querySelectorAll<HTMLImageElement>('img')) : [target];
+    returnFocusTarget = target;
+    setLightboxImage(Math.max(0, lightboxImages.indexOf(target)));
+
+    lightbox.hidden = false;
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('lightbox-open');
+    lightboxClose?.focus({ preventScroll: true });
+  }
+
+  function closeLightbox() {
+    if (!lightbox || lightbox.hidden) return;
+
+    lightbox.hidden = true;
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('lightbox-open');
+    lightboxImage?.removeAttribute('src');
+    returnFocusTarget?.focus({ preventScroll: true });
+    returnFocusTarget = null;
+  }
+
+  function moveLightbox(delta: number) {
+    if (lightbox?.hidden !== false || lightboxImages.length < 2) return;
+    setLightboxImage(lightboxIndex + delta);
+  }
+
+  document.querySelectorAll<HTMLImageElement>('.card-images img').forEach((img) => {
+    img.addEventListener('click', () => openLightbox(img));
+    img.addEventListener('keydown', (event) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      openLightbox(img);
     });
+  });
+
+  lightbox?.addEventListener('click', closeLightbox);
+  lightboxStage?.addEventListener('click', (event) => event.stopPropagation());
+  lightboxClose?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    closeLightbox();
+  });
+  lightboxPrev?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    moveLightbox(-1);
+  });
+  lightboxNext?.addEventListener('click', (event) => {
+    event.stopPropagation();
+    moveLightbox(1);
+  });
+  document.addEventListener('keydown', (event) => {
+    if (lightbox?.hidden !== false) return;
+    if (event.key === 'Escape') closeLightbox();
+    if (event.key === 'ArrowLeft') moveLightbox(-1);
+    if (event.key === 'ArrowRight') moveLightbox(1);
   });
 </script>
