@@ -361,6 +361,8 @@
   padding: 4px;
 }
 .sekai-cd {
+  --sekai-cd-scale: 1;
+  --sekai-cd-glow: 0.13;
   position: relative;
   display: flex;
   align-items: center;
@@ -373,7 +375,9 @@
   background:
     linear-gradient(135deg,rgba(30,216,255,0.2),rgba(255,93,168,0.14)),
     rgba(255,255,255,0.05);
-  box-shadow: 0 0 0 5px rgba(255,255,255,0.035), 0 14px 30px rgba(0,0,0,0.34), 0 0 26px rgba(30,216,255,0.13);
+  box-shadow: 0 0 0 5px rgba(255,255,255,0.035), 0 14px 30px rgba(0,0,0,0.34), 0 0 30px rgba(30,216,255,var(--sekai-cd-glow));
+  transform: scale(var(--sekai-cd-scale));
+  transform-origin: center;
 }
 .sekai-cd-visualizer {
   position: absolute;
@@ -989,18 +993,18 @@
   .sekai-player-btn {
     right: 16px;
     bottom: 16px;
-    width: 69px;
-    height: 69px;
-    font-size: 1.55rem;
+    width: 46px;
+    height: 46px;
+    font-size: 1.2rem;
   }
   .sekai-player-panel {
     right: 12px;
-    bottom: 104px;
+    bottom: 74px;
     width: calc(100vw - 24px);
-    max-height: calc(100vh - 122px);
+    max-height: calc(100vh - 92px);
   }
   .sekai-player-body {
-    max-height: calc(100vh - 180px);
+    max-height: calc(100vh - 150px);
   }
   .sekai-top-section {
     align-items: flex-start;
@@ -1128,6 +1132,7 @@
   var closeBtn = document.getElementById('sekaiPlayerCloseBtn');
   var audio = document.getElementById('sekaiAudio');
   audio.crossOrigin = 'anonymous';
+  audio.setAttribute('referrerpolicy', 'no-referrer');
   var playPauseBtn = document.getElementById('sekaiPlayPauseBtn');
   var prevBtn = document.getElementById('sekaiPrevBtn');
   var nextBtn = document.getElementById('sekaiNextBtn');
@@ -1151,6 +1156,8 @@
   var coverImg = document.getElementById('sekaiCover');
   var coverFallback = document.getElementById('sekaiCoverFallback');
   var dockCover = document.getElementById('sekaiDockCover');
+  coverImg.referrerPolicy = 'no-referrer';
+  dockCover.referrerPolicy = 'no-referrer';
   var dockVisualizer = document.getElementById('sekaiDockVisualizer');
   var cdVisualizer = document.getElementById('sekaiCdVisualizer');
   var pageVisualizer = document.getElementById('sekaiPageVisualizer');
@@ -1212,7 +1219,7 @@
   applyVisualizerTargets();
 
   function fetchJson(name) {
-    return fetch(MASTER_BASE + '/' + name, { cache: 'force-cache' }).then(function(response) {
+    return fetch(MASTER_BASE + '/' + name, { cache: 'force-cache', referrerPolicy: 'no-referrer' }).then(function(response) {
       if (!response.ok) throw new Error(name + ' ' + response.status);
       return response.json();
     });
@@ -1363,6 +1370,7 @@
         cover.alt = '';
         cover.loading = 'lazy';
         cover.decoding = 'async';
+        cover.referrerPolicy = 'no-referrer';
         cover.onerror = function() {
           cover.classList.add('is-error');
         };
@@ -1596,7 +1604,6 @@
     var parts = [];
     var characters = getVocalCharacterLabel(vocal);
     if (characters) parts.push(characters);
-    if (vocal && vocal.assetbundleName) parts.push(vocal.assetbundleName);
     return parts.join(' · ');
   }
 
@@ -1834,7 +1841,11 @@
     cdEl.classList.toggle('viz-cd', visualizerTargets.cd);
     btn.classList.toggle('viz-dock', visualizerTargets.dock);
     pageVisualizer.classList.toggle('active', visualizerTargets.page);
-    if (!visualizerTargets.cd) clearCanvas(cdVisualizer);
+    if (!visualizerTargets.cd) {
+      cdEl.style.setProperty('--sekai-cd-scale', '1');
+      cdEl.style.setProperty('--sekai-cd-glow', '0.13');
+      clearCanvas(cdVisualizer);
+    }
     if (!visualizerTargets.dock) clearCanvas(dockVisualizer);
     if (!visualizerTargets.page) clearCanvas(pageVisualizer);
     if (!hasVisualizerTarget()) stopVisualizer();
@@ -1884,6 +1895,8 @@
       cancelAnimationFrame(visualizerFrame);
       visualizerFrame = 0;
     }
+    cdEl.style.setProperty('--sekai-cd-scale', '1');
+    cdEl.style.setProperty('--sekai-cd-glow', '0.13');
     clearCanvas(cdVisualizer);
     clearCanvas(dockVisualizer);
     clearCanvas(pageVisualizer);
@@ -1972,60 +1985,112 @@
     var cy = height / 2;
     var size = Math.min(width, height);
     var time = performance.now() * 0.001;
-    var bass = smoothLevel('cdBass', getBandAverage(0, 0.12), 0.78);
-    var mid = smoothLevel('cdMid', getBandAverage(0.12, 0.48), 0.82);
-    var high = smoothLevel('cdHigh', getBandAverage(0.48, 1), 0.86);
-    var halo = ctx.createRadialGradient(cx, cy, size * 0.18, cx, cy, size * 0.52);
+    var rawBass = getBandAverage(0, 0.13);
+    var previousRawBass = visualizerLevels.cdRawBass || 0;
+    var transient = Math.max(0, rawBass - previousRawBass * 0.92);
+    visualizerLevels.cdRawBass = rawBass;
+    var bass = smoothLevel('cdBass', rawBass, 0.7);
+    var mid = smoothLevel('cdMid', getBandAverage(0.13, 0.52), 0.76);
+    var high = smoothLevel('cdHigh', getBandAverage(0.52, 1), 0.82);
+    var beat = smoothLevel('cdBeat', Math.min(1, bass * 0.64 + transient * 3.4), 0.62);
+
+    cdEl.style.setProperty('--sekai-cd-scale', (1 + beat * 0.045).toFixed(3));
+    cdEl.style.setProperty('--sekai-cd-glow', (0.14 + beat * 0.34 + high * 0.08).toFixed(3));
+
+    var halo = ctx.createRadialGradient(cx, cy, size * 0.28, cx, cy, size * 0.58);
     halo.addColorStop(0, 'rgba(255,255,255,0)');
-    halo.addColorStop(0.45, 'rgba(30,216,255,' + (0.06 + bass * 0.16) + ')');
-    halo.addColorStop(0.76, 'rgba(255,93,168,' + (0.08 + mid * 0.16) + ')');
+    halo.addColorStop(0.42, 'rgba(30,216,255,' + (0.08 + beat * 0.2) + ')');
+    halo.addColorStop(0.7, 'rgba(255,93,168,' + (0.08 + mid * 0.16 + beat * 0.1) + ')');
     halo.addColorStop(1, 'rgba(255,228,94,0)');
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.fillStyle = halo;
     ctx.beginPath();
-    ctx.arc(cx, cy, size * 0.52, 0, Math.PI * 2);
+    ctx.arc(cx, cy, size * (0.49 + beat * 0.012), 0, Math.PI * 2);
     ctx.fill();
 
+    var wavePoints = 128;
+    var waveRadius = size * (0.355 + beat * 0.012);
+    for (var waveLayer = 0; waveLayer < 2; waveLayer++) {
+      ctx.beginPath();
+      for (var w = 0; w <= wavePoints; w++) {
+        var wavePosition = w / wavePoints;
+        var wave = sampleWave((wavePosition + time * 0.035 + waveLayer * 0.08) % 1);
+        var freq = sampleFrequency(wavePosition, 1.1);
+        var angle = Math.PI * 2 * wavePosition - Math.PI / 2;
+        var radius = waveRadius +
+          wave * size * (0.012 + beat * 0.018) +
+          freq * size * (0.012 + mid * 0.02) +
+          Math.sin(time * (2.2 + waveLayer * 0.5) + w * 0.2) * size * 0.003;
+        var x = cx + Math.cos(angle) * radius;
+        var y = cy + Math.sin(angle) * radius;
+        if (w === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = waveLayer === 0
+        ? 'rgba(30,216,255,' + (0.34 + beat * 0.34) + ')'
+        : 'rgba(255,93,168,' + (0.24 + mid * 0.28) + ')';
+      ctx.lineWidth = Math.max(1.2, size * (0.008 + beat * 0.01 + waveLayer * 0.003));
+      ctx.shadowBlur = size * (0.03 + beat * 0.06);
+      ctx.shadowColor = waveLayer === 0 ? 'rgba(30,216,255,0.72)' : 'rgba(255,93,168,0.64)';
+      ctx.stroke();
+    }
+
     ctx.lineCap = 'round';
-    var bars = 72;
-    var base = size * (0.415 + bass * 0.01);
+    var bars = 96;
+    var base = size * (0.395 + beat * 0.012);
     for (var i = 0; i < bars; i++) {
       var position = i / bars;
-      var value = sampleFrequency(position, 1.18);
-      var blended = Math.min(1, value * 0.72 + bass * 0.18 + high * 0.1);
-      var angle = Math.PI * 2 * position - Math.PI / 2;
-      var wobble = Math.sin(time * 2.4 + i * 0.38) * size * 0.006;
+      var value = sampleFrequency(position, 1.08);
+      var blended = Math.min(1, value * 0.82 + bass * 0.18 + high * 0.12);
+      var angle = Math.PI * 2 * position - Math.PI / 2 + time * (0.11 + beat * 0.08);
+      var wobble = Math.sin(time * 4.2 + i * 0.38) * size * (0.004 + beat * 0.006);
       var inner = base + wobble;
-      var outer = inner + size * (0.018 + blended * 0.075);
-      var hue = (185 + i * 4.2 + time * 26 + blended * 70) % 360;
+      var outer = inner + size * (0.018 + blended * (0.055 + beat * 0.018));
+      var hue = (185 + i * 3.7 + time * (36 + beat * 48) + blended * 75) % 360;
       ctx.beginPath();
       ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner);
       ctx.lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer);
-      ctx.strokeStyle = 'hsla(' + hue + ', 96%, 68%, ' + (0.28 + blended * 0.68) + ')';
-      ctx.lineWidth = Math.max(2, size * (0.007 + blended * 0.009));
-      ctx.shadowBlur = size * (0.035 + blended * 0.05);
+      ctx.strokeStyle = 'hsla(' + hue + ', 96%, 70%, ' + (0.3 + blended * 0.58 + beat * 0.16) + ')';
+      ctx.lineWidth = Math.max(1.6, size * (0.006 + blended * 0.012 + beat * 0.004));
+      ctx.shadowBlur = size * (0.026 + blended * 0.045 + beat * 0.035);
       ctx.shadowColor = 'hsla(' + hue + ', 96%, 68%, 0.72)';
       ctx.stroke();
     }
 
     for (var layer = 0; layer < 3; layer++) {
-      var radius = size * (0.405 + layer * 0.036 + bass * 0.012);
-      var pieces = 10 + layer * 3;
-      ctx.lineWidth = Math.max(1.5, size * (0.007 + layer * 0.002));
-      ctx.shadowBlur = size * 0.035;
+      var arcRadius = size * (0.37 + layer * 0.055 + beat * 0.018);
+      var pieces = 8 + layer * 3;
+      ctx.lineWidth = Math.max(1.5, size * (0.008 + layer * 0.002 + beat * 0.004));
+      ctx.shadowBlur = size * (0.028 + beat * 0.05);
       for (var piece = 0; piece < pieces; piece++) {
         var arcValue = sampleFrequency((piece + layer * 0.37) / pieces, 1.08);
-        var start = time * (0.42 + layer * 0.18) + piece * Math.PI * 2 / pieces + layer * 0.36;
-        var sweep = Math.PI * (0.07 + arcValue * 0.13 + high * 0.05);
-        var colorHue = (195 + layer * 42 + piece * 17 + time * 18) % 360;
+        var start = time * (0.72 + layer * 0.24 + beat * 0.44) + piece * Math.PI * 2 / pieces + layer * 0.36;
+        var sweep = Math.PI * (0.1 + arcValue * 0.18 + beat * 0.07);
+        var colorHue = (190 + layer * 48 + piece * 19 + time * 24) % 360;
         ctx.beginPath();
-        ctx.arc(cx, cy, radius, start, start + sweep);
-        ctx.strokeStyle = 'hsla(' + colorHue + ', 94%, 70%, ' + (0.18 + arcValue * 0.32 + mid * 0.18) + ')';
+        ctx.arc(cx, cy, arcRadius, start, start + sweep);
+        ctx.strokeStyle = 'hsla(' + colorHue + ', 94%, 70%, ' + (0.18 + arcValue * 0.28 + mid * 0.16 + beat * 0.16) + ')';
         ctx.shadowColor = 'hsla(' + colorHue + ', 94%, 70%, 0.58)';
         ctx.stroke();
       }
+    }
+
+    var dots = 24;
+    for (var d = 0; d < dots; d++) {
+      var dotValue = sampleFrequency(d / dots, 1.2);
+      var dotAngle = Math.PI * 2 * d / dots - Math.PI / 2 - time * (0.22 + beat * 0.16);
+      var dotRadius = size * (0.45 + dotValue * 0.025 + beat * 0.015);
+      var dotSize = Math.max(1.1, size * (0.006 + dotValue * 0.012 + beat * 0.008));
+      var dotHue = (205 + d * 11 + time * 36) % 360;
+      ctx.beginPath();
+      ctx.arc(cx + Math.cos(dotAngle) * dotRadius, cy + Math.sin(dotAngle) * dotRadius, dotSize, 0, Math.PI * 2);
+      ctx.fillStyle = 'hsla(' + dotHue + ', 96%, 72%, ' + (0.18 + dotValue * 0.38 + beat * 0.24) + ')';
+      ctx.shadowBlur = size * (0.025 + beat * 0.05);
+      ctx.shadowColor = 'hsla(' + dotHue + ', 96%, 72%, 0.68)';
+      ctx.fill();
     }
     ctx.restore();
   }
