@@ -1,98 +1,1130 @@
 ---
-/** SEKAI 播放器 */
+/** SEKAI player */
 ---
-<button id="sekaiPlayerBtn" class="sekai-player-btn" title="SEKAI 播放器" aria-label="打开SEKAI播放器">🎶</button>
+
+<button id="sekaiPlayerBtn" class="sekai-player-btn" title="SEKAI 播放器" aria-label="打开 SEKAI 播放器">
+  <img id="sekaiDockCover" class="sekai-dock-cover" src="" alt="" aria-hidden="true" />
+  <canvas id="sekaiDockVisualizer" class="sekai-dock-visualizer" aria-hidden="true"></canvas>
+  <span id="sekaiDockIcon" class="sekai-dock-icon">♪</span>
+</button>
 
 <div id="sekaiPlayerPanel" class="sekai-player-panel hidden" role="dialog" aria-label="SEKAI 播放器">
   <div class="sekai-player-header">
-    <span class="sekai-player-title">🎵 SEKAI</span>
-    <button id="sekaiPlayerCloseBtn" class="sekai-player-close" title="关闭">✕</button>
+    <div class="sekai-heading">
+      <span class="sekai-player-title">PJSK CD</span>
+      <span id="sekaiSourceStatus" class="sekai-status">未加载</span>
+    </div>
+    <button id="sekaiPlayerCloseBtn" class="sekai-player-close" title="关闭" aria-label="关闭">×</button>
   </div>
+
   <div class="sekai-player-body">
     <div class="sekai-top-section">
       <div class="sekai-cover-wrap">
-        <div class="sekai-cd" id="sekaiCd">
+        <div class="sekai-cd paused" id="sekaiCd">
+          <canvas id="sekaiCdVisualizer" class="sekai-cd-visualizer" aria-hidden="true"></canvas>
           <img class="sekai-cover" id="sekaiCover" src="" alt="封面" style="display:none;" />
-          <div class="sekai-cover-fallback" id="sekaiCoverFallback">🎶</div>
+          <div class="sekai-cover-fallback" id="sekaiCoverFallback">♪</div>
         </div>
       </div>
+
       <div class="sekai-now-playing">
         <div class="sekai-track-title" id="sekaiTrackTitle">选择一首歌曲</div>
-        <div class="sekai-track-artist" id="sekaiTrackArtist">-</div>
+        <div class="sekai-track-artist" id="sekaiTrackArtist">Project SEKAI</div>
         <div class="sekai-progress">
           <span id="sekaiCurrentTime">0:00</span>
-          <input type="range" id="sekaiProgressBar" min="0" max="100" value="0" step="0.1" />
+          <input type="range" id="sekaiProgressBar" min="0" max="100" value="0" step="0.1" aria-label="播放进度" />
           <span id="sekaiTotalTime">0:00</span>
         </div>
         <div class="sekai-controls">
-          <button id="sekaiPrevBtn" class="sekai-ctrl-btn" title="上一首">⏮</button>
-          <button id="sekaiPlayPauseBtn" class="sekai-ctrl-btn sekai-play-btn" title="播放/暂停">▶</button>
-          <button id="sekaiNextBtn" class="sekai-ctrl-btn" title="下一首">⏭</button>
+          <button id="sekaiPrevBtn" class="sekai-ctrl-btn" title="上一首" aria-label="上一首">‹</button>
+          <button id="sekaiPlayPauseBtn" class="sekai-ctrl-btn sekai-play-btn" title="播放/暂停" aria-label="播放/暂停">▶</button>
+          <button id="sekaiNextBtn" class="sekai-ctrl-btn" title="下一首" aria-label="下一首">›</button>
         </div>
       </div>
     </div>
-    <div class="sekai-volume">
-      <span>🔊</span>
-      <input type="range" id="sekaiVolumeSlider" min="0" max="1" step="0.01" value="0.5" />
+
+    <div class="sekai-options">
+      <div class="sekai-dropdown" id="sekaiVocalDropdown">
+        <button id="sekaiVocalButton" class="sekai-dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false" disabled>
+          <span class="sekai-dropdown-kicker">VOCAL</span>
+          <span id="sekaiVocalLabel" class="sekai-dropdown-value">Vocal</span>
+        </button>
+        <div id="sekaiVocalMenu" class="sekai-dropdown-menu" role="listbox"></div>
+      </div>
     </div>
-    <div class="sekai-playlist-label">📋 播放列表</div>
+
+    <div class="sekai-playback-options">
+      <div class="sekai-mode-toggle" aria-label="音频版本">
+        <button id="sekaiLongBtn" class="sekai-mode-btn active" type="button">完整</button>
+        <button id="sekaiShortBtn" class="sekai-mode-btn" type="button">片段</button>
+      </div>
+      <div class="sekai-order-toggle" aria-label="播放顺序">
+        <button id="sekaiSequenceBtn" class="sekai-order-btn active" type="button">顺序</button>
+        <button id="sekaiShuffleBtn" class="sekai-order-btn" type="button">随机</button>
+      </div>
+    </div>
+
+    <div class="sekai-visualizer-options">
+      <span class="sekai-control-label">可视化</span>
+      <div class="sekai-visualizer-toggle" aria-label="音频可视化">
+        <button id="sekaiVizOffBtn" class="sekai-viz-btn active" type="button" aria-pressed="true">关闭</button>
+        <button id="sekaiVizCdBtn" class="sekai-viz-btn" type="button" aria-pressed="false">CD环</button>
+        <button id="sekaiVizDockBtn" class="sekai-viz-btn" type="button" aria-pressed="false">悬浮</button>
+        <button id="sekaiVizPageBtn" class="sekai-viz-btn" type="button" aria-pressed="false">背景</button>
+      </div>
+    </div>
+
+    <div class="sekai-volume">
+      <span aria-hidden="true">VOL</span>
+      <input type="range" id="sekaiVolumeSlider" min="0" max="1" step="0.01" value="0.5" aria-label="音量" />
+    </div>
+
+    <div class="sekai-library-controls">
+      <input id="sekaiSearchInput" class="sekai-search" type="search" placeholder="搜索曲名 / 作曲 / 版本" autocomplete="off" />
+      <div class="sekai-dropdown sekai-tag-dropdown" id="sekaiTagDropdown">
+        <button id="sekaiTagButton" class="sekai-dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <span class="sekai-dropdown-kicker">UNIT</span>
+          <span id="sekaiTagLabel" class="sekai-dropdown-value">全部</span>
+        </button>
+        <div id="sekaiTagMenu" class="sekai-dropdown-menu" role="listbox"></div>
+      </div>
+    </div>
+
+    <div class="sekai-playlist-label">
+      <span>播放列表</span>
+      <span id="sekaiTrackCount">0</span>
+    </div>
     <div class="sekai-playlist" id="sekaiPlaylist"></div>
   </div>
 </div>
 
 <audio id="sekaiAudio" preload="metadata"></audio>
+<canvas id="sekaiPageVisualizer" class="sekai-page-visualizer" aria-hidden="true"></canvas>
 
 <style>
-/* Player shell — Astro scoped */
-.sekai-player-btn { position:fixed; bottom:24px; right:24px; width:52px; height:52px; border-radius:50%; background:linear-gradient(135deg,#FF69B4,#FF1493); border:2px solid rgba(255,255,255,0.2); color:white; font-size:1.4rem; cursor:pointer; z-index:10000; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 20px rgba(255,20,147,0.4); transition:all .3s; user-select:none; }
-.sekai-player-btn:hover { transform:scale(1.1); box-shadow:0 6px 30px rgba(255,20,147,0.6); }
-.sekai-player-btn.playing { animation:sekaiPulse 1.5s ease-in-out infinite; }
-@keyframes sekaiPulse { 0%,100% { box-shadow:0 4px 20px rgba(255,20,147,0.4); } 50% { box-shadow:0 4px 35px rgba(255,20,147,0.8); } }
-.sekai-player-panel { position:fixed; bottom:90px; right:24px; width:340px; max-height:520px; background:rgba(15,15,25,0.96); border:1px solid rgba(168,85,247,0.22); border-radius:16px; backdrop-filter:blur(20px) saturate(160%); z-index:10000; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,0.07); transition:opacity .2s,transform .2s; }
-.sekai-player-panel.hidden { opacity:0; transform:translateY(10px) scale(0.97); pointer-events:none; visibility:hidden; }
-.sekai-player-panel:not(.hidden) { opacity:1; transform:translateY(0) scale(1); visibility:visible; }
-.sekai-player-header { display:flex; justify-content:space-between; align-items:center; padding:14px 18px; border-bottom:1px solid rgba(255,255,255,.08); background:linear-gradient(to bottom,rgba(255,255,255,.02),transparent); }
-.sekai-player-title { font-size:.9rem; font-weight:700; background:linear-gradient(135deg,#FF69B4,#FF1493); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
-.sekai-player-close { background:none; border:none; color:rgba(255,255,255,.4); cursor:pointer; font-size:1rem; padding:4px 8px; border-radius:6px; transition:all .2s; }
-.sekai-player-close:hover { color:white; background:rgba(255,255,255,.1); }
-.sekai-player-body { padding:14px 16px; display:flex; flex-direction:column; gap:10px; }
-.sekai-top-section { display:flex; gap:14px; align-items:center; }
-.sekai-cover-wrap { flex-shrink:0; }
-.sekai-cd { width:88px; height:88px; border-radius:50%; background:linear-gradient(135deg,#2a1a3a,#1a1028); display:flex; align-items:center; justify-content:center; box-shadow:0 0 16px rgba(255,105,180,.25); position:relative; }
-.sekai-cd::before { content:''; position:absolute; width:22px; height:22px; border-radius:50%; background:linear-gradient(135deg,#FF69B4,#FF1493); }
-.sekai-cd::after { content:''; position:absolute; width:6px; height:6px; border-radius:50%; background:white; z-index:1; }
-.sekai-cover,.sekai-cover-fallback { width:88px; height:88px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
-.sekai-cover { object-fit:cover; }
-.sekai-cover-fallback { font-size:1.7rem; animation:sekaiCdSpin 8s linear infinite; }
-.sekai-cd.paused .sekai-cover-fallback,.sekai-cd.paused .sekai-cover { animation-play-state:paused; }
-@keyframes sekaiCdSpin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
-.sekai-now-playing { flex:1; min-width:0; }
-.sekai-track-title { font-size:.9rem; font-weight:700; color:white; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
-.sekai-track-artist { font-size:.72rem; color:rgba(255,182,193,.65); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:6px; }
-.sekai-progress { display:flex; align-items:center; gap:6px; font-size:.7rem; color:rgba(255,255,255,.45); font-variant-numeric:tabular-nums; }
-.sekai-progress input[type=range] { flex:1; height:3px; -webkit-appearance:none; background:rgba(255,255,255,.12); border-radius:3px; cursor:pointer; }
-.sekai-progress input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:11px; height:11px; border-radius:50%; background:linear-gradient(135deg,#FF69B4,#FF1493); cursor:pointer; }
-.sekai-controls { display:flex; align-items:center; gap:10px; margin-top:2px; }
-.sekai-ctrl-btn { background:none; border:none; color:white; font-size:1.05rem; cursor:pointer; padding:5px; border-radius:50%; transition:all .2s; display:flex; align-items:center; justify-content:center; }
-.sekai-ctrl-btn:hover { background:rgba(255,255,255,.1); transform:scale(1.1); }
-.sekai-play-btn { width:36px; height:36px; background:linear-gradient(135deg,#FF69B4,#FF1493)!important; border-radius:50%!important; font-size:1rem!important; box-shadow:0 3px 12px rgba(255,20,147,.4); }
-.sekai-play-btn:hover { box-shadow:0 5px 20px rgba(255,20,147,.6); }
-.sekai-volume { display:flex; align-items:center; gap:8px; font-size:.75rem; color:rgba(255,255,255,.45); }
-.sekai-volume input[type=range] { flex:1; height:3px; -webkit-appearance:none; background:rgba(255,255,255,.12); border-radius:3px; cursor:pointer; }
-.sekai-volume input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:11px; height:11px; border-radius:50%; background:linear-gradient(135deg,#FF69B4,#FF1493); cursor:pointer; }
-.sekai-playlist-label { font-size:.75rem; color:rgba(255,255,255,.35); letter-spacing:.05em; text-transform:uppercase; border-top:1px solid rgba(255,255,255,.06); padding-top:8px; }
-@media(max-width:480px){.sekai-player-panel{right:12px;width:calc(100vw - 24px);max-width:340px} .sekai-player-btn{right:16px;bottom:16px;width:46px;height:46px;font-size:1.2rem}}
+.sekai-player-btn {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 78px;
+  height: 78px;
+  overflow: visible;
+  border: 1px solid rgba(255,255,255,0.54);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.95) 0 18%, transparent 19%),
+    conic-gradient(from 210deg,#1ed8ff,#7c5cff,#ff5da8,#ffe45e,#46e6ad,#1ed8ff);
+  color: #fff;
+  box-shadow: 0 12px 32px rgba(30,216,255,0.28), 0 4px 16px rgba(255,93,168,0.22);
+  cursor: pointer;
+  font-size: 1.75rem;
+  text-shadow: 0 1px 8px rgba(0,0,0,0.45);
+  transition: transform .2s, box-shadow .2s;
+  user-select: none;
+}
+.sekai-player-btn::after {
+  content: none;
+}
+.sekai-player-btn.has-cover::after {
+  opacity: 0;
+}
+.sekai-dock-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  opacity: 0;
+  transform: rotate(0deg);
+  transition: opacity .2s;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.42), 0 14px 34px rgba(0,0,0,0.34);
+}
+.sekai-player-btn.has-cover .sekai-dock-cover {
+  opacity: 1;
+}
+.sekai-player-btn.playing .sekai-dock-cover {
+  animation: sekaiCdSpin 7.5s linear infinite;
+}
+.sekai-dock-visualizer {
+  position: absolute;
+  inset: -15px;
+  z-index: 0;
+  width: calc(100% + 30px);
+  height: calc(100% + 30px);
+  border-radius: 50%;
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.sekai-player-btn.viz-dock .sekai-dock-visualizer {
+  opacity: .95;
+}
+.sekai-dock-icon {
+  position: relative;
+  z-index: 2;
+}
+.sekai-player-btn.has-cover .sekai-dock-icon {
+  opacity: 0;
+}
+.sekai-player-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 16px 38px rgba(30,216,255,0.34), 0 8px 24px rgba(255,93,168,0.28);
+}
+.sekai-player-btn.playing {
+  animation: sekaiPulse 1.6s ease-in-out infinite;
+}
+@keyframes sekaiPulse {
+  0%,100% { box-shadow: 0 12px 32px rgba(30,216,255,0.28), 0 4px 16px rgba(255,93,168,0.22); }
+  50% { box-shadow: 0 14px 44px rgba(30,216,255,0.46), 0 8px 30px rgba(255,93,168,0.38); }
+}
+
+.sekai-player-panel {
+  position: fixed;
+  right: 24px;
+  bottom: 120px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  width: 420px;
+  max-width: calc(100vw - 32px);
+  max-height: min(840px, calc(100vh - 112px));
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.13),transparent 30%),
+    linear-gradient(315deg,rgba(255,93,168,0.13),transparent 32%),
+    linear-gradient(180deg,rgba(22,28,42,0.98),rgba(8,11,18,0.98));
+  box-shadow: 0 20px 72px rgba(0,0,0,0.46), inset 0 1px 0 rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px) saturate(150%);
+  transition: opacity .2s, transform .2s, visibility .2s;
+}
+.sekai-player-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 0;
+  height: 148px;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(30,216,255,0.22), transparent 36%),
+    radial-gradient(circle at 78% 8%, rgba(255,93,168,0.2), transparent 34%),
+    linear-gradient(180deg, rgba(255,255,255,0.09), transparent);
+  pointer-events: none;
+}
+.sekai-player-panel::after {
+  content: "";
+  position: absolute;
+  inset: auto 18px 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
+  pointer-events: none;
+}
+.sekai-player-panel.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(10px) scale(0.98);
+  visibility: hidden;
+}
+.sekai-player-panel:not(.hidden) {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  visibility: visible;
+}
+
+.sekai-player-header {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 18px 13px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.045);
+}
+.sekai-heading {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  border-radius: 999px;
+  padding: 4px 5px 4px 10px;
+  background: rgba(255,255,255,0.08);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+}
+.sekai-player-title {
+  font-size: .96rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  color: #fff;
+  text-shadow: 0 0 16px rgba(30,216,255,0.28);
+}
+.sekai-player-title::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#1ed8ff,#ff5da8);
+  box-shadow: 0 0 10px rgba(30,216,255,0.55);
+  vertical-align: 1px;
+}
+.sekai-status {
+  max-width: 180px;
+  overflow: hidden;
+  border: 1px solid rgba(30,216,255,0.24);
+  border-radius: 999px;
+  padding: 4px 9px;
+  color: rgba(211,250,255,0.9);
+  background: rgba(30,216,255,0.08);
+  font-size: .68rem;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sekai-status[data-state="error"] {
+  border-color: rgba(255,99,132,0.32);
+  color: rgba(255,165,180,0.92);
+}
+.sekai-player-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.64);
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: background .2s, color .2s;
+}
+.sekai-player-close:hover {
+  background: rgba(255,93,168,0.16);
+  color: #fff;
+}
+
+.sekai-player-body {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: 13px;
+  min-height: 0;
+  max-height: calc(min(840px, 100vh - 112px) - 54px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 16px 18px 18px;
+  scrollbar-color: rgba(30,216,255,0.42) rgba(255,255,255,0.06);
+  scrollbar-width: thin;
+}
+.sekai-player-body::-webkit-scrollbar {
+  width: 8px;
+}
+.sekai-player-body::-webkit-scrollbar-track {
+  background: rgba(255,255,255,0.06);
+}
+.sekai-player-body::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(12,16,26,0.9);
+  border-radius: 999px;
+  background: linear-gradient(180deg,#1ed8ff,#ff5da8);
+}
+.sekai-top-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 12px;
+  background:
+    linear-gradient(90deg,rgba(30,216,255,0.1),rgba(255,255,255,0.025) 44%,rgba(255,93,168,0.1)),
+    rgba(255,255,255,0.035);
+}
+.sekai-cover-wrap {
+  flex: 0 0 auto;
+}
+.sekai-cd {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 98px;
+  height: 98px;
+  overflow: visible;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.24);
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.2),rgba(255,93,168,0.14)),
+    rgba(255,255,255,0.05);
+  box-shadow: 0 0 0 5px rgba(255,255,255,0.035), 0 14px 30px rgba(0,0,0,0.34), 0 0 26px rgba(30,216,255,0.13);
+}
+.sekai-cd-visualizer {
+  position: absolute;
+  inset: -10px;
+  z-index: 3;
+  width: calc(100% + 20px);
+  height: calc(100% + 20px);
+  border-radius: 50%;
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.sekai-cd.viz-cd .sekai-cd-visualizer {
+  opacity: .95;
+}
+.sekai-cd::before {
+  content: none;
+}
+.sekai-cover,
+.sekai-cover-fallback {
+  position: relative;
+  z-index: 1;
+  width: 98px;
+  height: 98px;
+  border-radius: 50%;
+  animation: sekaiCdSpin 8s linear infinite;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.32), 0 10px 24px rgba(0,0,0,0.24);
+}
+.sekai-cover {
+  object-fit: cover;
+}
+.sekai-cover-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,255,255,0.72);
+  font-size: 1.7rem;
+}
+.sekai-cd.paused .sekai-cover,
+.sekai-cd.paused .sekai-cover-fallback {
+  animation-play-state: paused;
+}
+@keyframes sekaiCdSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.sekai-now-playing {
+  flex: 1;
+  min-width: 0;
+}
+.sekai-track-title {
+  margin-bottom: 5px;
+  overflow: hidden;
+  color: #fff;
+  font-size: 1.02rem;
+  font-weight: 900;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sekai-track-artist {
+  margin-bottom: 10px;
+  overflow: hidden;
+  color: rgba(211,250,255,0.72);
+  font-size: .73rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sekai-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.58);
+  font-size: .7rem;
+  font-variant-numeric: tabular-nums;
+}
+.sekai-progress input[type=range],
+.sekai-volume input[type=range] {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,rgba(30,216,255,0.42),rgba(255,93,168,0.36));
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+.sekai-progress input[type=range]::-webkit-slider-thumb,
+.sekai-volume input[type=range]::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(30,216,255,0.18), 0 0 14px rgba(255,93,168,0.24);
+  -webkit-appearance: none;
+}
+.sekai-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.sekai-ctrl-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.075);
+  color: #fff;
+  cursor: pointer;
+  font-size: 1.1rem;
+  line-height: 1;
+  transition: background .2s, transform .2s;
+}
+.sekai-ctrl-btn:hover {
+  background: rgba(30,216,255,0.16);
+  border-color: rgba(30,216,255,0.28);
+  transform: translateY(-1px);
+}
+.sekai-play-btn {
+  width: 46px;
+  height: 38px;
+  background: linear-gradient(135deg,#ff5da8,#1ed8ff);
+  box-shadow: 0 10px 22px rgba(30,216,255,0.2), 0 4px 14px rgba(255,93,168,0.2);
+  font-size: .95rem;
+}
+.sekai-options,
+.sekai-playback-options,
+.sekai-library-controls,
+.sekai-visualizer-options,
+.sekai-volume {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sekai-options {
+  position: relative;
+  z-index: 12;
+}
+.sekai-playback-options {
+  align-items: stretch;
+}
+.sekai-search {
+  min-width: 0;
+  height: 38px;
+  border: 1px solid rgba(120,220,255,0.2);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.12),rgba(255,93,168,0.08)),
+    rgba(7,13,24,0.62);
+  color: rgba(255,255,255,0.92);
+  font-size: .78rem;
+  font-weight: 700;
+  outline: none;
+  color-scheme: dark;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+.sekai-search:focus {
+  border-color: rgba(30,216,255,0.52);
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.17),rgba(255,93,168,0.11)),
+    rgba(10,18,32,0.82);
+  box-shadow: 0 0 0 3px rgba(30,216,255,0.12), 0 12px 28px rgba(0,0,0,0.2);
+}
+.sekai-search {
+  flex: 1.2;
+  padding: 0 10px;
+}
+.sekai-search::placeholder {
+  color: rgba(211,250,255,0.44);
+}
+.sekai-dropdown {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.sekai-tag-dropdown {
+  flex: .85;
+}
+.sekai-dropdown-btn {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) auto;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  height: 42px;
+  border: 1px solid rgba(120,220,255,0.2);
+  border-radius: 10px;
+  padding: 6px 34px 6px 12px;
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.13),rgba(255,93,168,0.09)),
+    rgba(7,13,24,0.64);
+  color: rgba(255,255,255,0.92);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.08);
+  cursor: pointer;
+  font: inherit;
+  outline: none;
+  position: relative;
+  transition: transform .18s, border-color .18s, box-shadow .18s;
+}
+.sekai-dropdown-btn::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid rgba(211,250,255,0.68);
+  border-bottom: 2px solid rgba(211,250,255,0.68);
+  transform: translateY(-65%) rotate(45deg);
+  transition: transform .18s;
+}
+.sekai-dropdown.open .sekai-dropdown-btn::after {
+  transform: translateY(-30%) rotate(225deg);
+}
+.sekai-dropdown-btn:hover:not(:disabled),
+.sekai-dropdown-btn:focus-visible {
+  border-color: rgba(30,216,255,0.58);
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.18),rgba(255,93,168,0.13)),
+    rgba(10,18,32,0.82);
+  box-shadow: 0 14px 26px rgba(30,216,255,0.16), inset 0 1px 0 rgba(255,255,255,0.13);
+  transform: translateY(-1px);
+}
+.sekai-dropdown-btn:disabled {
+  cursor: default;
+  opacity: .66;
+}
+.sekai-dropdown-kicker,
+.sekai-dropdown-value {
+  min-width: 0;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sekai-dropdown-kicker {
+  grid-column: 1 / -1;
+  color: rgba(30,216,255,0.72);
+  font-size: .58rem;
+  font-weight: 900;
+  letter-spacing: .12em;
+  line-height: 1;
+}
+.sekai-dropdown-value {
+  color: rgba(255,255,255,0.94);
+  font-size: .8rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+.sekai-dropdown-menu {
+  position: absolute;
+  z-index: 60;
+  right: 0;
+  left: 0;
+  top: calc(100% + 8px);
+  display: none;
+  max-height: 230px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgba(120,220,255,0.22);
+  border-radius: 10px;
+  padding: 6px;
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.12),rgba(255,93,168,0.08)),
+    rgba(7,13,24,0.96);
+  box-shadow: 0 18px 42px rgba(0,0,0,0.42), 0 0 0 1px rgba(30,216,255,0.11);
+  color: rgba(255,255,255,0.9);
+  backdrop-filter: blur(18px) saturate(150%);
+  scrollbar-color: rgba(30,216,255,0.44) transparent;
+  scrollbar-width: thin;
+}
+.sekai-dropdown.open .sekai-dropdown-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+#sekaiVocalMenu {
+  max-height: 320px;
+}
+:global(.sekai-dropdown-item) {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  border: 0;
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: transparent;
+  color: rgba(255,255,255,0.84);
+  cursor: pointer;
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 800;
+  text-align: left;
+  line-height: 1.25;
+}
+:global(.sekai-dropdown-item:hover) {
+  background: linear-gradient(90deg,rgba(30,216,255,0.17),rgba(255,93,168,0.12));
+  color: #fff;
+}
+:global(.sekai-dropdown-item.active) {
+  background: linear-gradient(90deg,rgba(30,216,255,0.28),rgba(255,93,168,0.2));
+  color: #fff;
+}
+:global(.sekai-dropdown-item.active::after) {
+  content: "";
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#1ed8ff,#ff5da8);
+  box-shadow: 0 0 10px rgba(30,216,255,0.6);
+}
+:global(.sekai-vocal-option-text) {
+  display: flex;
+  min-width: 0;
+  flex: 1;
+  flex-direction: column;
+  gap: 3px;
+  white-space: normal;
+}
+:global(.sekai-vocal-main) {
+  color: rgba(255,255,255,0.94);
+  font-size: .8rem;
+  font-weight: 900;
+}
+:global(.sekai-vocal-sub) {
+  color: rgba(211,250,255,0.56);
+  font-size: .68rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.sekai-mode-toggle,
+.sekai-order-toggle,
+.sekai-visualizer-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  min-width: 0;
+  height: 38px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.07);
+  padding: 3px;
+  gap: 3px;
+}
+.sekai-mode-btn,
+.sekai-order-btn,
+.sekai-viz-btn {
+  position: relative;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,0.52);
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 700;
+  transition: background .18s, box-shadow .18s, color .18s, transform .18s;
+}
+.sekai-mode-btn:hover,
+.sekai-order-btn:hover,
+.sekai-viz-btn:hover {
+  color: rgba(255,255,255,0.88);
+  background: rgba(255,255,255,0.08);
+}
+.sekai-mode-btn.active,
+.sekai-order-btn.active,
+.sekai-viz-btn.active {
+  background: linear-gradient(135deg,rgba(30,216,255,0.34),rgba(255,93,168,0.26));
+  color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.16);
+}
+.sekai-visualizer-options {
+  align-items: center;
+}
+.sekai-control-label {
+  flex: 0 0 auto;
+  color: rgba(255,255,255,0.6);
+  font-size: .7rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
+.sekai-visualizer-toggle {
+  grid-template-columns: .86fr repeat(3,1fr);
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.08),rgba(255,93,168,0.07)),
+    rgba(255,255,255,0.065);
+}
+.sekai-viz-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-width: 0;
+  padding: 0 5px;
+}
+.sekai-viz-btn:not(:first-child)::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.08);
+  transition: background .18s, box-shadow .18s, transform .18s;
+}
+.sekai-viz-btn.active:not(:first-child)::before {
+  background: linear-gradient(135deg,#1ed8ff,#ff5da8);
+  box-shadow: 0 0 12px rgba(30,216,255,0.62), 0 0 16px rgba(255,93,168,0.44);
+  transform: scale(1.18);
+}
+.sekai-viz-btn:first-child.active {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.78);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+}
+.sekai-volume {
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.045);
+  color: rgba(255,255,255,0.6);
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.sekai-playlist-label {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid rgba(255,255,255,0.09);
+  padding-top: 10px;
+  color: rgba(255,255,255,0.58);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+}
+.sekai-playlist {
+  display: flex;
+  flex: 1 1 470px;
+  flex-direction: column;
+  gap: 7px;
+  min-height: 410px;
+  max-height: 520px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 8px;
+  background: rgba(4,8,15,0.22);
+  overscroll-behavior: contain;
+  scrollbar-color: rgba(30,216,255,0.34) transparent;
+  scrollbar-width: thin;
+}
+.sekai-playlist::-webkit-scrollbar {
+  width: 7px;
+}
+.sekai-playlist::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(30,216,255,0.34);
+}
+:global(.sekai-playlist-item) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 8px;
+  padding: 8px;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,0.055),rgba(255,255,255,0.025)),
+    rgba(255,255,255,0.035);
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: background .18s, border-color .18s, transform .18s;
+}
+:global(.sekai-playlist-item:hover) {
+  border-color: rgba(30,216,255,0.34);
+  background: linear-gradient(90deg,rgba(30,216,255,0.13),rgba(255,93,168,0.075));
+  transform: translateY(-1px);
+}
+:global(.sekai-playlist-item.active) {
+  border-color: rgba(255,93,168,0.52);
+  background: linear-gradient(90deg,rgba(255,93,168,0.19),rgba(30,216,255,0.14));
+  box-shadow: inset 3px 0 0 #ff5da8;
+}
+:global(.sekai-pl-icon) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  position: relative;
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: 7px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background:
+    linear-gradient(135deg,rgba(30,216,255,0.16),rgba(255,93,168,0.12)),
+    rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.55);
+  font-size: .9rem;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+}
+:global(.sekai-playlist-item.active .sekai-pl-icon) {
+  border-color: rgba(255,93,168,0.52);
+  background: linear-gradient(135deg,rgba(255,93,168,0.38),rgba(30,216,255,0.3));
+  color: #fff;
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 10px 24px rgba(255,93,168,0.22);
+}
+:global(.sekai-pl-cover-img) {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+:global(.sekai-pl-fallback) {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 35% 20%,rgba(255,255,255,0.18),transparent 42%),
+    linear-gradient(135deg,rgba(30,216,255,0.22),rgba(255,93,168,0.18));
+}
+:global(.sekai-pl-cover-img + .sekai-pl-fallback) {
+  display: none;
+}
+:global(.sekai-pl-cover-img.is-error + .sekai-pl-fallback) {
+  display: flex;
+}
+:global(.sekai-pl-playing) {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(135deg,#ff5da8,#1ed8ff);
+  color: #fff;
+  box-shadow: 0 0 0 2px rgba(7,13,24,0.72), 0 0 12px rgba(30,216,255,0.46);
+  font-size: .56rem;
+  line-height: 1;
+}
+:global(.sekai-pl-info) {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+:global(.sekai-pl-title) {
+  overflow: hidden;
+  color: rgba(255,255,255,0.92);
+  font-size: .84rem;
+  font-weight: 800;
+  line-height: 1.3;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:global(.sekai-pl-sub) {
+  overflow: hidden;
+  color: rgba(211,250,255,0.52);
+  font-size: .68rem;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:global(.sekai-empty) {
+  border: 1px dashed rgba(255,255,255,0.12);
+  border-radius: 8px;
+  padding: 14px;
+  color: rgba(255,255,255,0.48);
+  font-size: .76rem;
+  text-align: center;
+}
+.sekai-page-visualizer {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity .35s;
+}
+.sekai-page-visualizer.active {
+  opacity: .22;
+}
+
+@media (max-width: 480px) {
+  .sekai-player-btn {
+    right: 16px;
+    bottom: 16px;
+    width: 69px;
+    height: 69px;
+    font-size: 1.55rem;
+  }
+  .sekai-player-panel {
+    right: 12px;
+    bottom: 104px;
+    width: calc(100vw - 24px);
+    max-height: calc(100vh - 122px);
+  }
+  .sekai-player-body {
+    max-height: calc(100vh - 180px);
+  }
+  .sekai-top-section {
+    align-items: flex-start;
+  }
+  .sekai-cd,
+  .sekai-cover,
+  .sekai-cover-fallback {
+    width: 76px;
+    height: 76px;
+  }
+  .sekai-options,
+  .sekai-playback-options,
+  .sekai-library-controls,
+  .sekai-visualizer-options {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .sekai-mode-toggle,
+  .sekai-order-toggle,
+  .sekai-visualizer-toggle {
+    width: 100%;
+  }
+  .sekai-tag-dropdown,
+  .sekai-search {
+    width: 100%;
+    flex: none;
+  }
+  .sekai-playlist {
+    min-height: 320px;
+    max-height: 430px;
+  }
+}
+
+@media (max-height: 760px) {
+  .sekai-playlist {
+    min-height: 300px;
+    max-height: 360px;
+  }
+}
+
+@media (max-height: 660px) {
+  .sekai-playlist {
+    min-height: 220px;
+    max-height: 280px;
+  }
+}
 </style>
 
 <script is:inline>
 (function() {
+  var MASTER_BASE = 'https://sekai-world.github.io/sekai-master-db-diff';
+  var ASSET_BASE = 'https://storage.sekai.best/sekai-jp-assets';
+  var STORAGE_KEY = 'sekai_player_v3';
+  var MAX_RENDERED_TRACKS = 140;
+
+  var TAG_ORDER = [
+    'all',
+    'vocaloid',
+    'light_music_club',
+    'idol',
+    'street',
+    'theme_park',
+    'school_refusal',
+    'other'
+  ];
+  var TAG_LABELS = {
+    all: '全部',
+    vocaloid: 'Virtual Singer',
+    light_music_club: 'Leo/need',
+    idol: 'MORE MORE JUMP!',
+    street: 'Vivid BAD SQUAD',
+    theme_park: 'Wonderlands',
+    school_refusal: 'Nightcord',
+    other: 'Other'
+  };
+  var VOCAL_LABELS = {
+    sekai: 'セカイver.',
+    original_song: '原曲ver.',
+    virtual_singer: 'Virtual Singer',
+    another_vocal: 'Another Vocal',
+    instrumental: 'Instrumental',
+    streaming_live: 'Streaming Live',
+    april_fool_2022: 'April Fool'
+  };
+  var CHARACTER_NAMES = {
+    1: '星乃一歌',
+    2: '天馬咲希',
+    3: '望月穂波',
+    4: '日野森志歩',
+    5: '花里みのり',
+    6: '桐谷遥',
+    7: '桃井愛莉',
+    8: '日野森雫',
+    9: '小豆沢こはね',
+    10: '白石杏',
+    11: '東雲彰人',
+    12: '青柳冬弥',
+    13: '天馬司',
+    14: '鳳えむ',
+    15: '草薙寧々',
+    16: '神代類',
+    17: '宵崎奏',
+    18: '朝比奈まふゆ',
+    19: '東雲絵名',
+    20: '暁山瑞希',
+    21: '初音ミク',
+    22: '鏡音リン',
+    23: '鏡音レン',
+    24: '巡音ルカ',
+    25: 'MEIKO',
+    26: 'KAITO'
+  };
+  var VOCAL_PRIORITY = {
+    sekai: 0,
+    original_song: 1,
+    virtual_singer: 2,
+    another_vocal: 3,
+    instrumental: 4,
+    streaming_live: 5,
+    april_fool_2022: 6
+  };
+
   var btn = document.getElementById('sekaiPlayerBtn');
   var panel = document.getElementById('sekaiPlayerPanel');
   var closeBtn = document.getElementById('sekaiPlayerCloseBtn');
   var audio = document.getElementById('sekaiAudio');
+  audio.crossOrigin = 'anonymous';
   var playPauseBtn = document.getElementById('sekaiPlayPauseBtn');
   var prevBtn = document.getElementById('sekaiPrevBtn');
   var nextBtn = document.getElementById('sekaiNextBtn');
+  var shortBtn = document.getElementById('sekaiShortBtn');
+  var longBtn = document.getElementById('sekaiLongBtn');
+  var sequenceBtn = document.getElementById('sekaiSequenceBtn');
+  var shuffleBtn = document.getElementById('sekaiShuffleBtn');
+  var vizOffBtn = document.getElementById('sekaiVizOffBtn');
+  var vizCdBtn = document.getElementById('sekaiVizCdBtn');
+  var vizDockBtn = document.getElementById('sekaiVizDockBtn');
+  var vizPageBtn = document.getElementById('sekaiVizPageBtn');
   var progressBar = document.getElementById('sekaiProgressBar');
   var currentTimeEl = document.getElementById('sekaiCurrentTime');
   var totalTimeEl = document.getElementById('sekaiTotalTime');
@@ -100,126 +1132,500 @@
   var trackTitleEl = document.getElementById('sekaiTrackTitle');
   var trackArtistEl = document.getElementById('sekaiTrackArtist');
   var playlistEl = document.getElementById('sekaiPlaylist');
+  var trackCountEl = document.getElementById('sekaiTrackCount');
   var cdEl = document.getElementById('sekaiCd');
   var coverImg = document.getElementById('sekaiCover');
   var coverFallback = document.getElementById('sekaiCoverFallback');
+  var dockCover = document.getElementById('sekaiDockCover');
+  var dockVisualizer = document.getElementById('sekaiDockVisualizer');
+  var cdVisualizer = document.getElementById('sekaiCdVisualizer');
+  var pageVisualizer = document.getElementById('sekaiPageVisualizer');
+  var statusEl = document.getElementById('sekaiSourceStatus');
+  var searchInput = document.getElementById('sekaiSearchInput');
+  var tagDropdown = document.getElementById('sekaiTagDropdown');
+  var tagButton = document.getElementById('sekaiTagButton');
+  var tagLabel = document.getElementById('sekaiTagLabel');
+  var tagMenu = document.getElementById('sekaiTagMenu');
+  var vocalDropdown = document.getElementById('sekaiVocalDropdown');
+  var vocalButton = document.getElementById('sekaiVocalButton');
+  var vocalLabel = document.getElementById('sekaiVocalLabel');
+  var vocalMenu = document.getElementById('sekaiVocalMenu');
 
-  var tracks = [
-    { title: '命に嫌われている', artist: '25時、ナイトコードで。', url: '/music/命に嫌われている (被生命所厌恶) - 25時、ナイトコードで。.mp3' },
-    { title: '悔やみと書いてミライ', artist: '25時、ナイトコードで。', url: '/music/悔やむと書いてミライ (写作悔恨的未来) - 25時、ナイトコードで。.mp3' },
-    { title: 'カトラリー', artist: '25時、ナイトコードで。', url: '/music/カトラリー (餐具) - 25時、ナイトコードで。.mp3' },
-    { title: 'メリュー', artist: '25時、ナイトコードで。', url: '/music/メリュー - 25時、ナイトコードで。.mp3' },
-    { title: '25時の情熱', artist: '25時、ナイトコードで。', url: '/music/25時の情熱 - 25時、ナイトコードで。.mp3' },
-    { title: 'それがあなたの幸せとしても', artist: '25時、ナイトコードで。', url: '/music/それがあなたの幸せとしても - 25時、ナイトコードで。.mp3' },
-    { title: 'とても素敵な六月でした', artist: '25時、ナイトコードで。', url: '/music/とても素敵な六月でした - 25時、ナイトコードで。.mp3' },
-    { title: 'Shadow Shadow', artist: '25時、ナイトコードで。', url: '/music/Shadow Shadow - 25時、ナイトコードで。.mp3' },
-    { title: '妄想感傷代償連盟', artist: '25時、ナイトコードで。', url: '/music/妄想感傷代償連盟 - 25時、ナイトコードで。.mp3' },
-    { title: '余花にみとれて', artist: '25時、ナイトコードで。', url: '/music/余花にみとれて - 25時、ナイトコードで。.mp3' },
-    { title: '心做し', artist: '25時、ナイトコードで。', url: '/music/心做し - 25時、ナイトコードで。.mp3' },
-    { title: '泥中に咲く', artist: '25時、ナイトコードで。', url: '/music/泥中に咲く - 25時、ナイトコードで。.mp3' },
-    { title: '心拍数#0822', artist: 'Leoneed', url: '/music/心拍数♯0822 - Leoneed.mp3' },
-  ];
-
-  var currentIndex = 0;
+  var catalogPromise = null;
+  var songs = [];
+  var filteredSongs = [];
+  var currentSong = null;
+  var currentVocal = null;
+  var playbackMode = 'long';
+  var playbackOrder = 'sequence';
+  var visualizerTargets = { cd: false, dock: false, page: false };
   var isPlaying = false;
   var isRestoring = false;
-  audio.volume = 0.5;
-  volumeSlider.value = 0.5;
+  var restoredOnce = false;
+  var audioContext = null;
+  var analyser = null;
+  var sourceNode = null;
+  var frequencyData = null;
+  var timeData = null;
+  var visualizerFrame = 0;
+  var visualizerLevels = {};
+  var query = '';
+  var tagFilter = 'all';
+  var savedState = readState();
 
-  function saveState() {
-    if (isRestoring) return;
-    try {
-      sessionStorage.setItem('sekai_player', JSON.stringify({
-        i: currentIndex,
-        t: audio.currentTime || 0,
-        p: isPlaying ? 1 : 0
-      }));
-    } catch(e) {}
+  if (savedState) {
+    if (savedState.mode === 'long' || savedState.mode === 'short') playbackMode = savedState.mode;
+    if (savedState.order === 'shuffle' || savedState.order === 'sequence') playbackOrder = savedState.order;
+    if (savedState.visualizerTargets && typeof savedState.visualizerTargets === 'object') {
+      visualizerTargets.cd = !!savedState.visualizerTargets.cd;
+      visualizerTargets.dock = !!savedState.visualizerTargets.dock;
+      visualizerTargets.page = !!savedState.visualizerTargets.page;
+    } else if (savedState.visualizer === 'cd' || savedState.visualizer === 'dock' || savedState.visualizer === 'page') {
+      visualizerTargets[savedState.visualizer] = true;
+    }
+    if (typeof savedState.volume === 'number') audio.volume = savedState.volume;
+    else audio.volume = 0.5;
+    query = savedState.query || '';
+    tagFilter = savedState.tag || 'all';
+  } else {
+    audio.volume = 0.5;
   }
+  volumeSlider.value = audio.volume;
+  searchInput.value = query;
+  updateModeButtons();
+  updateOrderButtons();
+  updateVisualizerButtons();
+  applyVisualizerTargets();
 
-  function restoreState() {
-    try {
-      var raw = sessionStorage.getItem('sekai_player');
-      if (!raw) return;
-      var state = JSON.parse(raw);
-      if (state == null) return;
-      isRestoring = true;
-      currentIndex = state.i || 0;
-      isPlaying = state.p === 1;
-      var savedTime = state.t || 0;
-      var track = tracks[currentIndex];
-      if (!track) { isRestoring = false; return; }
-      audio.src = track.url;
-      trackTitleEl.textContent = track.title;
-      trackArtistEl.textContent = track.artist;
-      coverImg.style.display = 'none';
-      coverFallback.style.display = 'flex';
-      renderPlaylist();
-      // 等 audio 加载完元数据后再设置播放时间和恢复播放
-      audio.addEventListener('loadedmetadata', function onMeta() {
-        audio.removeEventListener('loadedmetadata', onMeta);
-        audio.currentTime = savedTime;
-        if (isPlaying) {
-          audio.play().then(function() {
-            playPauseBtn.textContent = '⏸';
-            cdEl.classList.remove('paused');
-            btn.classList.add('playing');
-          }).catch(function() {});
-        } else {
-          currentTimeEl.textContent = fmt(savedTime);
-          if (audio.duration) progressBar.value = (savedTime / audio.duration) * 100;
-        }
-        isRestoring = false;
-      });
-    } catch(e) { isRestoring = false; }
-  }
-
-  // 每 2 秒自动保存进度
-  setInterval(saveState, 2000);
-
-  function renderPlaylist() {
-    playlistEl.innerHTML = '';
-    tracks.forEach(function(track, i) {
-      var item = document.createElement('div');
-      item.className = 'sekai-playlist-item' + (i === currentIndex ? ' active' : '');
-      var icon = i === currentIndex ? '▶' : '♪';
-      item.innerHTML =
-        '<div class="sekai-pl-icon">' + icon + '</div>' +
-        '<div class="sekai-pl-info">' +
-          '<div class="sekai-pl-title">' + track.title + '</div>' +
-          '<div class="sekai-pl-sub">' + track.artist + '</div>' +
-        '</div>';
-      item.addEventListener('click', function(e) { e.stopPropagation(); loadTrack(i, true); });
-      playlistEl.appendChild(item);
+  function fetchJson(name) {
+    return fetch(MASTER_BASE + '/' + name, { cache: 'force-cache' }).then(function(response) {
+      if (!response.ok) throw new Error(name + ' ' + response.status);
+      return response.json();
     });
   }
 
-  function loadTrack(index, autoPlay) {
-    if (index < 0 || index >= tracks.length) return;
-    currentIndex = index;
-    var track = tracks[index];
-    audio.src = track.url;
-    audio.load();
-    trackTitleEl.textContent = track.title;
-    trackArtistEl.textContent = track.artist;
-    coverImg.style.display = 'none';
-    coverFallback.style.display = 'flex';
+  function ensureCatalog() {
+    if (catalogPromise) return catalogPromise;
+    setStatus('加载中', '');
+    catalogPromise = Promise.all([
+      fetchJson('musics.json'),
+      fetchJson('musicVocals.json'),
+      fetchJson('musicTags.json')
+    ]).then(function(result) {
+      songs = buildSongs(result[0], result[1], result[2]);
+      populateTagFilter();
+      applyFilters();
+      updateCatalogStatus();
+      if (!restoredOnce) restoreSelection(savedState);
+      return songs;
+    }).catch(function(error) {
+      setStatus('加载失败', 'error');
+      renderEmpty('无法加载歌曲数据');
+      throw error;
+    });
+    return catalogPromise;
+  }
+
+  function buildSongs(musics, vocals, tags) {
+    var now = Date.now();
+    var vocalsByMusic = new Map();
+    var tagsByMusic = new Map();
+
+    vocals.forEach(function(vocal) {
+      if (!vocal || !vocal.musicId || !vocal.assetbundleName) return;
+      if (!vocalsByMusic.has(vocal.musicId)) vocalsByMusic.set(vocal.musicId, []);
+      vocalsByMusic.get(vocal.musicId).push(vocal);
+    });
+
+    tags.forEach(function(tag) {
+      if (!tag || !tag.musicId || !tag.musicTag) return;
+      if (!tagsByMusic.has(tag.musicId)) tagsByMusic.set(tag.musicId, []);
+      tagsByMusic.get(tag.musicId).push(tag.musicTag);
+    });
+
+    return musics
+      .filter(function(music) {
+        if (!music || !music.id || !music.title) return false;
+        if (!vocalsByMusic.has(music.id)) return false;
+        return !(typeof music.publishedAt === 'number' && music.publishedAt > now);
+      })
+      .map(function(music) {
+        var songVocals = vocalsByMusic.get(music.id).slice().sort(sortVocals);
+        var songTags = tagsByMusic.get(music.id) || ['all'];
+        var haystack = [
+          music.title,
+          music.pronunciation,
+          music.lyricist,
+          music.composer,
+          music.arranger,
+          songVocals.map(function(vocal) { return getVocalLabel(vocal); }).join(' ')
+        ].join(' ');
+
+        return {
+          id: music.id,
+          seq: music.seq || music.id,
+          title: music.title,
+          pronunciation: music.pronunciation || '',
+          lyricist: music.lyricist || '',
+          composer: music.composer || '',
+          arranger: music.arranger || '',
+          jacketBundle: music.assetbundleName,
+          tags: songTags,
+          vocals: songVocals,
+          searchText: normalize(haystack)
+        };
+      })
+      .sort(function(a, b) {
+        return a.seq - b.seq || a.id - b.id;
+      });
+  }
+
+  function sortVocals(a, b) {
+    var pa = VOCAL_PRIORITY[a.musicVocalType] == null ? 99 : VOCAL_PRIORITY[a.musicVocalType];
+    var pb = VOCAL_PRIORITY[b.musicVocalType] == null ? 99 : VOCAL_PRIORITY[b.musicVocalType];
+    return pa - pb || (a.seq || 0) - (b.seq || 0) || a.id - b.id;
+  }
+
+  function populateTagFilter() {
+    tagMenu.innerHTML = '';
+    TAG_ORDER.forEach(function(tag) {
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'sekai-dropdown-item' + (tag === tagFilter ? ' active' : '');
+      item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', tag === tagFilter ? 'true' : 'false');
+      item.textContent = TAG_LABELS[tag] || tag;
+      item.addEventListener('click', function(event) {
+        event.stopPropagation();
+        tagFilter = tag;
+        updateTagDropdownLabel();
+        closeDropdowns();
+        applyFilters();
+        populateTagFilter();
+      });
+      tagMenu.appendChild(item);
+    });
+    if (TAG_ORDER.indexOf(tagFilter) < 0) tagFilter = 'all';
+    updateTagDropdownLabel();
+  }
+
+  function applyFilters() {
+    var normalizedQuery = normalize(query);
+    filteredSongs = songs.filter(function(song) {
+      var matchesTag = tagFilter === 'all' || song.tags.indexOf(tagFilter) >= 0;
+      var matchesQuery = !normalizedQuery || song.searchText.indexOf(normalizedQuery) >= 0;
+      return matchesTag && matchesQuery;
+    });
     renderPlaylist();
-    currentTimeEl.textContent = '0:00';
-    totalTimeEl.textContent = '0:00';
-    progressBar.value = 0;
     saveState();
+  }
+
+  function renderPlaylist() {
+    playlistEl.innerHTML = '';
+    trackCountEl.textContent = String(filteredSongs.length);
+
+    if (!songs.length && !catalogPromise) {
+      renderEmpty('打开后加载歌曲');
+      return;
+    }
+    if (!filteredSongs.length) {
+      renderEmpty('没有匹配的歌曲');
+      return;
+    }
+
+    filteredSongs.slice(0, MAX_RENDERED_TRACKS).forEach(function(song) {
+      var isActive = currentSong && song.id === currentSong.id;
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'sekai-playlist-item' + (isActive ? ' active' : '');
+
+      var icon = document.createElement('div');
+      icon.className = 'sekai-pl-icon';
+
+      if (song.jacketBundle) {
+        var cover = document.createElement('img');
+        cover.className = 'sekai-pl-cover-img';
+        cover.src = getJacketUrl(song);
+        cover.alt = '';
+        cover.loading = 'lazy';
+        cover.decoding = 'async';
+        cover.onerror = function() {
+          cover.classList.add('is-error');
+        };
+        icon.appendChild(cover);
+      }
+
+      var fallback = document.createElement('span');
+      fallback.className = 'sekai-pl-fallback';
+      fallback.textContent = '♪';
+      icon.appendChild(fallback);
+
+      if (isActive) {
+        var playing = document.createElement('span');
+        playing.className = 'sekai-pl-playing';
+        playing.textContent = '▶';
+        icon.appendChild(playing);
+      }
+
+      var info = document.createElement('div');
+      info.className = 'sekai-pl-info';
+
+      var title = document.createElement('div');
+      title.className = 'sekai-pl-title';
+      title.textContent = song.title;
+
+      var sub = document.createElement('div');
+      sub.className = 'sekai-pl-sub';
+      sub.textContent = getSongSubtitle(song);
+
+      info.appendChild(title);
+      info.appendChild(sub);
+      item.appendChild(icon);
+      item.appendChild(info);
+      item.addEventListener('click', function(event) {
+        event.stopPropagation();
+        selectSong(song, true);
+      });
+      playlistEl.appendChild(item);
+    });
+
+    if (filteredSongs.length > MAX_RENDERED_TRACKS) {
+      var more = document.createElement('div');
+      more.className = 'sekai-empty';
+      more.textContent = '继续搜索可缩小结果';
+      playlistEl.appendChild(more);
+    }
+  }
+
+  function revealActiveTrack() {
+    var activeItem = playlistEl.querySelector('.sekai-playlist-item.active');
+    if (!activeItem) return;
+    activeItem.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
+  function renderEmpty(text) {
+    playlistEl.innerHTML = '';
+    var empty = document.createElement('div');
+    empty.className = 'sekai-empty';
+    empty.textContent = text;
+    playlistEl.appendChild(empty);
+  }
+
+  function selectSong(song, autoPlay, preferredVocalId, startTime) {
+    if (!song) return;
+    currentSong = song;
+    currentVocal = chooseVocal(song, preferredVocalId);
+    renderVocalSelect();
+    setAudioSource(!!autoPlay, startTime || 0);
+    renderPlaylist();
+    if (autoPlay) window.setTimeout(revealActiveTrack, 0);
+  }
+
+  function chooseVocal(song, preferredVocalId) {
+    if (!song || !song.vocals.length) return null;
+    if (preferredVocalId != null) {
+      var preferred = song.vocals.find(function(vocal) { return String(vocal.id) === String(preferredVocalId); });
+      if (preferred) return preferred;
+    }
+    return song.vocals[0];
+  }
+
+  function renderVocalSelect() {
+    vocalMenu.innerHTML = '';
+    if (!currentSong || !currentSong.vocals.length) {
+      vocalLabel.textContent = 'Vocal';
+      vocalButton.removeAttribute('title');
+      vocalButton.disabled = true;
+      closeDropdowns();
+      return;
+    }
+
+    currentSong.vocals.forEach(function(vocal) {
+      var item = document.createElement('button');
+      item.type = 'button';
+      item.className = 'sekai-dropdown-item' + (currentVocal && vocal.id === currentVocal.id ? ' active' : '');
+      item.setAttribute('role', 'option');
+      item.setAttribute('aria-selected', currentVocal && vocal.id === currentVocal.id ? 'true' : 'false');
+      item.title = getVocalLabel(vocal);
+
+      var labelWrap = document.createElement('span');
+      labelWrap.className = 'sekai-vocal-option-text';
+
+      var main = document.createElement('span');
+      main.className = 'sekai-vocal-main';
+      main.textContent = getVocalBaseLabel(vocal);
+
+      var sub = document.createElement('span');
+      sub.className = 'sekai-vocal-sub';
+      sub.textContent = getVocalDetailLabel(vocal);
+
+      labelWrap.appendChild(main);
+      if (sub.textContent) labelWrap.appendChild(sub);
+      item.appendChild(labelWrap);
+      item.addEventListener('click', function(event) {
+        event.stopPropagation();
+        currentVocal = chooseVocal(currentSong, vocal.id);
+        closeDropdowns();
+        renderVocalSelect();
+        setAudioSource(isPlaying, 0);
+      });
+      vocalMenu.appendChild(item);
+    });
+    var selectedVocalLabel = currentVocal ? getVocalLabel(currentVocal) : 'Vocal';
+    vocalLabel.textContent = selectedVocalLabel;
+    vocalButton.title = selectedVocalLabel;
+    vocalButton.disabled = currentSong.vocals.length < 2;
+    if (vocalButton.disabled) closeDropdowns();
+  }
+
+  function setAudioSource(autoPlay, startTime) {
+    if (!currentSong || !currentVocal) return;
+    isRestoring = true;
+    audio.src = getAudioUrl(currentVocal);
+    audio.load();
+    resetProgress();
+    updateNowPlaying();
+    setStatus((playbackMode === 'long' ? 'FULL' : 'PREVIEW') + ' / 连接中', '');
+    saveState();
+
+    if (startTime) {
+      audio.addEventListener('loadedmetadata', function onMeta() {
+        audio.removeEventListener('loadedmetadata', onMeta);
+        if (audio.duration && startTime < audio.duration) {
+          audio.currentTime = startTime;
+          currentTimeEl.textContent = fmt(startTime);
+          progressBar.value = (startTime / audio.duration) * 100;
+        }
+        isRestoring = false;
+      });
+    } else {
+      isRestoring = false;
+    }
+
     if (autoPlay) play();
   }
 
+  function updateNowPlaying() {
+    trackTitleEl.textContent = currentSong ? currentSong.title : '选择一首歌曲';
+    trackArtistEl.textContent = currentSong && currentVocal
+      ? getVocalLabel(currentVocal) + ' / ' + (currentSong.composer || currentSong.lyricist || 'Project SEKAI')
+      : 'Project SEKAI';
+
+    if (currentSong && currentSong.jacketBundle) {
+      coverImg.onload = function() {
+        coverImg.style.display = 'block';
+        coverFallback.style.display = 'none';
+      };
+      coverImg.onerror = function() {
+        coverImg.style.display = 'none';
+        coverFallback.style.display = 'flex';
+      };
+      coverImg.src = getJacketUrl(currentSong);
+    } else {
+      coverImg.style.display = 'none';
+      coverFallback.style.display = 'flex';
+    }
+    updateDockCover(currentSong);
+  }
+
+  function updateDockCover(song) {
+    if (!song || !song.jacketBundle) {
+      btn.classList.remove('has-cover');
+      dockCover.removeAttribute('src');
+      return;
+    }
+    dockCover.onload = function() {
+      btn.classList.add('has-cover');
+    };
+    dockCover.onerror = function() {
+      btn.classList.remove('has-cover');
+    };
+    dockCover.src = getJacketUrl(song);
+  }
+
+  function getAudioUrl(vocal) {
+    var bundle = vocal.assetbundleName;
+    if (playbackMode === 'long') {
+      return ASSET_BASE + '/music/long/' + bundle + '/' + bundle + '.mp3';
+    }
+    var shortFormat = audio.canPlayType('audio/flac') ? 'flac' : 'wav';
+    return ASSET_BASE + '/music/short/' + bundle + '/' + bundle + '_short.' + shortFormat;
+  }
+
+  function getJacketUrl(song) {
+    return ASSET_BASE + '/music/jacket/' + song.jacketBundle + '/' + song.jacketBundle + '.webp';
+  }
+
+  function getVocalBaseLabel(vocal) {
+    return vocal.caption || VOCAL_LABELS[vocal.musicVocalType] || vocal.musicVocalType || 'Vocal';
+  }
+
+  function getCharacterName(character) {
+    if (!character) return '';
+    if (character.characterType === 'game_character') {
+      return CHARACTER_NAMES[character.characterId] || ('角色#' + character.characterId);
+    }
+    return '外部角色#' + character.characterId;
+  }
+
+  function getVocalCharacterLabel(vocal) {
+    if (!vocal || !Array.isArray(vocal.characters) || !vocal.characters.length) return '';
+    return vocal.characters
+      .slice()
+      .sort(function(a, b) { return (a.seq || 0) - (b.seq || 0) || a.characterId - b.characterId; })
+      .map(getCharacterName)
+      .filter(Boolean)
+      .join(' / ');
+  }
+
+  function getVocalDetailLabel(vocal) {
+    var parts = [];
+    var characters = getVocalCharacterLabel(vocal);
+    if (characters) parts.push(characters);
+    if (vocal && vocal.assetbundleName) parts.push(vocal.assetbundleName);
+    return parts.join(' · ');
+  }
+
+  function getVocalLabel(vocal) {
+    var base = getVocalBaseLabel(vocal);
+    var detail = getVocalDetailLabel(vocal);
+    return detail ? base + ' · ' + detail : base;
+  }
+
+  function getSongSubtitle(song) {
+    var tag = song.tags
+      .filter(function(name) { return name !== 'all'; })
+      .map(function(name) { return TAG_LABELS[name] || name; })[0];
+    var credit = song.composer || song.lyricist || 'Project SEKAI';
+    return tag ? tag + ' / ' + credit : credit;
+  }
+
   function play() {
-    if (!audio.src && tracks.length > 0) loadTrack(0, false);
+    if (!songs.length) {
+      ensureCatalog().then(function() {
+        if (!currentSong) selectSong(filteredSongs[0] || songs[0], false);
+        play();
+      }).catch(function() {});
+      return;
+    }
+    if (!currentSong) selectSong(filteredSongs[0] || songs[0], false);
+    if (hasVisualizerTarget()) ensureVisualizer();
+    resumeVisualizerAudio();
     audio.play().then(function() {
       isPlaying = true;
       playPauseBtn.textContent = '⏸';
       cdEl.classList.remove('paused');
       btn.classList.add('playing');
-    }).catch(function() {});
+      startVisualizer();
+      updateCatalogStatus();
+      saveState();
+    }).catch(function() {
+      isPlaying = false;
+      playPauseBtn.textContent = '▶';
+      cdEl.classList.add('paused');
+      btn.classList.remove('playing');
+      setStatus('播放失败', 'error');
+    });
   }
 
   function pause() {
@@ -228,30 +1634,628 @@
     playPauseBtn.textContent = '▶';
     cdEl.classList.add('paused');
     btn.classList.remove('playing');
+    stopVisualizer();
     saveState();
   }
 
-  function togglePlay(e) { if (e) e.stopPropagation(); isPlaying ? pause() : play(); }
-  function prevTrack(e) { if (e) e.stopPropagation(); loadTrack((currentIndex - 1 + tracks.length) % tracks.length, isPlaying); }
-  function nextTrack(e) { if (e) e.stopPropagation(); loadTrack((currentIndex + 1) % tracks.length, isPlaying); }
-
-  function fmt(s) {
-    if (!s || isNaN(s)) return '0:00';
-    var m = Math.floor(s / 60);
-    var sec = Math.floor(s % 60);
-    return m + ':' + (sec < 10 ? '0' + sec : sec);
+  function togglePlay(event) {
+    if (event) event.stopPropagation();
+    isPlaying ? pause() : play();
   }
 
-  btn.addEventListener('click', function(e) {
-    e.stopPropagation();
+  function prevTrack(event) {
+    if (event) event.stopPropagation();
+    moveTrack(-1);
+  }
+
+  function nextTrack(event) {
+    if (event) event.stopPropagation();
+    moveTrack(1);
+  }
+
+  function moveTrack(step) {
+    if (!songs.length) {
+      ensureCatalog().then(function() { moveTrack(step); }).catch(function() {});
+      return;
+    }
+    var list = filteredSongs.length ? filteredSongs : songs;
+    if (!list.length) return;
+    if (playbackOrder === 'shuffle') {
+      selectSong(pickRandomSong(list), isPlaying);
+      return;
+    }
+    var currentIndex = currentSong ? list.findIndex(function(song) { return song.id === currentSong.id; }) : -1;
+    var nextIndex = currentIndex < 0 ? 0 : (currentIndex + step + list.length) % list.length;
+    selectSong(list[nextIndex], isPlaying);
+  }
+
+  function pickRandomSong(list) {
+    if (list.length < 2 || !currentSong) return list[0];
+    var next = currentSong;
+    var guard = 0;
+    while (next && next.id === currentSong.id && guard < 12) {
+      next = list[Math.floor(Math.random() * list.length)];
+      guard++;
+    }
+    return next && next.id !== currentSong.id ? next : list[(list.findIndex(function(song) { return song.id === currentSong.id; }) + 1) % list.length];
+  }
+
+  function resetProgress() {
+    currentTimeEl.textContent = '0:00';
+    totalTimeEl.textContent = '0:00';
+    progressBar.value = 0;
+  }
+
+  function fmt(seconds) {
+    if (!seconds || isNaN(seconds)) return '0:00';
+    var minutes = Math.floor(seconds / 60);
+    var rest = Math.floor(seconds % 60);
+    return minutes + ':' + (rest < 10 ? '0' + rest : rest);
+  }
+
+  function normalize(value) {
+    return String(value || '').normalize('NFKC').toLowerCase();
+  }
+
+  function updateTagDropdownLabel() {
+    tagLabel.textContent = TAG_LABELS[tagFilter] || '全部';
+  }
+
+  function setDropdownOpen(dropdown, open) {
+    var button = dropdown === vocalDropdown ? vocalButton : tagButton;
+    dropdown.classList.toggle('open', open);
+    button.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function closeDropdowns(except) {
+    if (except !== vocalDropdown) setDropdownOpen(vocalDropdown, false);
+    if (except !== tagDropdown) setDropdownOpen(tagDropdown, false);
+  }
+
+  function toggleDropdown(dropdown) {
+    var button = dropdown === vocalDropdown ? vocalButton : tagButton;
+    if (button.disabled) return;
+    var willOpen = !dropdown.classList.contains('open');
+    closeDropdowns(dropdown);
+    setDropdownOpen(dropdown, willOpen);
+  }
+
+  function setStatus(text, state) {
+    statusEl.textContent = text;
+    if (state) statusEl.dataset.state = state;
+    else statusEl.removeAttribute('data-state');
+  }
+
+  function updateCatalogStatus() {
+    if (!songs.length) return;
+    setStatus(
+      (playbackMode === 'long' ? 'FULL' : 'PREVIEW') +
+      ' / ' +
+      (playbackOrder === 'shuffle' ? '随机' : '顺序') +
+      ' / ' +
+      songs.length +
+      ' 首',
+      ''
+    );
+  }
+
+  function updateModeButtons() {
+    shortBtn.classList.toggle('active', playbackMode === 'short');
+    longBtn.classList.toggle('active', playbackMode === 'long');
+  }
+
+  function updateOrderButtons() {
+    sequenceBtn.classList.toggle('active', playbackOrder === 'sequence');
+    shuffleBtn.classList.toggle('active', playbackOrder === 'shuffle');
+  }
+
+  function hasVisualizerTarget() {
+    return !!(visualizerTargets.cd || visualizerTargets.dock || visualizerTargets.page);
+  }
+
+  function getVisualizerStateName() {
+    if (!hasVisualizerTarget()) return 'off';
+    var selected = [];
+    if (visualizerTargets.cd) selected.push('cd');
+    if (visualizerTargets.dock) selected.push('dock');
+    if (visualizerTargets.page) selected.push('page');
+    return selected.length === 1 ? selected[0] : 'multi';
+  }
+
+  function updateVisualizerButtons() {
+    var hasTarget = hasVisualizerTarget();
+    vizOffBtn.classList.toggle('active', !hasTarget);
+    vizCdBtn.classList.toggle('active', visualizerTargets.cd);
+    vizDockBtn.classList.toggle('active', visualizerTargets.dock);
+    vizPageBtn.classList.toggle('active', visualizerTargets.page);
+    vizOffBtn.setAttribute('aria-pressed', !hasTarget ? 'true' : 'false');
+    vizCdBtn.setAttribute('aria-pressed', visualizerTargets.cd ? 'true' : 'false');
+    vizDockBtn.setAttribute('aria-pressed', visualizerTargets.dock ? 'true' : 'false');
+    vizPageBtn.setAttribute('aria-pressed', visualizerTargets.page ? 'true' : 'false');
+  }
+
+  function setMode(mode) {
+    if (mode !== 'short' && mode !== 'long') return;
+    if (playbackMode === mode) return;
+    playbackMode = mode;
+    updateModeButtons();
+    if (currentSong) setAudioSource(isPlaying, 0);
+    updateCatalogStatus();
+    saveState();
+  }
+
+  function setOrder(order) {
+    if (order !== 'sequence' && order !== 'shuffle') return;
+    playbackOrder = order;
+    updateOrderButtons();
+    updateCatalogStatus();
+    saveState();
+  }
+
+  function setVisualizerTarget(target, enabled) {
+    if (target !== 'cd' && target !== 'dock' && target !== 'page') return;
+    visualizerTargets[target] = typeof enabled === 'boolean' ? enabled : !visualizerTargets[target];
+    updateVisualizerButtons();
+    applyVisualizerTargets();
+    if (hasVisualizerTarget() && isPlaying) {
+      if (!ensureVisualizer()) {
+        saveState();
+        return;
+      }
+      startVisualizer();
+    }
+    saveState();
+  }
+
+  function clearVisualizerTargets() {
+    visualizerTargets.cd = false;
+    visualizerTargets.dock = false;
+    visualizerTargets.page = false;
+    updateVisualizerButtons();
+    applyVisualizerTargets();
+    saveState();
+  }
+
+  function applyVisualizerTargets() {
+    cdEl.classList.toggle('viz-cd', visualizerTargets.cd);
+    btn.classList.toggle('viz-dock', visualizerTargets.dock);
+    pageVisualizer.classList.toggle('active', visualizerTargets.page);
+    if (!visualizerTargets.cd) clearCanvas(cdVisualizer);
+    if (!visualizerTargets.dock) clearCanvas(dockVisualizer);
+    if (!visualizerTargets.page) clearCanvas(pageVisualizer);
+    if (!hasVisualizerTarget()) stopVisualizer();
+  }
+
+  function ensureVisualizer() {
+    if (analyser) return true;
+    try {
+      var AudioContextCtor = window.AudioContext || window['webkitAudioContext'];
+      if (!AudioContextCtor) return false;
+      audioContext = new AudioContextCtor();
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 256;
+      analyser.smoothingTimeConstant = 0.86;
+      sourceNode = audioContext.createMediaElementSource(audio);
+      sourceNode.connect(analyser);
+      analyser.connect(audioContext.destination);
+      frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      timeData = new Uint8Array(analyser.fftSize);
+      return true;
+    } catch (error) {
+      analyser = null;
+      timeData = null;
+      visualizerTargets.cd = false;
+      visualizerTargets.dock = false;
+      visualizerTargets.page = false;
+      updateVisualizerButtons();
+      applyVisualizerTargets();
+      setStatus('可视化不可用', 'error');
+      return false;
+    }
+  }
+
+  function resumeVisualizerAudio() {
+    if (audioContext && audioContext.state === 'suspended') {
+      audioContext.resume().catch(function() {});
+    }
+  }
+
+  function startVisualizer() {
+    if (!hasVisualizerTarget() || !analyser || visualizerFrame) return;
+    drawVisualizer();
+  }
+
+  function stopVisualizer() {
+    if (visualizerFrame) {
+      cancelAnimationFrame(visualizerFrame);
+      visualizerFrame = 0;
+    }
+    clearCanvas(cdVisualizer);
+    clearCanvas(dockVisualizer);
+    clearCanvas(pageVisualizer);
+  }
+
+  function drawVisualizer() {
+    if (!hasVisualizerTarget() || !analyser || !frequencyData) {
+      stopVisualizer();
+      return;
+    }
+    visualizerFrame = requestAnimationFrame(drawVisualizer);
+    analyser.getByteFrequencyData(frequencyData);
+    if (timeData) analyser.getByteTimeDomainData(timeData);
+    if (visualizerTargets.cd) drawCdVisualizer(cdVisualizer);
+    else clearCanvas(cdVisualizer);
+    if (visualizerTargets.dock) drawDockVisualizer(dockVisualizer);
+    else clearCanvas(dockVisualizer);
+    if (visualizerTargets.page) drawPageVisualizer(pageVisualizer);
+    else clearCanvas(pageVisualizer);
+  }
+
+  function prepareCanvas(canvas) {
+    if (!canvas) return null;
+    var rect = canvas.getBoundingClientRect();
+    var dpr = window.devicePixelRatio || 1;
+    var width = Math.max(1, Math.floor(rect.width * dpr));
+    var height = Math.max(1, Math.floor(rect.height * dpr));
+    if (canvas.width !== width || canvas.height !== height) {
+      canvas.width = width;
+      canvas.height = height;
+    }
+    var ctx = canvas.getContext('2d');
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, width, height);
+    return { ctx: ctx, width: width, height: height, dpr: dpr };
+  }
+
+  function clearCanvas(canvas) {
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    if (ctx) ctx.clearRect(0, 0, canvas.width || 0, canvas.height || 0);
+  }
+
+  function getBandAverage(startRatio, endRatio) {
+    if (!frequencyData || !frequencyData.length) return 0;
+    var start = Math.max(0, Math.floor(startRatio * frequencyData.length));
+    var end = Math.min(frequencyData.length - 1, Math.ceil(endRatio * frequencyData.length));
+    var total = 0;
+    var count = 0;
+    for (var i = start; i <= end; i++) {
+      total += frequencyData[i];
+      count++;
+    }
+    return count ? total / count / 255 : 0;
+  }
+
+  function sampleFrequency(position, curve) {
+    if (!frequencyData || !frequencyData.length) return 0;
+    var normalized = Math.max(0, Math.min(1, position));
+    var shaped = Math.pow(normalized, curve || 1.32);
+    var index = Math.min(frequencyData.length - 1, Math.floor(shaped * (frequencyData.length - 1)));
+    return frequencyData[index] / 255;
+  }
+
+  function sampleWave(position) {
+    if (!timeData || !timeData.length) return 0;
+    var normalized = Math.max(0, Math.min(1, position));
+    var index = Math.min(timeData.length - 1, Math.floor(normalized * (timeData.length - 1)));
+    return (timeData[index] - 128) / 128;
+  }
+
+  function smoothLevel(name, value, hold) {
+    var previous = visualizerLevels[name] || 0;
+    var next = previous * hold + value * (1 - hold);
+    visualizerLevels[name] = next;
+    return next;
+  }
+
+  function drawCdVisualizer(canvas) {
+    var prepared = prepareCanvas(canvas);
+    if (!prepared) return;
+    var ctx = prepared.ctx;
+    var width = prepared.width;
+    var height = prepared.height;
+    var cx = width / 2;
+    var cy = height / 2;
+    var size = Math.min(width, height);
+    var time = performance.now() * 0.001;
+    var bass = smoothLevel('cdBass', getBandAverage(0, 0.12), 0.78);
+    var mid = smoothLevel('cdMid', getBandAverage(0.12, 0.48), 0.82);
+    var high = smoothLevel('cdHigh', getBandAverage(0.48, 1), 0.86);
+    var halo = ctx.createRadialGradient(cx, cy, size * 0.18, cx, cy, size * 0.52);
+    halo.addColorStop(0, 'rgba(255,255,255,0)');
+    halo.addColorStop(0.45, 'rgba(30,216,255,' + (0.06 + bass * 0.16) + ')');
+    halo.addColorStop(0.76, 'rgba(255,93,168,' + (0.08 + mid * 0.16) + ')');
+    halo.addColorStop(1, 'rgba(255,228,94,0)');
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.fillStyle = halo;
+    ctx.beginPath();
+    ctx.arc(cx, cy, size * 0.52, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.lineCap = 'round';
+    var bars = 72;
+    var base = size * (0.415 + bass * 0.01);
+    for (var i = 0; i < bars; i++) {
+      var position = i / bars;
+      var value = sampleFrequency(position, 1.18);
+      var blended = Math.min(1, value * 0.72 + bass * 0.18 + high * 0.1);
+      var angle = Math.PI * 2 * position - Math.PI / 2;
+      var wobble = Math.sin(time * 2.4 + i * 0.38) * size * 0.006;
+      var inner = base + wobble;
+      var outer = inner + size * (0.018 + blended * 0.075);
+      var hue = (185 + i * 4.2 + time * 26 + blended * 70) % 360;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner);
+      ctx.lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer);
+      ctx.strokeStyle = 'hsla(' + hue + ', 96%, 68%, ' + (0.28 + blended * 0.68) + ')';
+      ctx.lineWidth = Math.max(2, size * (0.007 + blended * 0.009));
+      ctx.shadowBlur = size * (0.035 + blended * 0.05);
+      ctx.shadowColor = 'hsla(' + hue + ', 96%, 68%, 0.72)';
+      ctx.stroke();
+    }
+
+    for (var layer = 0; layer < 3; layer++) {
+      var radius = size * (0.405 + layer * 0.036 + bass * 0.012);
+      var pieces = 10 + layer * 3;
+      ctx.lineWidth = Math.max(1.5, size * (0.007 + layer * 0.002));
+      ctx.shadowBlur = size * 0.035;
+      for (var piece = 0; piece < pieces; piece++) {
+        var arcValue = sampleFrequency((piece + layer * 0.37) / pieces, 1.08);
+        var start = time * (0.42 + layer * 0.18) + piece * Math.PI * 2 / pieces + layer * 0.36;
+        var sweep = Math.PI * (0.07 + arcValue * 0.13 + high * 0.05);
+        var colorHue = (195 + layer * 42 + piece * 17 + time * 18) % 360;
+        ctx.beginPath();
+        ctx.arc(cx, cy, radius, start, start + sweep);
+        ctx.strokeStyle = 'hsla(' + colorHue + ', 94%, 70%, ' + (0.18 + arcValue * 0.32 + mid * 0.18) + ')';
+        ctx.shadowColor = 'hsla(' + colorHue + ', 94%, 70%, 0.58)';
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawDockVisualizer(canvas) {
+    var prepared = prepareCanvas(canvas);
+    if (!prepared) return;
+    var ctx = prepared.ctx;
+    var width = prepared.width;
+    var height = prepared.height;
+    var cx = width / 2;
+    var cy = height / 2;
+    var size = Math.min(width, height);
+    var time = performance.now() * 0.001;
+    var bass = smoothLevel('dockBass', getBandAverage(0, 0.18), 0.74);
+    var mid = smoothLevel('dockMid', getBandAverage(0.18, 0.62), 0.82);
+    var bars = 32;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    ctx.lineCap = 'round';
+    ctx.shadowBlur = size * (0.06 + bass * 0.1);
+    for (var i = 0; i < bars; i++) {
+      var position = i / bars;
+      var value = sampleFrequency(position, 1.14);
+      var angle = Math.PI * 2 * position - Math.PI / 2 + time * 0.16;
+      var blended = Math.min(1, value * 0.76 + bass * 0.18 + mid * 0.08);
+      var inner = size * (0.37 + bass * 0.008);
+      var outer = size * (0.435 + blended * 0.075);
+      var hue = (190 + i * 6.6 + time * 32 + blended * 45) % 360;
+      ctx.beginPath();
+      ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner);
+      ctx.lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer);
+      ctx.strokeStyle = 'hsla(' + hue + ', 96%, 70%, ' + (0.32 + blended * 0.62) + ')';
+      ctx.lineWidth = Math.max(1.4, size * (0.013 + blended * 0.009));
+      ctx.shadowColor = 'hsla(' + hue + ', 96%, 70%, 0.72)';
+      ctx.stroke();
+    }
+
+    ctx.shadowBlur = size * 0.1;
+    ctx.lineWidth = Math.max(1.2, size * 0.022);
+    for (var arc = 0; arc < 3; arc++) {
+      var start = time * (0.8 + arc * 0.24) + arc * Math.PI * 0.72;
+      ctx.beginPath();
+      ctx.arc(cx, cy, size * (0.405 + arc * 0.035), start, start + Math.PI * (0.28 + bass * 0.2));
+      ctx.strokeStyle = arc === 0
+        ? 'rgba(30,216,255,' + (0.24 + bass * 0.38) + ')'
+        : arc === 1
+          ? 'rgba(255,93,168,' + (0.22 + mid * 0.34) + ')'
+          : 'rgba(255,228,94,' + (0.18 + bass * 0.28) + ')';
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawPageVisualizer(canvas) {
+    var prepared = prepareCanvas(canvas);
+    if (!prepared) return;
+    var ctx = prepared.ctx;
+    var width = prepared.width;
+    var height = prepared.height;
+    var time = performance.now() * 0.001;
+    var bass = smoothLevel('pageBass', getBandAverage(0, 0.12), 0.84);
+    var mid = smoothLevel('pageMid', getBandAverage(0.12, 0.52), 0.88);
+    var high = smoothLevel('pageHigh', getBandAverage(0.52, 1), 0.9);
+    var samples = 128;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+
+    var curtain = ctx.createLinearGradient(0, height * 0.34, 0, height);
+    curtain.addColorStop(0, 'rgba(30,216,255,0)');
+    curtain.addColorStop(0.55, 'rgba(255,93,168,' + (0.035 + mid * 0.08) + ')');
+    curtain.addColorStop(1, 'rgba(30,216,255,' + (0.06 + bass * 0.13) + ')');
+    ctx.fillStyle = curtain;
+    ctx.fillRect(0, height * 0.34, width, height * 0.66);
+
+    var floorGradient = ctx.createLinearGradient(0, height * 0.62, width, height);
+    floorGradient.addColorStop(0, 'rgba(30,216,255,' + (0.12 + bass * 0.18) + ')');
+    floorGradient.addColorStop(0.48, 'rgba(255,93,168,' + (0.1 + mid * 0.15) + ')');
+    floorGradient.addColorStop(1, 'rgba(255,228,94,' + (0.08 + high * 0.12) + ')');
+    ctx.beginPath();
+    ctx.moveTo(0, height);
+    for (var i = 0; i <= samples; i++) {
+      var p = i / samples;
+      var value = sampleFrequency(p, 1.22);
+      var y = height * (0.9 - bass * 0.05) - value * height * 0.2 - Math.sin(p * Math.PI * 2 + time * 1.5) * height * 0.012;
+      ctx.lineTo(p * width, y);
+    }
+    ctx.lineTo(width, height);
+    ctx.closePath();
+    ctx.fillStyle = floorGradient;
+    ctx.globalAlpha = 0.44;
+    ctx.fill();
+    ctx.globalAlpha = 1;
+
+    var ribbons = [
+      { base: 0.28, speed: 0.75, width: 2.4, hue: 188, amp: 0.08 },
+      { base: 0.47, speed: -0.58, width: 3.3, hue: 326, amp: 0.1 },
+      { base: 0.66, speed: 0.42, width: 2.8, hue: 52, amp: 0.075 },
+      { base: 0.78, speed: -0.36, width: 1.8, hue: 162, amp: 0.055 }
+    ];
+
+    ribbons.forEach(function(ribbon, ribbonIndex) {
+      var gradient = ctx.createLinearGradient(0, 0, width, 0);
+      gradient.addColorStop(0, 'hsla(' + ribbon.hue + ', 96%, 70%, 0)');
+      gradient.addColorStop(0.18, 'hsla(' + ribbon.hue + ', 96%, 70%, 0.32)');
+      gradient.addColorStop(0.52, 'hsla(' + ((ribbon.hue + 72) % 360) + ', 96%, 72%, 0.44)');
+      gradient.addColorStop(0.84, 'hsla(' + ((ribbon.hue + 136) % 360) + ', 96%, 68%, 0.26)');
+      gradient.addColorStop(1, 'hsla(' + ribbon.hue + ', 96%, 70%, 0)');
+
+      ctx.beginPath();
+      for (var point = 0; point <= samples; point++) {
+        var xRatio = point / samples;
+        var freq = sampleFrequency((xRatio + ribbonIndex * 0.08) % 1, 1.1);
+        var wave = sampleWave((xRatio + time * 0.02 + ribbonIndex * 0.11) % 1);
+        var yOffset =
+          Math.sin(xRatio * Math.PI * (2.8 + ribbonIndex * 0.7) + time * ribbon.speed) * height * 0.026 +
+          wave * height * (0.016 + ribbonIndex * 0.003) -
+          freq * height * ribbon.amp +
+          bass * height * 0.022 * Math.sin(xRatio * Math.PI * 2 + ribbonIndex);
+        var x = xRatio * width;
+        var y = height * ribbon.base + yOffset;
+        if (point === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = Math.max(1, prepared.dpr * (ribbon.width + bass * 2.8));
+      ctx.shadowColor = 'hsla(' + ribbon.hue + ', 96%, 70%, 0.58)';
+      ctx.shadowBlur = prepared.dpr * (8 + mid * 18);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  function readState() {
+    try {
+      var raw = sessionStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function saveState() {
+    if (isRestoring) return;
+    try {
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+        musicId: currentSong ? currentSong.id : null,
+        vocalId: currentVocal ? currentVocal.id : null,
+        mode: playbackMode,
+        order: playbackOrder,
+        visualizer: getVisualizerStateName(),
+        visualizerTargets: {
+          cd: visualizerTargets.cd,
+          dock: visualizerTargets.dock,
+          page: visualizerTargets.page
+        },
+        time: audio.currentTime || 0,
+        playing: isPlaying ? 1 : 0,
+        volume: audio.volume,
+        query: query,
+        tag: tagFilter
+      }));
+    } catch (error) {}
+  }
+
+  function restoreSelection(state) {
+    restoredOnce = true;
+    if (!state) return;
+    if (state.tag) {
+      tagFilter = state.tag;
+      if (TAG_ORDER.indexOf(tagFilter) < 0) tagFilter = 'all';
+      updateTagDropdownLabel();
+      populateTagFilter();
+    }
+    if (state.query) {
+      query = state.query;
+      searchInput.value = query;
+    }
+    applyFilters();
+    if (!state.musicId) return;
+    var song = songs.find(function(item) { return String(item.id) === String(state.musicId); });
+    if (!song) return;
+    selectSong(song, false, state.vocalId, state.time || 0);
+  }
+
+  btn.addEventListener('click', function(event) {
+    event.stopPropagation();
     panel.classList.toggle('hidden');
-    if (!panel.classList.contains('hidden') && !audio.src) loadTrack(0);
+    if (!panel.classList.contains('hidden')) ensureCatalog().catch(function() {});
   });
-  closeBtn.addEventListener('click', function(e) { e.stopPropagation(); panel.classList.add('hidden'); });
+  closeBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    panel.classList.add('hidden');
+  });
   playPauseBtn.addEventListener('click', togglePlay);
   prevBtn.addEventListener('click', prevTrack);
   nextBtn.addEventListener('click', nextTrack);
+  vocalButton.addEventListener('click', function(event) {
+    event.stopPropagation();
+    toggleDropdown(vocalDropdown);
+  });
+  tagButton.addEventListener('click', function(event) {
+    event.stopPropagation();
+    toggleDropdown(tagDropdown);
+  });
+  shortBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setMode('short');
+  });
+  longBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setMode('long');
+  });
+  sequenceBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setOrder('sequence');
+  });
+  shuffleBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setOrder('shuffle');
+  });
+  vizOffBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    clearVisualizerTargets();
+  });
+  vizCdBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setVisualizerTarget('cd');
+  });
+  vizDockBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setVisualizerTarget('dock');
+  });
+  vizPageBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setVisualizerTarget('page');
+  });
 
+  searchInput.addEventListener('input', function(event) {
+    query = event.target.value || '';
+    applyFilters();
+  });
   audio.addEventListener('timeupdate', function() {
     if (audio.duration) {
       progressBar.value = (audio.currentTime / audio.duration) * 100;
@@ -260,18 +2264,48 @@
   });
   audio.addEventListener('loadedmetadata', function() {
     totalTimeEl.textContent = fmt(audio.duration);
+    updateCatalogStatus();
   });
-  audio.addEventListener('ended', function() { nextTrack(); });
-  progressBar.addEventListener('input', function(e) { e.stopPropagation(); if (audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration; });
-  volumeSlider.addEventListener('input', function(e) { e.stopPropagation(); audio.volume = volumeSlider.value; });
+  audio.addEventListener('canplay', function() {
+    updateCatalogStatus();
+  });
+  audio.addEventListener('waiting', function() {
+    if (audio.src) setStatus((playbackMode === 'long' ? 'FULL' : 'PREVIEW') + ' / 缓冲中', '');
+  });
+  audio.addEventListener('ended', function() {
+    stopVisualizer();
+    nextTrack();
+  });
+  audio.addEventListener('error', function() {
+    if (!audio.src) return;
+    isPlaying = false;
+    playPauseBtn.textContent = '▶';
+    cdEl.classList.add('paused');
+    btn.classList.remove('playing');
+    stopVisualizer();
+    setStatus('音频不可用', 'error');
+  });
+  progressBar.addEventListener('input', function(event) {
+    event.stopPropagation();
+    if (audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration;
+  });
+  volumeSlider.addEventListener('input', function(event) {
+    event.stopPropagation();
+    audio.volume = Number(volumeSlider.value);
+    saveState();
+  });
 
-  document.addEventListener('click', function(e) {
-    if (!panel.classList.contains('hidden') && !panel.contains(e.target) && !btn.contains(e.target)) panel.classList.add('hidden');
+  document.addEventListener('click', function(event) {
+    closeDropdowns();
+    if (!panel.classList.contains('hidden') && !panel.contains(event.target) && !btn.contains(event.target)) {
+      panel.classList.add('hidden');
+    }
   });
-  panel.addEventListener('click', function(e) { e.stopPropagation(); });
+  panel.addEventListener('click', function(event) {
+    if (!event.target.closest('.sekai-dropdown')) closeDropdowns();
+    event.stopPropagation();
+  });
 
   renderPlaylist();
-  restoreState();
 })();
 </script>
-</parameter>

@@ -115,6 +115,7 @@ a {
 
 img {
   max-width: 100%;
+  height: auto;
   display: block;
 }
 
@@ -319,9 +320,9 @@ img {
 .archive-shell h1 {
   margin: 12px 0 12px;
   font-family: 'Ma Shan Zheng', cursive;
-  font-size: clamp(2.4rem, 5vw, 4.8rem);
+  font-size: 3.9rem;
   line-height: 1.02;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 .hero p,
@@ -553,14 +554,53 @@ img {
   padding: clamp(24px, 4vw, 40px);
 }
 
+.post-shell {
+  width: 100%;
+  max-width: 920px;
+  margin-inline: auto;
+}
+
 .prose {
-  max-width: 74ch;
+  max-width: 76ch;
+  margin-top: 30px;
+  overflow-wrap: break-word;
+}
+
+.prose > *:first-child {
+  margin-top: 0;
+}
+
+.prose p,
+.prose ul,
+.prose ol,
+.prose blockquote,
+.prose table {
+  margin-block: 1.05em;
+}
+
+.prose p {
+  line-height: 1.82;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 1.5em;
+}
+
+.prose li + li {
+  margin-top: 0.35em;
 }
 
 .prose h2,
 .prose h3 {
   margin-top: 1.8em;
+  margin-bottom: 0.65em;
   line-height: 1.2;
+}
+
+.prose h2 {
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid var(--panel-border);
 }
 
 .prose a {
@@ -580,6 +620,64 @@ img {
   padding: 18px;
   border-radius: 18px;
   background: var(--pre-bg);
+  border: 1px solid var(--panel-border);
+}
+
+.prose pre code {
+  padding: 0;
+  background: transparent;
+}
+
+.prose blockquote {
+  margin-inline: 0;
+  padding: 12px 18px;
+  border-left: 4px solid var(--accent);
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  background: var(--tag-bg);
+  color: var(--text-soft);
+}
+
+.prose table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.prose th,
+.prose td {
+  padding: 10px 12px;
+  border: 1px solid var(--panel-border);
+  vertical-align: top;
+}
+
+.prose th {
+  background: var(--tag-bg);
+  color: var(--text);
+  text-align: left;
+}
+
+.prose hr {
+  margin: 2em 0;
+  border: 0;
+  border-top: 1px solid var(--panel-border);
+}
+
+.prose .katex {
+  font-size: 1.04em;
+}
+
+.prose .katex-display {
+  margin: 1.35em 0;
+  padding: 0.2em 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.prose .katex-display > .katex {
+  display: inline-block;
+  max-width: 100%;
+  padding-bottom: 0.2em;
 }
 
 .archive-list {
@@ -645,7 +743,7 @@ img {
   margin-top: 18px;
 }
 
-/* ── Tag Cloud ── */
+/* Tag Cloud */
 .tag-cloud {
   display: flex;
   flex-wrap: wrap;
@@ -678,7 +776,7 @@ img {
   font-weight: 500;
 }
 
-/* ── Search ── */
+/* Search */
 .search-bar {
   display: flex;
   align-items: center;
@@ -716,7 +814,7 @@ img {
   color: var(--muted);
 }
 
-/* ── Comments ── */
+/* Comments */
 .comments-section {
   margin-top: 40px;
 }
@@ -754,7 +852,7 @@ img {
   text-decoration: underline;
 }
 
-/* ── Project SEKAI Themed Accents ── */
+/* Project SEKAI Themed Accents */
 .sekai-badge {
   display: inline-flex;
   align-items: center;
@@ -780,7 +878,7 @@ img {
 [data-theme="dark"] .sekai-badge.n25 { background: rgba(153, 68,170,0.22); color: #b568c8; }
 [data-theme="dark"] .sekai-badge.vs  { background: rgba( 51,170,221,0.22); color: #5ac0e8; }
 
-/* ── Timeline (Archive) ── */
+/* Timeline */
 .timeline {
   position: relative;
   margin-top: 28px;
@@ -848,7 +946,7 @@ img {
   font-size: 0.95rem;
 }
 
-/* ── Sekai separator ── */
+/* SEKAI separator */
 .sekai-divider {
   display: flex;
   align-items: center;
@@ -869,7 +967,7 @@ img {
   background: linear-gradient(90deg, transparent, var(--panel-border), transparent);
 }
 
-/* ── Sekai note on homepage ── */
+/* SEKAI note on homepage */
 .sekai-note {
   display: flex;
   align-items: center;
@@ -894,25 +992,38 @@ img {
   border-top: 1px solid var(--panel-border);
 }
 
-/* ── Image hover zoom ── */
+/* Article images */
+.prose p:has(> img:only-child) {
+  margin: 1.6em 0;
+}
+
 .prose img {
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: min(72vh, 760px);
+  margin-inline: auto;
+  object-fit: contain;
   border-radius: var(--radius-md);
-  transition: transform 300ms ease, box-shadow 300ms ease;
+  border: 1px solid var(--panel-border);
+  box-shadow: var(--shadow-soft);
+  transition: transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease;
 }
 
 .prose img:hover {
-  transform: scale(1.01);
-  box-shadow: var(--shadow-soft);
+  transform: translateY(-2px);
+  border-color: var(--hover-border);
+  box-shadow: var(--shadow);
 }
 
-/* ── Card stagger entrance ── */
+/* Card stagger entrance */
 .posts-grid .animated-card:nth-child(1) { animation-delay: 80ms; }
 .posts-grid .animated-card:nth-child(2) { animation-delay: 160ms; }
 .posts-grid .animated-card:nth-child(3) { animation-delay: 240ms; }
 .posts-grid .animated-card:nth-child(4) { animation-delay: 320ms; }
 .posts-grid .animated-card:nth-child(5) { animation-delay: 400ms; }
 
-/* ── Theme transition ── */
+/* Theme transition */
 .hero, .card, .post-shell, .archive-shell,
 .nav a, .button, .tag-pill, .project-card,
 .site-shell, .content-area, .footer,
@@ -925,7 +1036,7 @@ html {
   transition: background 0.4s ease;
 }
 
-/* 排除动画性能敏感属性 */
+/* Keep theme transitions lightweight */
 .floating-shape,
 .avatar {
   transition: background 0.4s ease, border-color 0.4s ease;
@@ -1017,9 +1128,44 @@ html {
     padding: 24px;
   }
 
+  .hero h1,
+  .post-shell h1,
+  .archive-shell h1 {
+    font-size: 2.65rem;
+    line-height: 1.08;
+  }
+
   .topbar {
-    align-items: flex-start;
+    align-items: stretch;
     flex-direction: column;
+  }
+
+  .nav {
+    width: 100%;
+    gap: 8px;
+  }
+
+  .nav a {
+    flex: 1 1 auto;
+    min-width: max-content;
+    padding: 8px 10px;
+    text-align: center;
+  }
+
+  .post-shell,
+  .archive-shell {
+    padding: 22px 18px;
+  }
+
+  .prose {
+    max-width: none;
+    margin-top: 24px;
+  }
+
+  .prose pre {
+    margin-inline: -4px;
+    padding: 14px;
+    border-radius: 14px;
   }
 
   .floating-shape-b,
@@ -1028,7 +1174,7 @@ html {
   }
 }
 
-/* SEKAI �����б���JS��̬���ɣ�ȫ�������� */
+/* SEKAI playlist generated by inline player JS */
 .sekai-playlist {
   display: flex; flex-direction: column; gap: 6px; max-height: 200px;
   overflow-y: auto; overflow-x: hidden; scrollbar-width: thin;

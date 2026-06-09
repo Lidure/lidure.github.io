@@ -10,3 +10,5 @@ dist
 !.env.example
 .DS_Store
 !public/favicon.png
+.tmp/
+public/music/

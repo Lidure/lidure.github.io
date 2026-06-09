@@ -250,8 +250,8 @@ function momentImageSrc(src: string) {
     z-index: 1;
     margin: 10px 0 10px;
     font-family: 'Ma Shan Zheng', cursive;
-    font-size: clamp(2.8rem, 7vw, 5rem);
-    letter-spacing: -0.02em;
+    font-size: 4.2rem;
+    letter-spacing: 0;
   }
 
   .moments-hero p {
@@ -736,37 +736,35 @@ function momentImageSrc(src: string) {
   .card-images {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
     gap: 8px;
     max-width: 430px;
     margin: 0 0 10px;
   }
 
   .card-images[data-count="1"] {
-    grid-template-columns: minmax(0, 360px);
+    grid-template-columns: minmax(0, 420px);
   }
 
   .card-images[data-count="2"] {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: 360px;
+    max-width: 430px;
   }
 
   .card-images img {
     width: 100%;
-    aspect-ratio: 1 / 1;
     height: auto;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 10px;
     border: 1px solid var(--panel-border);
+    background: var(--bg-soft);
     cursor: pointer;
-    transition: transform 180ms ease, box-shadow 180ms ease;
-  }
-
-  .card-images[data-count="1"] img {
-    aspect-ratio: 4 / 3;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
   }
 
   .card-images img:hover {
-    transform: scale(1.04);
+    transform: translateY(-2px);
+    border-color: var(--hover-border);
     box-shadow: var(--shadow-soft);
   }
 
@@ -895,6 +893,11 @@ function momentImageSrc(src: string) {
   @media (max-width: 640px) {
     .moments-hero {
       padding: 32px 20px 26px;
+    }
+
+    .moments-hero h1 {
+      font-size: 3rem;
+      line-height: 1.08;
     }
 
     .form-row {
