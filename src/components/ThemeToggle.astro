@@ -62,11 +62,13 @@ function applyTheme(theme: string): void {
   document.documentElement.setAttribute('data-theme', theme);
 }
 
-function init(): void {
+function handlePageLoad(): void {
+  // 重新应用主题（ClientRouter 页面交换会清除 data-theme 属性）
   const stored = getStoredTheme();
   const theme = stored ?? getSystemTheme();
   applyTheme(theme);
 
+  // 重新绑定切换按钮（路由切换后按钮 DOM 被替换，旧监听器丢失）
   const btn = document.getElementById('theme-toggle');
   if (!btn) return;
   btn.addEventListener('click', () => {
@@ -77,12 +79,19 @@ function init(): void {
   });
 }
 
+function init(): void {
+  handlePageLoad();
+}
+
 // 系统主题变化时自动跟随（仅当用户没手动存过时）
 window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
   if (!getStoredTheme()) {
     applyTheme(e.matches ? 'dark' : 'light');
   }
 });
+
+// Astro ClientRouter 每次页面切换完成后触发
+document.addEventListener('astro:page-load', handlePageLoad);
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);

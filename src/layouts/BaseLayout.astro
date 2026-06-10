@@ -4,6 +4,7 @@ import '../styles/global.css';
 import 'katex/dist/katex.min.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
+import { ClientRouter } from 'astro:transitions';
 import SekaiParticles from '../components/SekaiParticles.astro';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
 ---
@@ -20,6 +21,7 @@ import SekaiPlayer from '../components/SekaiPlayer.astro';
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="true" />
     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+    <ClientRouter />
     <script is:inline>
     (function() {
       var theme;

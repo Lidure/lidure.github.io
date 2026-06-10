@@ -2,13 +2,13 @@
 /** SEKAI player */
 ---
 
-<button id="sekaiPlayerBtn" class="sekai-player-btn" title="SEKAI 播放器" aria-label="打开 SEKAI 播放器">
+<button id="sekaiPlayerBtn" class="sekai-player-btn" title="SEKAI 播放器" aria-label="打开 SEKAI 播放器" transition:persist transition:name="sekai-btn">
   <img id="sekaiDockCover" class="sekai-dock-cover" src="" alt="" aria-hidden="true" />
   <canvas id="sekaiDockVisualizer" class="sekai-dock-visualizer" aria-hidden="true"></canvas>
   <span id="sekaiDockIcon" class="sekai-dock-icon">♪</span>
 </button>
 
-<div id="sekaiPlayerPanel" class="sekai-player-panel hidden" role="dialog" aria-label="SEKAI 播放器">
+<div id="sekaiPlayerPanel" class="sekai-player-panel hidden" role="dialog" aria-label="SEKAI 播放器" transition:persist transition:name="sekai-panel">
   <div class="sekai-player-header">
     <div class="sekai-heading">
       <span class="sekai-player-title">PJSK CD</span>
@@ -100,8 +100,8 @@
   </div>
 </div>
 
-<audio id="sekaiAudio" preload="metadata"></audio>
-<canvas id="sekaiPageVisualizer" class="sekai-page-visualizer" aria-hidden="true"></canvas>
+<audio id="sekaiAudio" preload="metadata" transition:persist transition:name="sekai-audio"></audio>
+<canvas id="sekaiPageVisualizer" class="sekai-page-visualizer" aria-hidden="true" transition:persist transition:name="sekai-page-viz"></canvas>
 
 <style>
 .sekai-player-btn {
@@ -1140,6 +1140,9 @@
 
 <script is:inline>
 (function() {
+  if (window.__sekaiPlayerInit) return;
+  window.__sekaiPlayerInit = true;
+
   var MASTER_BASE = 'https://sekai-world.github.io/sekai-master-db-diff';
   var ASSET_BASE = 'https://storage.sekai.best/sekai-jp-assets';
   var STORAGE_KEY = 'sekai_player_v3';

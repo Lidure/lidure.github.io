@@ -18,6 +18,9 @@
 
 <script is:inline>
 (function() {
+  if (window.__sekaiParticlesInit) return;
+  window.__sekaiParticlesInit = true;
+
   var container = document.getElementById('sakura-container');
   if (!container) return;
 
