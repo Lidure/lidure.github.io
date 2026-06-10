@@ -1019,7 +1019,7 @@
   transition: opacity .35s;
 }
 .sekai-page-visualizer.active {
-  opacity: .22;
+  opacity: .42;
 }
 
 @media (max-width: 760px) {
@@ -2090,6 +2090,37 @@
     return next;
   }
 
+  var dreamHues = [188, 272, 328, 44, 162];
+
+  var cdParticles = [];
+  var dockParticles = [];
+  var pageParticles = [];
+
+  function spawnParticle(pool, x, y, vx, vy, life, size, hue) {
+    if (pool.length >= 40) return;
+    pool.push({ x: x, y: y, vx: vx, vy: vy, life: life, max: life, size: size, hue: hue });
+  }
+
+  function tickParticles(pool, ctx) {
+    for (var i = pool.length - 1; i >= 0; i--) {
+      var p = pool[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.992;
+      p.vy *= 0.992;
+      p.life--;
+      if (p.life <= 0) { pool.splice(i, 1); continue; }
+      var t = p.life / p.max;
+      var fadeIn = Math.min(1, (1 - t) * 6);
+      var fadeOut = Math.min(1, t * 3.5);
+      var alpha = fadeIn * fadeOut * 0.55;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * (0.5 + fadeOut * 0.5), 0, Math.PI * 2);
+      ctx.fillStyle = 'hsla(' + p.hue + ', 72%, 80%, ' + alpha + ')';
+      ctx.fill();
+    }
+  }
+
   function drawCdVisualizer(canvas) {
     var prepared = prepareCanvas(canvas);
     if (!prepared) return;
@@ -2100,79 +2131,114 @@
     var cy = height / 2;
     var size = Math.min(width, height);
     var rawBass = getBandAverage(0, 0.13);
-    var previousRawBass = visualizerLevels.cdRawBass || 0;
-    var transient = Math.max(0, rawBass - previousRawBass * 0.92);
+    var transient = Math.max(0, rawBass - (visualizerLevels.cdRawBass || 0) * 0.92);
     visualizerLevels.cdRawBass = rawBass;
-    var bass = smoothLevel('cdBass', rawBass, 0.68);
-    var high = smoothLevel('cdHigh', getBandAverage(0.58, 1), 0.82);
-    var beat = smoothLevel('cdBeat', Math.min(1, bass * 0.68 + transient * 2.6), 0.62);
+    var bass = smoothLevel('cdBass', rawBass, 0.72);
+    var mid = smoothLevel('cdMid', getBandAverage(0.13, 0.55), 0.82);
+    var high = smoothLevel('cdHigh', getBandAverage(0.55, 1), 0.85);
+    var beat = smoothLevel('cdBeat', Math.min(1, bass * 0.6 + transient * 2.2), 0.62);
 
-    cdEl.style.setProperty('--sekai-cd-scale', (1 + beat * 0.012).toFixed(3));
-    cdEl.style.setProperty('--sekai-cd-glow', (0.1 + beat * 0.13 + high * 0.04).toFixed(3));
+    cdEl.style.setProperty('--sekai-cd-scale', (1 + beat * 0.008).toFixed(3));
+    cdEl.style.setProperty('--sekai-cd-glow', (0.1 + beat * 0.1 + high * 0.03).toFixed(3));
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.lineCap = 'round';
 
-    var bars = 60;
-    var innerRadius = size * (0.405 + beat * 0.003);
-    var minBarLength = size * 0.008;
-    var maxBarLength = size * 0.074;
-    var lineWidth = Math.max(1.2, size * 0.009);
-    var values = [];
-    var peak = 0;
-    var total = 0;
+    var petals = 52;
+    var innerRadius = size * (0.41 + beat * 0.002);
+    var maxLen = size * 0.068;
+    var minLen = size * 0.005;
+    var lw = Math.max(1.5, size * 0.015);
+    var tips = [];
 
+    // Soft inner glow ring
     ctx.beginPath();
-    ctx.arc(cx, cy, innerRadius - lineWidth * 1.25, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(130,180,255,0.08)';
-    ctx.lineWidth = Math.max(1, size * 0.004);
-    ctx.shadowBlur = 0;
+    ctx.arc(cx, cy, innerRadius - lw * 0.4, 0, Math.PI * 2);
+    ctx.strokeStyle = 'hsla(270, 55%, 78%, ' + (0.03 + mid * 0.05) + ')';
+    ctx.lineWidth = Math.max(1, size * 0.008);
+    ctx.shadowBlur = size * 0.012;
+    ctx.shadowColor = 'hsla(270, 65%, 78%, ' + (0.1 + bass * 0.12) + ')';
     ctx.stroke();
+    ctx.shadowBlur = 0;
 
-    for (var i = 0; i < bars; i++) {
-      var position = i / bars;
-      var mirrored = position <= 0.5 ? position * 2 : (1 - position) * 2;
-      var samplePosition = 0.03 + mirrored * 0.78;
-      var value = Math.max(0, sampleFrequency(samplePosition, 1.52) - 0.055);
-      values.push(value);
-      peak = Math.max(peak, value);
-      total += value;
-    }
-
-    var average = total / bars;
-    var dynamicPeak = smoothLevel('cdRingPeak', Math.max(peak, average * 2.15, 0.1), 0.8);
-    var floor = Math.min(0.14, average * 0.62);
-
-    for (var j = 0; j < bars; j++) {
-      var barPosition = j / bars;
-      var normalized = Math.max(0, (values[j] - floor) / Math.max(0.08, dynamicPeak - floor));
-      var centerLift = 1 - Math.abs(barPosition - 0.5) * 1.15;
-      var shaped = Math.pow(Math.min(1, normalized), 1.9) * (0.76 + Math.max(0, centerLift) * 0.12);
-      var level = smoothLevel('cdRingBar' + j, shaped, shaped > (visualizerLevels['cdRingBar' + j] || 0) ? 0.28 : 0.68);
-      var angle = Math.PI * 2 * barPosition - Math.PI / 2;
-      var barLength = minBarLength + level * maxBarLength;
+    // Dreamy petal shapes
+    for (var i = 0; i < petals; i++) {
+      var pos = i / petals;
+      var mirrored = pos <= 0.5 ? pos * 2 : (1 - pos) * 2;
+      var samplePos = 0.02 + mirrored * 0.82;
+      var raw = Math.max(0, sampleFrequency(samplePos, 1.42) - 0.035);
+      var level = smoothLevel('cdP' + i, raw, raw > (visualizerLevels['cdP' + i] || 0) ? 0.24 : 0.66);
+      var angle = Math.PI * 2 * pos - Math.PI / 2;
+      var len = minLen + level * maxLen;
       var inner = innerRadius;
-      var outer = inner + barLength;
+      var outer = inner + len;
+
       var ix = cx + Math.cos(angle) * inner;
       var iy = cy + Math.sin(angle) * inner;
       var ox = cx + Math.cos(angle) * outer;
       var oy = cy + Math.sin(angle) * outer;
-      var gradient = ctx.createLinearGradient(ix, iy, ox, oy);
-      var alpha = 0.16 + level * 0.46;
-      gradient.addColorStop(0, 'rgba(92,150,255,' + (alpha * 0.42) + ')');
-      gradient.addColorStop(0.58, 'rgba(110,184,255,' + alpha + ')');
-      gradient.addColorStop(1, 'rgba(226,244,255,' + (0.22 + level * 0.34) + ')');
+      tips.push({ x: ox, y: oy, level: level });
 
+      var hue = dreamHues[i % dreamHues.length];
+      var alpha = 0.08 + level * 0.32;
+
+      // Wide soft glow stroke
       ctx.beginPath();
       ctx.moveTo(ix, iy);
       ctx.lineTo(ox, oy);
-      ctx.strokeStyle = gradient;
-      ctx.lineWidth = lineWidth;
-      ctx.shadowBlur = size * (0.004 + level * 0.012);
-      ctx.shadowColor = 'rgba(92,170,255,0.28)';
+      ctx.strokeStyle = 'hsla(' + hue + ', 62%, 76%, ' + (alpha * 0.22) + ')';
+      ctx.lineWidth = lw * 2.6;
       ctx.stroke();
+
+      // Main body stroke
+      ctx.beginPath();
+      ctx.moveTo(ix, iy);
+      ctx.lineTo(ox, oy);
+      ctx.strokeStyle = 'hsla(' + hue + ', 68%, 78%, ' + alpha + ')';
+      ctx.lineWidth = lw;
+      ctx.stroke();
+
+      // Bright tip dot
+      if (level > 0.08) {
+        ctx.beginPath();
+        ctx.arc(ox, oy, lw * (0.32 + level * 0.48), 0, Math.PI * 2);
+        ctx.fillStyle = 'hsla(' + hue + ', 72%, 85%, ' + (alpha * 0.5) + ')';
+        ctx.fill();
+      }
+
+      // Spawn floating particle on strong beats
+      if (level > 0.52 && Math.random() < 0.022) {
+        spawnParticle(cdParticles,
+          ox, oy,
+          (Math.cos(angle) * 0.22 + (Math.random() - 0.5) * 0.12) * prepared.dpr,
+          (Math.sin(angle) * 0.22 + (Math.random() - 0.5) * 0.12) * prepared.dpr,
+          65 + Math.floor(Math.random() * 35),
+          (1.2 + Math.random() * 1.4) * prepared.dpr, hue);
+      }
     }
+
+    // Smooth connecting curve through petal tips
+    if (tips.length > 2) {
+      ctx.beginPath();
+      ctx.moveTo(tips[0].x, tips[0].y);
+      for (var k = 0; k < tips.length; k++) {
+        var next = tips[(k + 1) % tips.length];
+        var mx = (tips[k].x + next.x) / 2;
+        var my = (tips[k].y + next.y) / 2;
+        ctx.quadraticCurveTo(tips[k].x, tips[k].y, mx, my);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = 'hsla(270, 50%, 80%, 0.055)';
+      ctx.lineWidth = Math.max(0.8, size * 0.003);
+      ctx.shadowBlur = size * 0.014;
+      ctx.shadowColor = 'hsla(270, 60%, 80%, 0.14)';
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    }
+
+    // Floating dream particles
+    tickParticles(cdParticles, ctx);
 
     ctx.restore();
   }
@@ -2187,44 +2253,99 @@
     var cy = height / 2;
     var size = Math.min(width, height);
     var time = performance.now() * 0.001;
-    var bass = smoothLevel('dockBass', getBandAverage(0, 0.18), 0.74);
-    var mid = smoothLevel('dockMid', getBandAverage(0.18, 0.62), 0.82);
-    var bars = 32;
+    var bass = smoothLevel('dockBass', getBandAverage(0, 0.18), 0.76);
+    var mid = smoothLevel('dockMid', getBandAverage(0.18, 0.6), 0.84);
+    var high = smoothLevel('dockHigh', getBandAverage(0.6, 1), 0.88);
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
     ctx.lineCap = 'round';
-    ctx.shadowBlur = size * (0.06 + bass * 0.1);
-    for (var i = 0; i < bars; i++) {
-      var position = i / bars;
-      var value = sampleFrequency(position, 1.14);
-      var angle = Math.PI * 2 * position - Math.PI / 2 + time * 0.16;
-      var blended = Math.min(1, value * 0.76 + bass * 0.18 + mid * 0.08);
-      var inner = size * (0.37 + bass * 0.008);
-      var outer = size * (0.435 + blended * 0.075);
-      var hue = (190 + i * 6.6 + time * 32 + blended * 45) % 360;
+
+    // Soft breathing core glow
+    var coreR = size * (0.35 + bass * 0.014);
+    var coreGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+    coreGrad.addColorStop(0, 'hsla(272, 58%, 78%, ' + (0.1 + bass * 0.09) + ')');
+    coreGrad.addColorStop(0.55, 'hsla(195, 52%, 74%, ' + (0.05 + mid * 0.05) + ')');
+    coreGrad.addColorStop(1, 'hsla(330, 48%, 76%, 0)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
+    ctx.fillStyle = coreGrad;
+    ctx.fill();
+
+    // Smooth flowing wave rings (3 layers)
+    var waveRings = [
+      { radius: 0.39, hue: 192, speed: 0.26, amp: 0.032, alpha: 0.28 },
+      { radius: 0.425, hue: 328, speed: -0.19, amp: 0.026, alpha: 0.23 },
+      { radius: 0.46, hue: 48, speed: 0.13, amp: 0.02, alpha: 0.18 }
+    ];
+
+    for (var r = 0; r < waveRings.length; r++) {
+      var ring = waveRings[r];
+      var baseR = size * ring.radius;
+      var pts = 72;
+      var ringHue = (ring.hue + time * 11) % 360;
+
       ctx.beginPath();
-      ctx.moveTo(cx + Math.cos(angle) * inner, cy + Math.sin(angle) * inner);
-      ctx.lineTo(cx + Math.cos(angle) * outer, cy + Math.sin(angle) * outer);
-      ctx.strokeStyle = 'hsla(' + hue + ', 96%, 70%, ' + (0.32 + blended * 0.62) + ')';
-      ctx.lineWidth = Math.max(1.4, size * (0.013 + blended * 0.009));
-      ctx.shadowColor = 'hsla(' + hue + ', 96%, 70%, 0.72)';
+      for (var p = 0; p <= pts; p++) {
+        var a = (p / pts) * Math.PI * 2;
+        var fPos = ((p / pts) + time * 0.04 * ring.speed + r * 0.18) % 1;
+        var f = sampleFrequency(Math.abs(fPos), 1.18);
+        var wobble = Math.sin(a * 3 + time * ring.speed * 4.5) * size * 0.006;
+        var radius = baseR + f * size * ring.amp + bass * size * 0.006 + wobble;
+        var x = cx + Math.cos(a) * radius;
+        var y = cy + Math.sin(a) * radius;
+        if (p === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.strokeStyle = 'hsla(' + ringHue + ', 62%, 76%, ' + ring.alpha + ')';
+      ctx.lineWidth = Math.max(0.8, size * 0.01);
+      ctx.shadowBlur = size * 0.035;
+      ctx.shadowColor = 'hsla(' + ringHue + ', 68%, 74%, 0.32)';
       ctx.stroke();
     }
 
-    ctx.shadowBlur = size * 0.1;
-    ctx.lineWidth = Math.max(1.2, size * 0.022);
-    for (var arc = 0; arc < 3; arc++) {
-      var start = time * (0.8 + arc * 0.24) + arc * Math.PI * 0.72;
+    // Soft dreamy arc segments
+    ctx.shadowBlur = size * 0.025;
+    ctx.lineWidth = Math.max(0.8, size * 0.016);
+    for (var arc = 0; arc < 4; arc++) {
+      var start = time * (0.5 + arc * 0.17) + arc * Math.PI * 0.52;
+      var arcLen = Math.PI * (0.2 + bass * 0.16 + mid * 0.08);
+      var arcR = size * (0.39 + arc * 0.028);
+      var arcHue = (dreamHues[arc % dreamHues.length] + time * 14) % 360;
       ctx.beginPath();
-      ctx.arc(cx, cy, size * (0.405 + arc * 0.035), start, start + Math.PI * (0.28 + bass * 0.2));
-      ctx.strokeStyle = arc === 0
-        ? 'rgba(30,216,255,' + (0.24 + bass * 0.38) + ')'
-        : arc === 1
-          ? 'rgba(255,93,168,' + (0.22 + mid * 0.34) + ')'
-          : 'rgba(255,228,94,' + (0.18 + bass * 0.28) + ')';
+      ctx.arc(cx, cy, arcR, start, start + arcLen);
+      ctx.strokeStyle = 'hsla(' + arcHue + ', 62%, 78%, ' + (0.14 + bass * 0.2) + ')';
+      ctx.shadowColor = 'hsla(' + arcHue + ', 68%, 74%, 0.38)';
       ctx.stroke();
     }
+
+    // Floating orbit particles
+    ctx.shadowBlur = 0;
+    for (var j = 0; j < 3; j++) {
+      var pAngle = time * (0.35 + j * 0.14) + j * Math.PI * 0.67;
+      var pR = size * (0.41 + mid * 0.016);
+      var px = cx + Math.cos(pAngle) * pR;
+      var py = cy + Math.sin(pAngle) * pR;
+      var pHue = dreamHues[j % dreamHues.length];
+      ctx.beginPath();
+      ctx.arc(px, py, Math.max(0.8, size * 0.009), 0, Math.PI * 2);
+      ctx.fillStyle = 'hsla(' + pHue + ', 72%, 82%, ' + (0.35 + mid * 0.28) + ')';
+      ctx.fill();
+    }
+
+    // Spawn extra particles on beats
+    if (bass > 0.45 && Math.random() < 0.06) {
+      var sAngle = Math.random() * Math.PI * 2;
+      spawnParticle(dockParticles,
+        cx + Math.cos(sAngle) * size * 0.01,
+        cy + Math.sin(sAngle) * size * 0.01,
+        Math.cos(sAngle) * 0.25 * prepared.dpr, Math.sin(sAngle) * 0.25 * prepared.dpr,
+        50 + Math.floor(Math.random() * 30),
+        (1 + Math.random() * 1.2) * prepared.dpr, dreamHues[Math.floor(Math.random() * dreamHues.length)]);
+    }
+    tickParticles(dockParticles, ctx);
+
     ctx.restore();
   }
 
@@ -2235,76 +2356,117 @@
     var width = prepared.width;
     var height = prepared.height;
     var time = performance.now() * 0.001;
-    var bass = smoothLevel('pageBass', getBandAverage(0, 0.12), 0.84);
+    var bass = smoothLevel('pageBass', getBandAverage(0, 0.12), 0.86);
     var mid = smoothLevel('pageMid', getBandAverage(0.12, 0.52), 0.88);
     var high = smoothLevel('pageHigh', getBandAverage(0.52, 1), 0.9);
-    var samples = 128;
+    var samples = 100;
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
-    var curtain = ctx.createLinearGradient(0, height * 0.34, 0, height);
-    curtain.addColorStop(0, 'rgba(30,216,255,0)');
-    curtain.addColorStop(0.55, 'rgba(255,93,168,' + (0.035 + mid * 0.08) + ')');
-    curtain.addColorStop(1, 'rgba(30,216,255,' + (0.06 + bass * 0.13) + ')');
-    ctx.fillStyle = curtain;
-    ctx.fillRect(0, height * 0.34, width, height * 0.66);
+    // 1. Soft aurora bands drifting across the top
+    for (var a = 0; a < 3; a++) {
+      var aHue = (dreamHues[a] + time * 8) % 360;
+      var aY = height * (0.05 + a * 0.12) + Math.sin(time * 0.3 + a * 1.8) * height * 0.03;
+      var aHeight = height * (0.12 + mid * 0.06);
+      var aurora = ctx.createLinearGradient(0, aY, width, aY + aHeight);
+      aurora.addColorStop(0, 'hsla(' + aHue + ', 55%, 72%, 0)');
+      aurora.addColorStop(0.3, 'hsla(' + aHue + ', 55%, 72%, ' + (0.04 + mid * 0.06) + ')');
+      aurora.addColorStop(0.6, 'hsla(' + ((aHue + 40) % 360) + ', 50%, 75%, ' + (0.03 + high * 0.04) + ')');
+      aurora.addColorStop(1, 'hsla(' + aHue + ', 55%, 72%, 0)');
+      ctx.fillStyle = aurora;
+      ctx.fillRect(0, aY, width, aHeight);
+    }
 
-    var floorGradient = ctx.createLinearGradient(0, height * 0.62, width, height);
-    floorGradient.addColorStop(0, 'rgba(30,216,255,' + (0.12 + bass * 0.18) + ')');
-    floorGradient.addColorStop(0.48, 'rgba(255,93,168,' + (0.1 + mid * 0.15) + ')');
-    floorGradient.addColorStop(1, 'rgba(255,228,94,' + (0.08 + high * 0.12) + ')');
+    // 2. Floating dream orbs
+    var orbCount = 8;
+    for (var i = 0; i < orbCount; i++) {
+      var orbHue = dreamHues[i % dreamHues.length];
+      var ox = width * (0.1 + 0.8 * ((Math.sin(time * 0.13 + i * 2.3) + 1) / 2));
+      var oy = height * (0.15 + 0.6 * ((Math.cos(time * 0.09 + i * 1.7) + 1) / 2));
+      var orbR = width * (0.04 + mid * 0.025 + Math.sin(time * 0.4 + i) * 0.008);
+      var orbGrad = ctx.createRadialGradient(ox, oy, 0, ox, oy, orbR);
+      orbGrad.addColorStop(0, 'hsla(' + orbHue + ', 58%, 78%, ' + (0.08 + mid * 0.1) + ')');
+      orbGrad.addColorStop(0.5, 'hsla(' + orbHue + ', 50%, 74%, ' + (0.03 + bass * 0.04) + ')');
+      orbGrad.addColorStop(1, 'hsla(' + orbHue + ', 45%, 70%, 0)');
+      ctx.beginPath();
+      ctx.arc(ox, oy, orbR, 0, Math.PI * 2);
+      ctx.fillStyle = orbGrad;
+      ctx.fill();
+    }
+
+    // 3. Soft bottom wave (smooth, dreamy)
+    var waveGrad = ctx.createLinearGradient(0, height * 0.65, width, height);
+    waveGrad.addColorStop(0, 'hsla(195, 60%, 72%, ' + (0.06 + bass * 0.1) + ')');
+    waveGrad.addColorStop(0.5, 'hsla(330, 55%, 75%, ' + (0.05 + mid * 0.08) + ')');
+    waveGrad.addColorStop(1, 'hsla(48, 58%, 72%, ' + (0.04 + high * 0.06) + ')');
     ctx.beginPath();
     ctx.moveTo(0, height);
-    for (var i = 0; i <= samples; i++) {
-      var p = i / samples;
-      var value = sampleFrequency(p, 1.22);
-      var y = height * (0.9 - bass * 0.05) - value * height * 0.2 - Math.sin(p * Math.PI * 2 + time * 1.5) * height * 0.012;
+    for (var s = 0; s <= samples; s++) {
+      var p = s / samples;
+      var f = sampleFrequency(p, 1.18);
+      var smoothY = Math.sin(p * Math.PI * 2.5 + time * 0.6) * height * 0.015;
+      var y = height * (0.92 - bass * 0.03) - f * height * 0.14 + smoothY;
       ctx.lineTo(p * width, y);
     }
     ctx.lineTo(width, height);
     ctx.closePath();
-    ctx.fillStyle = floorGradient;
-    ctx.globalAlpha = 0.44;
+    ctx.fillStyle = waveGrad;
+    ctx.globalAlpha = 0.35;
     ctx.fill();
     ctx.globalAlpha = 1;
 
+    // 4. Flowing ribbons (wider, softer glow)
     var ribbons = [
-      { base: 0.28, speed: 0.75, width: 2.4, hue: 188, amp: 0.08 },
-      { base: 0.47, speed: -0.58, width: 3.3, hue: 326, amp: 0.1 },
-      { base: 0.66, speed: 0.42, width: 2.8, hue: 52, amp: 0.075 },
-      { base: 0.78, speed: -0.36, width: 1.8, hue: 162, amp: 0.055 }
+      { base: 0.3, speed: 0.5, width: 2.2, hue: 192, amp: 0.06 },
+      { base: 0.5, speed: -0.38, width: 2.8, hue: 328, amp: 0.075 },
+      { base: 0.7, speed: 0.3, width: 2.0, hue: 52, amp: 0.055 }
     ];
 
-    ribbons.forEach(function(ribbon, ribbonIndex) {
+    ribbons.forEach(function(ribbon, ri) {
+      var rHue = (ribbon.hue + time * 10) % 360;
       var gradient = ctx.createLinearGradient(0, 0, width, 0);
-      gradient.addColorStop(0, 'hsla(' + ribbon.hue + ', 96%, 70%, 0)');
-      gradient.addColorStop(0.18, 'hsla(' + ribbon.hue + ', 96%, 70%, 0.32)');
-      gradient.addColorStop(0.52, 'hsla(' + ((ribbon.hue + 72) % 360) + ', 96%, 72%, 0.44)');
-      gradient.addColorStop(0.84, 'hsla(' + ((ribbon.hue + 136) % 360) + ', 96%, 68%, 0.26)');
-      gradient.addColorStop(1, 'hsla(' + ribbon.hue + ', 96%, 70%, 0)');
+      gradient.addColorStop(0, 'hsla(' + rHue + ', 60%, 74%, 0)');
+      gradient.addColorStop(0.15, 'hsla(' + rHue + ', 60%, 76%, 0.18)');
+      gradient.addColorStop(0.5, 'hsla(' + ((rHue + 55) % 360) + ', 58%, 78%, 0.28)');
+      gradient.addColorStop(0.85, 'hsla(' + ((rHue + 110) % 360) + ', 55%, 74%, 0.14)');
+      gradient.addColorStop(1, 'hsla(' + rHue + ', 60%, 74%, 0)');
 
       ctx.beginPath();
-      for (var point = 0; point <= samples; point++) {
-        var xRatio = point / samples;
-        var freq = sampleFrequency((xRatio + ribbonIndex * 0.08) % 1, 1.1);
-        var wave = sampleWave((xRatio + time * 0.02 + ribbonIndex * 0.11) % 1);
-        var yOffset =
-          Math.sin(xRatio * Math.PI * (2.8 + ribbonIndex * 0.7) + time * ribbon.speed) * height * 0.026 +
-          wave * height * (0.016 + ribbonIndex * 0.003) -
+      for (var pt = 0; pt <= samples; pt++) {
+        var xR = pt / samples;
+        var freq = sampleFrequency((xR + ri * 0.1) % 1, 1.05);
+        var wave = sampleWave((xR + time * 0.015 + ri * 0.13) % 1);
+        var yOff =
+          Math.sin(xR * Math.PI * (2.2 + ri * 0.6) + time * ribbon.speed) * height * 0.022 +
+          wave * height * (0.012 + ri * 0.003) -
           freq * height * ribbon.amp +
-          bass * height * 0.022 * Math.sin(xRatio * Math.PI * 2 + ribbonIndex);
-        var x = xRatio * width;
-        var y = height * ribbon.base + yOffset;
-        if (point === 0) ctx.moveTo(x, y);
+          bass * height * 0.016 * Math.sin(xR * Math.PI * 2 + ri);
+        var x = xR * width;
+        var y = height * ribbon.base + yOff;
+        if (pt === 0) ctx.moveTo(x, y);
         else ctx.lineTo(x, y);
       }
       ctx.strokeStyle = gradient;
-      ctx.lineWidth = Math.max(1, prepared.dpr * (ribbon.width + bass * 2.8));
-      ctx.shadowColor = 'hsla(' + ribbon.hue + ', 96%, 70%, 0.58)';
-      ctx.shadowBlur = prepared.dpr * (8 + mid * 18);
+      ctx.lineWidth = Math.max(1, prepared.dpr * (ribbon.width + bass * 2));
+      ctx.shadowColor = 'hsla(' + rHue + ', 58%, 74%, 0.4)';
+      ctx.shadowBlur = prepared.dpr * (10 + mid * 16);
       ctx.stroke();
     });
+
+    // 5. Dream particles floating upward
+    ctx.shadowBlur = 0;
+    if (bass > 0.25 && Math.random() < 0.12) {
+      var px = Math.random() * width;
+      var py = height * (0.7 + Math.random() * 0.3);
+      spawnParticle(pageParticles, px, py,
+        (Math.random() - 0.5) * 0.3, -0.3 - Math.random() * 0.5,
+        80 + Math.floor(Math.random() * 50),
+        (1.5 + Math.random() * 2.5) * prepared.dpr,
+        dreamHues[Math.floor(Math.random() * dreamHues.length)]);
+    }
+    tickParticles(pageParticles, ctx);
+
     ctx.restore();
   }
 
