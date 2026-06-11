@@ -123,6 +123,8 @@ function momentImageSrc(src: string) {
           </div>
         </label>
 
+
+
         <button type="submit" class="submit-btn" id="submit-btn">🚀 发布</button>
         <p class="form-note">Token 需要 repo 权限。首次输入后会自动保存，无需重复填写。</p>
       </form>
@@ -536,6 +538,8 @@ function momentImageSrc(src: string) {
   .token-field {
     grid-column: 1 / -1;
   }
+
+
 
   .token-input-wrap {
     position: relative;
@@ -1065,6 +1069,8 @@ function momentImageSrc(src: string) {
 </style>
 
 <script>
+  import { uploadToR2 } from '../lib/r2-upload';
+
   // 分类筛选
   const tabs = document.querySelectorAll<HTMLButtonElement>('.pill[data-category]');
   const cards = document.querySelectorAll<HTMLElement>('.moment-card');
@@ -1111,7 +1117,6 @@ function momentImageSrc(src: string) {
   const githubRepo = 'lidure.github.io';
   const githubBranch = 'main';
   const momentsPath = 'src/data/moments.json';
-  const imageDir = 'public/moments';
   const maxImages = 9;
   const maxImageBytes = 8 * 1024 * 1024;
 
@@ -1195,11 +1200,6 @@ function momentImageSrc(src: string) {
     return new TextDecoder().decode(bytes);
   }
 
-  function safeFileName(file: File) {
-    const baseName = file.name.trim().replace(/[^a-zA-Z0-9._-]/g, '_').replace(/^_+/, '');
-    return `${Date.now()}-${baseName || 'image.png'}`;
-  }
-
   async function fetchCurrentMoments(token: string) {
     const res = await fetch(
       `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${momentsPath}?ref=${githubBranch}`,
@@ -1250,6 +1250,8 @@ function momentImageSrc(src: string) {
       current.sha
     );
   }
+
+
 
   function setMessage(text: string, type: 'success' | 'error' | '') {
     if (!msg) return;
@@ -1304,7 +1306,7 @@ function momentImageSrc(src: string) {
     });
   }
 
-  async function uploadSelectedImages(token: string) {
+  async function uploadSelectedImages() {
     const urls: string[] = [];
 
     for (const item of selectedImages) {
@@ -1320,25 +1322,15 @@ function momentImageSrc(src: string) {
         throw new Error('图片过大，请控制在 8 MB 以内');
       }
 
-      const fileName = safeFileName(item.file);
-      const repoPath = `${imageDir}/${fileName}`;
-      const publicUrl = `/moments/${encodeURIComponent(fileName)}`;
-
       try {
-        await putGitHubFile(
-          token,
-          repoPath,
-          arrayBufferToBase64(await item.file.arrayBuffer()),
-          `Upload moment image: ${fileName}`
-        );
+        const url = await uploadToR2(item.file);
+        item.remoteUrl = url;
+        urls.push(url);
+        setPreviewStatus(item.id, '已上传', 'uploaded');
       } catch (err) {
         setPreviewStatus(item.id, '失败', 'failed');
         throw err;
       }
-
-      item.remoteUrl = publicUrl;
-      urls.push(publicUrl);
-      setPreviewStatus(item.id, '已上传', 'uploaded');
     }
 
     return urls;
@@ -1451,7 +1443,7 @@ function momentImageSrc(src: string) {
         if (!githubToken) throw new Error('请填写 GitHub Token（首次使用需要输入一次，之后自动保存）');
         if (!baseMoment.date || !baseMoment.category || !baseMoment.text) throw new Error('请填写时间、分类和内容');
 
-        const imageUrls = selectedImages.length > 0 ? await uploadSelectedImages(githubToken) : [];
+        const imageUrls = selectedImages.length > 0 ? await uploadSelectedImages() : [];
         const moment: MomentPayload = {
           ...baseMoment,
           ...(imageUrls.length > 0 && { images: imageUrls }),
