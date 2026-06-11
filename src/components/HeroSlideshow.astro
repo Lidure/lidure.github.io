@@ -196,10 +196,10 @@ const DEFAULT_OPACITY = 0.22;
     transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, color 220ms ease;
   }
 
-  [data-theme="dark"] .hero-settings-btn {
-    background: linear-gradient(135deg, rgba(40,32,70,0.35), rgba(30,24,50,0.20));
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
+  [data-theme="light"] .hero-settings-btn {
+    background: linear-gradient(135deg, rgba(255,255,255,0.50), rgba(255,240,245,0.30));
+    border-color: rgba(255, 180, 210, 0.40);
+    box-shadow: 0 4px 16px rgba(200, 80, 150, 0.08);
   }
 
   .hero-settings-btn:hover {
@@ -238,10 +238,10 @@ const DEFAULT_OPACITY = 0.22;
     animation: panel-in 0.28s ease;
   }
 
-  [data-theme="dark"] .hero-settings-panel {
-    background: linear-gradient(135deg, rgba(30,24,50,0.40), rgba(20,16,40,0.22));
-    border-color: rgba(255, 255, 255, 0.12);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.30);
+  [data-theme="light"] .hero-settings-panel {
+    background: linear-gradient(135deg, rgba(255,255,255,0.55), rgba(255,230,245,0.35));
+    border-color: rgba(255, 180, 210, 0.40);
+    box-shadow: 0 8px 32px rgba(200, 80, 150, 0.10);
   }
 
   .hero-settings-panel.open {
@@ -267,8 +267,8 @@ const DEFAULT_OPACITY = 0.22;
     border-bottom: 1px solid rgba(255, 255, 255, 0.20);
   }
 
-  [data-theme="dark"] .settings-header {
-    border-bottom-color: rgba(255, 255, 255, 0.08);
+  [data-theme="light"] .settings-header {
+    border-bottom-color: rgba(255, 255, 255, 0.20);
   }
 
   .settings-title {
@@ -353,9 +353,9 @@ const DEFAULT_OPACITY = 0.22;
     position: relative;
   }
 
-  [data-theme="dark"] .toggle-track {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.10);
+  [data-theme="light"] .toggle-track {
+    background: rgba(255, 255, 255, 0.50);
+    border-color: rgba(255, 180, 210, 0.35);
   }
 
   .toggle-track::after {
@@ -397,8 +397,8 @@ const DEFAULT_OPACITY = 0.22;
     outline: none;
   }
 
-  [data-theme="dark"] .range-row input[type="range"] {
-    background: rgba(255, 255, 255, 0.10);
+  [data-theme="light"] .range-row input[type="range"] {
+    background: rgba(200, 80, 150, 0.20);
   }
 
   .range-row input[type="range"]::-webkit-slider-thumb {
@@ -445,9 +445,9 @@ const DEFAULT_OPACITY = 0.22;
     transition: border-color 200ms, box-shadow 200ms;
   }
 
-  [data-theme="dark"] .quality-select {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+  [data-theme="light"] .quality-select {
+    background: rgba(255, 240, 248, 0.50);
+    border-color: rgba(255, 180, 210, 0.40);
   }
 
   .quality-select:focus {
@@ -472,9 +472,9 @@ const DEFAULT_OPACITY = 0.22;
     transition: border-color 200ms, color 200ms, background 200ms;
   }
 
-  [data-theme="dark"] .upload-zone {
-    border-color: rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.04);
+  [data-theme="light"] .upload-zone {
+    border-color: rgba(255, 180, 210, 0.40);
+    background: rgba(255, 240, 248, 0.30);
   }
 
   .upload-zone:hover,
@@ -509,9 +509,9 @@ const DEFAULT_OPACITY = 0.22;
     transition: border-color 200ms, box-shadow 200ms;
   }
 
-  [data-theme="dark"] .url-row input {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.12);
+  [data-theme="light"] .url-row input {
+    background: rgba(255, 240, 248, 0.50);
+    border-color: rgba(255, 180, 210, 0.40);
   }
 
   .url-row input:focus {
@@ -587,9 +587,9 @@ const DEFAULT_OPACITY = 0.22;
     transition: border-color 200ms;
   }
 
-  [data-theme="dark"] .img-item {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.08);
+  [data-theme="light"] .img-item {
+    background: rgba(255, 240, 248, 0.40);
+    border-color: rgba(255, 180, 210, 0.35);
   }
 
   .img-item:hover {
@@ -680,6 +680,29 @@ const DEFAULT_OPACITY = 0.22;
       top: 126px;
       width: auto;
       max-height: calc(100vh - 150px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .hero-settings-btn {
+      left: 12px;
+      top: 76px;
+      width: 34px;
+      height: 34px;
+    }
+
+    .hero-settings-btn svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .hero-settings-panel {
+      left: 8px;
+      right: 8px;
+      top: 118px;
+      width: auto;
+      max-height: calc(100vh - 130px);
+      border-radius: var(--radius-md);
     }
   }
 

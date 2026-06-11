@@ -25,9 +25,8 @@ import HeroSlideshow from '../components/HeroSlideshow.astro';
     <ClientRouter />
     <script is:inline>
     (function() {
-      var theme;
-      try { theme = localStorage.getItem('theme'); } catch(e) {}
-      if (!theme) theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      var theme = 'dark';
+      try { theme = localStorage.getItem('theme') || 'dark'; } catch(e) {}
       document.documentElement.setAttribute('data-theme', theme);
     })();
     (function() {

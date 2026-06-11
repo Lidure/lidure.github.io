@@ -583,7 +583,7 @@ function momentImageSrc(src: string) {
     background: rgba(80, 200, 120, 0.12);
   }
 
-  [data-theme="dark"] .token-saved-badge {
+  [data-theme="light"] .token-saved-badge {
     color: #6ed88a;
     background: rgba(80, 200, 120, 0.16);
   }
@@ -759,9 +759,9 @@ function momentImageSrc(src: string) {
   .pill-音乐 { background: rgba(255, 179, 71, 0.12); color: #CC8820; }
   .pill-生活 { background: rgba(124, 140, 248, 0.12); color: #5566CC; }
 
-  [data-theme="dark"] .pill-游戏 { background: rgba(255, 107, 157, 0.18); color: #FF9EBE; }
-  [data-theme="dark"] .pill-音乐 { background: rgba(255, 179, 71, 0.18); color: #FFCC77; }
-  [data-theme="dark"] .pill-生活 { background: rgba(124, 140, 248, 0.18); color: #A0AEFF; }
+  [data-theme="light"] .pill-游戏 { background: rgba(255, 107, 157, 0.18); color: #FF9EBE; }
+  [data-theme="light"] .pill-音乐 { background: rgba(255, 179, 71, 0.18); color: #FFCC77; }
+  [data-theme="light"] .pill-生活 { background: rgba(124, 140, 248, 0.18); color: #A0AEFF; }
 
   .card-date {
     font-size: 0.78rem;
@@ -999,6 +999,67 @@ function momentImageSrc(src: string) {
 
     .lightbox-next {
       right: calc(50% - 54px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .moments-hero {
+      padding: 24px 16px 20px;
+    }
+
+    .moments-hero h1 {
+      font-size: 2.3rem;
+    }
+
+    .moments-hero p {
+      font-size: 0.88rem;
+    }
+
+    .hero-stats {
+      gap: 8px;
+    }
+
+    .stat-badge {
+      font-size: 0.78rem;
+      padding: 4px 11px;
+    }
+
+    .controls-bar {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .controls-bar .pill {
+      font-size: 0.78rem;
+      padding: 6px 12px;
+    }
+
+    .moment-card {
+      padding: 16px;
+      border-radius: 14px;
+    }
+
+    .moment-date {
+      font-size: 0.75rem;
+      margin-bottom: 8px;
+    }
+
+    .moment-content {
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .moment-category-badge {
+      font-size: 0.68rem;
+      padding: 3px 9px;
+    }
+
+    .token-section {
+      font-size: 0.82rem;
+    }
+
+    .token-section input {
+      font-size: 0.8rem;
     }
   }
 </style>

@@ -38,12 +38,12 @@
   box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.18);
 }
 
-/* 默认显示太阳（当前是亮色，点一下变暗 -> 显示月亮） */
-.sun-icon  { display: block; }
-.moon-icon { display: none; }
+/* 默认显示月亮（当前是暗色，点一下变亮 -> 显示太阳） */
+.moon-icon { display: block; }
+.sun-icon  { display: none; }
 
-[data-theme="dark"] .sun-icon  { display: none; }
-[data-theme="dark"] .moon-icon { display: block; }
+[data-theme="light"] .moon-icon { display: none; }
+[data-theme="light"] .sun-icon  { display: block; }
 </style>
 
 <script is:inline>
@@ -56,12 +56,14 @@
   }
   function applyTheme(theme) {
     document.documentElement.setAttribute('data-theme', theme);
+    // 给 body 添加/移除 light 类以支持某些全局样式
+    document.body.classList.toggle('light-theme', theme === 'light');
   }
 
   function setupToggle() {
     // 每次调用都重新应用主题（ClientRouter 页面切换会覆盖 <html> 属性）
     var stored = getStoredTheme();
-    var theme = stored || getSystemTheme();
+    var theme = stored || 'dark';
     applyTheme(theme);
 
     // 在当前按钮元素上做标记，防止同一个按钮重复绑定
