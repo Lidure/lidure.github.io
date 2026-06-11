@@ -140,7 +140,6 @@ const DEFAULT_OPACITY = 0.22;
     background-repeat: no-repeat;
     opacity: 0;
     transition: opacity 1.5s ease-in-out;
-    will-change: opacity;
   }
 
   .slideshow-layer.visible {
@@ -156,7 +155,6 @@ const DEFAULT_OPACITY = 0.22;
     opacity: 0;
     transition: opacity 1.5s ease-in-out;
     z-index: 1;
-    will-change: opacity;
   }
 
   .slideshow-video.visible {
@@ -199,9 +197,9 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .hero-settings-btn {
-    background: rgba(22, 18, 38, 0.82);
-    border-color: rgba(255, 255, 255, 0.10);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    background: linear-gradient(135deg, rgba(40,32,70,0.35), rgba(30,24,50,0.20));
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.20);
   }
 
   .hero-settings-btn:hover {
@@ -231,8 +229,8 @@ const DEFAULT_OPACITY = 0.22;
     background: linear-gradient(135deg, rgba(255,255,255,0.38), rgba(255,255,255,0.18));
     border: 1px solid rgba(255, 255, 255, 0.45);
     border-radius: var(--radius-lg);
-    backdrop-filter: blur(16px) saturate(1.2);
-    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    backdrop-filter: blur(28px) saturate(1.5);
+    -webkit-backdrop-filter: blur(28px) saturate(1.5);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
     display: none;
     flex-direction: column;
@@ -241,9 +239,9 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .hero-settings-panel {
-    background: rgba(18, 14, 32, 0.88);
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.50);
+    background: linear-gradient(135deg, rgba(30,24,50,0.40), rgba(20,16,40,0.22));
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.30);
   }
 
   .hero-settings-panel.open {
@@ -270,7 +268,7 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .settings-header {
-    border-bottom-color: rgba(255, 255, 255, 0.06);
+    border-bottom-color: rgba(255, 255, 255, 0.08);
   }
 
   .settings-title {
@@ -356,8 +354,8 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .toggle-track {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.10);
   }
 
   .toggle-track::after {
@@ -400,7 +398,7 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .range-row input[type="range"] {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.10);
   }
 
   .range-row input[type="range"]::-webkit-slider-thumb {
@@ -448,8 +446,8 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .quality-select {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   .quality-select:focus {
@@ -475,8 +473,8 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .upload-zone {
-    border-color: rgba(255, 255, 255, 0.10);
-    background: rgba(255, 255, 255, 0.03);
+    border-color: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.04);
   }
 
   .upload-zone:hover,
@@ -512,8 +510,8 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .url-row input {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
   }
 
   .url-row input:focus {
@@ -590,8 +588,8 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   [data-theme="dark"] .img-item {
-    background: rgba(255, 255, 255, 0.04);
-    border-color: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
   }
 
   .img-item:hover {
@@ -702,6 +700,7 @@ const DEFAULT_OPACITY = 0.22;
 </style>
 
 <script>
+// @ts-nocheck
 (function () {
   // ===== Module-level cleanup state =====
   var _timer = null;
@@ -1139,10 +1138,6 @@ const DEFAULT_OPACITY = 0.22;
     });
 
     intervalRange.addEventListener('input', function() {
-      intervalVal.textContent = this.value + 's';
-    });
-
-    intervalRange.addEventListener('change', function() {
       state.interval = parseInt(this.value, 10) * 1000;
       intervalVal.textContent = this.value + 's';
       save();
@@ -1150,12 +1145,6 @@ const DEFAULT_OPACITY = 0.22;
     });
 
     opacityRange.addEventListener('input', function() {
-      opacityVal.textContent = this.value + '%';
-      state.opacity = parseInt(this.value, 10) / 100;
-      applyOverlay();
-    });
-
-    opacityRange.addEventListener('change', function() {
       state.opacity = parseInt(this.value, 10) / 100;
       opacityVal.textContent = this.value + '%';
       applyOverlay();
