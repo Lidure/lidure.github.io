@@ -791,6 +791,7 @@ const DEFAULT_OPACITY = 0.22;
     var videoEl = container.querySelector('.slideshow-video');
     var idx = 0;
     var currentSrc = '';
+    var MAX_INLINE_VIDEO_BYTES = 50 * 1024 * 1024;
 
     /* ===== State ===== */
     var state = {
@@ -836,11 +837,25 @@ const DEFAULT_OPACITY = 0.22;
             return defaults.indexOf(src) === -1;
           })
         }));
+        return true;
       } catch (e) {
         if (e.name === 'QuotaExceededError') {
           alert('存储空间不足，请减少图片/视频数量。视频文件较大，建议使用 URL 方式添加。');
         }
+        return false;
       }
+    }
+
+    function addCustomSource(src) {
+      state.images.push(src);
+      if (!save()) {
+        state.images.pop();
+        syncUI();
+        return false;
+      }
+      syncUI();
+      restartSlideshow();
+      return true;
     }
 
     function applyOverlay() {
@@ -1188,22 +1203,20 @@ const DEFAULT_OPACITY = 0.22;
       var quality = state.quality;
       Array.from(files).forEach(function(file) {
         if (file.type.startsWith('video/')) {
+          if (file.size > MAX_INLINE_VIDEO_BYTES) {
+            alert('视频文件超过 50MB，直接导入会导致页面卡顿并占满浏览器存储。请将视频放到图床、对象存储或 public 目录后，用 URL 添加。');
+            return;
+          }
           // Video: read as data URL (no compression — videos are too large)
           readVideoAsDataUrl(file).then(function(dataUrl) {
-            state.images.push(dataUrl);
-            save();
-            syncUI();
-            restartSlideshow();
+            addCustomSource(dataUrl);
           }).catch(function(err) {
             console.warn('Video processing failed:', err);
           });
         } else if (file.type.startsWith('image/')) {
           // Image: compress based on quality setting
           compressImage(file, quality).then(function(dataUrl) {
-            state.images.push(dataUrl);
-            save();
-            syncUI();
-            restartSlideshow();
+            addCustomSource(dataUrl);
           }).catch(function(err) {
             console.warn('Image processing failed:', err);
           });
@@ -1236,11 +1249,8 @@ const DEFAULT_OPACITY = 0.22;
     function addUrl() {
       var url = urlInput.value.trim();
       if (!url) return;
-      state.images.push(url);
+      if (!addCustomSource(url)) return;
       urlInput.value = '';
-      save();
-      syncUI();
-      restartSlideshow();
     }
 
     clearAllBtn.addEventListener('click', function() {
