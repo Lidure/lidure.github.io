@@ -1,0 +1,152 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">
+  <div class="immersive-shell">
+    <div class="immersive-hero">
+      <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>
+    </div>
+  </div>
+
+  <style>
+    .immersive-shell {
+      max-width: var(--container);
+      margin: 0 auto;
+    }
+
+    .immersive-hero {
+      position: relative;
+      min-height: 80vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+      background: var(--panel-gradient);
+      border: 1px solid var(--panel-border);
+      box-shadow: var(--shadow);
+    }
+
+    .immersive-viz-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    @media (max-width: 640px) {
+      .immersive-hero { min-height: 70vh; border-radius: var(--radius-lg); }
+    }
+  </style>
+
+  <script>
+  // @ts-nocheck
+  (function() {
+    var canvas = document.getElementById('immersiveVizCanvas');
+    if (!canvas) return;
+    var vizFrame = 0;
+    var levels = {};
+
+    function sampleFromSekaiAnalyser() {
+      // Try to hook into the SEKAI player's analyser
+      var btn = document.getElementById('sekaiPlayerBtn');
+      if (!btn) return null;
+      // Access the global analyser from SekaiPlayer
+      return window.__sekaiAnalyser || null;
+    }
+
+    // Fallback: draw ambient animation when no audio
+    function drawAmbient() {
+      var rect = canvas.getBoundingClientRect();
+      var dpr = window.devicePixelRatio || 1;
+      var w = Math.max(1, Math.floor(rect.width * dpr));
+      var h = Math.max(1, Math.floor(rect.height * dpr));
+      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      var ctx = canvas.getContext('2d');
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.clearRect(0, 0, w, h);
+
+      var time = performance.now() * 0.001;
+
+      // Check for SEKAI analyser
+      var analyser = sampleFromSekaiAnalyser();
+      var freqData = null;
+      var bass = 0;
+
+      if (analyser) {
+        freqData = new Uint8Array(analyser.frequencyDataLength);
+        analyser.getByteFrequencyData(freqData);
+        var sum = 0;
+        var end = Math.ceil(freqData.length * 0.15);
+        for (var i = 0; i < end; i++) sum += freqData[i];
+        bass = end > 0 ? sum / end / 255 : 0;
+      }
+
+      ctx.save();
+      ctx.globalCompositeOperation = 'lighter';
+
+      // Floating orbs
+      var orbCount = 6;
+      for (var i = 0; i < orbCount; i++) {
+        var hue = [328, 270, 195, 48, 162, 210][i];
+        var ox = w * (0.15 + 0.7 * ((Math.sin(time * 0.12 + i * 2.1) + 1) / 2));
+        var oy = h * (0.2 + 0.6 * ((Math.cos(time * 0.08 + i * 1.5) + 1) / 2));
+        var or = w * (0.06 + bass * 0.04 + Math.sin(time * 0.3 + i) * 0.01);
+        var grad = ctx.createRadialGradient(ox, oy, 0, ox, oy, or);
+        grad.addColorStop(0, 'hsla(' + hue + ', 55%, 78%, ' + (0.06 + bass * 0.08) + ')');
+        grad.addColorStop(1, 'hsla(' + hue + ', 45%, 72%, 0)');
+        ctx.beginPath();
+        ctx.arc(ox, oy, or, 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+      }
+
+      // Bottom wave
+      var samples = 100;
+      var waveGrad = ctx.createLinearGradient(0, h * 0.6, w, h);
+      waveGrad.addColorStop(0, 'hsla(328, 50%, 72%, ' + (0.03 + bass * 0.05) + ')');
+      waveGrad.addColorStop(0.5, 'hsla(270, 48%, 75%, ' + (0.02 + bass * 0.04) + ')');
+      waveGrad.addColorStop(1, 'hsla(195, 50%, 72%, ' + (0.02 + bass * 0.03) + ')');
+      ctx.beginPath();
+      ctx.moveTo(0, h);
+      for (var s = 0; s <= samples; s++) {
+        var p = s / samples;
+        var f = 0;
+        if (freqData) {
+          var idx = Math.min(freqData.length - 1, Math.floor(Math.pow(p, 1.8) * (freqData.length - 1)));
+          f = freqData[idx] / 255;
+        }
+        var waveY = Math.sin(p * Math.PI * 2.5 + time * 0.4) * h * 0.012;
+        ctx.lineTo(p * w, h * 0.88 - f * h * 0.12 + waveY);
+      }
+      ctx.lineTo(w, h);
+      ctx.closePath();
+      ctx.fillStyle = waveGrad;
+      ctx.globalAlpha = 0.3;
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      // Bubbles
+      for (var b = 0; b < 10; b++) {
+        var seed = b * 137.508;
+        var bx = (Math.sin(seed) * 0.5 + 0.5) * w;
+        var speed = 0.2 + (b % 3) * 0.08;
+        var by = h - ((time * speed * 25 + b * 80) % (h * 0.85));
+        var bSize = (1.5 + (b % 3) + bass * 2.5) * dpr;
+        var bAlpha = (0.05 + bass * 0.08) * (1 - by / h);
+        var bHue = [328, 270, 195, 48][b % 4];
+        ctx.beginPath();
+        ctx.arc(bx, by, bSize, 0, Math.PI * 2);
+        ctx.fillStyle = 'hsla(' + bHue + ', 55%, 78%, ' + bAlpha + ')';
+        ctx.fill();
+      }
+
+      ctx.restore();
+      vizFrame = requestAnimationFrame(drawAmbient);
+    }
+
+    drawAmbient();
+  })();
+  </script>
+</BaseLayout>

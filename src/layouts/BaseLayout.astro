@@ -5,7 +5,6 @@ import 'katex/dist/katex.min.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import ThemeToggle from '../components/ThemeToggle.astro';
 import { ClientRouter } from 'astro:transitions';
-import SekaiParticles from '../components/SekaiParticles.astro';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
 ---
@@ -41,7 +40,6 @@ import HeroSlideshow from '../components/HeroSlideshow.astro';
   </head>
   <body>
     <HeroSlideshow />
-    <SekaiParticles />
     <SekaiPlayer />
     <div class="site-shell">
       <header class="topbar">
@@ -52,6 +50,7 @@ import HeroSlideshow from '../components/HeroSlideshow.astro';
           <a href="/posts">文章</a>
           <a href="/tags">标签</a>
           <a href="/search">搜索</a>
+          <a href="/player">沉浸</a>
         </nav>
         <ThemeToggle />
       </header>
