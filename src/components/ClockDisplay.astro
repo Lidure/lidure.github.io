@@ -19,38 +19,28 @@ const serverTime = now.toLocaleString('zh-CN', {
 .clock-kawaii {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 28px;
+  gap: 10px;
+  padding: 10px 24px;
   border-radius: 999px;
-  background: linear-gradient(135deg, rgba(255, 143, 179, 0.13), rgba(168, 140, 255, 0.10));
-  border: 1.5px solid rgba(255, 143, 179, 0.18);
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), rgba(124, 140, 248, 0.06));
+  border: 1px solid var(--panel-border);
   backdrop-filter: blur(4px);
-  box-shadow: 0 4px 20px rgba(170, 104, 133, 0.08);
-}
-
-[data-theme="dark"] .clock-kawaii {
-  background: linear-gradient(135deg, rgba(255, 127, 168, 0.12), rgba(155, 123, 230, 0.10));
-  border-color: rgba(255, 127, 168, 0.16);
+  box-shadow: var(--shadow-soft);
 }
 
 .clock-icon {
-  font-size: 1.2rem;
+  font-size: 1.15rem;
   line-height: 1;
-  filter: drop-shadow(0 2px 4px rgba(255, 143, 179, 0.2));
   animation: clock-bounce 2s ease-in-out infinite;
 }
 
 .clock-text-kawaii {
   font-family: 'Ma Shan Zheng', cursive;
-  font-size: 1.15rem;
+  font-size: 1.12rem;
   color: var(--accent);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   font-weight: 500;
   line-height: 1.2;
-}
-
-[data-theme="dark"] .clock-text-kawaii {
-  color: #f0c8d8;
 }
 
 @keyframes clock-bounce {
@@ -60,11 +50,11 @@ const serverTime = now.toLocaleString('zh-CN', {
 
 @media (max-width: 720px) {
   .clock-kawaii {
-    padding: 8px 20px;
-    gap: 10px;
+    padding: 8px 18px;
+    gap: 8px;
   }
   .clock-text-kawaii {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 }
 </style>

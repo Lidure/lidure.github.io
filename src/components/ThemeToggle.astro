@@ -24,17 +24,18 @@
   height: 38px;
   border-radius: 999px;
   border: 1px solid var(--panel-border);
-  background: rgba(255, 255, 255, 0.88);
+  background: var(--bg-soft);
   color: var(--muted);
   cursor: pointer;
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease;
+  transition: transform 220ms ease, border-color 220ms ease, background 220ms ease, color 220ms ease;
   flex-shrink: 0;
 }
 
 .theme-toggle:hover {
-  transform: scale(1.08);
+  transform: scale(1.1);
   border-color: var(--accent);
   color: var(--accent);
+  box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.18);
 }
 
 /* 默认显示太阳（当前是亮色，点一下变暗 -> 显示月亮） */

@@ -1,0 +1,1273 @@
+---
+/**
+ * HeroSlideshow — Homepage background slideshow with settings panel
+ *
+ * HOW TO ADD DEFAULT IMAGES (always available):
+ *   Add paths or URLs to the defaultImages array below.
+ *
+ * Examples:
+ *   '/hero1.jpg'                        → public/hero1.jpg
+ *   '/images/bg.png'                    → public/images/bg.png
+ *   'https://example.com/wallpaper.jpg' → online URL
+ *   '/hero.mp4'                         → public/hero.mp4 (video)
+ */
+const defaultImages: string[] = [
+  // '/hero1.jpg',
+  // 'https://example.com/wallpaper.jpg',
+];
+
+const DEFAULT_INTERVAL = 6000;
+const DEFAULT_OPACITY = 0.22;
+---
+
+<div
+  class="hero-slideshow"
+  id="hero-slideshow"
+  transition:persist
+  data-defaults={JSON.stringify(defaultImages)}
+  data-default-interval={String(DEFAULT_INTERVAL)}
+  data-default-opacity={String(DEFAULT_OPACITY)}
+>
+  <div class="slideshow-layer" aria-hidden="true"></div>
+  <video class="slideshow-video" aria-hidden="true" muted loop playsinline preload="auto"></video>
+  <div class="slideshow-overlay" aria-hidden="true"></div>
+</div>
+
+<button
+  class="hero-settings-btn"
+  id="hero-settings-btn"
+  transition:persist
+  type="button"
+  aria-label="背景设置"
+  title="背景设置"
+>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+</button>
+
+<div class="hero-settings-panel" id="hero-settings-panel" transition:persist>
+  <div class="settings-header">
+    <span class="settings-title">背景设置</span>
+    <button class="settings-close" id="settings-close" type="button" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="settings-body">
+    <div class="setting-row">
+      <span class="setting-label">启用背景</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-enabled" checked />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">自动轮播</span>
+      <label class="toggle-switch">
+        <input type="checkbox" id="toggle-autoplay" checked />
+        <span class="toggle-track"></span>
+      </label>
+    </div>
+
+    <div class="setting-group">
+      <span class="setting-label">切换间隔</span>
+      <div class="range-row">
+        <input type="range" id="interval-range" min="2" max="20" step="1" value="6" />
+        <span class="range-value" id="interval-val">6s</span>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <span class="setting-label">遮罩透明度</span>
+      <div class="range-row">
+        <input type="range" id="opacity-range" min="0" max="80" step="5" value="22" />
+        <span class="range-value" id="opacity-val">22%</span>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <span class="setting-label">上传画质</span>
+      <select class="quality-select" id="quality-select">
+        <option value="high">高质量 (JPEG 95%)</option>
+        <option value="medium">中等 (JPEG 75%)</option>
+        <option value="original">原始画质 (不压缩)</option>
+      </select>
+    </div>
+
+    <div class="setting-group">
+      <span class="setting-label">添加图片/视频</span>
+      <label class="upload-zone" id="upload-zone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>点击上传或拖入图片/视频</span>
+        <input type="file" accept="image/*,video/mp4" multiple id="file-input" hidden />
+      </label>
+      <div class="url-row">
+        <input type="url" id="url-input" placeholder="粘贴图片/视频 URL 后回车" />
+        <button class="url-add-btn" id="url-add-btn" type="button">添加</button>
+      </div>
+    </div>
+
+    <div class="setting-group">
+      <div class="img-list-header">
+        <span class="setting-label">媒体列表</span>
+        <button class="clear-all-btn" id="clear-all-btn" type="button">清空自定义</button>
+      </div>
+      <div class="img-list" id="img-list">
+        <div class="img-list-empty">暂无内容，请上传图片或添加 URL（支持 MP4 视频）</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ===== Slideshow Container ===== */
+  .hero-slideshow {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .slideshow-layer {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    will-change: opacity;
+  }
+
+  .slideshow-layer.visible {
+    opacity: 1;
+  }
+
+  .slideshow-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    z-index: 1;
+    will-change: opacity;
+  }
+
+  .slideshow-video.visible {
+    opacity: 1;
+  }
+
+  .slideshow-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, var(--slideshow-overlay, 0.22)) 0%,
+      rgba(0, 0, 0, calc(var(--slideshow-overlay, 0.22) + 0.12)) 50%,
+      rgba(0, 0, 0, calc(var(--slideshow-overlay, 0.22) + 0.22)) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ===== Settings Button ===== */
+  .hero-settings-btn {
+    position: fixed;
+    left: 28px;
+    top: 90px;
+    z-index: 9999;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: linear-gradient(135deg, rgba(255,255,255,0.30), rgba(255,255,255,0.12));
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-soft);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, color 220ms ease;
+  }
+
+  [data-theme="dark"] .hero-settings-btn {
+    background: rgba(22, 18, 38, 0.82);
+    border-color: rgba(255, 255, 255, 0.10);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  }
+
+  .hero-settings-btn:hover {
+    transform: scale(1.1) rotate(30deg);
+    border-color: var(--hover-border);
+    box-shadow: 0 4px 20px rgba(var(--accent-rgb), 0.22);
+    color: var(--accent);
+  }
+
+  .hero-settings-btn:active {
+    transform: scale(0.95);
+  }
+
+  .hero-settings-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ===== Settings Panel ===== */
+  .hero-settings-panel {
+    position: fixed;
+    left: 28px;
+    top: 142px;
+    z-index: 9998;
+    width: 320px;
+    max-height: calc(100vh - 170px);
+    background: linear-gradient(135deg, rgba(255,255,255,0.38), rgba(255,255,255,0.18));
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(16px) saturate(1.2);
+    -webkit-backdrop-filter: blur(16px) saturate(1.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    animation: panel-in 0.28s ease;
+  }
+
+  [data-theme="dark"] .hero-settings-panel {
+    background: rgba(18, 14, 32, 0.88);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.50);
+  }
+
+  .hero-settings-panel.open {
+    display: flex;
+  }
+
+  @keyframes panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .settings-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.20);
+  }
+
+  [data-theme="dark"] .settings-header {
+    border-bottom-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .settings-title {
+    font-weight: 700;
+    font-size: 0.92rem;
+    color: var(--text);
+  }
+
+  .settings-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--muted);
+    transition: background 200ms, color 200ms;
+  }
+
+  .settings-close:hover {
+    background: var(--tag-bg);
+    color: var(--accent);
+  }
+
+  .settings-close svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .settings-body {
+    padding: 14px 18px 18px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* --- Setting rows --- */
+  .setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .setting-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .setting-label {
+    color: var(--text-soft);
+    font-size: 0.86rem;
+    font-weight: 600;
+  }
+
+  /* --- Toggle switch --- */
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .toggle-switch input {
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-track {
+    display: block;
+    width: 40px;
+    height: 22px;
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.20);
+    border: 1px solid rgba(255, 255, 255, 0.30);
+    transition: background 200ms, border-color 200ms;
+    position: relative;
+  }
+
+  [data-theme="dark"] .toggle-track {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .toggle-track::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: transform 200ms ease, background 200ms ease;
+  }
+
+  .toggle-switch input:checked + .toggle-track {
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    border-color: transparent;
+  }
+
+  .toggle-switch input:checked + .toggle-track::after {
+    transform: translateX(18px);
+    background: #fff;
+  }
+
+  /* --- Range sliders --- */
+  .range-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .range-row input[type="range"] {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.25);
+    outline: none;
+  }
+
+  [data-theme="dark"] .range-row input[type="range"] {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .range-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(var(--accent-rgb), 0.30);
+  }
+
+  .range-row input[type="range"]::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    cursor: pointer;
+    border: none;
+  }
+
+  .range-value {
+    color: var(--accent);
+    font-size: 0.82rem;
+    font-weight: 700;
+    min-width: 32px;
+    text-align: right;
+  }
+
+  /* --- Quality select --- */
+  .quality-select {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text);
+    font-size: 0.84rem;
+    font-family: inherit;
+    font-weight: 500;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 200ms, box-shadow 200ms;
+  }
+
+  [data-theme="dark"] .quality-select {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .quality-select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--focus-shadow);
+  }
+
+  /* --- Upload zone --- */
+  .upload-zone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px;
+    border: 2px dashed rgba(255, 255, 255, 0.40);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 0.84rem;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.08);
+    transition: border-color 200ms, color 200ms, background 200ms;
+  }
+
+  [data-theme="dark"] .upload-zone {
+    border-color: rgba(255, 255, 255, 0.10);
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .upload-zone:hover,
+  .upload-zone.dragover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.08);
+  }
+
+  .upload-zone svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  /* --- URL input --- */
+  .url-row {
+    display: flex;
+    gap: 6px;
+  }
+
+  .url-row input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    background: rgba(255, 255, 255, 0.15);
+    color: var(--text);
+    font-size: 0.82rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 200ms, box-shadow 200ms;
+  }
+
+  [data-theme="dark"] .url-row input {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .url-row input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--focus-shadow);
+  }
+
+  .url-add-btn {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: transform 200ms, box-shadow 200ms;
+  }
+
+  .url-add-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(var(--accent-rgb), 0.30);
+  }
+
+  /* --- Image list --- */
+  .img-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .clear-all-btn {
+    padding: 3px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.74rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 200ms, border-color 200ms;
+  }
+
+  .clear-all-btn:hover {
+    color: var(--accent);
+    border-color: var(--hover-border);
+  }
+
+  .img-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 180px;
+    overflow-y: auto;
+  }
+
+  .img-list-empty {
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-align: center;
+    padding: 16px 0;
+  }
+
+  .img-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: var(--radius-md);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    transition: border-color 200ms;
+  }
+
+  [data-theme="dark"] .img-item {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .img-item:hover {
+    border-color: var(--hover-border);
+  }
+
+  .img-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .img-thumb-wrap {
+    position: relative;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+  }
+
+  .img-thumb-wrap .video-badge {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.40);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+
+  .img-thumb-wrap .video-badge svg {
+    width: 16px;
+    height: 16px;
+    color: #fff;
+  }
+
+  .img-src {
+    flex: 1;
+    min-width: 0;
+    font-size: 0.76rem;
+    color: var(--muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .img-del {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: color 200ms, background 200ms;
+  }
+
+  .img-del:hover {
+    color: #ff4466;
+    background: rgba(255, 68, 102, 0.10);
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 720px) {
+    .hero-settings-btn {
+      left: 16px;
+      top: 80px;
+      width: 38px;
+      height: 38px;
+    }
+
+    .hero-settings-btn svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .hero-settings-panel {
+      left: 12px;
+      right: 12px;
+      top: 126px;
+      width: auto;
+      max-height: calc(100vh - 150px);
+    }
+  }
+
+  /* ===== Reduced motion ===== */
+  @media (prefers-reduced-motion: reduce) {
+    .slideshow-layer {
+      transition: none !important;
+    }
+
+    .slideshow-video {
+      transition: none !important;
+    }
+
+    .hero-settings-panel {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+(function () {
+  // ===== Module-level cleanup state =====
+  var _timer = null;
+  var _destroyed = false;
+  var _pageHandler = null;
+
+  function cleanup() {
+    if (_timer) { clearTimeout(_timer); _timer = null; }
+    if (_pageHandler) {
+      document.removeEventListener('astro:page-load', _pageHandler);
+      _pageHandler = null;
+    }
+    _destroyed = true;
+  }
+
+  function init() {
+    // ===== Query persistent DOM elements =====
+    var container = document.getElementById('hero-slideshow');
+    var settingsBtn = document.getElementById('hero-settings-btn');
+    var settingsPanel = document.getElementById('hero-settings-panel');
+    var closeBtn = document.getElementById('settings-close');
+    var toggleEnabled = document.getElementById('toggle-enabled');
+    var toggleAutoplay = document.getElementById('toggle-autoplay');
+    var intervalRange = document.getElementById('interval-range');
+    var intervalVal = document.getElementById('interval-val');
+    var opacityRange = document.getElementById('opacity-range');
+    var opacityVal = document.getElementById('opacity-val');
+    var qualitySelect = document.getElementById('quality-select');
+    var uploadZone = document.getElementById('upload-zone');
+    var fileInput = document.getElementById('file-input');
+    var urlInput = document.getElementById('url-input');
+    var urlAddBtn = document.getElementById('url-add-btn');
+    var imgList = document.getElementById('img-list');
+    var clearAllBtn = document.getElementById('clear-all-btn');
+
+    if (!container || !settingsBtn) return;
+
+    // ===== Element-level guard (same pattern as theme toggle fix) =====
+    // Prevents double-initialization when astro:page-load fires on first load
+    if (container.__initialized) {
+      // Lightweight reinit: just restart slideshow on page navigation return
+      _destroyed = false;
+      var savedState = null;
+      try {
+        var s = localStorage.getItem('hero_settings');
+        if (s) savedState = JSON.parse(s);
+      } catch (e) {}
+      if (savedState && savedState.enabled !== false) {
+        var overlayVal = savedState.opacity != null ? savedState.opacity : 0.22;
+        document.documentElement.style.setProperty('--slideshow-overlay', String(overlayVal));
+      }
+      return;
+    }
+    container.__initialized = true;
+
+    // ===== Full initialization =====
+    cleanup();
+    _destroyed = false;
+
+    var defaults = JSON.parse(container.dataset.defaults || '[]');
+    var defInterval = parseInt(container.dataset.defaultInterval || '6000', 10);
+    var defOpacity = parseFloat(container.dataset.defaultOpacity || '0.22');
+
+    var layer = container.querySelector('.slideshow-layer');
+    var videoEl = container.querySelector('.slideshow-video');
+    var idx = 0;
+    var currentSrc = '';
+
+    /* ===== State ===== */
+    var state = {
+      enabled: true,
+      autoplay: true,
+      interval: defInterval,
+      opacity: defOpacity,
+      quality: 'high',
+      images: []
+    };
+
+    /* ===== Load saved ===== */
+    try {
+      var saved = localStorage.getItem('hero_settings');
+      if (saved) {
+        var s = JSON.parse(saved);
+        if (s.enabled === false) state.enabled = false;
+        if (s.autoplay === false) state.autoplay = false;
+        if (s.interval) state.interval = s.interval;
+        if (s.opacity != null) state.opacity = s.opacity;
+        if (s.quality) state.quality = s.quality;
+        if (Array.isArray(s.images)) state.images = s.images;
+      }
+    } catch (e) {}
+
+    /* ===== Helpers ===== */
+    function allImages() {
+      var custom = state.images.filter(function(src) {
+        return defaults.indexOf(src) === -1;
+      });
+      return defaults.concat(custom);
+    }
+
+    function save() {
+      try {
+        localStorage.setItem('hero_settings', JSON.stringify({
+          enabled: state.enabled,
+          autoplay: state.autoplay,
+          interval: state.interval,
+          opacity: state.opacity,
+          quality: state.quality,
+          images: state.images.filter(function(src) {
+            return defaults.indexOf(src) === -1;
+          })
+        }));
+      } catch (e) {
+        if (e.name === 'QuotaExceededError') {
+          alert('存储空间不足，请减少图片/视频数量。视频文件较大，建议使用 URL 方式添加。');
+        }
+      }
+    }
+
+    function applyOverlay() {
+      document.documentElement.style.setProperty('--slideshow-overlay', String(state.opacity));
+    }
+
+    /* ===== Video detection ===== */
+    function isVideo(src) {
+      if (!src) return false;
+      // Check data URL MIME type
+      if (src.indexOf('data:video/') === 0) return true;
+      if (src.indexOf('data:image/') === 0) return false;
+      // Check blob type hint
+      if (src.indexOf('blob:') === 0) return false;
+      // Check URL extension (strip query/fragment)
+      var clean = src.split('?')[0].split('#')[0];
+      return /\.(mp4|webm|ogg|ogv|mov|m4v)$/i.test(clean);
+    }
+
+    /* ===== Image compression (images only) ===== */
+    function compressImage(file, quality) {
+      if (quality === 'original') {
+        return new Promise(function(resolve, reject) {
+          var reader = new FileReader();
+          reader.onload = function() { resolve(reader.result); };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
+
+      var q = quality === 'high' ? 0.95 : 0.75;
+      var maxDim = quality === 'high' ? 2560 : 1920;
+
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function() {
+          var img = new Image();
+          img.onload = function() {
+            var canvas = document.createElement('canvas');
+            var w = img.width, h = img.height;
+            if (w > maxDim || h > maxDim) {
+              if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+              else { w = Math.round(w * maxDim / h); h = maxDim; }
+            }
+            canvas.width = w;
+            canvas.height = h;
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', q));
+          };
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /* ===== Video as base64 data URL ===== */
+    function readVideoAsDataUrl(file) {
+      return new Promise(function(resolve, reject) {
+        var reader = new FileReader();
+        reader.onload = function() { resolve(reader.result); };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /* ===== UI sync ===== */
+    function syncUI() {
+      toggleEnabled.checked = state.enabled;
+      toggleAutoplay.checked = state.autoplay;
+      intervalRange.value = Math.round(state.interval / 1000);
+      intervalVal.textContent = Math.round(state.interval / 1000) + 's';
+      opacityRange.value = Math.round(state.opacity * 100);
+      opacityVal.textContent = Math.round(state.opacity * 100) + '%';
+      qualitySelect.value = state.quality;
+      renderList();
+      applyOverlay();
+    }
+
+    function renderList() {
+      var imgs = allImages();
+      if (!imgs.length) {
+        imgList.innerHTML = '<div class="img-list-empty">暂无内容，请上传图片或添加 URL（支持 MP4 视频）</div>';
+        return;
+      }
+      imgList.innerHTML = '';
+      imgs.forEach(function(src, i) {
+        var isDefault = i < defaults.length;
+        var video = isVideo(src);
+        var item = document.createElement('div');
+        item.className = 'img-item';
+
+        if (video) {
+          // Video: show thumbnail wrapper with play icon overlay
+          var wrap = document.createElement('div');
+          wrap.className = 'img-thumb-wrap';
+
+          var thumb = document.createElement('img');
+          thumb.className = 'img-thumb';
+          // Use a grey placeholder for video thumbnails
+          thumb.src = 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40"><rect width="40" height="40" fill="#333"/></svg>');
+          thumb.alt = '';
+          thumb.style.opacity = '0.6';
+
+          var badge = document.createElement('div');
+          badge.className = 'video-badge';
+          badge.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"/></svg>';
+
+          wrap.appendChild(thumb);
+          wrap.appendChild(badge);
+          item.appendChild(wrap);
+        } else {
+          var thumb = document.createElement('img');
+          thumb.className = 'img-thumb';
+          thumb.src = src;
+          thumb.alt = '';
+          thumb.onerror = function() { thumb.style.opacity = '0.3'; };
+          item.appendChild(thumb);
+        }
+
+        var label = document.createElement('span');
+        label.className = 'img-src';
+        var prefix = isDefault ? '(默认) ' : '';
+        var typeTag = video ? '[视频] ' : '';
+        label.textContent = prefix + typeTag + src;
+        label.title = src;
+        item.appendChild(label);
+
+        if (!isDefault) {
+          var del = document.createElement('button');
+          del.className = 'img-del';
+          del.type = 'button';
+          del.textContent = '\u00d7';
+          del.title = '删除';
+          del.onclick = function() {
+            var customIdx = i - defaults.length;
+            state.images.splice(customIdx, 1);
+            save();
+            syncUI();
+            restartSlideshow();
+          };
+          item.appendChild(del);
+        }
+
+        imgList.appendChild(item);
+      });
+    }
+
+    /* ===== Slideshow logic: handles both images and videos ===== */
+    function hideAll() {
+      layer.classList.remove('visible');
+      videoEl.classList.remove('visible');
+      videoEl.pause();
+    }
+
+    function showSlide(src) {
+      if (src === currentSrc) return;
+      var video = isVideo(src);
+
+      if (!currentSrc) {
+        // First item: just fade in
+        if (video) {
+          layer.classList.remove('visible');
+          layer.style.backgroundImage = '';
+          videoEl.src = src;
+          videoEl.loop = true;
+          videoEl.muted = true;
+          videoEl.playsInline = true;
+          requestAnimationFrame(function() { videoEl.classList.add('visible'); });
+          videoEl.play().catch(function() {});
+        } else {
+          videoEl.classList.remove('visible');
+          videoEl.pause();
+          layer.style.backgroundImage = 'url("' + src + '")';
+          requestAnimationFrame(function() { layer.classList.add('visible'); });
+        }
+        currentSrc = src;
+        return;
+      }
+
+      // Fade out current first
+      hideAll();
+
+      // After fade-out (800ms), swap and fade in
+      setTimeout(function() {
+        if (_destroyed) return;
+
+        if (video) {
+          layer.style.backgroundImage = '';
+          videoEl.src = src;
+          videoEl.loop = true;
+          videoEl.muted = true;
+          videoEl.playsInline = true;
+          requestAnimationFrame(function() {
+            if (_destroyed) return;
+            videoEl.classList.add('visible');
+            videoEl.play().catch(function() {});
+          });
+        } else {
+          videoEl.src = '';
+          layer.style.backgroundImage = 'url("' + src + '")';
+          requestAnimationFrame(function() {
+            if (_destroyed) return;
+            layer.classList.add('visible');
+          });
+        }
+        currentSrc = src;
+      }, 800);
+    }
+
+    function loadAt(index) {
+      if (_destroyed) return;
+      var imgs = allImages();
+      if (!imgs.length) {
+        hideAll();
+        layer.style.backgroundImage = '';
+        videoEl.src = '';
+        currentSrc = '';
+        return;
+      }
+
+      var src = imgs[index % imgs.length];
+
+      if (isVideo(src)) {
+        // For video, just show it directly (no preload check needed)
+        showSlide(src);
+      } else {
+        // Preload image before showing
+        var img = new Image();
+        img.onload = function() {
+          if (!_destroyed) showSlide(img.src);
+        };
+        img.onerror = function() {
+          if (!_destroyed && imgs.length > 1) {
+            idx = (idx + 1) % imgs.length;
+            loadAt(idx);
+          }
+        };
+        img.src = src;
+      }
+    }
+
+    function advance() {
+      if (_destroyed) return;
+      var imgs = allImages();
+      if (!imgs.length) return;
+      idx = (idx + 1) % imgs.length;
+      loadAt(idx);
+      if (state.autoplay && imgs.length > 1) {
+        // Wait for fade-out(800ms) + fade-in(1500ms) before scheduling next
+        _timer = setTimeout(advance, state.interval + 2300);
+      }
+    }
+
+    function start() {
+      stop();
+      if (!state.enabled) return;
+      var imgs = allImages();
+      if (!imgs.length) return;
+      idx = idx % imgs.length;
+      loadAt(idx);
+      if (state.autoplay && imgs.length > 1) {
+        _timer = setTimeout(advance, state.interval);
+      }
+    }
+
+    function stop() {
+      if (_timer) { clearTimeout(_timer); _timer = null; }
+    }
+
+    function restartSlideshow() {
+      stop();
+      currentSrc = '';
+      if (state.enabled) start();
+      else {
+        hideAll();
+        layer.style.backgroundImage = '';
+        videoEl.src = '';
+      }
+    }
+
+    /* ===== Apply initial state ===== */
+    if (!state.enabled) {
+      document.documentElement.classList.add('no-hero-bg');
+    }
+    applyOverlay();
+    syncUI();
+    if (state.enabled) start();
+
+    /* ===== Event handlers ===== */
+    settingsBtn.addEventListener('click', function() {
+      settingsPanel.classList.toggle('open');
+    });
+
+    closeBtn.addEventListener('click', function() {
+      settingsPanel.classList.remove('open');
+    });
+
+    toggleEnabled.addEventListener('change', function() {
+      state.enabled = this.checked;
+      save();
+      if (state.enabled) {
+        document.documentElement.classList.remove('no-hero-bg');
+        start();
+      } else {
+        document.documentElement.classList.add('no-hero-bg');
+        stop();
+        hideAll();
+      }
+    });
+
+    toggleAutoplay.addEventListener('change', function() {
+      state.autoplay = this.checked;
+      save();
+      restartSlideshow();
+    });
+
+    intervalRange.addEventListener('input', function() {
+      intervalVal.textContent = this.value + 's';
+    });
+
+    intervalRange.addEventListener('change', function() {
+      state.interval = parseInt(this.value, 10) * 1000;
+      intervalVal.textContent = this.value + 's';
+      save();
+      restartSlideshow();
+    });
+
+    opacityRange.addEventListener('input', function() {
+      opacityVal.textContent = this.value + '%';
+      state.opacity = parseInt(this.value, 10) / 100;
+      applyOverlay();
+    });
+
+    opacityRange.addEventListener('change', function() {
+      state.opacity = parseInt(this.value, 10) / 100;
+      opacityVal.textContent = this.value + '%';
+      applyOverlay();
+      save();
+    });
+
+    qualitySelect.addEventListener('change', function() {
+      state.quality = this.value;
+      save();
+    });
+
+    fileInput.addEventListener('change', function() {
+      handleFiles(this.files);
+      this.value = '';
+    });
+
+    function handleFiles(files) {
+      var quality = state.quality;
+      Array.from(files).forEach(function(file) {
+        if (file.type.startsWith('video/')) {
+          // Video: read as data URL (no compression — videos are too large)
+          readVideoAsDataUrl(file).then(function(dataUrl) {
+            state.images.push(dataUrl);
+            save();
+            syncUI();
+            restartSlideshow();
+          }).catch(function(err) {
+            console.warn('Video processing failed:', err);
+          });
+        } else if (file.type.startsWith('image/')) {
+          // Image: compress based on quality setting
+          compressImage(file, quality).then(function(dataUrl) {
+            state.images.push(dataUrl);
+            save();
+            syncUI();
+            restartSlideshow();
+          }).catch(function(err) {
+            console.warn('Image processing failed:', err);
+          });
+        }
+      });
+    }
+
+    uploadZone.addEventListener('dragover', function(e) {
+      e.preventDefault();
+      this.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', function() {
+      this.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', function(e) {
+      e.preventDefault();
+      this.classList.remove('dragover');
+      if (e.dataTransfer && e.dataTransfer.files.length) {
+        handleFiles(e.dataTransfer.files);
+      }
+    });
+
+    urlAddBtn.addEventListener('click', addUrl);
+    urlInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') addUrl();
+    });
+
+    function addUrl() {
+      var url = urlInput.value.trim();
+      if (!url) return;
+      state.images.push(url);
+      urlInput.value = '';
+      save();
+      syncUI();
+      restartSlideshow();
+    }
+
+    clearAllBtn.addEventListener('click', function() {
+      state.images = [];
+      save();
+      syncUI();
+      restartSlideshow();
+    });
+
+    container.addEventListener('mouseenter', stop);
+    container.addEventListener('mouseleave', function() {
+      if (state.enabled && !_destroyed) start();
+    });
+
+    document.addEventListener('visibilitychange', function() {
+      if (document.hidden) stop();
+      else if (state.enabled && !_destroyed) start();
+    });
+
+    /* ===== Register page-load handler for navigation ===== */
+    _pageHandler = function() {
+      var el = document.getElementById('hero-slideshow');
+      if (!el) {
+        // Navigated away from homepage — stop slideshow
+        stop();
+        _destroyed = true;
+        return;
+      }
+      // Re-init on return to homepage (element-level guard handles dedup)
+      init();
+    };
+    document.addEventListener('astro:page-load', _pageHandler);
+  }
+
+  /* ===== Bootstrap ===== */
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>

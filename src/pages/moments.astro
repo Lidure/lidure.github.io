@@ -107,15 +107,16 @@ function momentImageSrc(src: string) {
         <div class="image-upload-area" id="image-upload-area">
           <input type="file" id="image-input" accept="image/*" multiple hidden />
           <div class="upload-dropzone" id="upload-placeholder">
-            <span>📷 点击上传 / 拖入图片（最多 9 张）</span>
+            <span>📷 点击上传 / 拖入 / Ctrl+V 粘贴图片（最多 9 张）</span>
           </div>
           <div class="image-previews" id="image-previews"></div>
         </div>
 
         <label class="field full token-field">
-          <span class="field-label">🔑 GitHub Token</span>
+          <span class="field-label">🔑 GitHub Token <span id="token-saved-badge" class="token-saved-badge" style="display:none">✓ 已保存</span></span>
           <div class="token-input-wrap">
-            <input type="password" name="githubToken" placeholder="ghp_xxxxxxxxxx" required />
+            <input type="password" name="githubToken" id="token-input" placeholder="首次输入后自动保存，下次不用再填" />
+            <button type="button" id="token-clear-btn" class="token-clear-btn" title="清除已保存的 Token" style="display:none">✕</button>
             <a href="https://github.com/settings/tokens/new?scopes=repo&description=Moments%20Blog" target="_blank" rel="noreferrer" class="token-link">
               如何获取？
             </a>
@@ -123,7 +124,7 @@ function momentImageSrc(src: string) {
         </label>
 
         <button type="submit" class="submit-btn" id="submit-btn">🚀 发布</button>
-        <p class="form-note">Token 需要 repo 权限，发布后自动提交 GitHub 并触发构建。</p>
+        <p class="form-note">Token 需要 repo 权限。首次输入后会自动保存，无需重复填写。</p>
       </form>
       <div id="form-message"></div>
     </div>
@@ -572,6 +573,43 @@ function momentImageSrc(src: string) {
     color: var(--accent-hover);
   }
 
+  .token-saved-badge {
+    font-size: 0.75rem;
+    color: #3aaa5a;
+    font-weight: 600;
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(80, 200, 120, 0.12);
+  }
+
+  [data-theme="dark"] .token-saved-badge {
+    color: #6ed88a;
+    background: rgba(80, 200, 120, 0.16);
+  }
+
+  .token-clear-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid var(--panel-border);
+    background: var(--bg-soft);
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.78rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 180ms ease;
+  }
+
+  .token-clear-btn:hover {
+    color: #d94040;
+    border-color: rgba(217, 64, 64, 0.3);
+    background: rgba(217, 64, 64, 0.08);
+  }
+
   .submit-btn {
     grid-column: 1 / -1;
     padding: 13px;
@@ -692,9 +730,9 @@ function momentImageSrc(src: string) {
     border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   }
 
-  .glow-游戏 { background: linear-gradient(to bottom, #ff8fb3, #a88cff); }
-  .glow-音乐 { background: linear-gradient(to bottom, #ffcf7a, #ff8fb3); }
-  .glow-生活 { background: linear-gradient(to bottom, #a88cff, #ffcf7a); }
+  .glow-游戏 { background: linear-gradient(to bottom, #FF6B9D, #7C8CF8); }
+  .glow-音乐 { background: linear-gradient(to bottom, #FFB347, #FF6B9D); }
+  .glow-生活 { background: linear-gradient(to bottom, #7C8CF8, #FFB347); }
 
   .card-content {
     padding: 20px 22px 20px 26px;
@@ -717,9 +755,13 @@ function momentImageSrc(src: string) {
     letter-spacing: 0.03em;
   }
 
-  .pill-游戏 { background: rgba(255, 143, 179, 0.15); color: #ff6d9e; }
-  .pill-音乐 { background: rgba(255, 207, 122, 0.15); color: #e6a820; }
-  .pill-生活 { background: rgba(168, 140, 255, 0.15); color: #9b7be6; }
+  .pill-游戏 { background: rgba(255, 107, 157, 0.12); color: #E0456E; }
+  .pill-音乐 { background: rgba(255, 179, 71, 0.12); color: #CC8820; }
+  .pill-生活 { background: rgba(124, 140, 248, 0.12); color: #5566CC; }
+
+  [data-theme="dark"] .pill-游戏 { background: rgba(255, 107, 157, 0.18); color: #FF9EBE; }
+  [data-theme="dark"] .pill-音乐 { background: rgba(255, 179, 71, 0.18); color: #FFCC77; }
+  [data-theme="dark"] .pill-生活 { background: rgba(124, 140, 248, 0.18); color: #A0AEFF; }
 
   .card-date {
     font-size: 0.78rem;
@@ -1255,6 +1297,26 @@ function momentImageSrc(src: string) {
     imageInput.value = '';
   });
 
+  // 剪贴板粘贴图片
+  document.addEventListener('paste', (e) => {
+    // 只在发布面板打开时拦截
+    if (publishBox?.classList.contains('hidden')) return;
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    const files: File[] = [];
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.startsWith('image/')) {
+        const file = items[i].getAsFile();
+        if (file) files.push(file);
+      }
+    }
+    if (files.length > 0) {
+      e.preventDefault();
+      handleFiles(files);
+      setMessage(`📷 已粘贴 ${files.length} 张图片`, 'success');
+    }
+  });
+
   async function handleFiles(files: File[]) {
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
@@ -1278,10 +1340,39 @@ function momentImageSrc(src: string) {
     const dateInput = form.querySelector<HTMLInputElement>('input[name="date"]');
     if (dateInput) dateInput.value = localDateTimeValue();
 
+    // Token 自动保存/填充
+    const TOKEN_KEY = 'blog_gh_token';
+    const tokenInput = document.getElementById('token-input') as HTMLInputElement | null;
+    const savedBadge = document.getElementById('token-saved-badge');
+    const clearBtn = document.getElementById('token-clear-btn');
+
+    function refreshTokenUI() {
+      const saved = localStorage.getItem(TOKEN_KEY);
+      if (saved && tokenInput && !tokenInput.value) {
+        tokenInput.value = saved;
+      }
+      const hasToken = !!(tokenInput?.value || localStorage.getItem(TOKEN_KEY));
+      if (savedBadge) savedBadge.style.display = hasToken ? 'inline' : 'none';
+      if (clearBtn) clearBtn.style.display = hasToken ? 'inline-flex' : 'none';
+    }
+
+    refreshTokenUI();
+
+    clearBtn?.addEventListener('click', () => {
+      localStorage.removeItem(TOKEN_KEY);
+      if (tokenInput) tokenInput.value = '';
+      refreshTokenUI();
+    });
+
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
-      const githubToken = String(fd.get('githubToken') ?? '');
+      let githubToken = String(fd.get('githubToken') ?? '').trim();
+
+      // 如果输入框为空，尝试从 localStorage 读取
+      if (!githubToken) {
+        githubToken = localStorage.getItem(TOKEN_KEY) || '';
+      }
 
       submitBtn.disabled = true;
       submitBtn.textContent = selectedImages.length > 0 ? '上传图片...' : '发布中...';
@@ -1296,7 +1387,7 @@ function momentImageSrc(src: string) {
           ...(link && { link }),
         };
 
-        if (!githubToken) throw new Error('请填写 GitHub Token');
+        if (!githubToken) throw new Error('请填写 GitHub Token（首次使用需要输入一次，之后自动保存）');
         if (!baseMoment.date || !baseMoment.category || !baseMoment.text) throw new Error('请填写时间、分类和内容');
 
         const imageUrls = selectedImages.length > 0 ? await uploadSelectedImages(githubToken) : [];
@@ -1307,6 +1398,11 @@ function momentImageSrc(src: string) {
 
         submitBtn.textContent = '发布中...';
         await publishMoment(githubToken, moment);
+
+        // 发布成功后保存 token
+        try { localStorage.setItem(TOKEN_KEY, githubToken); } catch(e) {}
+        refreshTokenUI();
+
         setMessage('✅ 已提交到 GitHub。等待 GitHub Pages 构建完成后刷新页面查看。', 'success');
       } catch (err) {
         const detail = err instanceof Error ? err.message : String(err);
