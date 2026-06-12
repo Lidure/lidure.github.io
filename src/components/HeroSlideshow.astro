@@ -35,7 +35,8 @@ const DEFAULT_OPACITY = 0.22;
   data-default-opacity={String(DEFAULT_OPACITY)}
 >
   <div class="slideshow-layer" aria-hidden="true"></div>
-  <video class="slideshow-video" aria-hidden="true" muted loop playsinline preload="auto"></video>
+  <video class="slideshow-video" aria-hidden="true" muted loop playsinline preload="auto" webkit-playsinline x5-video-player-type="h5-page" x5-video-player-fullscreen="true"></video>
+  <div class="slideshow-video-overlay" aria-hidden="true"></div>
   <div class="slideshow-overlay" aria-hidden="true"></div>
 </div>
 
@@ -188,6 +189,13 @@ const DEFAULT_OPACITY = 0.22;
 
   .slideshow-video.visible {
     opacity: 1;
+  }
+
+  .slideshow-video-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: auto;
   }
 
   .slideshow-overlay {
@@ -1081,6 +1089,7 @@ const DEFAULT_OPACITY = 0.22;
 
     var layer = container.querySelector('.slideshow-layer');
     var videoEl = container.querySelector('.slideshow-video');
+    if (videoEl) videoEl.setAttribute('controlsList', 'nodownload noplaybackrate');
     var idx = 0;
     var currentSrc = '';
     var MAX_INLINE_VIDEO_BYTES = 50 * 1024 * 1024;
