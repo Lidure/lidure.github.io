@@ -2,151 +2,552 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">
-  <div class="immersive-shell">
-    <div class="immersive-hero">
-      <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>
+  <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>
+  <div style="min-height: 80vh;"></div>
+  <div class="immersive-cover" id="immersiveCover">
+    <img id="immersiveCoverImg" src="" alt="" style="display:none" />
+    <div class="immersive-cover-fallback">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    </div>
+  </div>
+
+  <div class="immersive-controls" id="immersiveControls">
+    <button id="immersiveToggleUI" class="immersive-ctrl-btn" title="隐藏界面" aria-label="隐藏界面">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    </button>
+    <div class="immersive-viz-switcher" id="immersiveVizSwitcher">
+      <button class="immersive-viz-mode active" data-mode="circle" title="圆形频谱">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button class="immersive-viz-mode" data-mode="bars" title="频谱柱">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10" y="8" width="3" height="12" rx="1"/><rect x="16" y="4" width="3" height="16" rx="1"/></svg>
+      </button>
+      <button class="immersive-viz-mode" data-mode="wave" title="波形">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 12c1-3 3-5 5-5s4 4 5 4 3-4 5-4 4 2 5 5"/></svg>
+      </button>
+      <button class="immersive-viz-mode" data-mode="spectrum" title="频谱分析仪">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="14" width="2" height="6" rx="1"/><rect x="7" y="10" width="2" height="10" rx="1"/><rect x="11" y="6" width="2" height="14" rx="1"/><rect x="15" y="2" width="2" height="18" rx="1"/><rect x="19" y="8" width="2" height="12" rx="1"/></svg>
+      </button>
     </div>
   </div>
 
   <style>
-    .immersive-shell {
-      max-width: var(--container);
-      margin: 0 auto;
+    /* Canvas full viewport */
+    .immersive-viz-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 0;
     }
 
-    .immersive-hero {
-      position: relative;
-      min-height: 80vh;
+    /* Cover centered */
+    .immersive-cover {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: rgba(26, 20, 48, 0.5);
+      border: 2px solid rgba(255, 255, 255, 0.1);
       display: flex;
       align-items: center;
       justify-content: center;
-      overflow: hidden;
-      border-radius: var(--radius-xl);
-      background: var(--panel-gradient);
-      border: 1px solid var(--panel-border);
-      box-shadow: var(--shadow);
+      transition: opacity 0.4s;
     }
-
-    .immersive-viz-canvas {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-    }
+    .immersive-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .immersive-cover.spinning img { animation: cover-spin 8s linear infinite; }
+    @keyframes cover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    .immersive-cover-fallback { color: var(--accent); opacity: 0.3; }
+    .immersive-cover-fallback svg { width: 64px; height: 64px; }
 
     @media (max-width: 640px) {
-      .immersive-hero { min-height: 70vh; border-radius: var(--radius-lg); }
+      .immersive-cover { width: 160px; height: 160px; }
     }
+
+    .immersive-controls {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 99999;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .immersive-ctrl-btn {
+      width: 42px; height: 42px; border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px); color: var(--text);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background 200ms, border-color 200ms, transform 200ms;
+    }
+    [data-theme="light"] .immersive-ctrl-btn { border-color: rgba(200,80,150,0.2); background: rgba(255,255,255,0.4); }
+    .immersive-ctrl-btn:hover { background: rgba(var(--accent-rgb), 0.15); border-color: var(--accent); transform: scale(1.06); }
+    .immersive-ctrl-btn.active { background: rgba(var(--accent-rgb), 0.2); border-color: var(--accent); }
+    .immersive-viz-switcher {
+      display: flex; gap: 4px; padding: 4px; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+    }
+    [data-theme="light"] .immersive-viz-switcher { border-color: rgba(200,80,150,0.15); background: rgba(255,255,255,0.3); }
+    .immersive-viz-mode {
+      width: 32px; height: 32px; border-radius: 50%; border: none;
+      background: transparent; color: var(--muted); cursor: pointer;
+      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+    }
+    .immersive-viz-mode:hover { color: var(--text); }
+    .immersive-viz-mode.active { background: rgba(var(--accent-rgb), 0.2); color: var(--accent); }
   </style>
 
   <script>
   // @ts-nocheck
   (function() {
     var canvas = document.getElementById('immersiveVizCanvas');
+    var coverImg = document.getElementById('immersiveCoverImg');
+    var toggleUIBtn = document.getElementById('immersiveToggleUI');
+    var vizSwitcher = document.getElementById('immersiveVizSwitcher');
+    var controlsPanel = document.getElementById('immersiveControls');
     if (!canvas) return;
-    var vizFrame = 0;
-    var levels = {};
 
-    function sampleFromSekaiAnalyser() {
-      // Try to hook into the SEKAI player's analyser
-      var btn = document.getElementById('sekaiPlayerBtn');
-      if (!btn) return null;
-      // Access the global analyser from SekaiPlayer
-      return window.__sekaiAnalyser || null;
+    var vizFrame = 0;
+    var dominantColors = [];
+    var lastCoverSrc = '';
+    var vizMode = 'circle';
+
+    function getAnalyser() { return window.__sekaiAnalyser || null; }
+
+    // Toggle UI
+    var hideTargets = null;
+
+    function getTargets() {
+      if (hideTargets) return hideTargets;
+      hideTargets = {
+        stage1: [
+          document.querySelector('.topbar'),
+          document.querySelector('.footer'),
+        ].filter(Boolean),
+        stage2: [],
+        stage3: [
+          document.querySelector('.immersive-cover'),
+          canvas,
+        ].filter(Boolean),
+      };
+      document.querySelectorAll('.sekai-player-btn, #hero-settings-btn, #hero-settings-panel').forEach(function(el) {
+        hideTargets.stage2.push(el);
+      });
+      return hideTargets;
     }
 
-    // Fallback: draw ambient animation when no audio
-    function drawAmbient() {
-      var rect = canvas.getBoundingClientRect();
+    function setOpacity(elements, opacity) {
+      elements.forEach(function(el) {
+        el.style.transition = 'opacity 0.4s';
+        el.style.opacity = opacity;
+        el.style.pointerEvents = opacity === '0' ? 'none' : '';
+      });
+    }
+
+    var hideStage = 0;
+
+    toggleUIBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      hideStage = (hideStage + 1) % 4;
+
+      var t = getTargets();
+
+      if (hideStage === 0) {
+        setOpacity(t.stage1, '');
+        setOpacity(t.stage2, '');
+        setOpacity(t.stage3, '');
+        vizSwitcher.style.opacity = '';
+        vizSwitcher.style.pointerEvents = '';
+        toggleUIBtn.classList.remove('active');
+        toggleUIBtn.title = '隐藏界面';
+      } else if (hideStage === 1) {
+        setOpacity(t.stage1, '0');
+        setOpacity(t.stage2, '');
+        setOpacity(t.stage3, '');
+        vizSwitcher.style.opacity = '';
+        vizSwitcher.style.pointerEvents = '';
+        toggleUIBtn.classList.add('active');
+        toggleUIBtn.title = '继续隐藏';
+      } else if (hideStage === 2) {
+        setOpacity(t.stage1, '0');
+        setOpacity(t.stage2, '0');
+        setOpacity(t.stage3, '');
+        vizSwitcher.style.opacity = '0';
+        vizSwitcher.style.pointerEvents = 'none';
+        toggleUIBtn.title = '隐藏封面和可视化';
+      } else {
+        setOpacity(t.stage1, '0');
+        setOpacity(t.stage2, '0');
+        setOpacity(t.stage3, '0');
+        vizSwitcher.style.opacity = '0';
+        vizSwitcher.style.pointerEvents = 'none';
+        toggleUIBtn.title = '显示界面';
+      }
+    });
+
+    // Viz mode switcher
+    vizSwitcher.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var btn = e.target.closest('.immersive-viz-mode');
+      if (!btn) return;
+      vizSwitcher.querySelectorAll('.immersive-viz-mode').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      vizMode = btn.dataset.mode;
+    });
+
+    controlsPanel.addEventListener('click', function(e) { e.stopPropagation(); });
+
+    function extractCoverColors() {
+      try {
+        var img = coverImg;
+        if (!img || !img.complete || !img.naturalWidth || !img.src) return [];
+        var tmp = document.createElement('canvas');
+        var tmpCtx = tmp.getContext('2d');
+        tmp.width = 50; tmp.height = 50;
+        tmpCtx.drawImage(img, 0, 0, 50, 50);
+        var pixels = tmpCtx.getImageData(0, 0, 50, 50).data;
+        var colorMap = {}, totalSat = 0, sampleCount = 0;
+        for (var p = 0; p < pixels.length; p += 40) {
+          var r = pixels[p], g = pixels[p+1], b = pixels[p+2], a = pixels[p+3];
+          if (a < 128) continue;
+          if ((r < 15 && g < 15 && b < 15) || (r > 240 && g > 240 && b > 240)) continue;
+          var max = Math.max(r, g, b), min = Math.min(r, g, b);
+          var s = max === 0 ? 0 : ((max - min) / max) * 100;
+          var l = (max + min) / 2 / 255 * 100;
+          totalSat += s; sampleCount++;
+          if (s < 20) continue;
+          var h = 0;
+          if (max === r) h = ((g - b) / (max - min)) * 60;
+          else if (max === g) h = 120 + ((b - r) / (max - min)) * 60;
+          else h = 240 + ((r - g) / (max - min)) * 60;
+          if (h < 0) h += 360;
+          var hk = Math.round(h / 30) * 30;
+          if (!colorMap[hk]) colorMap[hk] = { h: h, s: s, l: l, count: 0 };
+          colorMap[hk].count++;
+          colorMap[hk].h = (colorMap[hk].h * (colorMap[hk].count - 1) + h) / colorMap[hk].count;
+          colorMap[hk].s = (colorMap[hk].s * (colorMap[hk].count - 1) + s) / colorMap[hk].count;
+          colorMap[hk].l = (colorMap[hk].l * (colorMap[hk].count - 1) + l) / colorMap[hk].count;
+        }
+        var avgSat = sampleCount > 0 ? totalSat / sampleCount : 0;
+        if (avgSat < 15) return [{h:0,s:0,l:30},{h:0,s:0,l:45},{h:0,s:0,l:60},{h:0,s:0,l:75}];
+        var colorList = Object.values(colorMap).sort(function(a, b) { return b.count - a.count; });
+        if (!colorList.length) return [];
+        var dom = colorList[0];
+        var totalCount = colorList.reduce(function(a, c) { return a + c.count; }, 0);
+        var hueVar = 0;
+        for (var c = 0; c < colorList.length; c++) {
+          var diff = Math.abs(colorList[c].h - dom.h);
+          hueVar += Math.min(diff, 360 - diff) * colorList[c].count;
+        }
+        hueVar = totalCount > 0 ? hueVar / totalCount : 0;
+        if (hueVar < 30) return [
+          { h: dom.h, s: Math.max(dom.s, 60), l: 35 },
+          { h: dom.h, s: Math.max(dom.s, 60), l: 50 },
+          { h: dom.h, s: Math.max(dom.s, 60), l: 65 },
+          { h: dom.h, s: Math.max(dom.s, 60), l: 75 }
+        ];
+        return colorList.slice(0, 8).map(function(c) {
+          return { h: c.h, s: Math.max(c.s, 50), l: Math.min(Math.max(c.l, 40), 70) };
+        }).sort(function(a, b) { return a.h - b.h; });
+      } catch (e) { return []; }
+    }
+
+    function getColor(ratio, intensity) {
+      if (dominantColors.length > 0) {
+        var rot = (Date.now() * 0.0005) % dominantColors.length;
+        var pos = (ratio * dominantColors.length + rot) % dominantColors.length;
+        var ci = Math.floor(pos), ni = (ci + 1) % dominantColors.length;
+        var bl = pos - ci;
+        var c1 = dominantColors[ci], c2 = dominantColors[ni];
+        var h = c1.h + (c2.h - c1.h) * bl;
+        var s = c1.s + (c2.s - c1.s) * bl;
+        var l = c1.l + (c2.l - c1.l) * bl;
+        return { h: h, s: s, l1: Math.max(25, l - 15), l2: Math.min(75, l + 15 + 15 * intensity) };
+      }
+      return { h: (ratio * 360 + Date.now() * 0.05) % 360, s: 70, l1: 50, l2: 60 };
+    }
+
+    function draw() {
+      vizFrame = requestAnimationFrame(draw);
+      var w = window.innerWidth;
+      var h = window.innerHeight;
       var dpr = window.devicePixelRatio || 1;
-      var w = Math.max(1, Math.floor(rect.width * dpr));
-      var h = Math.max(1, Math.floor(rect.height * dpr));
-      if (canvas.width !== w || canvas.height !== h) { canvas.width = w; canvas.height = h; }
+      var cw = Math.floor(w * dpr), ch = Math.floor(h * dpr);
+      if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
       var ctx = canvas.getContext('2d');
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
 
-      var time = performance.now() * 0.001;
+      var a = getAnalyser();
+      var freqData = null, timeData = null;
+      var bass = 0, time = performance.now() * 0.001;
 
-      // Check for SEKAI analyser
-      var analyser = sampleFromSekaiAnalyser();
-      var freqData = null;
-      var bass = 0;
-
-      if (analyser) {
-        freqData = new Uint8Array(analyser.frequencyDataLength);
-        analyser.getByteFrequencyData(freqData);
-        var sum = 0;
-        var end = Math.ceil(freqData.length * 0.15);
+      if (a) {
+        freqData = new Uint8Array(a.frequencyBinCount);
+        a.getByteFrequencyData(freqData);
+        timeData = new Uint8Array(a.fftSize);
+        a.getByteTimeDomainData(timeData);
+        var sum = 0, end = Math.ceil(freqData.length * 0.15);
         for (var i = 0; i < end; i++) sum += freqData[i];
         bass = end > 0 ? sum / end / 255 : 0;
+      } else {
+        bass = 0.15 + Math.sin(time * 0.8) * 0.1;
       }
 
+      // Update cover from SEKAI player - try multiple sources
+      var sekaiCoverUrl = window.__sekaiCoverUrl || '';
+      if (!sekaiCoverUrl) {
+        var sekaiCoverEl = document.getElementById('sekaiCover');
+        if (sekaiCoverEl) {
+          sekaiCoverUrl = sekaiCoverEl.src || sekaiCoverEl.currentSrc || '';
+        }
+      }
+      if (!sekaiCoverUrl) {
+        var dockCoverEl = document.getElementById('sekaiDockCover');
+        if (dockCoverEl) {
+          sekaiCoverUrl = dockCoverEl.src || dockCoverEl.currentSrc || '';
+        }
+      }
+
+      if (sekaiCoverUrl && coverImg) {
+        if (sekaiCoverUrl !== coverImg.src) {
+          coverImg.src = sekaiCoverUrl;
+          coverImg.style.display = 'block';
+          var fb = document.querySelector('.immersive-cover-fallback');
+          if (fb) fb.style.display = 'none';
+          dominantColors = [];
+          lastCoverSrc = '';
+        }
+      // Sync spinning state with SEKAI player
+      var sekaiAudio = document.getElementById('sekaiAudio');
+      var coverEl = document.getElementById('immersiveCover');
+      if (coverEl && sekaiAudio) {
+        coverEl.classList.toggle('spinning', !sekaiAudio.paused);
+      }
+
+        if (!dominantColors.length || lastCoverSrc !== sekaiCoverUrl) {
+          dominantColors = extractCoverColors();
+          lastCoverSrc = sekaiCoverUrl;
+        }
+      }
+
+      var cx = w / 2, cy = h / 2;
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
 
-      // Floating orbs
-      var orbCount = 6;
-      for (var i = 0; i < orbCount; i++) {
-        var hue = [328, 270, 195, 48, 162, 210][i];
-        var ox = w * (0.15 + 0.7 * ((Math.sin(time * 0.12 + i * 2.1) + 1) / 2));
-        var oy = h * (0.2 + 0.6 * ((Math.cos(time * 0.08 + i * 1.5) + 1) / 2));
-        var or = w * (0.06 + bass * 0.04 + Math.sin(time * 0.3 + i) * 0.01);
-        var grad = ctx.createRadialGradient(ox, oy, 0, ox, oy, or);
-        grad.addColorStop(0, 'hsla(' + hue + ', 55%, 78%, ' + (0.06 + bass * 0.08) + ')');
-        grad.addColorStop(1, 'hsla(' + hue + ', 45%, 72%, 0)');
-        ctx.beginPath();
-        ctx.arc(ox, oy, or, 0, Math.PI * 2);
-        ctx.fillStyle = grad;
-        ctx.fill();
+      // Ambient orbs
+      for (var oi = 0; oi < 6; oi++) {
+        var oh = [328, 270, 195, 48, 162, 210][oi];
+        var ox = w * (0.1 + 0.8 * ((Math.sin(time * 0.12 + oi * 2.1) + 1) / 2));
+        var oy = h * (0.15 + 0.7 * ((Math.cos(time * 0.08 + oi * 1.5) + 1) / 2));
+        var or2 = w * (0.04 + bass * 0.05 + Math.sin(time * 0.3 + oi) * 0.01);
+        var og = ctx.createRadialGradient(ox, oy, 0, ox, oy, or2);
+        og.addColorStop(0, 'hsla(' + oh + ',55%,78%,' + (0.05 + bass * 0.06) + ')');
+        og.addColorStop(1, 'hsla(' + oh + ',45%,72%,0)');
+        ctx.beginPath(); ctx.arc(ox, oy, or2, 0, Math.PI * 2);
+        ctx.fillStyle = og; ctx.fill();
+      }
+
+      // Viz
+      if (freqData && freqData.length > 0) {
+        if (vizMode === 'circle') drawCircle(ctx, w, h, cx, cy, freqData);
+        else if (vizMode === 'bars') drawBars(ctx, w, h, freqData);
+        else if (vizMode === 'wave') drawWave(ctx, w, h, timeData);
+        else if (vizMode === 'spectrum') drawSpectrum(ctx, w, h, freqData, bass);
       }
 
       // Bottom wave
-      var samples = 100;
-      var waveGrad = ctx.createLinearGradient(0, h * 0.6, w, h);
-      waveGrad.addColorStop(0, 'hsla(328, 50%, 72%, ' + (0.03 + bass * 0.05) + ')');
-      waveGrad.addColorStop(0.5, 'hsla(270, 48%, 75%, ' + (0.02 + bass * 0.04) + ')');
-      waveGrad.addColorStop(1, 'hsla(195, 50%, 72%, ' + (0.02 + bass * 0.03) + ')');
-      ctx.beginPath();
-      ctx.moveTo(0, h);
-      for (var s = 0; s <= samples; s++) {
-        var p = s / samples;
-        var f = 0;
+      var wg = ctx.createLinearGradient(0, h * 0.6, w, h);
+      wg.addColorStop(0, 'hsla(328,50%,72%,' + (0.03 + bass * 0.05) + ')');
+      wg.addColorStop(0.5, 'hsla(270,48%,75%,' + (0.02 + bass * 0.04) + ')');
+      wg.addColorStop(1, 'hsla(195,50%,72%,' + (0.02 + bass * 0.03) + ')');
+      ctx.beginPath(); ctx.moveTo(0, h);
+      for (var s = 0; s <= 100; s++) {
+        var p = s / 100, f = 0;
         if (freqData) {
           var idx = Math.min(freqData.length - 1, Math.floor(Math.pow(p, 1.8) * (freqData.length - 1)));
           f = freqData[idx] / 255;
         }
-        var waveY = Math.sin(p * Math.PI * 2.5 + time * 0.4) * h * 0.012;
-        ctx.lineTo(p * w, h * 0.88 - f * h * 0.12 + waveY);
+        ctx.lineTo(p * w, h * 0.88 - f * h * 0.12 + Math.sin(p * Math.PI * 2.5 + time * 0.4) * h * 0.012);
       }
-      ctx.lineTo(w, h);
-      ctx.closePath();
-      ctx.fillStyle = waveGrad;
-      ctx.globalAlpha = 0.3;
-      ctx.fill();
-      ctx.globalAlpha = 1;
+      ctx.lineTo(w, h); ctx.closePath();
+      ctx.fillStyle = wg; ctx.globalAlpha = 0.3; ctx.fill(); ctx.globalAlpha = 1;
 
       // Bubbles
       for (var b = 0; b < 10; b++) {
-        var seed = b * 137.508;
-        var bx = (Math.sin(seed) * 0.5 + 0.5) * w;
-        var speed = 0.2 + (b % 3) * 0.08;
-        var by = h - ((time * speed * 25 + b * 80) % (h * 0.85));
-        var bSize = (1.5 + (b % 3) + bass * 2.5) * dpr;
-        var bAlpha = (0.05 + bass * 0.08) * (1 - by / h);
-        var bHue = [328, 270, 195, 48][b % 4];
-        ctx.beginPath();
-        ctx.arc(bx, by, bSize, 0, Math.PI * 2);
-        ctx.fillStyle = 'hsla(' + bHue + ', 55%, 78%, ' + bAlpha + ')';
+        var bx = (Math.sin(b * 137.508) * 0.5 + 0.5) * w;
+        var by = h - ((time * (0.2 + (b % 3) * 0.08) * 25 + b * 80) % (h * 0.85));
+        var bs = (1.5 + (b % 3) + bass * 2.5) * dpr;
+        var ba = (0.05 + bass * 0.08) * (1 - by / h);
+        ctx.beginPath(); ctx.arc(bx, by, bs, 0, Math.PI * 2);
+        ctx.fillStyle = 'hsla(' + [328,270,195,48][b % 4] + ',55%,78%,' + ba + ')';
         ctx.fill();
       }
 
       ctx.restore();
-      vizFrame = requestAnimationFrame(drawAmbient);
     }
 
-    drawAmbient();
+    function drawCircle(ctx, w, h, cx, cy, freqData) {
+      var n = freqData.length;
+      var cr = Math.min(w, h) * 0.18;
+      var ov = Math.max(2, Math.floor(n * 0.06));
+      var sv = new Float32Array(ov);
+      for (var i = 0; i < n; i++) {
+        var ratio = i / n;
+        var raw = freqData[i] / 255 * (0.5 + Math.pow(ratio, 1.5));
+        var t = raw < 0.25 ? 0 : raw < 0.65 ? (raw - 0.25) * 2 : 0.8 + (raw - 0.65) * 0.6;
+        if (i < ov) sv[i] = t;
+        if (i >= n - ov) {
+          var pos = i - (n - ov), ds = sv[pos];
+          var tr = ov > 1 ? pos / (ov - 1) : 1;
+          var sm = tr * tr * (3 - 2 * tr);
+          t = t * (1 - sm) + ds * sm * (0.7 + 0.3 * Math.random());
+        }
+        var bh = 3 + t * Math.min(w, h) * 0.12;
+        var angle = ratio * Math.PI * 2 - Math.PI / 2;
+        var x1 = cx + Math.cos(angle) * cr, y1 = cy + Math.sin(angle) * cr;
+        var x2 = cx + Math.cos(angle) * (cr + bh), y2 = cy + Math.sin(angle) * (cr + bh);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.lineWidth = 3;
+        var c = getColor(ratio, freqData[i] / 255);
+        var g = ctx.createLinearGradient(x1, y1, x2, y2);
+        g.addColorStop(0, 'hsla(' + c.h + ',' + c.s + '%,' + c.l1 + '%,0.6)');
+        g.addColorStop(1, 'hsla(' + c.h + ',' + c.s + '%,' + c.l2 + '%,0.95)');
+        ctx.strokeStyle = g; ctx.lineCap = 'round'; ctx.stroke();
+      }
+    }
+
+    function drawBars(ctx, w, h, freqData) {
+      var n = Math.min(freqData.length, 64);
+      var bw = Math.max(3, (w * 0.8 / n));
+      var gap = (w * 0.8 - bw * n) / (n + 1);
+      var startX = w * 0.1;
+      var maxH = h * 0.35;
+      var baseY = h * 0.85;
+      for (var i = 0; i < n; i++) {
+        var ratio = i / n;
+        var val = Math.pow(freqData[i] / 255, 0.8);
+        var bh = val * maxH;
+        var x = startX + gap + i * (bw + gap);
+        var y = baseY - bh;
+        var c = getColor(ratio, freqData[i] / 255);
+        var g = ctx.createLinearGradient(x, baseY, x, y);
+        g.addColorStop(0, 'hsla(' + c.h + ',' + c.s + '%,' + c.l1 + '%,0.5)');
+        g.addColorStop(1, 'hsla(' + c.h + ',' + c.s + '%,' + c.l2 + '%,0.9)');
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(x, y, bw, bh, [bw / 2, bw / 2, 0, 0]);
+        else { ctx.moveTo(x + bw / 2, y); ctx.arcTo(x + bw, y, x + bw, y + bh, bw / 2); ctx.arcTo(x + bw, y + bh, x, y + bh, 0); ctx.arcTo(x, y + bh, x, y, 0); ctx.arcTo(x, y, x + bw, y, bw / 2); }
+        ctx.fillStyle = g; ctx.fill();
+        var g2 = ctx.createLinearGradient(x, baseY, x, baseY + bh * 0.3);
+        g2.addColorStop(0, 'hsla(' + c.h + ',' + c.s + '%,' + c.l1 + '%,0.15)');
+        g2.addColorStop(1, 'hsla(' + c.h + ',' + c.s + '%,' + c.l1 + '%,0)');
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(x, baseY, bw, bh * 0.3, [0, 0, bw / 2, bw / 2]);
+        ctx.fillStyle = g2; ctx.fill();
+      }
+    }
+
+    function drawWave(ctx, w, h, timeData) {
+      if (!timeData) return;
+      var sl = w / timeData.length, by = h * 0.5, amp = h * 0.25;
+      var layers = [
+        { c: dominantColors[0] || { h: 328, s: 60, l: 60 }, a: 0.6, lw: 3, off: 0 },
+        { c: dominantColors[1] || { h: 270, s: 60, l: 60 }, a: 0.35, lw: 2, off: 0.1 },
+        { c: dominantColors[2] || { h: 195, s: 60, l: 60 }, a: 0.2, lw: 1.5, off: -0.08 },
+      ];
+      var t = performance.now() * 0.001;
+      layers.forEach(function(l) {
+        ctx.beginPath();
+        for (var i = 0; i < timeData.length; i++) {
+          var v = (timeData[i] - 128) / 128;
+          var x = i * sl, y = by + v * amp + Math.sin(i * 0.02 + t * 2 + l.off * 20) * 8;
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = 'hsla(' + l.c.h + ',' + (l.c.s || 60) + '%,' + (l.c.l || 60) + '%,' + l.a + ')';
+        ctx.lineWidth = l.lw; ctx.lineCap = 'round'; ctx.stroke();
+      });
+      ctx.beginPath(); ctx.moveTo(0, by);
+      for (var i = 0; i < timeData.length; i++) {
+        ctx.lineTo(i * sl, by + (timeData[i] - 128) / 128 * amp);
+      }
+      ctx.lineTo(w, by); ctx.closePath();
+      var mh = (dominantColors[0] || { h: 328 }).h;
+      var gg = ctx.createLinearGradient(0, by - amp, 0, by + amp);
+      gg.addColorStop(0, 'hsla(' + mh + ',60%,60%,0.12)');
+      gg.addColorStop(0.5, 'hsla(' + mh + ',50%,50%,0.06)');
+      gg.addColorStop(1, 'hsla(' + mh + ',50%,60%,0)');
+      ctx.fillStyle = gg; ctx.fill();
+    }
+
+    function drawSpectrum(ctx, w, h, freqData, bass) {
+      if (!freqData) return;
+      var barCount = Math.min(freqData.length, 128);
+      var barW = Math.max(1, (w * 0.85) / barCount);
+      var gap = (w * 0.85 - barW * barCount) / (barCount + 1);
+      var startX = w * 0.075;
+      var maxH = h * 0.6;
+      var baseY = h * 0.82;
+
+      for (var i = 0; i < barCount; i++) {
+        var ratio = i / barCount;
+        var rawVal = freqData[i] / 255;
+        var val = Math.pow(rawVal, 0.7);
+        var barH = val * maxH;
+        var x = startX + gap + i * (barW + gap);
+        var y = baseY - barH;
+
+        var c = getColor(ratio, rawVal);
+        var g = ctx.createLinearGradient(x, baseY, x, y);
+        g.addColorStop(0, 'hsla(' + c.h + ',' + c.s + '%,' + c.l1 + '%,0.3)');
+        g.addColorStop(0.5, 'hsla(' + c.h + ',' + c.s + '%,' + ((c.l1 + c.l2) / 2) + '%,0.7)');
+        g.addColorStop(1, 'hsla(' + c.h + ',' + c.s + '%,' + c.l2 + '%,0.95)');
+
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(x, y, barW, barH, [barW * 0.4, barW * 0.4, 0, 0]);
+        else { ctx.moveTo(x + barW * 0.4, y); ctx.arcTo(x + barW, y, x + barW, y + barH, barW * 0.4); ctx.arcTo(x + barW, y + barH, x, y + barH, 0); ctx.arcTo(x, y + barH, x, y, 0); ctx.arcTo(x, y, x + barW, y, barW * 0.4); }
+        ctx.fillStyle = g;
+        ctx.fill();
+
+        // Top cap dot
+        if (barH > 4) {
+          ctx.beginPath();
+          ctx.arc(x + barW / 2, y, barW * 0.35, 0, Math.PI * 2);
+          ctx.fillStyle = 'hsla(' + c.h + ',' + c.s + '%,' + c.l2 + '%,0.9)';
+          ctx.fill();
+        }
+
+        // Mirror reflection
+        var rg = ctx.createLinearGradient(x, baseY, x, baseY + barH * 0.25);
+        rg.addColorStop(0, 'hsla(' + c.h + ',' + c.s + '%,' + c.l1 + '%,0.12)');
+        rg.addColorStop(1, 'hsla(' + c.h + ',' + c.s + '%,' + c.l1 + '%,0)');
+        ctx.beginPath();
+        if (ctx.roundRect) ctx.roundRect(x, baseY, barW, barH * 0.25, [0, 0, barW * 0.4, barW * 0.4]);
+        ctx.fillStyle = rg;
+        ctx.fill();
+      }
+
+      // Glow line at base
+      var lineGrad = ctx.createLinearGradient(0, 0, w, 0);
+      lineGrad.addColorStop(0, 'hsla(' + (dominantColors[0]?.h || 328) + ',50%,60%,0)');
+      lineGrad.addColorStop(0.5, 'hsla(' + (dominantColors[0]?.h || 328) + ',50%,60%,0.3)');
+      lineGrad.addColorStop(1, 'hsla(' + (dominantColors[0]?.h || 328) + ',50%,60%,0)');
+      ctx.beginPath();
+      ctx.moveTo(startX, baseY);
+      ctx.lineTo(startX + barCount * (barW + gap), baseY);
+      ctx.strokeStyle = lineGrad;
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    draw();
   })();
   </script>
 </BaseLayout>
