@@ -64,6 +64,35 @@
         </div>
       </div>
 
+      <div class="sekai-import-bar">
+        <button id="sekaiLocalImport" class="sekai-import-btn" type="button" title="添加本地音乐">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>本地音乐</span>
+        </button>
+        <input type="file" id="sekaiLocalFileInput" accept="audio/*" multiple hidden />
+        <button id="sekaiOnlineImport" class="sekai-import-btn" type="button" title="导入在线歌单">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>在线歌单</span>
+        </button>
+        <button id="sekaiClearImported" class="sekai-import-btn sekai-import-clear" type="button" title="清空所有导入歌曲">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span>清空</span>
+        </button>
+      </div>
+
+      <div id="sekaiOnlinePanel" class="sekai-online-panel" style="display:none">
+        <div class="sekai-online-tabs">
+          <button class="sekai-online-tab active" data-platform="netease">网易云</button>
+          <button class="sekai-online-tab" data-platform="qq">QQ音乐</button>
+        </div>
+        <div class="sekai-online-input-row">
+          <input id="sekaiPlaylistUrl" class="sekai-online-input" type="text" placeholder="粘贴歌单链接或ID" autocomplete="off" />
+          <button id="sekaiPlaylistFetch" class="sekai-online-fetch" type="button">导入</button>
+        </div>
+        <div id="sekaiOnlineStatus" class="sekai-online-status"></div>
+        <button id="sekaiOnlineClose" class="sekai-online-close" type="button">收起</button>
+      </div>
+
       <div class="sekai-playlist-label">
         <span>播放列表</span>
         <span id="sekaiTrackCount">0</span>
@@ -962,6 +991,166 @@
   font-weight: 800;
   letter-spacing: 0;
 }
+
+/* ===== Import Bar ===== */
+.sekai-import-bar {
+  display: flex;
+  gap: 6px;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+.sekai-import-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 7px 0;
+  border: 1px dashed rgba(255,255,255,0.18);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.55);
+  font-size: .72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .18s;
+}
+
+.sekai-import-btn:hover {
+  border-color: rgba(255,107,157,0.4);
+  color: #FF6B9D;
+  background: rgba(255,107,157,0.08);
+}
+
+.sekai-import-clear:hover {
+  border-color: rgba(255,100,100,0.4);
+  color: #ff6464;
+  background: rgba(255,100,100,0.08);
+}
+
+.sekai-import-btn svg {
+  flex-shrink: 0;
+}
+
+/* ===== Online Import Panel ===== */
+.sekai-online-panel {
+  margin: 0 2px 4px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+}
+
+.sekai-online-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.sekai-online-tab {
+  flex: 1;
+  padding: 5px 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: rgba(255,255,255,0.45);
+  font-size: .72rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all .15s;
+}
+
+.sekai-online-tab.active {
+  background: rgba(255,107,157,0.15);
+  color: #FF6B9D;
+}
+
+.sekai-online-tab:hover:not(.active) {
+  color: rgba(255,255,255,0.7);
+}
+
+.sekai-online-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.sekai-online-input {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(0,0,0,0.2);
+  color: #fff;
+  font-size: .78rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color .15s;
+}
+
+.sekai-online-input:focus {
+  border-color: rgba(255,107,157,0.4);
+}
+
+.sekai-online-input::placeholder {
+  color: rgba(255,255,255,0.3);
+}
+
+.sekai-online-fetch {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #FF6B9D, #A78BFA);
+  color: #fff;
+  font-size: .75rem;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity .15s;
+  white-space: nowrap;
+}
+
+.sekai-online-fetch:hover {
+  opacity: .85;
+}
+
+.sekai-online-fetch:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.sekai-online-status {
+  margin-top: 6px;
+  font-size: .7rem;
+  color: rgba(255,255,255,0.45);
+  min-height: 14px;
+}
+
+.sekai-online-status.error {
+  color: #ff6b6b;
+}
+
+.sekai-online-close {
+  display: block;
+  width: 100%;
+  margin-top: 6px;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.35);
+  font-size: .68rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color .15s;
+}
+
+.sekai-online-close:hover {
+  color: rgba(255,255,255,0.6);
+}
+
 .sekai-playlist-label {
   display: flex;
   flex: 0 0 auto;
@@ -1043,6 +1232,29 @@
   background: linear-gradient(135deg,rgba(255,93,168,0.38),rgba(30,216,255,0.3));
   color: #fff;
   box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 10px 24px rgba(255,93,168,0.22);
+}
+:global(.sekai-pl-del) {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: rgba(255,255,255,0.3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  flex-shrink: 0;
+  opacity: 0;
+  transition: opacity .15s, color .15s, background .15s;
+}
+:global(.sekai-playlist-item:hover .sekai-pl-del) {
+  opacity: 1;
+}
+:global(.sekai-pl-del:hover) {
+  color: #ff6464;
+  background: rgba(255,100,100,0.12);
 }
 :global(.sekai-pl-cover-img) {
   display: block;
@@ -1481,13 +1693,14 @@
   window.__sekaiPlayerInit = true;
 
   var MASTER_BASE = 'https://sekai-world.github.io/sekai-master-db-diff';
-  var ASSET_BASE = 'https://storage.sekai.best/sekai-jp-assets';
+  var ASSET_BASE = 'https://music-proxy-3e4.pages.dev/api/asset?path=';
   var STORAGE_KEY = 'sekai_player_v3';
   var MAX_RENDERED_TRACKS = 140;
   var DEFAULT_START_OFFSET = 8;
 
   var TAG_ORDER = [
     'all',
+    'imported',
     'vocaloid',
     'light_music_club',
     'idol',
@@ -1498,6 +1711,7 @@
   ];
   var TAG_LABELS = {
     all: '全部',
+    imported: '导入歌单',
     vocaloid: 'Virtual Singer',
     light_music_club: 'Leo/need',
     idol: 'MORE MORE JUMP!',
@@ -1903,6 +2117,20 @@
       info.appendChild(sub);
       item.appendChild(icon);
       item.appendChild(info);
+
+      if (song.source && song.source !== 'sekai') {
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.className = 'sekai-pl-del';
+        del.title = '删除';
+        del.textContent = '\u00d7';
+        del.addEventListener('click', function(event) {
+          event.stopPropagation();
+          deleteSong(song.id);
+        });
+        item.appendChild(del);
+      }
+
       item.addEventListener('click', function(event) {
         event.stopPropagation();
         selectSong(song, true);
@@ -2000,7 +2228,11 @@
   }
 
   function setAudioSource(autoPlay, startTime) {
-    if (!currentSong || !currentVocal) return;
+    if (!currentSong) return;
+    if (!currentVocal && currentSong.vocals && currentSong.vocals.length) {
+      currentVocal = currentSong.vocals[0];
+    }
+    if (!currentVocal) return;
     var initialTime = getInitialStartTime(startTime);
     var didFinishSourceLoad = false;
 
@@ -2008,6 +2240,7 @@
       if (didFinishSourceLoad) return;
       didFinishSourceLoad = true;
       audio.removeEventListener('loadedmetadata', onMeta);
+      audio.removeEventListener('canplay', onCanPlay);
       audio.removeEventListener('error', onSourceError);
       isRestoring = false;
       if (shouldPlay && autoPlay) play();
@@ -2018,6 +2251,21 @@
     }
 
     function onMeta() {
+      // Wait for canplay to ensure duration is available
+      if (!audio.duration || !isFinite(audio.duration)) {
+        audio.addEventListener('canplay', onCanPlay, { once: true });
+        return;
+      }
+      seekToStart();
+      finishSourceLoad(true);
+    }
+
+    function onCanPlay() {
+      seekToStart();
+      finishSourceLoad(true);
+    }
+
+    function seekToStart() {
       var targetTime = audio.duration && initialTime < audio.duration - 0.5 ? initialTime : 0;
       if (targetTime) {
         try {
@@ -2026,7 +2274,6 @@
           progressBar.value = (targetTime / audio.duration) * 100;
         } catch (error) {}
       }
-      finishSourceLoad(true);
     }
 
     isRestoring = true;
@@ -2042,6 +2289,7 @@
   }
 
   function getInitialStartTime(startTime) {
+    if (currentSong && currentSong.source && currentSong.source !== 'sekai') return 0;
     if (typeof startTime === 'number' && isFinite(startTime) && startTime > DEFAULT_START_OFFSET) return startTime;
     return DEFAULT_START_OFFSET;
   }
@@ -2085,16 +2333,22 @@
   }
 
   function getAudioUrl(vocal) {
+    if (vocal.sourceUrl) return vocal.sourceUrl;
+    if (currentSong && currentSong.localUrl) return currentSong.localUrl;
     var bundle = vocal.assetbundleName;
+    var path;
     if (playbackMode === 'long') {
-      return ASSET_BASE + '/music/long/' + bundle + '/' + bundle + '.mp3';
+      path = '/music/long/' + bundle + '/' + bundle + '.mp3';
+    } else {
+      var shortFormat = audio.canPlayType('audio/flac') ? 'flac' : 'wav';
+      path = '/music/short/' + bundle + '/' + bundle + '_short.' + shortFormat;
     }
-    var shortFormat = audio.canPlayType('audio/flac') ? 'flac' : 'wav';
-    return ASSET_BASE + '/music/short/' + bundle + '/' + bundle + '_short.' + shortFormat;
+    return ASSET_BASE + encodeURIComponent(path);
   }
 
   function getJacketUrl(song) {
-    return ASSET_BASE + '/music/jacket/' + song.jacketBundle + '/' + song.jacketBundle + '.webp';
+    var path = '/music/jacket/' + song.jacketBundle + '/' + song.jacketBundle + '.webp';
+    return ASSET_BASE + encodeURIComponent(path);
   }
 
   function getVocalBaseLabel(vocal) {
@@ -2549,7 +2803,6 @@
     var transient = Math.max(0, rawBass - (visualizerLevels.cdRawBass || 0) * 0.92);
     visualizerLevels.cdRawBass = rawBass;
     var bass = smoothLevel('cdBass', rawBass, 0.72);
-    var mid = smoothLevel('cdMid', getBandAverage(0.13, 0.55), 0.82);
     var high = smoothLevel('cdHigh', getBandAverage(0.55, 1), 0.85);
     var beat = smoothLevel('cdBeat', Math.min(1, bass * 0.6 + transient * 2.2), 0.62);
 
@@ -2559,39 +2812,212 @@
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
-    // Circular spectrum bars around CD
-    var barCount = 64;
-    var innerRadius = size * (0.41 + beat * 0.002);
-    var maxBarH = size * 0.12;
-    var barW = Math.max(1, size * 0.012);
+    // Re-extract colors when cover changes
+    if (!visualizerLevels.dominantColors || visualizerLevels.lastCoverSrc !== (coverImg && coverImg.src)) {
+      visualizerLevels.dominantColors = extractCoverColors();
+      visualizerLevels.lastCoverSrc = coverImg ? coverImg.src : '';
+    }
+
+    var colors = visualizerLevels.dominantColors;
+    var useExtracted = colors.length > 0;
+
+    var barCount = frequencyData ? frequencyData.length : 128;
+    var coverRadius = size * 0.4;
+    var minBarH = 5;
+    var maxBarH = 80;
+    var overlap = Math.max(2, Math.floor(barCount * 0.06));
+    var overlapThreshold = barCount - overlap;
+    var startValues = new Float32Array(overlap);
 
     for (var i = 0; i < barCount; i++) {
-      var angle = (i / barCount) * Math.PI * 2 - Math.PI / 2;
-      var freqPos = i / barCount;
-      var freq = sampleFrequency(freqPos, 1.8);
-      var barH = freq * maxBarH;
-      barH = Math.max(barH, size * 0.003);
+      var ratio = i / barCount;
 
-      var hue = (270 + (i / barCount) * 140) % 360;
-      var alpha = 0.25 + freq * 0.45 + bass * 0.08;
+      // Frequency transform with power curve (matches 25ji exactly)
+      var rawVal = frequencyData ? frequencyData[i] / 255 : 0;
+      var transformed = rawVal * (0.5 + Math.pow(ratio, 1.5));
 
-      var x1 = cx + Math.cos(angle) * innerRadius;
-      var y1 = cy + Math.sin(angle) * innerRadius;
-      var x2 = cx + Math.cos(angle) * (innerRadius + barH);
-      var y2 = cy + Math.sin(angle) * (innerRadius + barH);
+      if (transformed < 0.25) {
+        transformed = 0;
+      } else if (transformed < 0.65) {
+        transformed = (transformed - 0.25) * 2.0;
+      } else {
+        transformed = 0.8 + (transformed - 0.65) * 0.6;
+      }
+
+      // Store start values for overlap blend
+      if (i < overlap) {
+        startValues[i] = transformed;
+      }
+
+      // Seamless circle blend at the seam
+      if (i >= overlapThreshold) {
+        var pos = i - overlapThreshold;
+        var dvStart = startValues[pos];
+        var tRaw = overlap > 1 ? pos / (overlap - 1) : 1;
+        var t = tRaw * tRaw * (3 - 2 * tRaw); // smoothstep
+        transformed = transformed * (1 - t) + dvStart * t * (0.7 + 0.3 * Math.random());
+      }
+
+      var barH = minBarH + transformed * (maxBarH - minBarH);
+      var angle = ratio * Math.PI * 2 - Math.PI / 2;
+
+      var x1 = cx + Math.cos(angle) * coverRadius;
+      var y1 = cy + Math.sin(angle) * coverRadius;
+      var x2 = cx + Math.cos(angle) * (coverRadius + barH);
+      var y2 = cy + Math.sin(angle) * (coverRadius + barH);
 
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
-      ctx.strokeStyle = 'hsla(' + hue + ', 60%, 78%, ' + alpha + ')';
-      ctx.lineWidth = barW;
+      ctx.lineWidth = 4;
+
+      var gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+
+      if (useExtracted) {
+        var rotOffset = (Date.now() * 0.0005) % colors.length;
+        var basePos = ratio * colors.length;
+        var colorPos = (basePos + rotOffset) % colors.length;
+        var ci = Math.floor(colorPos);
+        var ni = (ci + 1) % colors.length;
+        var blend = colorPos - ci;
+
+        var c1 = colors[ci];
+        var c2 = colors[ni];
+        var h = c1.h + (c2.h - c1.h) * blend;
+        var s = c1.s + (c2.s - c1.s) * blend;
+        var l = c1.l + (c2.l - c1.l) * blend;
+
+        var intensity = frequencyData ? frequencyData[i] / 255 : 0;
+        var lightness1 = Math.max(25, l - 15);
+        var lightness2 = Math.min(75, l + 15 + 15 * intensity);
+
+        gradient.addColorStop(0, 'hsla(' + h + ',' + s + '%,' + lightness1 + '%,0.6)');
+        gradient.addColorStop(1, 'hsla(' + h + ',' + s + '%,' + lightness2 + '%,0.95)');
+      } else {
+        var hue = (i * 360 / barCount + Date.now() * 0.05) % 360;
+        gradient.addColorStop(0, 'hsla(' + hue + ',70%,50%,0.4)');
+        gradient.addColorStop(1, 'hsla(' + hue + ',80%,60%,0.8)');
+      }
+
+      ctx.strokeStyle = gradient;
       ctx.lineCap = 'round';
-      ctx.shadowBlur = size * 0.015;
-      ctx.shadowColor = 'hsla(' + hue + ', 60%, 78%, 0.25)';
       ctx.stroke();
     }
 
     ctx.restore();
+  }
+
+  function extractCoverColors() {
+    try {
+      var img = coverImg;
+      if (!img || !img.complete || !img.naturalWidth || !img.src) return [];
+
+      var tempCanvas = document.createElement('canvas');
+      var tempCtx = tempCanvas.getContext('2d');
+      var sz = 50;
+      tempCanvas.width = sz;
+      tempCanvas.height = sz;
+      tempCtx.drawImage(img, 0, 0, sz, sz);
+      var imageData = tempCtx.getImageData(0, 0, sz, sz);
+      var pixels = imageData.data;
+
+      var colorMap = {};
+      var totalSaturation = 0;
+      var sampleCount = 0;
+
+      for (var p = 0; p < pixels.length; p += 40) {
+        var r = pixels[p];
+        var g = pixels[p + 1];
+        var b = pixels[p + 2];
+        var a = pixels[p + 3];
+
+        // Skip transparent, very dark, very bright pixels
+        if (a < 128) continue;
+        if ((r < 15 && g < 15 && b < 15) || (r > 240 && g > 240 && b > 240)) continue;
+
+        var max = Math.max(r, g, b);
+        var min = Math.min(r, g, b);
+        var s = max === 0 ? 0 : ((max - min) / max) * 100;
+        var l = (max + min) / 2 / 255 * 100;
+
+        totalSaturation += s;
+        sampleCount++;
+
+        if (s < 20) continue;
+
+        var h = 0;
+        if (max === r) h = ((g - b) / (max - min)) * 60;
+        else if (max === g) h = 120 + ((b - r) / (max - min)) * 60;
+        else h = 240 + ((r - g) / (max - min)) * 60;
+        if (h < 0) h += 360;
+
+        var hueKey = Math.round(h / 30) * 30;
+        if (!colorMap[hueKey]) colorMap[hueKey] = { h: h, s: s, l: l, count: 0 };
+        colorMap[hueKey].count++;
+        colorMap[hueKey].h = (colorMap[hueKey].h * (colorMap[hueKey].count - 1) + h) / colorMap[hueKey].count;
+        colorMap[hueKey].s = (colorMap[hueKey].s * (colorMap[hueKey].count - 1) + s) / colorMap[hueKey].count;
+        colorMap[hueKey].l = (colorMap[hueKey].l * (colorMap[hueKey].count - 1) + l) / colorMap[hueKey].count;
+      }
+
+      // Monochrome check
+      var avgSat = sampleCount > 0 ? totalSaturation / sampleCount : 0;
+      if (avgSat < 15) {
+        return [
+          { h: 0, s: 0, l: 30 }, { h: 0, s: 0, l: 45 },
+          { h: 0, s: 0, l: 60 }, { h: 0, s: 0, l: 75 }
+        ];
+      }
+
+      var colorList = Object.values(colorMap).sort(function(a, b) { return b.count - a.count; });
+      if (colorList.length === 0) return [];
+
+      var dominant = colorList[0];
+      var totalCount = colorList.reduce(function(a, c) { return a + c.count; }, 0);
+
+      // Hue variance
+      var hueVariance = 0;
+      for (var c = 0; c < colorList.length; c++) {
+        var diff = Math.abs(colorList[c].h - dominant.h);
+        hueVariance += Math.min(diff, 360 - diff) * colorList[c].count;
+      }
+      hueVariance = totalCount > 0 ? hueVariance / totalCount : 0;
+
+      if (hueVariance < 30) {
+        return [
+          { h: dominant.h, s: Math.max(dominant.s, 60), l: 35 },
+          { h: dominant.h, s: Math.max(dominant.s, 60), l: 50 },
+          { h: dominant.h, s: Math.max(dominant.s, 60), l: 65 },
+          { h: dominant.h, s: Math.max(dominant.s, 60), l: 75 }
+        ];
+      }
+
+      // Sort by hue for smooth gradient
+      var top = colorList.slice(0, 8).map(function(c) {
+        return { h: c.h, s: Math.max(c.s, 50), l: Math.min(Math.max(c.l, 40), 70) };
+      });
+      return sortColorsForGradient(top);
+    } catch (e) {
+      return [];
+    }
+  }
+
+  function sortColorsForGradient(colors) {
+    if (colors.length <= 1) return colors;
+    var sorted = colors.slice().sort(function(a, b) { return a.h - b.h; });
+
+    var maxGap = 0;
+    var maxGapIdx = 0;
+    for (var i = 0; i < sorted.length; i++) {
+      var cur = sorted[i].h;
+      var nxt = sorted[(i + 1) % sorted.length].h;
+      var gap = i === sorted.length - 1 ? (360 - cur + nxt) : (nxt - cur);
+      if (gap > maxGap) { maxGap = gap; maxGapIdx = i; }
+    }
+
+    if (maxGap > 60) {
+      return sorted.slice(maxGapIdx + 1).concat(sorted.slice(0, maxGapIdx + 1));
+    }
+    return sorted;
   }
 
   function drawDockVisualizer(canvas) {
@@ -2603,29 +3029,32 @@
     var cx = width / 2;
     var cy = height / 2;
     var size = Math.min(width, height);
-    var time = performance.now() * 0.001;
+    var time = Date.now() * 0.0005;
     var bass = smoothLevel('dockBass', getBandAverage(0, 0.15), 0.78);
-    var mid = smoothLevel('dockMid', getBandAverage(0.15, 0.6), 0.84);
-    var high = smoothLevel('dockHigh', getBandAverage(0.6, 1), 0.88);
 
     ctx.save();
     ctx.globalCompositeOperation = 'lighter';
 
-    // Circular spectrum bars
+    var colors = visualizerLevels.dominantColors || [];
+    var useExtracted = colors.length > 0;
+
     var barCount = 48;
     var innerR = size * 0.42;
+    var minBarH = 2;
     var maxBarH = size * 0.2;
-    var barW = Math.max(1.5, size * 0.022);
 
     for (var i = 0; i < barCount; i++) {
-      var angle = (i / barCount) * Math.PI * 2 - Math.PI / 2;
-      var freqPos = i / barCount;
-      var freq = sampleFrequency(freqPos, 1.8);
-      var barH = freq * maxBarH;
-      barH = Math.max(barH, size * 0.005);
+      var ratio = i / barCount;
+      var angle = ratio * Math.PI * 2 - Math.PI / 2;
 
-      var hue = (270 + (i / barCount) * 120 + time * 20) % 360;
-      var alpha = 0.2 + freq * 0.5;
+      var rawFreq = sampleFrequency(ratio, 1.32);
+      var transformed;
+      if (rawFreq < 0.25) transformed = 0;
+      else if (rawFreq < 0.65) transformed = (rawFreq - 0.25) * 2.0;
+      else transformed = 0.8 + (rawFreq - 0.65) * 0.6;
+      var freq = smoothLevel('dockBar' + i, transformed, transformed > (visualizerLevels['dockBar' + i] || 0) ? 0.24 : 0.66);
+
+      var barH = minBarH + freq * (maxBarH - minBarH);
 
       var x1 = cx + Math.cos(angle) * innerR;
       var y1 = cy + Math.sin(angle) * innerR;
@@ -2635,18 +3064,38 @@
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
-      ctx.strokeStyle = 'hsla(' + hue + ', 65%, 76%, ' + alpha + ')';
-      ctx.lineWidth = barW;
+      ctx.lineWidth = 3;
+
+      if (useExtracted) {
+        var rotOffset = time % colors.length;
+        var colorPos = (ratio * colors.length + rotOffset) % colors.length;
+        var ci = Math.floor(colorPos);
+        var ni = (ci + 1) % colors.length;
+        var blend = colorPos - ci;
+        var c1 = colors[ci];
+        var c2 = colors[ni];
+        var h = c1.h + (c2.h - c1.h) * blend;
+        var s = c1.s + (c2.s - c1.s) * blend;
+        var baseL = c1.l + (c2.l - c1.l) * blend;
+        var l2 = Math.min(75, baseL + 15 + 15 * freq);
+
+        var gradient = ctx.createLinearGradient(x1, y1, x2, y2);
+        gradient.addColorStop(0, 'hsla(' + h + ',' + s + '%,' + Math.max(25, baseL - 15) + '%,0.6)');
+        gradient.addColorStop(1, 'hsla(' + h + ',' + s + '%,' + l2 + '%,0.95)');
+        ctx.strokeStyle = gradient;
+      } else {
+        var hue = (ratio * 360 + time * 30) % 360;
+        ctx.strokeStyle = 'hsla(' + hue + ', 70%, 65%, 0.8)';
+      }
+
       ctx.lineCap = 'round';
-      ctx.shadowBlur = size * 0.02;
-      ctx.shadowColor = 'hsla(' + hue + ', 65%, 76%, 0.3)';
       ctx.stroke();
     }
 
     // Inner glow ring
     ctx.beginPath();
     ctx.arc(cx, cy, innerR, 0, Math.PI * 2);
-    ctx.strokeStyle = 'hsla(270, 50%, 78%, ' + (0.08 + mid * 0.12) + ')';
+    ctx.strokeStyle = 'hsla(270, 50%, 78%, ' + (0.08 + bass * 0.12) + ')';
     ctx.lineWidth = Math.max(1, size * 0.01);
     ctx.shadowBlur = size * 0.04;
     ctx.shadowColor = 'hsla(270, 60%, 78%, ' + (0.15 + bass * 0.15) + ')';
@@ -2877,6 +3326,196 @@
     if (!event.target.closest('.sekai-vol-wrap')) volPopover.classList.remove('open');
     event.stopPropagation();
   });
+
+  /* ===== Local & Online Import ===== */
+  var localImportBtn = document.getElementById('sekaiLocalImport');
+  var localFileInput = document.getElementById('sekaiLocalFileInput');
+  var onlineImportBtn = document.getElementById('sekaiOnlineImport');
+  var onlinePanel = document.getElementById('sekaiOnlinePanel');
+  var onlineClose = document.getElementById('sekaiOnlineClose');
+  var playlistUrlInput = document.getElementById('sekaiPlaylistUrl');
+  var playlistFetchBtn = document.getElementById('sekaiPlaylistFetch');
+  var onlineStatus = document.getElementById('sekaiOnlineStatus');
+  var onlineTabs = document.querySelectorAll('.sekai-online-tab');
+  var selectedPlatform = 'netease';
+
+  // Local file import
+  if (localImportBtn && localFileInput) {
+    localImportBtn.addEventListener('click', function() { localFileInput.click(); });
+    localFileInput.addEventListener('change', function() {
+      if (!this.files || !this.files.length) return;
+      var files = Array.from(this.files);
+      files.forEach(function(file) {
+        var url = URL.createObjectURL(file);
+        var name = file.name.replace(/\.[^.]+$/, '');
+        songs.push({
+          id: 'local_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
+          title: name,
+          composer: '本地音乐',
+          jacketBundle: null,
+          source: 'local',
+          tags: ['imported'],
+          localUrl: url,
+          vocals: [{ id: 'local', name: '原始音频', sourceUrl: url }]
+        });
+      });
+      filteredSongs = songs.slice();
+      renderPlaylist();
+      statusEl.textContent = '已添加 ' + files.length + ' 首本地歌曲';
+      this.value = '';
+    });
+  }
+
+  // Online import panel toggle
+  if (onlineImportBtn && onlinePanel) {
+    onlineImportBtn.addEventListener('click', function() {
+      onlinePanel.style.display = onlinePanel.style.display === 'none' ? 'block' : 'none';
+    });
+  }
+  if (onlineClose && onlinePanel) {
+    onlineClose.addEventListener('click', function() {
+      onlinePanel.style.display = 'none';
+    });
+  }
+
+  // Platform tab switch
+  onlineTabs.forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      onlineTabs.forEach(function(t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      selectedPlatform = tab.dataset.platform;
+      playlistUrlInput.placeholder = selectedPlatform === 'netease'
+        ? '粘贴网易云歌单链接或输入歌单ID'
+        : '粘贴QQ音乐歌单链接或输入歌单ID';
+    });
+  });
+
+  // Online playlist fetch
+  if (playlistFetchBtn && playlistUrlInput) {
+    playlistFetchBtn.addEventListener('click', function() {
+      var raw = playlistUrlInput.value.trim();
+      if (!raw) { onlineStatus.textContent = '请输入歌单链接或ID'; onlineStatus.className = 'sekai-online-status error'; return; }
+
+      var playlistId = extractPlaylistId(raw, selectedPlatform);
+      if (!playlistId) { onlineStatus.textContent = '无法识别歌单ID，请检查输入'; onlineStatus.className = 'sekai-online-status error'; return; }
+
+      playlistFetchBtn.disabled = true;
+      onlineStatus.textContent = '正在获取歌单...';
+      onlineStatus.className = 'sekai-online-status';
+
+      if (selectedPlatform === 'netease') {
+        fetchNeteasePlaylist(playlistId, function(tracks, error) {
+          playlistFetchBtn.disabled = false;
+          if (error) { onlineStatus.textContent = error; onlineStatus.className = 'sekai-online-status error'; return; }
+          addOnlineTracks(tracks, 'netease');
+          onlineStatus.textContent = '已导入 ' + tracks.length + ' 首歌曲';
+        });
+      } else {
+        fetchQQPlaylist(playlistId, function(tracks, error) {
+          playlistFetchBtn.disabled = false;
+          if (error) { onlineStatus.textContent = error; onlineStatus.className = 'sekai-online-status error'; return; }
+          addOnlineTracks(tracks, 'qq');
+          onlineStatus.textContent = '已导入 ' + tracks.length + ' 首歌曲';
+        });
+      }
+    });
+  }
+
+  function extractPlaylistId(input, platform) {
+    // Try to extract ID from URL
+    var idMatch = input.match(/(?:id=|\/playlist\/|detail\?id=)(\d+)/);
+    if (idMatch) return idMatch[1];
+    // Pure number
+    if (/^\d{5,}$/.test(input)) return input;
+    return null;
+  }
+
+  function addOnlineTracks(tracks, platform) {
+    tracks.forEach(function(track) {
+      songs.push({
+        id: platform + '_' + track.id,
+        title: track.title,
+        composer: track.artist || (platform === 'netease' ? '网易云音乐' : 'QQ音乐'),
+        jacketBundle: track.cover ? { single: track.cover } : null,
+        source: platform,
+        tags: ['imported'],
+        onlineId: track.id,
+        sourceUrl: track.url || '',
+        vocals: [{ id: platform + '_vocal', name: track.artist || '未知', sourceUrl: track.url || '' }]
+      });
+    });
+    applyFilters();
+  }
+
+  function deleteSong(songId) {
+    var idx = songs.findIndex(function(s) { return s.id === songId; });
+    if (idx < 0) return;
+    songs.splice(idx, 1);
+    if (currentSong && currentSong.id === songId) {
+      audio.pause();
+      currentSong = null;
+      currentVocal = null;
+      isPlaying = false;
+      updateNowPlaying();
+    }
+    applyFilters();
+  }
+
+  function clearImported() {
+    songs = songs.filter(function(s) { return !s.source || s.source === 'sekai'; });
+    if (currentSong && currentSong.source && currentSong.source !== 'sekai') {
+      audio.pause();
+      currentSong = null;
+      currentVocal = null;
+      isPlaying = false;
+      updateNowPlaying();
+    }
+    applyFilters();
+  }
+
+  var clearImportedBtn = document.getElementById('sekaiClearImported');
+  if (clearImportedBtn) {
+    clearImportedBtn.addEventListener('click', function() {
+      var count = songs.filter(function(s) { return s.source && s.source !== 'sekai'; }).length;
+      if (!count) return;
+      if (confirm('确定清空所有 ' + count + ' 首导入歌曲？')) {
+        clearImported();
+      }
+    });
+  }
+
+  function fetchNeteasePlaylist(playlistId, callback) {
+    var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
+    fetch(PROXY + 'netease-playlist?id=' + playlistId).then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }).then(function(data) {
+      if (!data.tracks || !data.tracks.length) { callback(null, '歌单为空或无法访问'); return; }
+      var ids = data.tracks.map(function(t) { return t.id; }).join(',');
+      return fetch(PROXY + 'netease-url?ids=' + ids).then(function(r) { return r.json(); }).then(function(urlData) {
+        (urlData.urls || []).forEach(function(u) {
+          var t = data.tracks.find(function(x) { return x.id === u.id; });
+          if (t && u.url) t.url = u.url;
+        });
+        callback(data.tracks);
+      }).catch(function() { callback(data.tracks); });
+    }).catch(function(e) {
+      callback(null, '请求失败: ' + e.message);
+    });
+  }
+
+  function fetchQQPlaylist(playlistId, callback) {
+    var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
+    fetch(PROXY + 'qq-playlist?id=' + playlistId).then(function(res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    }).then(function(data) {
+      if (!data.tracks || !data.tracks.length) { callback(null, '歌单为空或无法访问'); return; }
+      callback(data.tracks);
+    }).catch(function(e) {
+      callback(null, '请求失败: ' + e.message);
+    });
+  }
 
   renderPlaylist();
 })();
