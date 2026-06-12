@@ -105,9 +105,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .immersive-viz-mode.active { background: rgba(var(--accent-rgb), 0.2); color: var(--accent); }
   </style>
 
-  <script>
-  // @ts-nocheck
+  <script is:inline>
   (function() {
+    // Cancel previous animation frame (from prior page visit or re-navigation)
+    if (window.__immersiveVizFrame) {
+      cancelAnimationFrame(window.__immersiveVizFrame);
+      window.__immersiveVizFrame = 0;
+    }
+
     var canvas = document.getElementById('immersiveVizCanvas');
     var coverImg = document.getElementById('immersiveCoverImg');
     var toggleUIBtn = document.getElementById('immersiveToggleUI');
@@ -115,7 +120,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     var controlsPanel = document.getElementById('immersiveControls');
     if (!canvas) return;
 
-    var vizFrame = 0;
     var dominantColors = [];
     var lastCoverSrc = '';
     var vizMode = 'circle';
@@ -276,7 +280,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     function draw() {
-      vizFrame = requestAnimationFrame(draw);
+      window.__immersiveVizFrame = requestAnimationFrame(draw);
       var w = window.innerWidth;
       var h = window.innerHeight;
       var dpr = window.devicePixelRatio || 1;
@@ -548,6 +552,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     draw();
+
+    // Clean up animation frame when navigating away via ClientRouter
+    document.addEventListener('astro:before-swap', function() {
+      if (window.__immersiveVizFrame) {
+        cancelAnimationFrame(window.__immersiveVizFrame);
+        window.__immersiveVizFrame = 0;
+      }
+    });
   })();
   </script>
 </BaseLayout>

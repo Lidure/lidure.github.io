@@ -35,8 +35,7 @@ const DEFAULT_OPACITY = 0.22;
   data-default-opacity={String(DEFAULT_OPACITY)}
 >
   <div class="slideshow-layer" aria-hidden="true"></div>
-  <video class="slideshow-video" aria-hidden="true" muted loop playsinline preload="auto" webkit-playsinline x5-video-player-type="h5-page" x5-video-player-fullscreen="true"></video>
-  <div class="slideshow-video-overlay" aria-hidden="true"></div>
+  <canvas class="slideshow-canvas" aria-hidden="true"></canvas>
   <div class="slideshow-overlay" aria-hidden="true"></div>
 </div>
 
@@ -176,7 +175,7 @@ const DEFAULT_OPACITY = 0.22;
     opacity: 1;
   }
 
-  .slideshow-video {
+  .slideshow-canvas {
     position: absolute;
     inset: 0;
     width: 100%;
@@ -185,17 +184,11 @@ const DEFAULT_OPACITY = 0.22;
     opacity: 0;
     transition: opacity 1.5s ease-in-out;
     z-index: 1;
+    pointer-events: none;
   }
 
-  .slideshow-video.visible {
+  .slideshow-canvas.visible {
     opacity: 1;
-  }
-
-  .slideshow-video-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: auto;
   }
 
   .slideshow-overlay {
@@ -1028,6 +1021,9 @@ const DEFAULT_OPACITY = 0.22;
       document.removeEventListener('astro:page-load', _pageHandler);
       _pageHandler = null;
     }
+    // Clean up hidden video element
+    var oldVideo = document.getElementById('__hero_hidden_video');
+    if (oldVideo) { oldVideo.pause(); oldVideo.src = ''; oldVideo.remove(); }
     _destroyed = true;
   }
 
@@ -1088,11 +1084,43 @@ const DEFAULT_OPACITY = 0.22;
     var defOpacity = parseFloat(container.dataset.defaultOpacity || '0.22');
 
     var layer = container.querySelector('.slideshow-layer');
-    var videoEl = container.querySelector('.slideshow-video');
-    if (videoEl) videoEl.setAttribute('controlsList', 'nodownload noplaybackrate');
+    var canvasEl = container.querySelector('.slideshow-canvas');
+    // Hidden video element - never visible, just for decoding
+    var oldVideo = document.getElementById('__hero_hidden_video');
+    if (oldVideo) { oldVideo.pause(); oldVideo.src = ''; oldVideo.remove(); }
+    var videoEl = document.createElement('video');
+    videoEl.id = '__hero_hidden_video';
+    videoEl.muted = true;
+    videoEl.loop = true;
+    videoEl.playsInline = true;
+    videoEl.preload = 'auto';
+    videoEl.style.cssText = 'position:fixed;width:0;height:0;opacity:0;pointer-events:none;z-index:-1';
+    document.body.appendChild(videoEl);
+    var videoAnimFrame = null;
     var idx = 0;
     var currentSrc = '';
     var MAX_INLINE_VIDEO_BYTES = 50 * 1024 * 1024;
+
+    // Canvas rendering loop for video
+    function renderVideoFrame() {
+      if (!canvasEl || videoEl.paused || videoEl.ended) return;
+      var ctx = canvasEl.getContext('2d');
+      if (ctx) {
+        canvasEl.width = videoEl.videoWidth || canvasEl.width;
+        canvasEl.height = videoEl.videoHeight || canvasEl.height;
+        ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+      }
+      videoAnimFrame = requestAnimationFrame(renderVideoFrame);
+    }
+
+    function startVideoRender() {
+      if (videoAnimFrame) cancelAnimationFrame(videoAnimFrame);
+      renderVideoFrame();
+    }
+
+    function stopVideoRender() {
+      if (videoAnimFrame) { cancelAnimationFrame(videoAnimFrame); videoAnimFrame = null; }
+    }
 
     /* ===== State ===== */
     var state = {
@@ -1369,8 +1397,9 @@ const DEFAULT_OPACITY = 0.22;
     /* ===== Slideshow logic: handles both images and videos ===== */
     function hideAll() {
       layer.classList.remove('visible');
-      videoEl.classList.remove('visible');
+      if (canvasEl) canvasEl.classList.remove('visible');
       videoEl.pause();
+      stopVideoRender();
     }
 
     function showSlide(src) {
@@ -1378,18 +1407,24 @@ const DEFAULT_OPACITY = 0.22;
       var video = isVideo(src);
 
       if (!currentSrc) {
-        // First item: just fade in
         if (video) {
           layer.classList.remove('visible');
           layer.style.backgroundImage = '';
           videoEl.src = src;
-          videoEl.loop = true;
-          videoEl.muted = true;
-          videoEl.playsInline = true;
-          requestAnimationFrame(function() { videoEl.classList.add('visible'); });
-          videoEl.play().catch(function() {});
+          videoEl.onloadeddata = function() {
+            if (canvasEl) {
+              canvasEl.width = videoEl.videoWidth;
+              canvasEl.height = videoEl.videoHeight;
+            }
+            requestAnimationFrame(function() {
+              if (canvasEl) canvasEl.classList.add('visible');
+              videoEl.play().catch(function() {});
+              startVideoRender();
+            });
+          };
         } else {
-          videoEl.classList.remove('visible');
+          if (canvasEl) canvasEl.classList.remove('visible');
+          stopVideoRender();
           videoEl.pause();
           layer.style.backgroundImage = 'url("' + src + '")';
           requestAnimationFrame(function() { layer.classList.add('visible'); });
@@ -1398,26 +1433,29 @@ const DEFAULT_OPACITY = 0.22;
         return;
       }
 
-      // Fade out current first
       hideAll();
 
-      // After fade-out (800ms), swap and fade in
       setTimeout(function() {
         if (_destroyed) return;
 
         if (video) {
           layer.style.backgroundImage = '';
           videoEl.src = src;
-          videoEl.loop = true;
-          videoEl.muted = true;
-          videoEl.playsInline = true;
-          requestAnimationFrame(function() {
-            if (_destroyed) return;
-            videoEl.classList.add('visible');
-            videoEl.play().catch(function() {});
-          });
+          videoEl.onloadeddata = function() {
+            if (canvasEl) {
+              canvasEl.width = videoEl.videoWidth;
+              canvasEl.height = videoEl.videoHeight;
+            }
+            requestAnimationFrame(function() {
+              if (_destroyed) return;
+              if (canvasEl) canvasEl.classList.add('visible');
+              videoEl.play().catch(function() {});
+              startVideoRender();
+            });
+          };
         } else {
           videoEl.src = '';
+          stopVideoRender();
           layer.style.backgroundImage = 'url("' + src + '")';
           requestAnimationFrame(function() {
             if (_destroyed) return;
@@ -1442,10 +1480,8 @@ const DEFAULT_OPACITY = 0.22;
       var src = imgs[index % imgs.length];
 
       if (isVideo(src)) {
-        // For video, just show it directly (no preload check needed)
         showSlide(src);
       } else {
-        // Preload image before showing
         var img = new Image();
         img.onload = function() {
           if (!_destroyed) showSlide(img.src);
