@@ -40,4 +40,10 @@ if (el) el.textContent = `${g.emoji} ${g.text}`;
 [data-theme="light"] .greeting-text {
   color: var(--text);
 }
+
+@media (max-width: 720px) {
+  .greeting-text {
+    font-size: 0.95rem;
+  }
+}
 </style>

@@ -36,6 +36,7 @@ const DEFAULT_OPACITY = 0.22;
 >
   <div class="slideshow-layer" aria-hidden="true"></div>
   <canvas class="slideshow-canvas" aria-hidden="true"></canvas>
+  <video class="slideshow-video" id="slideshowVideo" muted loop playsinline preload="auto" aria-hidden="true"></video>
   <div class="slideshow-overlay" aria-hidden="true"></div>
 </div>
 
@@ -188,6 +189,22 @@ const DEFAULT_OPACITY = 0.22;
   }
 
   .slideshow-canvas.visible {
+    opacity: 1;
+  }
+
+  .slideshow-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .slideshow-video.visible {
     opacity: 1;
   }
 
@@ -839,6 +856,17 @@ const DEFAULT_OPACITY = 0.22;
     opacity: 1;
   }
 
+  @media (hover: none) {
+    :global(.media-card-del),
+    :global(.media-card-preview) {
+      opacity: 0.8;
+      min-width: 32px;
+      min-height: 32px;
+      width: 32px;
+      height: 32px;
+    }
+  }
+
   :global(.media-card:hover .media-card-preview) {
     opacity: 1;
   }
@@ -989,6 +1017,30 @@ const DEFAULT_OPACITY = 0.22;
       max-height: calc(100vh - 130px);
       border-radius: var(--radius-md);
     }
+
+    .settings-close {
+      width: 40px;
+      height: 40px;
+    }
+
+    .settings-close svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    :global(.media-grid) {
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 8px;
+    }
+
+    .url-add-btn {
+      padding: 10px 16px;
+      min-height: 40px;
+    }
+
+    .media-panel-body {
+      padding: 10px;
+    }
   }
 
   /* ===== Reduced motion ===== */
@@ -1021,9 +1073,9 @@ const DEFAULT_OPACITY = 0.22;
       document.removeEventListener('astro:page-load', _pageHandler);
       _pageHandler = null;
     }
-    // Clean up hidden video element
-    var oldVideo = document.getElementById('__hero_hidden_video');
-    if (oldVideo) { oldVideo.pause(); oldVideo.src = ''; oldVideo.remove(); }
+    // Pause the slideshow video (it's persisted, so don't remove it)
+    var sv = document.getElementById('slideshowVideo');
+    if (sv) { sv.pause(); sv.src = ''; sv.classList.remove('visible'); }
     _destroyed = true;
   }
 
@@ -1085,31 +1137,133 @@ const DEFAULT_OPACITY = 0.22;
 
     var layer = container.querySelector('.slideshow-layer');
     var canvasEl = container.querySelector('.slideshow-canvas');
-    // Hidden video element - never visible, just for decoding
-    var oldVideo = document.getElementById('__hero_hidden_video');
-    if (oldVideo) { oldVideo.pause(); oldVideo.src = ''; oldVideo.remove(); }
-    var videoEl = document.createElement('video');
-    videoEl.id = '__hero_hidden_video';
+    // Use the persistent <video> element directly (survives page transitions without stuttering)
+    var videoEl = document.getElementById('slideshowVideo');
+    if (!videoEl) {
+      videoEl = document.createElement('video');
+      videoEl.id = 'slideshowVideo';
+      videoEl.className = 'slideshow-video';
+      videoEl.muted = true;
+      videoEl.loop = true;
+      videoEl.playsInline = true;
+      videoEl.preload = 'auto';
+      container.appendChild(videoEl);
+    }
     videoEl.muted = true;
     videoEl.loop = true;
     videoEl.playsInline = true;
-    videoEl.preload = 'auto';
-    videoEl.style.cssText = 'position:fixed;width:0;height:0;opacity:0;pointer-events:none;z-index:-1';
-    document.body.appendChild(videoEl);
     var videoAnimFrame = null;
     var idx = 0;
     var currentSrc = '';
     var MAX_INLINE_VIDEO_BYTES = 50 * 1024 * 1024;
 
-    // Canvas rendering loop for video
+    /* ===== Video Cache (IndexedDB) ===== */
+    var VIDEO_CACHE_NAME = 'hero-video-cache';
+    var VIDEO_CACHE_VERSION = 1;
+    var videoCacheDB = null;
+
+    function openVideoCacheDB() {
+      if (videoCacheDB) return Promise.resolve(videoCacheDB);
+      return new Promise(function(resolve, reject) {
+        try {
+          var req = indexedDB.open(VIDEO_CACHE_NAME, VIDEO_CACHE_VERSION);
+          req.onupgradeneeded = function() {
+            var db = req.result;
+            if (!db.objectStoreNames.contains('videos')) {
+              db.createObjectStore('videos');
+            }
+          };
+          req.onsuccess = function() { videoCacheDB = req.result; resolve(videoCacheDB); };
+          req.onerror = function() { reject(req.error); };
+        } catch(e) { reject(e); }
+      });
+    }
+
+    function cacheGetVideo(url) {
+      return openVideoCacheDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          var tx = db.transaction('videos', 'readonly');
+          var store = tx.objectStore('videos');
+          var req = store.get(url);
+          req.onsuccess = function() { resolve(req.result || null); };
+          req.onerror = function() { resolve(null); };
+        });
+      });
+    }
+
+    function cachePutVideo(url, blob) {
+      return openVideoCacheDB().then(function(db) {
+        return new Promise(function(resolve, reject) {
+          var tx = db.transaction('videos', 'readwrite');
+          var store = tx.objectStore('videos');
+          var req = store.put(blob, url);
+          req.onsuccess = function() { resolve(); };
+          req.onerror = function() { resolve(); };
+        });
+      }).catch(function() {});
+    }
+
+    // In-memory blob URL cache (avoids re-creating blob URLs)
+    var blobUrlMap = {};
+
+    function fetchVideoCached(url) {
+      // Return existing blob URL if we already created one this session
+      if (blobUrlMap[url]) return Promise.resolve(blobUrlMap[url]);
+
+      // Try IndexedDB cache
+      return cacheGetVideo(url).then(function(blob) {
+        if (blob) {
+          var blobUrl = URL.createObjectURL(blob);
+          blobUrlMap[url] = blobUrl;
+          return blobUrl;
+        }
+        // Fetch from network, then cache
+        return fetch(url, { mode: 'cors' }).then(function(response) {
+          if (!response.ok) throw new Error('HTTP ' + response.status);
+          return response.blob();
+        }).then(function(newBlob) {
+          cachePutVideo(url, newBlob);
+          var blobUrl = URL.createObjectURL(newBlob);
+          blobUrlMap[url] = blobUrl;
+          return blobUrl;
+        });
+      });
+    }
+
+    // Preload a video into cache + create a warmed-up <video> element
+    var preloadedMap = {}; // src → { blobUrl, videoElement }
+
+    function preloadSlide(src) {
+      if (!src || !isVideo(src) || preloadedMap[src]) return;
+
+      fetchVideoCached(src).then(function(blobUrl) {
+        var vid = document.createElement('video');
+        vid.muted = true;
+        vid.loop = true;
+        vid.playsInline = true;
+        vid.preload = 'auto';
+        vid.src = blobUrl;
+        vid.load();
+        preloadedMap[src] = { blobUrl: blobUrl, video: vid };
+      }).catch(function() {});
+    }
+
+    // Canvas rendering loop for video (optimized: resize only when needed, cap resolution)
+    var _lastVW = 0, _lastVH = 0;
+    var MAX_CANVAS_DIM = 1280;
+
     function renderVideoFrame() {
       if (!canvasEl || videoEl.paused || videoEl.ended) return;
-      var ctx = canvasEl.getContext('2d');
-      if (ctx) {
-        canvasEl.width = videoEl.videoWidth || canvasEl.width;
-        canvasEl.height = videoEl.videoHeight || canvasEl.height;
-        ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+      var vw = videoEl.videoWidth, vh = videoEl.videoHeight;
+      if (vw > 0 && vh > 0 && (vw !== _lastVW || vh !== _lastVH)) {
+        // Cap resolution for performance (background doesn't need full HD)
+        var scale = Math.min(1, MAX_CANVAS_DIM / Math.max(vw, vh));
+        canvasEl.width = Math.round(vw * scale);
+        canvasEl.height = Math.round(vh * scale);
+        _lastVW = vw; _lastVH = vh;
       }
+      var ctx = canvasEl.getContext('2d');
+      if (ctx) ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
       videoAnimFrame = requestAnimationFrame(renderVideoFrame);
     }
 
@@ -1398,6 +1552,7 @@ const DEFAULT_OPACITY = 0.22;
     function hideAll() {
       layer.classList.remove('visible');
       if (canvasEl) canvasEl.classList.remove('visible');
+      videoEl.classList.remove('visible');
       videoEl.pause();
       stopVideoRender();
     }
@@ -1406,23 +1561,44 @@ const DEFAULT_OPACITY = 0.22;
       if (src === currentSrc) return;
       var video = isVideo(src);
 
-      if (!currentSrc) {
-        if (video) {
-          layer.classList.remove('visible');
-          layer.style.backgroundImage = '';
-          videoEl.src = src;
-          videoEl.onloadeddata = function() {
-            if (canvasEl) {
-              canvasEl.width = videoEl.videoWidth;
-              canvasEl.height = videoEl.videoHeight;
-            }
+      function applyVideo(videoSrc) {
+        layer.classList.remove('visible');
+        layer.style.backgroundImage = '';
+        if (canvasEl) canvasEl.classList.remove('visible');
+        // Use cached blob URL if available, otherwise fetch + cache
+        var srcPromise = preloadedMap[videoSrc]
+          ? Promise.resolve(preloadedMap[videoSrc].blobUrl)
+          : fetchVideoCached(videoSrc);
+
+        srcPromise.then(function(blobUrl) {
+          if (_destroyed) return;
+          videoEl.src = blobUrl;
+          videoEl.oncanplay = function() {
+            videoEl.oncanplay = null;
             requestAnimationFrame(function() {
-              if (canvasEl) canvasEl.classList.add('visible');
+              videoEl.classList.add('visible');
               videoEl.play().catch(function() {});
-              startVideoRender();
             });
           };
+        }).catch(function() {
+          // Fallback: load directly from original URL
+          if (_destroyed) return;
+          videoEl.src = videoSrc;
+          videoEl.oncanplay = function() {
+            videoEl.oncanplay = null;
+            requestAnimationFrame(function() {
+              videoEl.classList.add('visible');
+              videoEl.play().catch(function() {});
+            });
+          };
+        });
+      }
+
+      if (!currentSrc) {
+        if (video) {
+          applyVideo(src);
         } else {
+          videoEl.classList.remove('visible');
           if (canvasEl) canvasEl.classList.remove('visible');
           stopVideoRender();
           videoEl.pause();
@@ -1439,22 +1615,10 @@ const DEFAULT_OPACITY = 0.22;
         if (_destroyed) return;
 
         if (video) {
-          layer.style.backgroundImage = '';
-          videoEl.src = src;
-          videoEl.onloadeddata = function() {
-            if (canvasEl) {
-              canvasEl.width = videoEl.videoWidth;
-              canvasEl.height = videoEl.videoHeight;
-            }
-            requestAnimationFrame(function() {
-              if (_destroyed) return;
-              if (canvasEl) canvasEl.classList.add('visible');
-              videoEl.play().catch(function() {});
-              startVideoRender();
-            });
-          };
+          applyVideo(src);
         } else {
           videoEl.src = '';
+          videoEl.classList.remove('visible');
           stopVideoRender();
           layer.style.backgroundImage = 'url("' + src + '")';
           requestAnimationFrame(function() {
@@ -1493,6 +1657,12 @@ const DEFAULT_OPACITY = 0.22;
           }
         };
         img.src = src;
+      }
+
+      // Preload next slide's video in the background
+      if (imgs.length > 1) {
+        var nextSrc = imgs[(index + 1) % imgs.length];
+        if (isVideo(nextSrc)) preloadSlide(nextSrc);
       }
     }
 

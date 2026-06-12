@@ -1007,6 +1007,10 @@ function momentImageSrc(src: string) {
   }
 
   @media (max-width: 480px) {
+    .moments-shell {
+      padding: 0 2px;
+    }
+
     .moments-hero {
       padding: 24px 16px 20px;
     }
@@ -1038,32 +1042,77 @@ function momentImageSrc(src: string) {
       padding: 6px 12px;
     }
 
+    .moments-list {
+      padding-left: 12px;
+      margin-left: 2px;
+    }
+
     .moment-card {
-      padding: 16px;
+      margin-left: 14px;
       border-radius: 14px;
     }
 
-    .moment-date {
-      font-size: 0.75rem;
-      margin-bottom: 8px;
+    .moment-card::before {
+      left: -19px;
+      width: 8px;
+      height: 8px;
     }
 
-    .moment-content {
+    .card-content {
+      padding: 14px 16px 14px 18px;
+    }
+
+    .card-date {
+      font-size: 0.75rem;
+    }
+
+    .card-text {
       font-size: 0.9rem;
       line-height: 1.7;
     }
 
-    .moment-category-badge {
+    .cat-pill {
       font-size: 0.68rem;
       padding: 3px 9px;
     }
 
-    .token-section {
+    .card-images,
+    .card-images[data-count="2"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: none;
+    }
+
+    .card-images[data-count="1"] {
+      grid-template-columns: 1fr;
+    }
+
+    .publish-panel {
+      padding: 16px 14px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .token-input-wrap {
+      flex-wrap: wrap;
+    }
+
+    .token-input-wrap input {
       font-size: 0.82rem;
     }
 
-    .token-section input {
+    .upload-dropzone {
       font-size: 0.8rem;
+      padding: 14px;
+    }
+
+    .icon-btn {
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
   }
 </style>
