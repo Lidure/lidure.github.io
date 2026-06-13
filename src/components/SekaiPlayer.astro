@@ -1602,7 +1602,7 @@
   /* --- Library pane: hidden by default, overlay when open --- */
   .sekai-library-pane {
     display: none;
-    position: absolute; inset: 0; z-index: 10;
+    position: absolute; inset: 0; z-index: 20;
     flex-direction: column;
     background: rgba(10,8,25,0.96);
     backdrop-filter: blur(24px);
@@ -1679,15 +1679,15 @@
 
 @media (max-height: 760px) and (max-width: 760px) {
   .sekai-cd, .sekai-cover, .sekai-cover-fallback {
-    width: min(50vh, 65vw, 240px) !important;
-    height: min(50vh, 65vw, 240px) !important;
+    width: min(65vw, 240px) !important;
+    height: min(65vw, 240px) !important;
   }
 }
 
 @media (max-height: 660px) and (max-width: 760px) {
   .sekai-cd, .sekai-cover, .sekai-cover-fallback {
-    width: min(42vh, 65vw, 200px) !important;
-    height: min(42vh, 65vw, 200px) !important;
+    width: min(65vw, 200px) !important;
+    height: min(65vw, 200px) !important;
   }
   .sekai-main-pane { padding: 8px 16px; }
 }
@@ -2142,6 +2142,9 @@
       item.addEventListener('click', function(event) {
         event.stopPropagation();
         selectSong(song, true);
+        // Close library overlay on mobile after selecting a song
+        panel.classList.remove('sekai-mobile-library-open');
+        if (playlistToggle) playlistToggle.classList.remove('active');
       });
       playlistEl.appendChild(item);
     });
