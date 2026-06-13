@@ -42,7 +42,7 @@
   --pill-border: rgba(255, 255, 255, 0.10);
   --hover-border: rgba(255, 255, 255, 0.25);
   --focus-shadow: rgba(255, 107, 157, 0.20);
-  --slideshow-overlay: 0.38;
+  --slideshow-overlay: 0.45;
 }
 
 /* ===== ☀️ 亮色模式（可爱流行风） ===== */
@@ -89,7 +89,7 @@
   --pill-border: rgba(255, 180, 210, 0.40);
   --hover-border: rgba(255, 130, 180, 0.50);
   --focus-shadow: rgba(255, 107, 157, 0.18);
-  --slideshow-overlay: 0.22;
+  --slideshow-overlay: 0.45;
 }
 
 /* Hero slideshow: clean mode (hide background when toggled off) */

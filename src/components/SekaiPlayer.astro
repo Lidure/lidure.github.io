@@ -2747,6 +2747,15 @@
 
   function ensureVisualizer() {
     if (analyser) return true;
+    // Reuse analyser created by the immersive page (if any)
+    if (window.__sekaiAnalyser && window.__sekaiAudioCtx) {
+      audioContext = window.__sekaiAudioCtx;
+      analyser = window.__sekaiAnalyser;
+      sourceNode = window.__sekaiSourceNode || null;
+      frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      timeData = new Uint8Array(analyser.fftSize);
+      return true;
+    }
     try {
       var AudioContextCtor = window.AudioContext || window['webkitAudioContext'];
       if (!AudioContextCtor) return false;
@@ -2760,6 +2769,8 @@
       frequencyData = new Uint8Array(analyser.frequencyBinCount);
       timeData = new Uint8Array(analyser.fftSize);
       window.__sekaiAnalyser = analyser;
+      window.__sekaiAudioCtx = audioContext;
+      window.__sekaiSourceNode = sourceNode;
       return true;
     } catch (error) {
       analyser = null;
@@ -2777,6 +2788,10 @@
   function resumeVisualizerAudio() {
     if (audioContext && audioContext.state === 'suspended') {
       audioContext.resume().catch(function() {});
+    }
+    // Also resume if context was created by the immersive page
+    if (window.__sekaiAudioCtx && window.__sekaiAudioCtx.state === 'suspended') {
+      window.__sekaiAudioCtx.resume().catch(function() {});
     }
   }
 

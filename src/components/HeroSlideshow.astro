@@ -22,8 +22,8 @@ const defaultImages: string[] = [
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/output.mp4'
 ];
 
-const DEFAULT_INTERVAL = 6000;
-const DEFAULT_OPACITY = 0.22;
+const DEFAULT_INTERVAL = 15000;
+const DEFAULT_OPACITY = 0.45;
 ---
 
 <div
@@ -82,16 +82,16 @@ const DEFAULT_OPACITY = 0.22;
     <div class="setting-group">
       <span class="setting-label">切换间隔</span>
       <div class="range-row">
-        <input type="range" id="interval-range" min="2" max="20" step="1" value="6" />
-        <span class="range-value" id="interval-val">6s</span>
+        <input type="range" id="interval-range" min="2" max="20" step="1" value="15" />
+        <span class="range-value" id="interval-val">15s</span>
       </div>
     </div>
 
     <div class="setting-group">
       <span class="setting-label">遮罩透明度</span>
       <div class="range-row">
-        <input type="range" id="opacity-range" min="0" max="80" step="5" value="22" />
-        <span class="range-value" id="opacity-val">22%</span>
+        <input type="range" id="opacity-range" min="0" max="80" step="5" value="45" />
+        <span class="range-value" id="opacity-val">45%</span>
       </div>
     </div>
 
@@ -213,9 +213,9 @@ const DEFAULT_OPACITY = 0.22;
     inset: 0;
     background: linear-gradient(
       180deg,
-      rgba(0, 0, 0, var(--slideshow-overlay, 0.22)) 0%,
-      rgba(0, 0, 0, calc(var(--slideshow-overlay, 0.22) + 0.12)) 50%,
-      rgba(0, 0, 0, calc(var(--slideshow-overlay, 0.22) + 0.22)) 100%
+      rgba(0, 0, 0, var(--slideshow-overlay, 0.45)) 0%,
+      rgba(0, 0, 0, calc(var(--slideshow-overlay, 0.45) + 0.12)) 50%,
+      rgba(0, 0, 0, calc(var(--slideshow-overlay, 0.45) + 0.22)) 100%
     );
     pointer-events: none;
     z-index: 2;
@@ -1120,7 +1120,7 @@ const DEFAULT_OPACITY = 0.22;
         if (s) savedState = JSON.parse(s);
       } catch (e) {}
       if (savedState && savedState.enabled !== false) {
-        var overlayVal = savedState.opacity != null ? savedState.opacity : 0.22;
+        var overlayVal = savedState.opacity != null ? savedState.opacity : 0.45;
         document.documentElement.style.setProperty('--slideshow-overlay', String(overlayVal));
       }
       return;
@@ -1132,8 +1132,8 @@ const DEFAULT_OPACITY = 0.22;
     _destroyed = false;
 
     var defaults = JSON.parse(container.dataset.defaults || '[]');
-    var defInterval = parseInt(container.dataset.defaultInterval || '6000', 10);
-    var defOpacity = parseFloat(container.dataset.defaultOpacity || '0.22');
+    var defInterval = parseInt(container.dataset.defaultInterval || '15000', 10);
+    var defOpacity = parseFloat(container.dataset.defaultOpacity || '0.45');
 
     var layer = container.querySelector('.slideshow-layer');
     var canvasEl = container.querySelector('.slideshow-canvas');
