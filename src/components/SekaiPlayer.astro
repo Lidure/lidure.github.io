@@ -138,6 +138,14 @@
                 <span id="sekaiVolumeValue" class="sekai-vol-value">50%</span>
               </div>
             </div>
+            <div class="sekai-order-toggle" aria-label="播放顺序">
+              <button id="sekaiSequenceBtnM" class="sekai-order-btn active" type="button" title="顺序播放">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+              </button>
+              <button id="sekaiShuffleBtnM" class="sekai-order-btn" type="button" title="随机播放">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+              </button>
+            </div>
             <button id="sekaiPlaylistToggle" class="sekai-playlist-toggle" title="播放列表" aria-label="播放列表">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
             </button>
@@ -1379,13 +1387,14 @@
 .sekai-mobile-bg { display: none; }
 .sekai-playlist-toggle { display: none; }
 .sekai-lib-close { display: none; }
+.sekai-order-toggle { display: none; }
 
 @media (max-width: 760px) {
   /* --- Floating dock button --- */
-  .sekai-player-btn { right: 16px; bottom: 16px; width: 46px; height: 46px; }
+  .sekai-player-btn { right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); width: 46px; height: 46px; }
   .sekai-dock-icon svg { width: 20px; height: 20px; }
 
-  /* --- Full-screen panel (flex column, reorder children) --- */
+  /* --- Full-screen panel --- */
   .sekai-player-panel {
     position: fixed;
     inset: 0;
@@ -1397,8 +1406,6 @@
     display: flex;
     flex-direction: column;
   }
-  .sekai-player-panel > .sekai-player-header { order: 2; flex-shrink: 0; }
-  .sekai-player-panel > .sekai-player-body { order: 1; flex: 1; min-height: 0; }
 
   /* --- Blurred album background --- */
   .sekai-mobile-bg {
@@ -1434,52 +1441,32 @@
       rgba(255,255,255,0.4) 100%);
   }
 
-  /* --- Header (now positioned between body and tools via order) --- */
+  /* --- Header (top bar, original style) --- */
   .sekai-player-header {
     position: relative; z-index: 3;
-    display: flex; align-items: center; justify-content: center;
-    padding: 6px 16px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 16px 8px; flex-shrink: 0;
     background: transparent; border: none;
-    border-top: 1px solid rgba(255,255,255,0.08);
   }
-  [data-theme="light"] .sekai-player-header { border-top-color: rgba(0,0,0,0.06); }
-  .sekai-heading { display: none; }
-  .sekai-header-tools {
-    display: flex; margin: 0; width: auto;
-    justify-content: center; gap: 6px;
-    padding: 0;
+  .sekai-header-tools { display: none; }
+  .sekai-player-title {
+    font-size: 0.9rem; color: rgba(255,255,255,0.85);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
   }
-  /* Hide visualization toggle on mobile */
-  .sekai-header-visual { display: none; }
-  .sekai-header-toggle {
-    display: flex; padding: 2px; gap: 2px;
-    border-radius: 8px; background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.08);
+  [data-theme="light"] .sekai-player-title { color: rgba(40,20,60,0.85); text-shadow: none; }
+  .sekai-status {
+    font-size: 0.58rem; padding: 2px 7px;
+    background: rgba(255,255,255,0.12); border: none;
+    color: rgba(255,255,255,0.6);
   }
-  [data-theme="light"] .sekai-header-toggle {
-    background: rgba(255,255,255,0.3); border-color: rgba(200,80,150,0.1);
-  }
-  .sekai-header-btn {
-    width: 30px; height: 30px;
-    color: rgba(255,255,255,0.55);
-  }
-  .sekai-header-btn.active {
-    color: #fff; background: rgba(255,255,255,0.12);
-    border-radius: 6px;
-  }
-  [data-theme="light"] .sekai-header-btn { color: rgba(40,20,60,0.45); }
-  [data-theme="light"] .sekai-header-btn.active {
-    color: rgba(40,20,60,0.85); background: rgba(255,255,255,0.5);
-  }
-  .sekai-header-btn svg { width: 14px; height: 14px; }
+  [data-theme="light"] .sekai-status { background: rgba(0,0,0,0.08); color: rgba(40,20,60,0.5); }
   .sekai-player-close {
-    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-    width: 36px; height: 36px;
-    font-size: 1.3rem; color: rgba(255,255,255,0.7);
-    background: rgba(255,255,255,0.08); border: none;
+    width: 40px; height: 40px;
+    font-size: 1.4rem; color: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.1); border: none;
     backdrop-filter: blur(8px); border-radius: 50%;
   }
-  [data-theme="light"] .sekai-player-close { color: rgba(40,20,60,0.6); background: rgba(255,255,255,0.4); }
+  [data-theme="light"] .sekai-player-close { color: rgba(40,20,60,0.7); background: rgba(255,255,255,0.4); }
 
   /* --- Body: vertical centered layout --- */
   .sekai-player-body {
@@ -1590,6 +1577,32 @@
     color: rgba(40,20,60,0.6);
   }
 
+  /* --- Order toggle buttons (mobile inline, between vol and playlist) --- */
+  .sekai-order-toggle {
+    display: flex; align-items: center; gap: 2px;
+    padding: 2px; border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    backdrop-filter: blur(8px);
+  }
+  [data-theme="light"] .sekai-order-toggle {
+    background: rgba(255,255,255,0.3); border-color: rgba(200,80,150,0.12);
+  }
+  .sekai-order-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border: none; border-radius: 8px;
+    background: transparent; color: rgba(255,255,255,0.45);
+    cursor: pointer; transition: all 0.2s;
+  }
+  .sekai-order-btn.active {
+    color: #fff; background: rgba(255,255,255,0.15);
+  }
+  [data-theme="light"] .sekai-order-btn { color: rgba(40,20,60,0.4); }
+  [data-theme="light"] .sekai-order-btn.active {
+    color: rgba(40,20,60,0.85); background: rgba(255,255,255,0.5);
+  }
+  .sekai-order-btn svg { width: 15px; height: 15px; }
+
   /* --- Vocal panel (compact, glassmorphism) --- */
   .sekai-control-panel {
     max-width: 240px; gap: 4px; padding: 5px 8px;
@@ -1671,7 +1684,7 @@
 
 /* --- 480px fine-tuning --- */
 @media (max-width: 480px) {
-  .sekai-player-btn { right: 12px; bottom: 12px; width: 42px; height: 42px; }
+  .sekai-player-btn { right: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: 42px; height: 42px; }
   .sekai-cd, .sekai-cover, .sekai-cover-fallback {
     width: min(72vw, 260px) !important;
     height: min(72vw, 260px) !important;
@@ -1685,10 +1698,12 @@
   .sekai-ctrl-btn { width: 40px; height: 40px; font-size: 1.1rem; }
   .sekai-play-btn { width: 50px; height: 50px; font-size: 1.2rem; }
   .sekai-playlist-toggle { width: 40px; height: 40px; }
-  .sekai-player-header { padding: 4px 12px; }
-  .sekai-player-close { width: 32px; height: 32px; font-size: 1.1rem; right: 8px; }
-  .sekai-header-btn { width: 28px; height: 28px; }
-  .sekai-header-btn svg { width: 13px; height: 13px; }
+  .sekai-order-btn { width: 28px; height: 28px; }
+  .sekai-order-btn svg { width: 13px; height: 13px; }
+  .sekai-player-header { padding: 8px 12px 6px; }
+  .sekai-player-close { width: 36px; height: 36px; font-size: 1.2rem; }
+  .sekai-player-title { font-size: 0.82rem; }
+  .sekai-status { max-width: 80px; font-size: 0.54rem; }
   .sekai-control-panel { max-width: 200px; }
   .sekai-dropdown-btn { height: 28px; font-size: 0.68rem; }
   .sekai-library-pane { padding: 12px; }
@@ -1829,6 +1844,8 @@
   var volPopover = document.getElementById('sekaiVolPopover');
   var mobileBg = document.getElementById('sekaiMobileBg');
   var playlistToggle = document.getElementById('sekaiPlaylistToggle');
+  var sequenceBtnM = document.getElementById('sekaiSequenceBtnM');
+  var shuffleBtnM = document.getElementById('sekaiShuffleBtnM');
 
   var catalogPromise = null;
   var songs = [];
@@ -2585,6 +2602,8 @@
   function updateOrderButtons() {
     sequenceBtn.classList.toggle('active', playbackOrder === 'sequence');
     shuffleBtn.classList.toggle('active', playbackOrder === 'shuffle');
+    if (sequenceBtnM) sequenceBtnM.classList.toggle('active', playbackOrder === 'sequence');
+    if (shuffleBtnM) shuffleBtnM.classList.toggle('active', playbackOrder === 'shuffle');
   }
 
   function hasVisualizerTarget() {
@@ -3316,6 +3335,14 @@
     setOrder('sequence');
   });
   shuffleBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setOrder('shuffle');
+  });
+  if (sequenceBtnM) sequenceBtnM.addEventListener('click', function(event) {
+    event.stopPropagation();
+    setOrder('sequence');
+  });
+  if (shuffleBtnM) shuffleBtnM.addEventListener('click', function(event) {
     event.stopPropagation();
     setOrder('shuffle');
   });
