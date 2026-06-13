@@ -1729,6 +1729,8 @@
   var STORAGE_KEY = 'sekai_player_v3';
   var MAX_RENDERED_TRACKS = 140;
   var DEFAULT_START_OFFSET = 8;
+  var MAX_AUDIO_RETRIES = 2;
+  var AUDIO_RETRY_DELAY_MS = 1200;
 
   var TAG_ORDER = [
     'all',
@@ -1875,6 +1877,9 @@
   var visualizerLevels = {};
   var pendingStartTime = 0;
   var pendingStartSrc = '';
+  var audioRetryKey = '';
+  var audioRetryCount = 0;
+  var audioRetryTimer = null;
   var query = '';
   var tagFilter = 'all';
   var savedState = readState();
@@ -2279,6 +2284,8 @@
     var nextAudioUrl = getAudioUrl(currentVocal);
     pendingStartTime = initialTime;
     pendingStartSrc = nextAudioUrl;
+    clearAudioRetryTimer();
+    resetAudioRetryState(nextAudioUrl);
 
     function finishSourceLoad(shouldPlay) {
       if (didFinishSourceLoad) return;
@@ -2323,6 +2330,68 @@
     setStatus((playbackMode === 'long' ? 'FULL' : 'PREVIEW') + ' / 连接中', '');
     saveState();
 
+  }
+
+  function getCurrentAudioRetryKey() {
+    if (!currentSong || !currentVocal) return '';
+    return [
+      currentSong.id,
+      currentVocal.id || currentVocal.assetbundleName || '',
+      playbackMode,
+      getAudioUrl(currentVocal)
+    ].join('|');
+  }
+
+  function resetAudioRetryState(nextAudioUrl) {
+    var nextKey = getCurrentAudioRetryKey() || nextAudioUrl || '';
+    if (nextKey !== audioRetryKey) {
+      audioRetryKey = nextKey;
+      audioRetryCount = 0;
+    }
+  }
+
+  function clearAudioRetryTimer() {
+    if (audioRetryTimer) {
+      window.clearTimeout(audioRetryTimer);
+      audioRetryTimer = null;
+    }
+  }
+
+  function setStoppedUi() {
+    isPlaying = false;
+    playPauseBtn.textContent = '▶';
+    cdEl.classList.add('paused');
+    btn.classList.remove('playing');
+    resetCdRotation();
+    stopVisualizer();
+  }
+
+  function handleAudioFailure(message, options) {
+    options = options || {};
+    clearAudioRetryTimer();
+    setStoppedUi();
+    setStatus(message, 'error');
+
+    if (!options.shouldRecover || !currentSong || !currentVocal) return;
+
+    resetAudioRetryState();
+    if (audioRetryCount < MAX_AUDIO_RETRIES) {
+      audioRetryCount++;
+      var retryNumber = audioRetryCount;
+      setStatus(message + '，重试中 ' + retryNumber + '/' + MAX_AUDIO_RETRIES, 'error');
+      audioRetryTimer = window.setTimeout(function() {
+        audioRetryTimer = null;
+        if (!currentSong || !currentVocal) return;
+        setAudioSource(true, audio.currentTime || pendingStartTime || 0);
+      }, AUDIO_RETRY_DELAY_MS * retryNumber);
+      return;
+    }
+
+    audioRetryCount = 0;
+    setStatus(message + '，切换下一首', 'error');
+    window.setTimeout(function() {
+      moveTrack(1, true);
+    }, 350);
   }
 
   function getInitialStartTime(startTime) {
@@ -2466,6 +2535,7 @@
   }
 
   function play() {
+    clearAudioRetryTimer();
     if (!songs.length) {
       ensureCatalog().then(function() {
         if (!currentSong) {
@@ -2493,17 +2563,14 @@
       startVisualizer();
       updateCatalogStatus();
       saveState();
-    }).catch(function() {
-      isPlaying = false;
-      playPauseBtn.textContent = '▶';
-      cdEl.classList.add('paused');
-      btn.classList.remove('playing');
-      resetCdRotation();
-      setStatus('播放失败', 'error');
+    }).catch(function(error) {
+      var shouldRecover = !(error && error.name === 'NotAllowedError');
+      handleAudioFailure('播放失败', { shouldRecover: shouldRecover });
     });
   }
 
   function pause() {
+    clearAudioRetryTimer();
     audio.pause();
     isPlaying = false;
     playPauseBtn.textContent = '▶';
@@ -2529,20 +2596,21 @@
     moveTrack(1);
   }
 
-  function moveTrack(step) {
+  function moveTrack(step, forceAutoPlay) {
     if (!songs.length) {
-      ensureCatalog().then(function() { moveTrack(step); }).catch(function() {});
+      ensureCatalog().then(function() { moveTrack(step, forceAutoPlay); }).catch(function() {});
       return;
     }
     var list = filteredSongs.length ? filteredSongs : songs;
     if (!list.length) return;
+    var shouldAutoPlay = !!forceAutoPlay || isPlaying;
     if (playbackOrder === 'shuffle') {
-      selectSong(pickRandomSong(list), isPlaying);
+      selectSong(pickRandomSong(list), shouldAutoPlay);
       return;
     }
     var currentIndex = currentSong ? list.findIndex(function(song) { return song.id === currentSong.id; }) : -1;
     var nextIndex = currentIndex < 0 ? 0 : (currentIndex + step + list.length) % list.length;
-    selectSong(list[nextIndex], isPlaying);
+    selectSong(list[nextIndex], shouldAutoPlay);
   }
 
   function pickRandomSong(list) {
@@ -3449,13 +3517,7 @@
   });
   audio.addEventListener('error', function() {
     if (!audio.src) return;
-    isPlaying = false;
-    playPauseBtn.textContent = '▶';
-    cdEl.classList.add('paused');
-    btn.classList.remove('playing');
-    resetCdRotation();
-    stopVisualizer();
-    setStatus('音频不可用', 'error');
+    handleAudioFailure('音频不可用', { shouldRecover: true });
   });
   progressBar.addEventListener('input', function(event) {
     event.stopPropagation();
