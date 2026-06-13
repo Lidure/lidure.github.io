@@ -172,6 +172,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     var lastCoverSrc = '';
     var vizMode = 'circle';
 
+    // Resume AudioContext on user gesture (mobile browsers require this)
+    function resumeCtxOnGesture() {
+      if (window.__sekaiAudioCtx && window.__sekaiAudioCtx.state === 'suspended') {
+        window.__sekaiAudioCtx.resume().catch(function() {});
+      }
+    }
+    ['click', 'touchstart', 'pointerdown'].forEach(function(evt) {
+      document.addEventListener(evt, resumeCtxOnGesture, { once: true, passive: true });
+    });
+
     // Ensure analyser is available — create one from audio element if SekaiPlayer hasn't
     function ensureImmersiveAnalyser() {
       if (window.__sekaiAnalyser) return window.__sekaiAnalyser;

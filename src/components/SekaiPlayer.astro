@@ -711,12 +711,13 @@
   transform: translateX(-50%) translateY(6px);
   transform-origin: bottom center;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  width: 168px;
-  height: 42px;
-  padding: 0 12px;
+  gap: 6px;
+  width: 48px;
+  height: 168px;
+  padding: 10px 0;
   box-sizing: border-box;
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
@@ -738,19 +739,21 @@
 .sekai-vol-slider {
   flex: 1;
   min-width: 0;
-  width: 100%;
-  height: 4px;
+  width: 4px;
+  height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg,rgba(30,216,255,0.42),rgba(255,93,168,0.36));
+  background: linear-gradient(180deg,rgba(30,216,255,0.42),rgba(255,93,168,0.36));
   cursor: pointer;
   -webkit-appearance: none;
   appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
 }
 .sekai-vol-value {
-  flex: 0 0 34px;
-  text-align: right;
+  flex: 0 0 auto;
+  text-align: center;
   color: rgba(255,255,255,0.74);
-  font-size: .68rem;
+  font-size: .62rem;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
@@ -1627,7 +1630,7 @@
   }
   .sekai-vol-btn svg { width: 16px; height: 16px; }
   .sekai-vol-popover {
-    width: 140px; height: 38px; gap: 6px; padding: 0 10px;
+    width: 42px; height: 148px; gap: 5px; padding: 8px 0;
     background: rgba(20,15,40,0.85); border: 1px solid rgba(255,255,255,0.12);
     backdrop-filter: blur(16px);
     left: auto; right: 0; transform: translateY(6px);
