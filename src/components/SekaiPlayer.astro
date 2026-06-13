@@ -2747,6 +2747,16 @@
     return ensureVisualizer() ? analyser : null;
   };
 
+  function primeVisualizerOnGesture() {
+    if (!window.__immersiveVizActive && !hasVisualizerTarget()) return;
+    if (ensureVisualizer()) resumeVisualizerAudio();
+  }
+  ['pointerdown', 'touchstart', 'click'].forEach(function(eventName) {
+    [btn, panel, playPauseBtn].forEach(function(target) {
+      if (target) target.addEventListener(eventName, primeVisualizerOnGesture, { capture: true, passive: true });
+    });
+  });
+
   function startVisualizer() {
     if (!hasVisualizerTarget() || !analyser || visualizerFrame) return;
     drawVisualizer();
@@ -3389,6 +3399,16 @@
   });
   audio.addEventListener('canplay', function() {
     updateCatalogStatus();
+    if (window.__immersiveVizActive || hasVisualizerTarget()) {
+      ensureVisualizer();
+      resumeVisualizerAudio();
+    }
+  });
+  audio.addEventListener('play', function() {
+    if (window.__immersiveVizActive || hasVisualizerTarget()) {
+      ensureVisualizer();
+      resumeVisualizerAudio();
+    }
   });
   audio.addEventListener('waiting', function() {
     if (audio.src) setStatus((playbackMode === 'long' ? 'FULL' : 'PREVIEW') + ' / 缓冲中', '');

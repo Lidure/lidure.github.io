@@ -187,6 +187,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       return navigator.maxTouchPoints > 0 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
     }
 
+    function isSekaiAudioPlaying() {
+      var audioEl = document.getElementById('sekaiAudio');
+      return !!(audioEl && audioEl.src && !audioEl.paused && !audioEl.ended);
+    }
+
     function getViewportHeightCandidate() {
       var visualHeight = window.visualViewport && window.visualViewport.height;
       return Math.round(visualHeight || window.innerHeight || document.documentElement.clientHeight || 1);
@@ -226,19 +231,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       resumeSekaiAudioContext();
       if (window.__sekaiAudioCtx && window.__sekaiAudioCtx.state === 'running') {
         activationEvents.forEach(function(evt) {
-          document.removeEventListener(evt, resumeCtxOnGesture);
+          document.removeEventListener(evt, resumeCtxOnGesture, true);
         });
       }
     }
     var activationEvents = ['pointerdown', 'touchstart', 'click'];
     activationEvents.forEach(function(evt) {
-      document.addEventListener(evt, resumeCtxOnGesture, { passive: true });
+      document.addEventListener(evt, resumeCtxOnGesture, { capture: true, passive: true });
     });
 
     // Ensure analyser is available — create one from audio element if SekaiPlayer hasn't
     function ensureImmersiveAnalyser() {
       if (window.__sekaiAnalyser) return window.__sekaiAnalyser;
-      if (needsGestureForAudioGraph() && !hasAudioActivation) return null;
+      if (needsGestureForAudioGraph() && !hasAudioActivation && !isSekaiAudioPlaying()) return null;
       if (typeof window.__sekaiGetAnalyser === 'function') {
         var shared = window.__sekaiGetAnalyser();
         if (shared) return shared;
