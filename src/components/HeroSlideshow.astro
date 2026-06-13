@@ -1279,7 +1279,7 @@ const DEFAULT_OPACITY = 0.45;
     /* ===== State ===== */
     var state = {
       enabled: true,
-      autoplay: true,
+      autoplay: false,
       interval: defInterval,
       opacity: defOpacity,
       quality: 'high',
@@ -1293,7 +1293,7 @@ const DEFAULT_OPACITY = 0.45;
       if (saved) {
         var s = JSON.parse(saved);
         if (s.enabled === false) state.enabled = false;
-        if (s.autoplay === false) state.autoplay = false;
+        if (typeof s.autoplay === 'boolean') state.autoplay = s.autoplay;
         if (s.interval) state.interval = s.interval;
         if (s.opacity != null) state.opacity = s.opacity;
         if (s.quality) state.quality = s.quality;
