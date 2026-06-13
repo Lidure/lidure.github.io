@@ -490,7 +490,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       var sv = new Float32Array(ov);
       for (var i = 0; i < n; i++) {
         var ratio = i / n;
-        var raw = freqData[i] / 255 * (0.8 + 0.2 * Math.pow(ratio, 0.5));
+        var raw = freqData[i] / 255 * (0.5 + Math.pow(ratio, 1.5));
         var t = raw < 0.25 ? 0 : raw < 0.65 ? (raw - 0.25) * 2 : 0.8 + (raw - 0.65) * 0.6;
         if (i < ov) sv[i] = t;
         if (i >= n - ov) {
@@ -499,7 +499,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           var sm = tr * tr * (3 - 2 * tr);
           t = t * (1 - sm) + ds * sm * (0.7 + 0.3 * Math.random());
         }
-        var bh = 4 + Math.pow(t, 0.8) * Math.min(w, h) * 0.22;
+        var bh = 3 + t * Math.min(w, h) * 0.12;
         var angle = ratio * Math.PI * 2 - Math.PI / 2;
         var x1 = cx + Math.cos(angle) * cr, y1 = cy + Math.sin(angle) * cr;
         var x2 = cx + Math.cos(angle) * (cr + bh), y2 = cy + Math.sin(angle) * (cr + bh);
