@@ -83,7 +83,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .immersive-cover {
         width: 140px;
         height: 140px;
-        top: 42%;
       }
       .immersive-cover-fallback svg { width: 48px; height: 48px; }
 
@@ -366,6 +365,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       ctx.clearRect(0, 0, w, h);
 
       var a = ensureImmersiveAnalyser();
+      // Resume AudioContext if suspended (browsers require user gesture)
+      if (window.__sekaiAudioCtx && window.__sekaiAudioCtx.state === 'suspended') {
+        window.__sekaiAudioCtx.resume().catch(function() {});
+      }
       var freqData = null, timeData = null;
       var bass = 0, time = performance.now() * 0.001;
 
@@ -378,10 +381,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         for (var i = 0; i < end; i++) sum += freqData[i];
         bass = end > 0 ? sum / end / 255 : 0;
       } else {
-        bass = 0.15 + Math.sin(time * 0.8) * 0.1;
+        bass = 0.2 + Math.sin(time * 1.6) * 0.12 + Math.sin(time * 3.7) * 0.06;
       }
 
       // Update cover from SEKAI player - try multiple sources
+      var coverEl = document.getElementById('immersiveCover');
       var sekaiCoverUrl = window.__sekaiCoverUrl || '';
       if (!sekaiCoverUrl) {
         var sekaiCoverEl = document.getElementById('sekaiCover');
@@ -407,7 +411,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
       // Sync spinning state with SEKAI player
       var sekaiAudio = document.getElementById('sekaiAudio');
-      var coverEl = document.getElementById('immersiveCover');
       if (coverEl && sekaiAudio) {
         coverEl.classList.toggle('spinning', !sekaiAudio.paused);
       }
@@ -418,7 +421,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
       }
 
+      // Use cover element's actual center for visualization alignment
       var cx = w / 2, cy = h / 2;
+      if (coverEl) {
+        var rect = coverEl.getBoundingClientRect();
+        cx = rect.left + rect.width / 2;
+        cy = rect.top + rect.height / 2;
+      }
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
 
@@ -427,9 +436,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         var oh = [328, 270, 195, 48, 162, 210][oi];
         var ox = w * (0.1 + 0.8 * ((Math.sin(time * 0.12 + oi * 2.1) + 1) / 2));
         var oy = h * (0.15 + 0.7 * ((Math.cos(time * 0.08 + oi * 1.5) + 1) / 2));
-        var or2 = w * (0.04 + bass * 0.05 + Math.sin(time * 0.3 + oi) * 0.01);
+        var or2 = w * (0.05 + bass * 0.08 + Math.sin(time * 0.3 + oi) * 0.015);
         var og = ctx.createRadialGradient(ox, oy, 0, ox, oy, or2);
-        og.addColorStop(0, 'hsla(' + oh + ',55%,78%,' + (0.05 + bass * 0.06) + ')');
+        og.addColorStop(0, 'hsla(' + oh + ',55%,78%,' + (0.06 + bass * 0.1) + ')');
         og.addColorStop(1, 'hsla(' + oh + ',45%,72%,0)');
         ctx.beginPath(); ctx.arc(ox, oy, or2, 0, Math.PI * 2);
         ctx.fillStyle = og; ctx.fill();
@@ -445,9 +454,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       // Bottom wave
       var wg = ctx.createLinearGradient(0, h * 0.6, w, h);
-      wg.addColorStop(0, 'hsla(328,50%,72%,' + (0.03 + bass * 0.05) + ')');
-      wg.addColorStop(0.5, 'hsla(270,48%,75%,' + (0.02 + bass * 0.04) + ')');
-      wg.addColorStop(1, 'hsla(195,50%,72%,' + (0.02 + bass * 0.03) + ')');
+      wg.addColorStop(0, 'hsla(328,50%,72%,' + (0.04 + bass * 0.08) + ')');
+      wg.addColorStop(0.5, 'hsla(270,48%,75%,' + (0.03 + bass * 0.06) + ')');
+      wg.addColorStop(1, 'hsla(195,50%,72%,' + (0.03 + bass * 0.05) + ')');
       ctx.beginPath(); ctx.moveTo(0, h);
       for (var s = 0; s <= 100; s++) {
         var p = s / 100, f = 0;
@@ -455,7 +464,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           var idx = Math.min(freqData.length - 1, Math.floor(Math.pow(p, 1.8) * (freqData.length - 1)));
           f = freqData[idx] / 255;
         }
-        ctx.lineTo(p * w, h * 0.88 - f * h * 0.12 + Math.sin(p * Math.PI * 2.5 + time * 0.4) * h * 0.012);
+        ctx.lineTo(p * w, h * 0.88 - f * h * 0.18 + Math.sin(p * Math.PI * 2.5 + time * 0.4) * h * 0.015);
       }
       ctx.lineTo(w, h); ctx.closePath();
       ctx.fillStyle = wg; ctx.globalAlpha = 0.3; ctx.fill(); ctx.globalAlpha = 1;
@@ -464,8 +473,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       for (var b = 0; b < 10; b++) {
         var bx = (Math.sin(b * 137.508) * 0.5 + 0.5) * w;
         var by = h - ((time * (0.2 + (b % 3) * 0.08) * 25 + b * 80) % (h * 0.85));
-        var bs = (1.5 + (b % 3) + bass * 2.5) * dpr;
-        var ba = (0.05 + bass * 0.08) * (1 - by / h);
+        var bs = (2 + (b % 3) + bass * 4) * dpr;
+        var ba = (0.06 + bass * 0.12) * (1 - by / h);
         ctx.beginPath(); ctx.arc(bx, by, bs, 0, Math.PI * 2);
         ctx.fillStyle = 'hsla(' + [328,270,195,48][b % 4] + ',55%,78%,' + ba + ')';
         ctx.fill();
@@ -481,7 +490,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       var sv = new Float32Array(ov);
       for (var i = 0; i < n; i++) {
         var ratio = i / n;
-        var raw = freqData[i] / 255 * (0.5 + Math.pow(ratio, 1.5));
+        var raw = freqData[i] / 255 * (0.8 + 0.2 * Math.pow(ratio, 0.5));
         var t = raw < 0.25 ? 0 : raw < 0.65 ? (raw - 0.25) * 2 : 0.8 + (raw - 0.65) * 0.6;
         if (i < ov) sv[i] = t;
         if (i >= n - ov) {
@@ -490,7 +499,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           var sm = tr * tr * (3 - 2 * tr);
           t = t * (1 - sm) + ds * sm * (0.7 + 0.3 * Math.random());
         }
-        var bh = 3 + t * Math.min(w, h) * 0.12;
+        var bh = 4 + Math.pow(t, 0.8) * Math.min(w, h) * 0.22;
         var angle = ratio * Math.PI * 2 - Math.PI / 2;
         var x1 = cx + Math.cos(angle) * cr, y1 = cy + Math.sin(angle) * cr;
         var x2 = cx + Math.cos(angle) * (cr + bh), y2 = cy + Math.sin(angle) * (cr + bh);
