@@ -1873,6 +1873,8 @@
   var timeData = null;
   var visualizerFrame = 0;
   var visualizerLevels = {};
+  var pendingStartTime = 0;
+  var pendingStartSrc = '';
   var query = '';
   var tagFilter = 'all';
   var savedState = readState();
@@ -2274,6 +2276,9 @@
     if (!currentVocal) return;
     var initialTime = getInitialStartTime(startTime);
     var didFinishSourceLoad = false;
+    var nextAudioUrl = getAudioUrl(currentVocal);
+    pendingStartTime = initialTime;
+    pendingStartSrc = nextAudioUrl;
 
     function finishSourceLoad(shouldPlay) {
       if (didFinishSourceLoad) return;
@@ -2305,20 +2310,13 @@
     }
 
     function seekToStart() {
-      var targetTime = audio.duration && initialTime < audio.duration - 0.5 ? initialTime : 0;
-      if (targetTime) {
-        try {
-          audio.currentTime = targetTime;
-          currentTimeEl.textContent = fmt(targetTime);
-          progressBar.value = (targetTime / audio.duration) * 100;
-        } catch (error) {}
-      }
+      enforcePendingStartTime(true);
     }
 
     isRestoring = true;
     audio.addEventListener('loadedmetadata', onMeta);
     audio.addEventListener('error', onSourceError);
-    audio.src = getAudioUrl(currentVocal);
+    audio.src = nextAudioUrl;
     audio.load();
     resetProgress();
     updateNowPlaying();
@@ -2331,6 +2329,23 @@
     if (currentSong && currentSong.source && currentSong.source !== 'sekai') return 0;
     if (typeof startTime === 'number' && isFinite(startTime) && startTime > DEFAULT_START_OFFSET) return startTime;
     return DEFAULT_START_OFFSET;
+  }
+
+  function enforcePendingStartTime(force) {
+    if (!pendingStartTime || !audio.duration || !isFinite(audio.duration)) return false;
+    if (pendingStartSrc && audio.src !== pendingStartSrc) return false;
+    var targetTime = pendingStartTime < audio.duration - 0.5 ? pendingStartTime : 0;
+    if (!targetTime) return false;
+    if (!force && audio.currentTime >= targetTime - 0.35) return false;
+    if (!force && audio.currentTime > targetTime + 1.5) return false;
+    try {
+      audio.currentTime = targetTime;
+      currentTimeEl.textContent = fmt(targetTime);
+      progressBar.value = (targetTime / audio.duration) * 100;
+      return true;
+    } catch (error) {
+      return false;
+    }
   }
 
   function updateNowPlaying() {
@@ -2468,6 +2483,8 @@
     if (hasVisualizerTarget() || window.__immersiveVizActive) ensureVisualizer();
     resumeVisualizerAudio();
     audio.play().then(function() {
+      enforcePendingStartTime(false);
+      window.setTimeout(function() { enforcePendingStartTime(false); }, 120);
       isPlaying = true;
       playPauseBtn.textContent = '⏸';
       cdEl.classList.remove('paused');
@@ -2698,8 +2715,12 @@
       audioContext = window.__sekaiAudioCtx;
       analyser = window.__sekaiAnalyser;
       sourceNode = window.__sekaiSourceNode || null;
+      connectVisualizerGraph();
       frequencyData = new Uint8Array(analyser.frequencyBinCount);
       timeData = new Uint8Array(analyser.fftSize);
+      window.__sekaiAnalyser = analyser;
+      window.__sekaiAudioCtx = audioContext;
+      window.__sekaiSourceNode = sourceNode;
       return true;
     }
     try {
@@ -2710,8 +2731,7 @@
       analyser.fftSize = 512;
       analyser.smoothingTimeConstant = 0.5;
       sourceNode = audioContext.createMediaElementSource(audio);
-      sourceNode.connect(analyser);
-      analyser.connect(audioContext.destination);
+      connectVisualizerGraph();
       frequencyData = new Uint8Array(analyser.frequencyBinCount);
       timeData = new Uint8Array(analyser.fftSize);
       window.__sekaiAnalyser = analyser;
@@ -2729,6 +2749,16 @@
       setStatus('可视化不可用', 'error');
       return false;
     }
+  }
+
+  function connectVisualizerGraph() {
+    if (!audioContext || !analyser || !sourceNode) return;
+    try { sourceNode.disconnect(); } catch (error) {}
+    try { analyser.disconnect(); } catch (error) {}
+    try {
+      sourceNode.connect(analyser);
+      sourceNode.connect(audioContext.destination);
+    } catch (error) {}
   }
 
   function resumeVisualizerAudio() {
@@ -3429,6 +3459,8 @@
   });
   progressBar.addEventListener('input', function(event) {
     event.stopPropagation();
+    pendingStartTime = 0;
+    pendingStartSrc = '';
     if (audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration;
   });
   volumeSlider.addEventListener('input', function(event) {

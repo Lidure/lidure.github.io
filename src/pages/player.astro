@@ -262,7 +262,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         an.smoothingTimeConstant = 0.5;
         var src = ctx.createMediaElementSource(audioEl);
         src.connect(an);
-        an.connect(ctx.destination);
+        src.connect(ctx.destination);
         // Store globals so SekaiPlayer can reuse
         window.__sekaiAnalyser = an;
         window.__sekaiAudioCtx = ctx;
