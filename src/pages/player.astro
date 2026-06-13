@@ -68,18 +68,34 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     @media (max-width: 640px) {
       .immersive-cover { width: 160px; height: 160px; }
+      .immersive-cover-fallback svg { width: 56px; height: 56px; }
+
+      .immersive-controls {
+        bottom: 20px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        gap: 6px;
+      }
     }
 
     @media (max-width: 480px) {
-      .immersive-cover { width: 130px; height: 130px; }
+      .immersive-cover {
+        width: 140px;
+        height: 140px;
+        top: 42%;
+      }
       .immersive-cover-fallback svg { width: 48px; height: 48px; }
 
       .immersive-controls {
         bottom: 16px;
-        left: 16px;
-        right: 16px;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
         flex-wrap: wrap;
+        justify-content: center;
         gap: 6px;
+        max-width: calc(100vw - 32px);
       }
 
       .immersive-ctrl-btn {
