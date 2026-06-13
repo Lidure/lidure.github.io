@@ -724,6 +724,7 @@
   background: rgba(7,13,24,0.94);
   box-shadow: 0 8px 28px rgba(0,0,0,0.45);
   backdrop-filter: blur(12px);
+  z-index: 10;
   opacity: 0;
   pointer-events: none;
   transition: opacity .18s, transform .18s, visibility .18s;
@@ -931,7 +932,7 @@
 }
 .sekai-dropdown-menu {
   position: absolute;
-  z-index: 60;
+  z-index: 5;
   right: 0;
   left: 0;
   top: calc(100% + 8px);
@@ -2464,7 +2465,7 @@
       selectSong(filteredSongs[0] || songs[0], true);
       return;
     }
-    if (hasVisualizerTarget()) ensureVisualizer();
+    if (hasVisualizerTarget() || window.__immersiveVizActive) ensureVisualizer();
     resumeVisualizerAudio();
     audio.play().then(function() {
       isPlaying = true;
@@ -2739,6 +2740,12 @@
       window.__sekaiAudioCtx.resume().catch(function() {});
     }
   }
+
+  window.__sekaiEnsureVisualizer = ensureVisualizer;
+  window.__sekaiResumeVisualizerAudio = resumeVisualizerAudio;
+  window.__sekaiGetAnalyser = function() {
+    return ensureVisualizer() ? analyser : null;
+  };
 
   function startVisualizer() {
     if (!hasVisualizerTarget() || !analyser || visualizerFrame) return;

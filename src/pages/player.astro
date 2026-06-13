@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 <BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">
   <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>
-  <div style="min-height: 100vh; pointer-events: none;"></div>
+  <div class="immersive-spacer" aria-hidden="true"></div>
   <div class="immersive-cover" id="immersiveCover">
     <img id="immersiveCoverImg" src="" alt="" style="display:none" />
     <div class="immersive-cover-fallback">
@@ -37,15 +37,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       position: fixed;
       inset: 0;
       width: 100vw;
-      height: 100vh;
+      height: var(--immersive-stable-height, 100vh);
       pointer-events: none;
       z-index: 0;
+    }
+
+    .immersive-spacer {
+      min-height: var(--immersive-stable-height, 100vh);
+      pointer-events: none;
     }
 
     /* Cover centered */
     .immersive-cover {
       position: fixed;
-      top: 50%;
+      top: calc(var(--immersive-stable-height, 100vh) / 2);
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 1;
@@ -171,27 +176,81 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     var dominantColors = [];
     var lastCoverSrc = '';
     var vizMode = 'circle';
+    var hasAudioActivation = !!(navigator.userActivation && navigator.userActivation.hasBeenActive);
+    var stableViewport = {
+      width: window.innerWidth,
+      height: Math.round((window.visualViewport && window.visualViewport.height) || window.innerHeight),
+    };
+    window.__immersiveVizActive = true;
 
-    // Resume AudioContext on user gesture (mobile browsers require this)
-    function resumeCtxOnGesture() {
+    function needsGestureForAudioGraph() {
+      return navigator.maxTouchPoints > 0 || (window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    }
+
+    function getViewportHeightCandidate() {
+      var visualHeight = window.visualViewport && window.visualViewport.height;
+      return Math.round(visualHeight || window.innerHeight || document.documentElement.clientHeight || 1);
+    }
+
+    function setStableViewport(force) {
+      var nextWidth = window.innerWidth || document.documentElement.clientWidth || stableViewport.width;
+      var nextHeight = getViewportHeightCandidate();
+      var widthChanged = Math.abs(nextWidth - stableViewport.width) > 24;
+      var heightChanged = !needsGestureForAudioGraph() && Math.abs(nextHeight - stableViewport.height) > 24;
+      if (force || widthChanged || heightChanged) {
+        stableViewport.width = nextWidth;
+        stableViewport.height = nextHeight;
+        document.documentElement.style.setProperty('--immersive-stable-height', stableViewport.height + 'px');
+      }
+    }
+    setStableViewport(true);
+    window.addEventListener('resize', function() { setStableViewport(false); }, { passive: true });
+    window.addEventListener('orientationchange', function() {
+      window.setTimeout(function() { setStableViewport(true); }, 250);
+    }, { passive: true });
+
+    function resumeSekaiAudioContext() {
+      if (typeof window.__sekaiResumeVisualizerAudio === 'function') {
+        window.__sekaiResumeVisualizerAudio();
+        return;
+      }
       if (window.__sekaiAudioCtx && window.__sekaiAudioCtx.state === 'suspended') {
         window.__sekaiAudioCtx.resume().catch(function() {});
       }
     }
-    ['click', 'touchstart', 'pointerdown'].forEach(function(evt) {
-      document.addEventListener(evt, resumeCtxOnGesture, { once: true, passive: true });
+
+    // Mobile browsers require the analyser/context work to happen inside a user gesture.
+    function resumeCtxOnGesture() {
+      hasAudioActivation = true;
+      ensureImmersiveAnalyser();
+      resumeSekaiAudioContext();
+      if (window.__sekaiAudioCtx && window.__sekaiAudioCtx.state === 'running') {
+        activationEvents.forEach(function(evt) {
+          document.removeEventListener(evt, resumeCtxOnGesture);
+        });
+      }
+    }
+    var activationEvents = ['pointerdown', 'touchstart', 'click'];
+    activationEvents.forEach(function(evt) {
+      document.addEventListener(evt, resumeCtxOnGesture, { passive: true });
     });
 
     // Ensure analyser is available — create one from audio element if SekaiPlayer hasn't
     function ensureImmersiveAnalyser() {
       if (window.__sekaiAnalyser) return window.__sekaiAnalyser;
-      // If creation was already attempted and failed, don't retry endlessly
-      if (window.__sekaiAnalyserFailed) return null;
+      if (needsGestureForAudioGraph() && !hasAudioActivation) return null;
+      if (typeof window.__sekaiGetAnalyser === 'function') {
+        var shared = window.__sekaiGetAnalyser();
+        if (shared) return shared;
+      }
+      if (typeof window.__sekaiEnsureVisualizer === 'function' && window.__sekaiEnsureVisualizer()) {
+        return window.__sekaiAnalyser || null;
+      }
       try {
         var audioEl = document.getElementById('sekaiAudio');
         if (!audioEl) return null;
         var AC = window.AudioContext || window.webkitAudioContext;
-        if (!AC) { window.__sekaiAnalyserFailed = true; return null; }
+        if (!AC) return null;
         var ctx = new AC();
         var an = ctx.createAnalyser();
         an.fftSize = 512;
@@ -205,7 +264,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         window.__sekaiSourceNode = src;
         return an;
       } catch(e) {
-        window.__sekaiAnalyserFailed = true;
         return null;
       }
     }
@@ -365,8 +423,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     function draw() {
       window.__immersiveVizFrame = requestAnimationFrame(draw);
-      var w = window.innerWidth;
-      var h = window.innerHeight;
+      setStableViewport(false);
+      var w = stableViewport.width;
+      var h = stableViewport.height;
       var dpr = window.devicePixelRatio || 1;
       var cw = Math.floor(w * dpr), ch = Math.floor(h * dpr);
       if (canvas.width !== cw || canvas.height !== ch) { canvas.width = cw; canvas.height = ch; }
@@ -376,9 +435,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       var a = ensureImmersiveAnalyser();
       // Resume AudioContext if suspended (browsers require user gesture)
-      if (window.__sekaiAudioCtx && window.__sekaiAudioCtx.state === 'suspended') {
-        window.__sekaiAudioCtx.resume().catch(function() {});
-      }
+      resumeSekaiAudioContext();
       var freqData = null, timeData = null;
       var bass = 0, time = performance.now() * 0.001;
 
@@ -433,10 +490,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       // Use cover element's actual center for visualization alignment
       var cx = w / 2, cy = h / 2;
+      var coverSize = Math.min(w, h) * 0.36;
       if (coverEl) {
         var rect = coverEl.getBoundingClientRect();
         cx = rect.left + rect.width / 2;
         cy = rect.top + rect.height / 2;
+        coverSize = Math.max(rect.width, rect.height);
       }
       ctx.save();
       ctx.globalCompositeOperation = 'lighter';
@@ -456,7 +515,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       // Viz
       if (freqData && freqData.length > 0) {
-        if (vizMode === 'circle') drawCircle(ctx, w, h, cx, cy, freqData);
+        if (vizMode === 'circle') drawCircle(ctx, w, h, cx, cy, coverSize, freqData);
         else if (vizMode === 'bars') drawBars(ctx, w, h, freqData);
         else if (vizMode === 'wave') drawWave(ctx, w, h, timeData);
         else if (vizMode === 'spectrum') drawSpectrum(ctx, w, h, freqData, bass);
@@ -493,9 +552,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       ctx.restore();
     }
 
-    function drawCircle(ctx, w, h, cx, cy, freqData) {
+    function drawCircle(ctx, w, h, cx, cy, coverSize, freqData) {
       var n = freqData.length;
-      var cr = Math.min(w, h) * 0.18;
+      var baseSize = Math.max(120, coverSize || Math.min(w, h) * 0.36);
+      var cr = baseSize * 0.56;
+      var maxBar = baseSize * 0.32;
       var ov = Math.max(2, Math.floor(n * 0.06));
       var sv = new Float32Array(ov);
       for (var i = 0; i < n; i++) {
@@ -509,7 +570,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           var sm = tr * tr * (3 - 2 * tr);
           t = t * (1 - sm) + ds * sm * (0.7 + 0.3 * Math.random());
         }
-        var bh = 3 + t * Math.min(w, h) * 0.12;
+        var bh = 3 + t * maxBar;
         var angle = ratio * Math.PI * 2 - Math.PI / 2;
         var x1 = cx + Math.cos(angle) * cr, y1 = cy + Math.sin(angle) * cr;
         var x2 = cx + Math.cos(angle) * (cr + bh), y2 = cy + Math.sin(angle) * (cr + bh);
@@ -649,6 +710,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     // Clean up animation frame when navigating away via ClientRouter
     document.addEventListener('astro:before-swap', function() {
+      window.__immersiveVizActive = false;
+      document.documentElement.style.removeProperty('--immersive-stable-height');
       if (window.__immersiveVizFrame) {
         cancelAnimationFrame(window.__immersiveVizFrame);
         window.__immersiveVizFrame = 0;
