@@ -1385,7 +1385,7 @@
   .sekai-player-btn { right: 16px; bottom: 16px; width: 46px; height: 46px; }
   .sekai-dock-icon svg { width: 20px; height: 20px; }
 
-  /* --- Full-screen panel --- */
+  /* --- Full-screen panel (flex column, reorder children) --- */
   .sekai-player-panel {
     position: fixed;
     inset: 0;
@@ -1397,6 +1397,8 @@
     display: flex;
     flex-direction: column;
   }
+  .sekai-player-panel > .sekai-player-header { order: 2; flex-shrink: 0; }
+  .sekai-player-panel > .sekai-player-body { order: 1; flex: 1; min-height: 0; }
 
   /* --- Blurred album background --- */
   .sekai-mobile-bg {
@@ -1432,32 +1434,52 @@
       rgba(255,255,255,0.4) 100%);
   }
 
-  /* --- Minimal header --- */
+  /* --- Header (now positioned between body and tools via order) --- */
   .sekai-player-header {
     position: relative; z-index: 3;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 16px 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 6px 16px; flex-shrink: 0;
     background: transparent; border: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
   }
-  .sekai-header-tools { display: none; }
-  .sekai-player-title {
-    font-size: 0.9rem; color: rgba(255,255,255,0.85);
-    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  [data-theme="light"] .sekai-player-header { border-top-color: rgba(0,0,0,0.06); }
+  .sekai-heading { display: none; }
+  .sekai-header-tools {
+    display: flex; margin: 0; width: auto;
+    justify-content: center; gap: 6px;
+    padding: 0;
   }
-  [data-theme="light"] .sekai-player-title { color: rgba(40,20,60,0.85); text-shadow: none; }
-  .sekai-status {
-    font-size: 0.58rem; padding: 2px 7px;
-    background: rgba(255,255,255,0.12); border: none;
-    color: rgba(255,255,255,0.6);
+  /* Hide visualization toggle on mobile */
+  .sekai-header-visual { display: none; }
+  .sekai-header-toggle {
+    display: flex; padding: 2px; gap: 2px;
+    border-radius: 8px; background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.08);
   }
-  [data-theme="light"] .sekai-status { background: rgba(0,0,0,0.08); color: rgba(40,20,60,0.5); }
+  [data-theme="light"] .sekai-header-toggle {
+    background: rgba(255,255,255,0.3); border-color: rgba(200,80,150,0.1);
+  }
+  .sekai-header-btn {
+    width: 30px; height: 30px;
+    color: rgba(255,255,255,0.55);
+  }
+  .sekai-header-btn.active {
+    color: #fff; background: rgba(255,255,255,0.12);
+    border-radius: 6px;
+  }
+  [data-theme="light"] .sekai-header-btn { color: rgba(40,20,60,0.45); }
+  [data-theme="light"] .sekai-header-btn.active {
+    color: rgba(40,20,60,0.85); background: rgba(255,255,255,0.5);
+  }
+  .sekai-header-btn svg { width: 14px; height: 14px; }
   .sekai-player-close {
-    width: 40px; height: 40px;
-    font-size: 1.4rem; color: rgba(255,255,255,0.8);
-    background: rgba(255,255,255,0.1); border: none;
-    backdrop-filter: blur(8px);
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    width: 36px; height: 36px;
+    font-size: 1.3rem; color: rgba(255,255,255,0.7);
+    background: rgba(255,255,255,0.08); border: none;
+    backdrop-filter: blur(8px); border-radius: 50%;
   }
-  [data-theme="light"] .sekai-player-close { color: rgba(40,20,60,0.7); background: rgba(255,255,255,0.4); }
+  [data-theme="light"] .sekai-player-close { color: rgba(40,20,60,0.6); background: rgba(255,255,255,0.4); }
 
   /* --- Body: vertical centered layout --- */
   .sekai-player-body {
@@ -1663,10 +1685,10 @@
   .sekai-ctrl-btn { width: 40px; height: 40px; font-size: 1.1rem; }
   .sekai-play-btn { width: 50px; height: 50px; font-size: 1.2rem; }
   .sekai-playlist-toggle { width: 40px; height: 40px; }
-  .sekai-player-header { padding: 8px 12px 6px; }
-  .sekai-player-close { width: 36px; height: 36px; font-size: 1.2rem; }
-  .sekai-player-title { font-size: 0.82rem; }
-  .sekai-status { max-width: 80px; font-size: 0.54rem; }
+  .sekai-player-header { padding: 4px 12px; }
+  .sekai-player-close { width: 32px; height: 32px; font-size: 1.1rem; right: 8px; }
+  .sekai-header-btn { width: 28px; height: 28px; }
+  .sekai-header-btn svg { width: 13px; height: 13px; }
   .sekai-control-panel { max-width: 200px; }
   .sekai-dropdown-btn { height: 28px; font-size: 0.68rem; }
   .sekai-library-pane { padding: 12px; }
@@ -1675,21 +1697,6 @@
   .sekai-pl-icon { width: 28px; height: 28px; }
   .sekai-pl-title { font-size: 0.75rem; }
   .sekai-pl-sub { font-size: 0.62rem; }
-}
-
-@media (max-height: 760px) and (max-width: 760px) {
-  .sekai-cd, .sekai-cover, .sekai-cover-fallback {
-    width: min(65vw, 240px) !important;
-    height: min(65vw, 240px) !important;
-  }
-}
-
-@media (max-height: 660px) and (max-width: 760px) {
-  .sekai-cd, .sekai-cover, .sekai-cover-fallback {
-    width: min(65vw, 200px) !important;
-    height: min(65vw, 200px) !important;
-  }
-  .sekai-main-pane { padding: 8px 16px; }
 }
 </style>
 
