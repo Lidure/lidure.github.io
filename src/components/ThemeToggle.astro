@@ -87,7 +87,20 @@
     setupToggle();
   }
 
-  // ClientRouter 每次页面切换完成后重新应用主题
+  // ClientRouter DOM 交换后立即恢复主题和背景状态（在 View Transition 截图之前）
+  document.addEventListener('astro:after-swap', function() {
+    var stored = getStoredTheme();
+    applyTheme(stored || 'dark');
+    // 同步恢复背景开关状态（DOM 交换可能丢失 <html> 上的 class）
+    try {
+      var s = localStorage.getItem('hero_settings');
+      if (s && JSON.parse(s).enabled === false) {
+        document.documentElement.classList.add('no-hero-bg');
+      }
+    } catch(e) {}
+  });
+
+  // ClientRouter 每次页面切换完成后重新绑定按钮
   document.addEventListener('astro:page-load', setupToggle);
 
   // 系统主题变化时自动跟随（仅当用户没手动存过时）

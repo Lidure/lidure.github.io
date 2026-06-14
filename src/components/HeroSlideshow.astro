@@ -17,7 +17,7 @@ const defaultImages: string[] = [
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/953c5e02532e4eeb9ec758e7fd7e8ad3.jpg',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/1b87e2c5880511ebb6edd017c2d2eca2.png',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/wallhaven-1p9z61.jpg',
-  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_1.png',
+  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_1(1).png',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_2.jpg',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/shizuku.jpg',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/B292469EBE40CB0DE50A866C73C61F81.jpg',
@@ -1920,11 +1920,13 @@ const DEFAULT_OPACITY = 0.45;
       save();
       if (state.enabled) {
         document.documentElement.classList.remove('no-hero-bg');
+        currentSrc = '';  // 清除记录，让 showSlide 重新渲染
         start();
       } else {
         document.documentElement.classList.add('no-hero-bg');
         stop();
         hideAll();
+        currentSrc = '';
       }
     });
 

@@ -160,11 +160,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   <script is:inline>
   (function() {
+    function initImmersive() {
     // Cancel previous animation frame (from prior page visit or re-navigation)
     if (window.__immersiveVizFrame) {
       cancelAnimationFrame(window.__immersiveVizFrame);
       window.__immersiveVizFrame = 0;
     }
+    window.__immersiveVizActive = false;
 
     var canvas = document.getElementById('immersiveVizCanvas');
     var coverImg = document.getElementById('immersiveCoverImg');
@@ -712,16 +714,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     draw();
+    } // end initImmersive
 
-    // Clean up animation frame when navigating away via ClientRouter
-    document.addEventListener('astro:before-swap', function() {
-      window.__immersiveVizActive = false;
-      document.documentElement.style.removeProperty('--immersive-stable-height');
-      if (window.__immersiveVizFrame) {
-        cancelAnimationFrame(window.__immersiveVizFrame);
-        window.__immersiveVizFrame = 0;
-      }
-    });
+    // Clean up animation frame when navigating away via ClientRouter（只注册一次）
+    if (!window.__immersiveCleanup) {
+      window.__immersiveCleanup = true;
+      document.addEventListener('astro:before-swap', function() {
+        window.__immersiveVizActive = false;
+        document.documentElement.style.removeProperty('--immersive-stable-height');
+        if (window.__immersiveVizFrame) {
+          cancelAnimationFrame(window.__immersiveVizFrame);
+          window.__immersiveVizFrame = 0;
+        }
+      });
+    }
+
+    // 首次加载 + ClientRouter 导航到沉浸页时都执行初始化
+    initImmersive();
+    document.addEventListener('astro:page-load', initImmersive);
   })();
   </script>
 </BaseLayout>

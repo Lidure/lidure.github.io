@@ -3,30 +3,40 @@
 ---
 <span id="greeting-text" class="greeting-text"></span>
 
-<script>
-const greetings: Record<string, { emoji: string; text: string }> = {
-  dawn:   { emoji: '🌅', text: '清晨好呀，今天也一起加油吧 ～' },
-  morning:{ emoji: '☀️', text: '早上好～ 愿你今天也有好心情！' },
-  noon:   { emoji: '🌞', text: '中午啦，记得好好吃饭哦 ～' },
-  afternoon:{ emoji: '🌤️', text: '下午好～ 要不要停下来喝杯茶呢' },
-  dusk:   { emoji: '🌆', text: '傍晚了呢，今天辛苦啦 ✨' },
-  night:  { emoji: '🌙', text: '夜深了，早点休息哦，晚安 ～' },
-  late:   { emoji: '💫', text: '还没睡吗？注意身体呀～' },
-};
+<script is:inline>
+(function() {
+  function setGreeting() {
+    var greetings = {
+      dawn:    { emoji: '🌅', text: '清晨好呀，今天也一起加油吧 ～' },
+      morning: { emoji: '☀️', text: '早上好～ 愿你今天也有好心情！' },
+      noon:    { emoji: '🌞', text: '中午啦，记得好好吃饭哦 ～' },
+      afternoon: { emoji: '🌤️', text: '下午好～ 要不要停下来喝杯茶呢' },
+      dusk:    { emoji: '🌆', text: '傍晚了呢，今天辛苦啦 ✨' },
+      night:   { emoji: '🌙', text: '夜深了，早点休息哦，晚安 ～' },
+      late:    { emoji: '💫', text: '还没睡吗？注意身体呀～' }
+    };
 
-const hour = new Date().getHours();
-let key: string;
-if (hour >= 5 && hour < 8) key = 'dawn';
-else if (hour >= 8 && hour < 11) key = 'morning';
-else if (hour >= 11 && hour < 13) key = 'noon';
-else if (hour >= 13 && hour < 17) key = 'afternoon';
-else if (hour >= 17 && hour < 19) key = 'dusk';
-else if (hour >= 19 && hour < 23) key = 'night';
-else key = 'late';
+    var hour = new Date().getHours();
+    var key;
+    if (hour >= 5 && hour < 8) key = 'dawn';
+    else if (hour >= 8 && hour < 11) key = 'morning';
+    else if (hour >= 11 && hour < 13) key = 'noon';
+    else if (hour >= 13 && hour < 17) key = 'afternoon';
+    else if (hour >= 17 && hour < 19) key = 'dusk';
+    else if (hour >= 19 && hour < 23) key = 'night';
+    else key = 'late';
 
-const g = greetings[key];
-const el = document.getElementById('greeting-text');
-if (el) el.textContent = `${g.emoji} ${g.text}`;
+    var g = greetings[key];
+    var el = document.getElementById('greeting-text');
+    if (el && g) el.textContent = g.emoji + ' ' + g.text;
+  }
+
+  // 首次加载
+  setGreeting();
+
+  // ClientRouter 每次页面切换完成后重新设置问候语
+  document.addEventListener('astro:page-load', setGreeting);
+})();
 </script>
 
 <style>
