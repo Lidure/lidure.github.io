@@ -87,6 +87,10 @@
           <button class="sekai-online-tab active" data-platform="netease">网易云</button>
           <button class="sekai-online-tab" data-platform="qq">QQ音乐</button>
         </div>
+        <div id="sekaiQQCookieRow" class="sekai-qq-cookie-row" style="display:none">
+          <input id="sekaiQQCookie" class="sekai-online-input" type="text" placeholder="粘贴QQ音乐 cookie（含 qqmusic_key）" autocomplete="off" />
+          <button id="sekaiQQCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>
+        </div>
         <div class="sekai-online-input-row">
           <input id="sekaiPlaylistUrl" class="sekai-online-input" type="text" placeholder="粘贴歌单链接或ID" autocomplete="off" />
           <button id="sekaiPlaylistFetch" class="sekai-online-fetch" type="button">导入</button>
@@ -1188,6 +1192,35 @@
 
 .sekai-online-close:hover {
   color: rgba(255,255,255,0.6);
+}
+
+.sekai-qq-cookie-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.sekai-qq-cookie-save {
+  padding: 5px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+  font-size: .68rem;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+}
+
+.sekai-qq-cookie-save:hover {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+}
+
+.sekai-qq-cookie-save.saved {
+  border-color: rgba(100,200,100,0.4);
+  color: rgba(100,200,100,0.9);
 }
 
 .sekai-playlist-label {
@@ -3557,6 +3590,14 @@
   var onlineStatus = document.getElementById('sekaiOnlineStatus');
   var onlineTabs = document.querySelectorAll('.sekai-online-tab');
   var selectedPlatform = 'netease';
+  var qqCookieRow = document.getElementById('sekaiQQCookieRow');
+  var qqCookieInput = document.getElementById('sekaiQQCookie');
+  var qqCookieSaveBtn = document.getElementById('sekaiQQCookieSave');
+  // Load saved QQ cookie
+  try {
+    var savedCookie = localStorage.getItem('qq_cookie');
+    if (savedCookie && qqCookieInput) { qqCookieInput.value = savedCookie; }
+  } catch(e) {}
 
   // Local file import
   if (localImportBtn && localFileInput) {
@@ -3606,8 +3647,24 @@
       playlistUrlInput.placeholder = selectedPlatform === 'netease'
         ? '粘贴网易云歌单链接或输入歌单ID'
         : '粘贴QQ音乐歌单链接或输入歌单ID';
+      if (qqCookieRow) qqCookieRow.style.display = selectedPlatform === 'qq' ? 'flex' : 'none';
     });
   });
+
+  // QQ cookie save
+  if (qqCookieSaveBtn && qqCookieInput) {
+    qqCookieSaveBtn.addEventListener('click', function() {
+      var val = qqCookieInput.value.trim();
+      try {
+        if (val) { localStorage.setItem('qq_cookie', val); }
+        else { localStorage.removeItem('qq_cookie'); }
+      } catch(e) {}
+      qqCookieSaveBtn.textContent = val ? '已保存' : '保存';
+      qqCookieSaveBtn.classList.toggle('saved', !!val);
+    });
+    // Init save button state
+    if (qqCookieInput.value) { qqCookieSaveBtn.textContent = '已保存'; qqCookieSaveBtn.classList.add('saved'); }
+  }
 
   // Online playlist fetch
   if (playlistFetchBtn && playlistUrlInput) {
@@ -3770,30 +3827,66 @@
 
   function fetchQQUrls(tracks, callback) {
     var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
-    var mids = tracks.map(function(t) { return t.mediaMid || t.id; }).join(',');
-    if (!mids) { callback(tracks); return; }
-    onlineStatus.textContent = '正在获取QQ音乐音频链接...';
-    fetch(PROXY + 'qq-url?mids=' + encodeURIComponent(mids)).then(function(r) {
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    }).then(function(data) {
-      var urlMap = {};
-      var hasAny = false;
-      (data.urls || []).forEach(function(u) { if (u.url) { urlMap[u.mid] = u.url; hasAny = true; } });
-      tracks.forEach(function(t) {
-        var mid = t.mediaMid || t.id;
-        t.url = urlMap[mid] || '';
-      });
-      if (!hasAny) {
-        onlineStatus.textContent = 'QQ音乐需要登录才能获取音频链接，歌曲已导入但可能无法播放';
-        onlineStatus.className = 'sekai-online-status error';
+    var BATCH_SIZE = 30;
+    // Collect song mids (NOT media_mid — vkey API needs the actual song mid)
+    var allMids = tracks.map(function(t) { return t.id; });
+    if (!allMids.length) { callback(tracks); return; }
+    onlineStatus.textContent = '正在获取QQ音乐音频链接 (0/' + allMids.length + ')...';
+    // Get QQ cookie
+    var qqCookie = '';
+    try { qqCookie = localStorage.getItem('qq_cookie') || ''; } catch(e) {}
+    if (!qqCookie && qqCookieInput) qqCookie = qqCookieInput.value.trim();
+
+    // Split into batches
+    var batches = [];
+    for (var i = 0; i < allMids.length; i += BATCH_SIZE) {
+      batches.push(allMids.slice(i, i + BATCH_SIZE));
+    }
+
+    var urlMap = {};
+    var fetched = 0;
+    var totalBatches = batches.length;
+
+    function processBatch(idx) {
+      if (idx >= totalBatches) {
+        // All batches done — apply URLs to tracks (match by song id/mid)
+        tracks.forEach(function(t) {
+          t.url = urlMap[t.id] || '';
+        });
+        var hasAny = Object.keys(urlMap).length > 0;
+        if (!hasAny && !qqCookie) {
+          onlineStatus.textContent = '请输入QQ音乐 cookie 以获取音频链接';
+          onlineStatus.className = 'sekai-online-status error';
+          if (qqCookieRow) qqCookieRow.style.display = 'flex';
+        } else if (!hasAny) {
+          onlineStatus.textContent = 'cookie 可能已过期，请更新后重试';
+          onlineStatus.className = 'sekai-online-status error';
+        }
+        callback(tracks);
+        return;
       }
-      callback(tracks);
-    }).catch(function() {
-      onlineStatus.textContent = 'QQ音乐音频链接获取失败，歌曲已导入但可能无法播放';
-      onlineStatus.className = 'sekai-online-status error';
-      callback(tracks);
-    });
+      var batch = batches[idx];
+      var midsStr = batch.join(',');
+      // Use POST to pass cookie (avoids URL encoding issues with special chars)
+      var fetchOpts = { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: 'cookie=' + encodeURIComponent(qqCookie) };
+      fetch(PROXY + 'qq-url?mids=' + encodeURIComponent(midsStr), fetchOpts).then(function(r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      }).then(function(data) {
+        (data.urls || []).forEach(function(u) { if (u.url) urlMap[u.mid] = u.url; });
+        fetched += batch.length;
+        onlineStatus.textContent = '正在获取QQ音乐音频链接 (' + fetched + '/' + allMids.length + ')...';
+        // Small delay between batches to avoid rate limiting
+        setTimeout(function() { processBatch(idx + 1); }, 300);
+      }).catch(function(e) {
+        // On error, continue with remaining batches
+        fetched += batch.length;
+        onlineStatus.textContent = '正在获取QQ音乐音频链接 (' + fetched + '/' + allMids.length + ') [部分失败]...';
+        setTimeout(function() { processBatch(idx + 1); }, 300);
+      });
+    }
+
+    processBatch(0);
   }
 
   renderPlaylist();
