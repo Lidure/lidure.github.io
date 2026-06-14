@@ -12,3 +12,6 @@ dist
 !public/favicon.png
 .tmp/
 public/music/
+
+.dev.vars*
+!.dev.vars.example
