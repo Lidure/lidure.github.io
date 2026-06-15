@@ -1758,7 +1758,7 @@
   window.__sekaiPlayerInit = true;
 
   var MASTER_BASE = 'https://sekai-world.github.io/sekai-master-db-diff';
-  var ASSET_BASE = 'https://music-proxy-3e4.pages.dev/api/asset?path=';
+  var ASSET_BASE = 'https://1443451218-3h2o2y5s1p.ap-guangzhou.tencentscf.com/api/asset?path=';
   var STORAGE_KEY = 'sekai_player_v3';
   var MAX_RENDERED_TRACKS = 140;
   var DEFAULT_START_OFFSET = 8;
@@ -3791,7 +3791,7 @@
   }
 
   function fetchNeteasePlaylist(playlistId, callback) {
-    var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
+    var PROXY = 'https://1443451218-3h2o2y5s1p.ap-guangzhou.tencentscf.com/api/';
     fetch(PROXY + 'netease-playlist?id=' + playlistId).then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
@@ -3812,7 +3812,7 @@
   }
 
   function fetchQQPlaylist(playlistId, callback) {
-    var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
+    var PROXY = 'https://1443451218-3h2o2y5s1p.ap-guangzhou.tencentscf.com/api/';
     fetch(PROXY + 'qq-playlist?id=' + encodeURIComponent(playlistId)).then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
@@ -3826,7 +3826,7 @@
   }
 
   function fetchQQUrls(tracks, callback) {
-    var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
+    var PROXY = 'https://1443451218-3h2o2y5s1p.ap-guangzhou.tencentscf.com/api/';
     var BATCH_SIZE = 30;
     // Collect song mids (NOT media_mid — vkey API needs the actual song mid)
     var allMids = tracks.map(function(t) { return t.id; });
