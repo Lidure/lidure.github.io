@@ -12,3 +12,4 @@ dist
 !public/favicon.png
 .tmp/
 public/music/
+music-proxy/
