@@ -2023,6 +2023,23 @@
       fetchJson('musicTags.json')
     ]).then(function(result) {
       songs = buildSongs(result[0], result[1], result[2]);
+      // 恢复已保存的导入歌曲
+      if (savedState && savedState.imported && savedState.imported.length > 0) {
+        savedState.imported.forEach(function(t) {
+          if (songs.some(function(s) { return s.id === t.id; })) return;
+          songs.push({
+            id: t.id,
+            title: t.title,
+            composer: t.composer || '',
+            jacketBundle: t.cover || null,
+            source: t.source,
+            tags: ['imported'],
+            onlineId: t.onlineId || null,
+            sourceUrl: t.sourceUrl || '',
+            vocals: [{ id: t.source + '_vocal', name: t.composer || '未知', sourceUrl: t.sourceUrl || '' }]
+          });
+        });
+      }
       populateTagFilter();
       applyFilters();
       updateCatalogStatus();
@@ -3387,7 +3404,12 @@
 
   function readState() {
     try {
-      var raw = sessionStorage.getItem(STORAGE_KEY);
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        // 从旧版 sessionStorage 迁移
+        raw = sessionStorage.getItem(STORAGE_KEY);
+        if (raw) { localStorage.setItem(STORAGE_KEY, raw); sessionStorage.removeItem(STORAGE_KEY); }
+      }
       return raw ? JSON.parse(raw) : null;
     } catch (error) {
       return null;
@@ -3397,7 +3419,19 @@
   function saveState() {
     if (isRestoring) return;
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify({
+      // 收集导入的歌曲（非 PJSK 目录歌曲）用于持久化
+      var imported = songs.filter(function(s) { return s.source && s.source !== 'sekai'; }).map(function(s) {
+        return {
+          id: s.id,
+          title: s.title,
+          composer: s.composer || '',
+          cover: s.jacketBundle || null,
+          source: s.source,
+          onlineId: s.onlineId || null,
+          sourceUrl: s.sourceUrl || ''
+        };
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
         musicId: currentSong ? currentSong.id : null,
         vocalId: currentVocal ? currentVocal.id : null,
         mode: playbackMode,
@@ -3412,7 +3446,8 @@
         playing: isPlaying ? 1 : 0,
         volume: audio.volume,
         query: query,
-        tag: tagFilter
+        tag: tagFilter,
+        imported: imported
       }));
     } catch (error) {}
   }
@@ -3723,6 +3758,8 @@
 
   function addOnlineTracks(tracks, platform) {
     var added = 0, skipped = 0;
+    // 导入前移除同一平台的已有歌曲，避免重复
+    songs = songs.filter(function(s) { return s.source !== platform; });
     tracks.forEach(function(track) {
       var audioUrl = track.url || '';
       // QQ 音乐大部分无链接但仍然导入（显示歌曲信息，尝试播放时再提示）
