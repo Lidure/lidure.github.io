@@ -1588,18 +1588,15 @@ const DEFAULT_OPACITY = 0.45;
         }
 
         if (video) {
-          var poster = document.createElement('img');
-          poster.className = 'media-card-poster';
-          poster.alt = '';
-          poster.loading = 'lazy';
-          poster.onerror = function() { poster.style.opacity = '0.3'; };
-          if (videoPosterMap[src]) poster.src = videoPosterMap[src];
-          else {
-            getVideoPoster(src).then(function(posterSrc) {
-              if (posterSrc && poster.isConnected) poster.src = posterSrc;
-            });
-          }
-          card.appendChild(poster);
+          var vidThumb = document.createElement('video');
+          vidThumb.className = 'media-card-poster';
+          vidThumb.src = src;
+          vidThumb.muted = true;
+          vidThumb.playsInline = true;
+          vidThumb.preload = 'metadata';
+          vidThumb.setAttribute('disableRemotePlayback', '');
+          vidThumb.onerror = function() { vidThumb.style.opacity = '0.3'; };
+          card.appendChild(vidThumb);
 
           var mark = document.createElement('span');
           mark.className = 'media-card-video-mark';
