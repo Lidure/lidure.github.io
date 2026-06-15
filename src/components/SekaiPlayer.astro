@@ -2520,7 +2520,13 @@
   }
 
   function getJacketUrl(song) {
-    var path = '/music/jacket/' + song.jacketBundle + '/' + song.jacketBundle + '.webp';
+    if (!song.jacketBundle) return '';
+    var b = song.jacketBundle;
+    // 在线歌曲：直接存储封面 URL
+    if (typeof b === 'string' && /^https?:\/\//i.test(b)) return b;
+    if (typeof b === 'object' && b.single) return b.single;
+    // PJSK：通过代理加载封面
+    var path = '/music/jacket/' + b + '/' + b + '.webp';
     return ASSET_BASE + encodeURIComponent(path);
   }
 
@@ -3725,7 +3731,7 @@
         id: platform + '_' + track.id,
         title: track.title,
         composer: track.artist || (platform === 'netease' ? '网易云音乐' : 'QQ音乐'),
-        jacketBundle: track.cover ? { single: track.cover } : null,
+        jacketBundle: track.cover || null,
         source: platform,
         tags: ['imported'],
         onlineId: track.id,
