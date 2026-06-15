@@ -87,6 +87,10 @@
           <button class="sekai-online-tab active" data-platform="netease">网易云</button>
           <button class="sekai-online-tab" data-platform="qq">QQ音乐</button>
         </div>
+        <div id="sekaiNeteaseCookieRow" class="sekai-qq-cookie-row" style="display:flex">
+          <input id="sekaiNeteaseCookie" class="sekai-online-input" type="text" placeholder="粘贴网易云 cookie（含 MUSIC_U，私密歌单必填）" autocomplete="off" />
+          <button id="sekaiNeteaseCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>
+        </div>
         <div id="sekaiQQCookieRow" class="sekai-qq-cookie-row" style="display:none">
           <input id="sekaiQQCookie" class="sekai-online-input" type="text" placeholder="粘贴QQ音乐 cookie（含 qqmusic_key）" autocomplete="off" />
           <button id="sekaiQQCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>
@@ -3634,10 +3638,15 @@
   var qqCookieRow = document.getElementById('sekaiQQCookieRow');
   var qqCookieInput = document.getElementById('sekaiQQCookie');
   var qqCookieSaveBtn = document.getElementById('sekaiQQCookieSave');
-  // Load saved QQ cookie
+  var neCookieRow = document.getElementById('sekaiNeteaseCookieRow');
+  var neCookieInput = document.getElementById('sekaiNeteaseCookie');
+  var neCookieSaveBtn = document.getElementById('sekaiNeteaseCookieSave');
+  // Load saved cookies
   try {
-    var savedCookie = localStorage.getItem('qq_cookie');
-    if (savedCookie && qqCookieInput) { qqCookieInput.value = savedCookie; }
+    var savedQQCookie = localStorage.getItem('qq_cookie');
+    if (savedQQCookie && qqCookieInput) { qqCookieInput.value = savedQQCookie; }
+    var savedNECookie = localStorage.getItem('netease_cookie');
+    if (savedNECookie && neCookieInput) { neCookieInput.value = savedNECookie; }
   } catch(e) {}
 
   // Local file import
@@ -3689,6 +3698,7 @@
         ? '粘贴网易云歌单链接或输入歌单ID'
         : '粘贴QQ音乐歌单链接或输入歌单ID';
       if (qqCookieRow) qqCookieRow.style.display = selectedPlatform === 'qq' ? 'flex' : 'none';
+      if (neCookieRow) neCookieRow.style.display = selectedPlatform === 'netease' ? 'flex' : 'none';
     });
   });
 
@@ -3703,8 +3713,21 @@
       qqCookieSaveBtn.textContent = val ? '已保存' : '保存';
       qqCookieSaveBtn.classList.toggle('saved', !!val);
     });
-    // Init save button state
     if (qqCookieInput.value) { qqCookieSaveBtn.textContent = '已保存'; qqCookieSaveBtn.classList.add('saved'); }
+  }
+
+  // NetEase cookie save
+  if (neCookieSaveBtn && neCookieInput) {
+    neCookieSaveBtn.addEventListener('click', function() {
+      var val = neCookieInput.value.trim();
+      try {
+        if (val) { localStorage.setItem('netease_cookie', val); }
+        else { localStorage.removeItem('netease_cookie'); }
+      } catch(e) {}
+      neCookieSaveBtn.textContent = val ? '已保存' : '保存';
+      neCookieSaveBtn.classList.toggle('saved', !!val);
+    });
+    if (neCookieInput.value) { neCookieSaveBtn.textContent = '已保存'; neCookieSaveBtn.classList.add('saved'); }
   }
 
   // Online playlist fetch
@@ -3835,7 +3858,18 @@
 
   function fetchNeteasePlaylist(playlistId, callback) {
     var PROXY = 'https://1443451218-3h2o2y5s1p.ap-guangzhou.tencentscf.com/api/';
-    fetch(PROXY + 'netease-playlist?id=' + playlistId).then(function(res) {
+    // Get NetEase cookie
+    var neCookie = '';
+    try { neCookie = localStorage.getItem('netease_cookie') || ''; } catch(e) {}
+    if (!neCookie && neCookieInput) neCookie = neCookieInput.value.trim();
+
+    var fetchOpts = {};
+    if (neCookie) {
+      fetchOpts.method = 'POST';
+      fetchOpts.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+      fetchOpts.body = 'cookie=' + encodeURIComponent(neCookie);
+    }
+    fetch(PROXY + 'netease-playlist?id=' + playlistId, fetchOpts).then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
     }).then(function(data) {
@@ -3843,7 +3877,14 @@
       if (!data.tracks || !data.tracks.length) { callback(null, '歌单为空或无法访问'); return; }
       onlineStatus.textContent = '获取到 ' + data.tracks.length + ' 首歌，正在获取音频链接...';
       var ids = data.tracks.map(function(t) { return t.id; }).join(',');
-      return fetch(PROXY + 'netease-url?ids=' + ids).then(function(r) { return r.json(); }).then(function(urlData) {
+      // Pass cookie to netease-url endpoint as well
+      var urlOpts = {};
+      if (neCookie) {
+        urlOpts.method = 'POST';
+        urlOpts.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        urlOpts.body = 'cookie=' + encodeURIComponent(neCookie);
+      }
+      return fetch(PROXY + 'netease-url?ids=' + ids, urlOpts).then(function(r) { return r.json(); }).then(function(urlData) {
         var urlMap = {};
         (urlData.urls || []).forEach(function(u) { if (u.url) urlMap[u.id] = u.url; });
         data.tracks.forEach(function(t) { t.url = urlMap[t.id] || ''; });
