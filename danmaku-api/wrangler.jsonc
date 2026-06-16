@@ -1,0 +1,21 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "lidure-danmaku-api",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-06-15",
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+	"vars": {
+		"ALLOWED_ORIGINS": "https://lidure.github.io,http://localhost:4321,http://127.0.0.1:4321"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "lidure-danmaku",
+			"database_id": "bd97536a-a2f7-411f-830a-e1137c8e3f69",
+			"migrations_dir": "./migrations"
+		}
+	]
+}
