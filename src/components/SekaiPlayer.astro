@@ -667,6 +667,8 @@
   background: linear-gradient(90deg,rgba(30,216,255,0.42),rgba(255,93,168,0.36));
   cursor: pointer;
   -webkit-appearance: none;
+  appearance: none;
+  outline: none;
 }
 .sekai-progress input[type=range]::-webkit-slider-thumb,
 .sekai-volume input[type=range]::-webkit-slider-thumb {
@@ -676,6 +678,26 @@
   background: #fff;
   box-shadow: 0 0 0 4px rgba(30,216,255,0.18), 0 0 14px rgba(255,93,168,0.24);
   -webkit-appearance: none;
+  cursor: grab;
+}
+.sekai-progress input[type=range]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.2);
+}
+.sekai-progress input[type=range]::-moz-range-thumb,
+.sekai-volume input[type=range]::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: none;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(30,216,255,0.18), 0 0 14px rgba(255,93,168,0.24);
+  cursor: grab;
+}
+.sekai-progress input[type=range]::-moz-range-track {
+  height: 5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,rgba(30,216,255,0.42),rgba(255,93,168,0.36));
 }
 .sekai-controls {
   display: flex;
@@ -1576,6 +1598,14 @@
   }
   [data-theme="light"] .sekai-progress span { color: rgba(40,20,60,0.45); }
   .sekai-progress input[type=range] { height: 6px; }
+  .sekai-progress input[type=range]::-webkit-slider-thumb {
+    width: 18px; height: 18px;
+    box-shadow: 0 0 0 6px rgba(30,216,255,0.12), 0 0 14px rgba(255,93,168,0.2);
+  }
+  .sekai-progress input[type=range]::-moz-range-thumb {
+    width: 18px; height: 18px;
+    box-shadow: 0 0 0 6px rgba(30,216,255,0.12), 0 0 14px rgba(255,93,168,0.2);
+  }
 
   /* --- Controls (larger touch targets) --- */
   .sekai-controls {
@@ -1917,6 +1947,7 @@
   var audioRetryKey = '';
   var audioRetryCount = 0;
   var audioRetryTimer = null;
+  var isSeeking = false;
   var query = '';
   var tagFilter = 'all';
   var savedState = readState();
@@ -3590,6 +3621,17 @@
     if (audio.src) setStatus((playbackMode === 'long' ? 'FULL' : 'PREVIEW') + ' / 缓冲中', '');
   });
   audio.addEventListener('ended', function() {
+    // Guard: ignore 'ended' during user-initiated seek
+    if (isSeeking) return;
+    // Guard: only advance if the audio genuinely reached the end.
+    // Stream interruptions can fire 'ended' prematurely when duration is
+    // Infinity or the proxy dropped the connection mid-stream.
+    if (audio.duration && isFinite(audio.duration) && audio.currentTime < audio.duration - 2) {
+      // Premature end — attempt to resume, fall back to retry
+      try { audio.play().catch(function() {}); } catch (e) {}
+      setStatus((playbackMode === 'long' ? 'FULL' : 'PREVIEW') + ' / 恢复中', '');
+      return;
+    }
     stopVisualizer();
     nextTrack();
   });
@@ -3597,12 +3639,27 @@
     if (!audio.src) return;
     handleAudioFailure('音频不可用', { shouldRecover: true });
   });
+  progressBar.addEventListener('mousedown', function() { isSeeking = true; });
+  progressBar.addEventListener('touchstart', function() { isSeeking = true; }, { passive: true });
   progressBar.addEventListener('input', function(event) {
     event.stopPropagation();
     pendingStartTime = 0;
     pendingStartSrc = '';
-    if (audio.duration) audio.currentTime = (progressBar.value / 100) * audio.duration;
+    if (audio.duration && isFinite(audio.duration)) {
+      try { audio.currentTime = (progressBar.value / 100) * audio.duration; } catch (e) {}
+    }
   });
+  function endSeek() {
+    if (!isSeeking) return;
+    isSeeking = false;
+    // After seeking, try to resume if we were playing
+    if (isPlaying && audio.paused) {
+      audio.play().catch(function() {});
+    }
+  }
+  progressBar.addEventListener('mouseup', endSeek);
+  progressBar.addEventListener('touchend', endSeek);
+  progressBar.addEventListener('change', endSeek);
   volumeSlider.addEventListener('input', function(event) {
     event.stopPropagation();
     audio.volume = clampVolume(volumeSlider.value);
