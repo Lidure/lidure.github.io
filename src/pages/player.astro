@@ -299,22 +299,6 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       0% { opacity: 1; }
       100% { opacity: 0; }
     }
-    .danmaku-send-flash {
-      position: absolute;
-      inset: 0;
-      border-radius: 999px;
-      pointer-events: none;
-      background: radial-gradient(circle at 85% 50%, rgba(var(--accent-rgb), 0.35), transparent 60%);
-      opacity: 0;
-      transition: opacity 0.15s;
-    }
-    .danmaku-send-flash.flash {
-      animation: danmaku-flash-anim 0.5s ease-out forwards;
-    }
-    @keyframes danmaku-flash-anim {
-      0% { opacity: 1; }
-      100% { opacity: 0; }
-    }
 
     @media (max-width: 640px) {
       .immersive-cover { width: 160px; height: 160px; }
@@ -758,7 +742,6 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
           danmakuCounter.className = 'danmaku-counter' + (len >= 55 ? ' is-near-limit' : '') + (len >= 60 ? ' is-at-limit' : '');
         });
       }
-      });
     }
 
     function resumeSekaiAudioContext() {
