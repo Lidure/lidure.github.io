@@ -1,9 +1,23 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-const defaultDanmakuApiUrl = 'https://lidure-danmaku-api.2542219495.workers.dev/api/danmaku';
+const defaultDanmakuApiUrl = 'https://danmaku.lidure22.xyz/api/danmaku';
 const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUrl).replace(/\/$/, '');
 ---
 <BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">
+  <div class="player-hint" id="playerHint">
+    <div class="player-hint-content">
+      <div class="player-hint-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </div>
+      <div class="player-hint-text">
+        <span class="player-hint-title">点击右下角按钮</span>
+        <span class="player-hint-sub">开启音乐之旅</span>
+      </div>
+      <div class="player-hint-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </div>
+  </div>
   <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>
   <div class="immersive-spacer" aria-hidden="true"></div>
   <div class="immersive-cover" id="immersiveCover">
@@ -98,38 +112,6 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     }
     .danmaku-stage.is-off {
       opacity: 0;
-    }
-    .danmaku-item {
-      position: absolute;
-      top: 0;
-      max-width: min(60vw, 680px);
-      white-space: nowrap;
-      font-size: clamp(17px, 2.2vw, 28px);
-      font-weight: 600;
-      line-height: 1;
-      color: #fff;
-      padding: 5px 14px;
-      border-radius: 999px;
-      background: rgba(0, 0, 0, 0.18);
-      text-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.85),
-        0 0 10px rgba(0, 0, 0, 0.4);
-      will-change: left;
-      left: 0;
-      letter-spacing: 0.02em;
-      backdrop-filter: blur(2px);
-      animation: danmaku-enter 0.25s ease-out;
-    }
-    .danmaku-item.is-self {
-      background: rgba(var(--accent-rgb), 0.2);
-      border: 1px solid rgba(var(--accent-rgb), 0.25);
-      text-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.7),
-        0 0 12px rgba(var(--accent-rgb), 0.3);
-    }
-    @keyframes danmaku-enter {
-      0% { opacity: 0; transform: translateX(24px) scale(0.92); }
-      100% { opacity: 1; transform: translateX(0) scale(1); }
     }
     .danmaku-composer {
       position: fixed;
@@ -300,15 +282,118 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       100% { opacity: 0; }
     }
 
+    .player-hint {
+      position: fixed;
+      right: 24px;
+      bottom: 86px;
+      z-index: 10001;
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .player-hint.visible {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .player-hint.fade-out {
+      opacity: 0;
+      transform: translateY(8px) scale(0.96);
+      pointer-events: none;
+    }
+    .player-hint-content {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 16px 10px 14px;
+      border-radius: 999px;
+      background: rgba(12, 10, 28, 0.65);
+      backdrop-filter: blur(24px) saturate(1.4);
+      -webkit-backdrop-filter: blur(24px) saturate(1.4);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.3),
+        0 0 0 0 rgba(var(--accent-rgb), 0),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+    }
+    .player-hint-content:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 32px rgba(0, 0, 0, 0.35), 0 0 16px rgba(var(--accent-rgb), 0.12);
+    }
+    [data-theme="light"] .player-hint-content {
+      background: rgba(255, 255, 255, 0.6);
+      border-color: rgba(200, 80, 150, 0.14);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    }
+    .player-hint-icon {
+      width: 28px;
+      height: 28px;
+      flex-shrink: 0;
+      color: var(--accent);
+      animation: hint-pulse 2s ease-in-out infinite;
+    }
+    .player-hint-icon svg {
+      width: 100%;
+      height: 100%;
+    }
+    @keyframes hint-pulse {
+      0%, 100% { opacity: 0.8; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+    }
+    .player-hint-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      white-space: nowrap;
+    }
+    .player-hint-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: 0.01em;
+    }
+    .player-hint-sub {
+      font-size: 0.68rem;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+    [data-theme="light"] .player-hint-sub { opacity: 0.6; }
+    .player-hint-arrow {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: var(--accent);
+      opacity: 0.6;
+      animation: hint-arrow 1.5s ease-in-out infinite;
+    }
+    .player-hint-arrow svg {
+      width: 100%;
+      height: 100%;
+    }
+    @keyframes hint-arrow {
+      0%, 100% { transform: translateX(0); opacity: 0.6; }
+      50% { transform: translateX(4px); opacity: 1; }
+    }
+
     @media (max-width: 640px) {
+      .player-hint {
+        right: 16px;
+        bottom: 82px;
+      }
+      .player-hint-content {
+        padding: 8px 14px 8px 12px;
+        gap: 8px;
+      }
+      .player-hint-icon { width: 22px; height: 22px; }
+      .player-hint-title { font-size: 0.76rem; }
+      .player-hint-sub { font-size: 0.64rem; }
+      .player-hint-arrow { width: 16px; height: 16px; }
       .immersive-cover { width: 160px; height: 160px; }
       .immersive-cover-fallback svg { width: 56px; height: 56px; }
       .danmaku-stage { inset: 64px 0 132px; }
-      .danmaku-item {
-        max-width: 78vw;
-        font-size: 17px;
-        padding: 4px 12px;
-      }
       .danmaku-composer {
         left: 12px;
         right: 12px;
@@ -403,6 +488,90 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     .immersive-viz-mode.active { background: rgba(var(--accent-rgb), 0.2); color: var(--accent); }
   </style>
 
+  <!-- Global styles for dynamically-created danmaku elements (appended to body, no Astro scoping) -->
+  <style is:global>
+    .danmaku-item {
+      position: absolute;
+      top: 0;
+      left: -9999px;
+      max-width: min(60vw, 680px);
+      white-space: nowrap;
+      font-family: 'ZCOOL KuaiLe', 'Ma Shan Zheng', cursive, sans-serif;
+      font-size: clamp(16px, 2vw, 26px);
+      font-weight: 400;
+      line-height: 1;
+      color: #fff;
+      padding: 7px 20px;
+      border-radius: 999px;
+      background: rgba(10, 8, 22, 0.52);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+      box-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
+      will-change: left;
+      letter-spacing: 0.03em;
+      animation: danmaku-enter 0.4s ease-out forwards;
+      user-select: none;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .danmaku-close {
+      display: none;
+      position: absolute;
+      right: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(255, 60, 80, 0.85);
+      color: #fff;
+      font-family: system-ui, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 18px;
+      text-align: center;
+      cursor: pointer;
+      text-shadow: none;
+      border: none;
+      padding: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      transition: background 0.15s, transform 0.15s;
+    }
+    .danmaku-close:hover {
+      background: rgba(255, 30, 50, 1);
+      transform: translateY(-50%) scale(1.15);
+    }
+    .danmaku-item:hover {
+      animation-play-state: paused !important;
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+    }
+    .danmaku-item:hover .danmaku-close {
+      display: block;
+    }
+    .danmaku-item.danmaku-removing {
+      opacity: 0 !important;
+      transform: scale(0.85);
+      pointer-events: none;
+    }
+    .danmaku-item.is-self {
+      background: rgba(var(--accent-rgb), 0.3);
+      border: 1px solid rgba(var(--accent-rgb), 0.35);
+      box-shadow: 0 2px 10px rgba(var(--accent-rgb), 0.2);
+      color: #fff;
+    }
+    @keyframes danmaku-enter {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @media (max-width: 640px) {
+      .danmaku-item {
+        max-width: 78vw;
+        font-size: 16px;
+        padding: 5px 14px;
+      }
+    }
+  </style>
+
   <script is:inline define:vars={{ danmakuApiUrl }}>
   (function() {
     function initImmersive() {
@@ -427,21 +596,163 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     var danmakuSendFlash = document.getElementById('danmakuSendFlash');
     if (!canvas) return;
 
+    // --- First-visit player hint ---
+    var HINT_STORAGE_KEY = 'immersive_player_hint_dismissed';
+    var playerHint = document.getElementById('playerHint');
+    function showPlayerHint() {
+      if (!playerHint) return;
+      try { if (localStorage.getItem(HINT_STORAGE_KEY) === '1') return; } catch (e) {}
+      setTimeout(function() {
+        if (!playerHint) return;
+        playerHint.classList.add('visible');
+      }, 800);
+      function dismissHint() {
+        if (!playerHint || playerHint.classList.contains('fade-out')) return;
+        playerHint.classList.remove('visible');
+        playerHint.classList.add('fade-out');
+        try { localStorage.setItem(HINT_STORAGE_KEY, '1'); } catch (e) {}
+        cleanupHint();
+      }
+      function cleanupHint() {
+        playerHint.removeEventListener('click', dismissHint);
+        document.removeEventListener('pointerdown', onAnyPointer);
+        clearTimeout(autoHideTimer);
+      }
+      function onAnyPointer(e) {
+        var btn = document.getElementById('sekaiPlayerBtn');
+        if (btn && btn.contains(e.target)) { dismissHint(); return; }
+        if (!playerHint.contains(e.target)) dismissHint();
+      }
+      var autoHideTimer = setTimeout(dismissHint, 12000);
+      playerHint.addEventListener('click', dismissHint);
+      document.addEventListener('pointerdown', onAnyPointer, { capture: true, passive: true });
+    }
+    showPlayerHint();
+    // --- end hint ---
+
     var dominantColors = [];
     var lastCoverSrc = '';
     var vizMode = 'circle';
     var DANMAKU_STORAGE_KEY = 'immersive_danmaku_v1';
     var DANMAKU_ENABLED_KEY = 'immersive_danmaku_enabled';
     var DANMAKU_API_URL = danmakuApiUrl;
-    var DANMAKU_REPEAT_MS = 18000;
+    var DANMAKU_RESPAWN_MS = 3000;
     var danmakuEnabled = true;
     var danmakuItems = [];
     var danmakuLastShown = {};
     var danmakuTrackKey = '';
     var danmakuLane = 0;
+    var danmakuActiveTexts = {};
     var danmakuRemoteCursorByTrack = {};
     var danmakuRemoteLoading = false;
     var danmakuRemoteAvailable = !!DANMAKU_API_URL;
+
+    function getCoverBounds() {
+      var el = document.getElementById('immersiveCover');
+      if (!el) return null;
+      var r = el.getBoundingClientRect();
+      return { top: r.top - 30, bottom: r.bottom + 30 };
+    }
+
+    function spawnDanmaku(text, options) {
+      if (!danmakuStage || !danmakuEnabled) return;
+      var clean = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 60);
+      if (!clean) return;
+      if (danmakuActiveTexts[clean]) return;
+
+      var isSelf = options && options.isSelf;
+      var stageRect = danmakuStage.getBoundingClientRect();
+      var laneH = window.innerWidth <= 640 ? 28 : 40;
+      var lanes = Math.max(1, Math.floor(stageRect.height / laneH));
+      var cover = getCoverBounds();
+
+      var top = null;
+      for (var i = 0; i < lanes; i++) {
+        var y = stageRect.top + i * laneH;
+        if (cover && y + laneH > cover.top && y < cover.bottom) continue;
+        top = y;
+        break;
+      }
+      if (top === null) {
+        for (var j = lanes - 1; j >= 0; j--) {
+          var yb = stageRect.top + j * laneH;
+          if (cover && yb + laneH > cover.top && yb < cover.bottom) continue;
+          top = yb;
+          break;
+        }
+      }
+      if (top === null) top = stageRect.bottom - laneH;
+
+      var item = document.createElement('span');
+      item.className = 'danmaku-item' + (isSelf ? ' is-self' : '');
+      item.textContent = clean;
+      var closeBtn = document.createElement('span');
+      closeBtn.className = 'danmaku-close';
+      closeBtn.textContent = '\u00d7';
+      item.appendChild(closeBtn);
+      item.style.position = 'fixed';
+      item.style.left = '0px';
+      item.style.top = Math.round(top) + 'px';
+      item.style.zIndex = '3';
+      item.style.pointerEvents = 'auto';
+      item.style.color = options && options.color ? options.color : '';
+      document.body.appendChild(item);
+
+      danmakuActiveTexts[clean] = true;
+
+      var duration = options && options.fast ? 11000 : Math.round((14 + Math.random() * 5) * 1000);
+      var itemW = item.getBoundingClientRect().width || 0;
+      var startX = (window.innerWidth || stageRect.width || 0) + 24;
+      var endX = -(itemW + 24);
+      var t0 = performance.now();
+      var rafId = 0;
+      var paused = false;
+      var pauseElapsed = 0;
+
+      item.addEventListener('mouseenter', function() {
+        paused = true;
+        pauseElapsed = performance.now() - t0;
+        cancelAnimationFrame(rafId);
+      });
+      item.addEventListener('mouseleave', function() {
+        if (!paused) return;
+        paused = false;
+        t0 = performance.now() - pauseElapsed;
+        rafId = requestAnimationFrame(tick);
+      });
+      closeBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        cancelAnimationFrame(rafId);
+        item.classList.add('danmaku-removing');
+        danmakuActiveTexts[clean] = 'deleted';
+        setTimeout(function() { if (item.isConnected) item.remove(); }, 220);
+      });
+
+      function tick(now) {
+        if (!item.isConnected || paused) return;
+        var p = Math.min(1, (now - t0) / duration);
+        item.style.left = Math.round(startX + (endX - startX) * p) + 'px';
+        if (p > 0.88) {
+          item.style.opacity = String(Math.max(0, 1 - (p - 0.88) / 0.12));
+        }
+        if (p < 1) {
+          rafId = requestAnimationFrame(tick);
+        } else {
+          item.remove();
+          danmakuActiveTexts[clean] = Date.now() + DANMAKU_RESPAWN_MS;
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+      setTimeout(function() {
+        cancelAnimationFrame(rafId);
+        if (item.isConnected) {
+          item.remove();
+          if (danmakuActiveTexts[clean] === true) {
+            danmakuActiveTexts[clean] = Date.now() + DANMAKU_RESPAWN_MS;
+          }
+        }
+      }, duration + 2000);
+    }
     var hasAudioActivation = !!(navigator.userActivation && navigator.userActivation.hasBeenActive);
     var stableViewport = {
       width: window.innerWidth,
@@ -593,51 +904,6 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       try { localStorage.setItem(DANMAKU_ENABLED_KEY, danmakuEnabled ? '1' : '0'); } catch (e) {}
     }
 
-    function spawnDanmaku(text, options) {
-      if (!danmakuStage || !danmakuEnabled) return;
-      var clean = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 60);
-      if (!clean) return;
-      var item = document.createElement('span');
-      item.className = 'danmaku-item' + (options && options.isSelf ? ' is-self' : '');
-      item.textContent = clean;
-      var laneHeight = window.innerWidth <= 640 ? 28 : 40;
-      var lanes = Math.max(1, Math.floor(danmakuStage.clientHeight / laneHeight));
-      var lane = options && typeof options.lane === 'number' ? options.lane : danmakuLane++;
-      var top = ((lane % lanes) * laneHeight);
-      var stageRect = danmakuStage.getBoundingClientRect();
-      item.style.position = 'fixed';
-      item.style.left = '0px';
-      item.style.top = (stageRect.top + top) + 'px';
-      item.style.zIndex = '3';
-      item.style.pointerEvents = 'none';
-      item.style.color = options && options.color ? options.color : '#fff';
-      document.body.appendChild(item);
-      var duration = options && options.fast ? 7000 : Math.round((9 + Math.random() * 3) * 1000);
-      var itemWidth = item.getBoundingClientRect().width || 0;
-      var startX = (window.innerWidth || stageRect.width || 0) + 24;
-      var endX = -(itemWidth + 24);
-      var startTime = performance.now();
-      item.style.left = Math.round(startX) + 'px';
-      var timer = window.setInterval(function() {
-        if (!item.isConnected) {
-          window.clearInterval(timer);
-          return;
-        }
-        var elapsed = performance.now() - startTime;
-        var progress = Math.min(1, elapsed / duration);
-        var x = startX + (endX - startX) * progress;
-        item.style.left = Math.round(x) + 'px';
-        if (progress >= 1) {
-          window.clearInterval(timer);
-          item.remove();
-        }
-      }, 16);
-      window.setTimeout(function() {
-        window.clearInterval(timer);
-        if (item.isConnected) item.remove();
-      }, duration + 500);
-    }
-
     function submitDanmaku(text) {
       var clean = String(text || '').replace(/\s+/g, ' ').trim().slice(0, 60);
       if (!clean) return;
@@ -698,10 +964,21 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       var wallNow = Date.now();
       danmakuItems.forEach(function(item) {
         if (item.track !== key) return;
+        var active = danmakuActiveTexts[item.text];
+        if (active === true || active === 'deleted') return;
         var lastShown = danmakuLastShown[item.id] || 0;
+        // Cooldown just expired → respawn immediately (3s after natural disappearance)
+        if (typeof active === 'number' && wallNow >= active) {
+          delete danmakuActiveTexts[item.text];
+          danmakuLastShown[item.id] = wallNow;
+          spawnDanmaku(item.text);
+          return;
+        }
+        // Still in cooldown → skip
+        if (typeof active === 'number') return;
+        // No active state → spawn at natural timeline point
         var nearTimelinePoint = item.time <= now && item.time > now - 0.65;
-        var canRepeat = item.time <= now && wallNow - lastShown >= DANMAKU_REPEAT_MS;
-        if ((nearTimelinePoint && wallNow - lastShown > 1200) || canRepeat) {
+        if (nearTimelinePoint && wallNow - lastShown > 1200) {
           danmakuLastShown[item.id] = wallNow;
           spawnDanmaku(item.text);
         }
