@@ -3,8 +3,15 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     }
   },
-  "exclude": ["danmaku-api"]
+  "exclude": [
+    "danmaku-api"
+  ],
+  "include": [
+    "./worker-configuration.d.ts"
+  ]
 }
