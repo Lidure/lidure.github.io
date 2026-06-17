@@ -61,6 +61,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     </div>
     <div class="danmaku-send-flash" id="danmakuSendFlash"></div>
   </form>
+  <div class="danmaku-total-count" id="danmakuTotalCount"></div>
 
   <style>
     /* Canvas full viewport */
@@ -280,6 +281,18 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     @keyframes danmaku-flash-anim {
       0% { opacity: 1; }
       100% { opacity: 0; }
+    }
+
+    .danmaku-total-count {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: -20px;
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
+      white-space: nowrap;
+      pointer-events: none;
+      letter-spacing: 0.04em;
     }
 
     .player-hint {
@@ -594,6 +607,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     var danmakuCounter = document.getElementById('danmakuCounter');
     var danmakuSendBtn = document.getElementById('danmakuSendBtn');
     var danmakuSendFlash = document.getElementById('danmakuSendFlash');
+    var danmakuTotalCount = document.getElementById('danmakuTotalCount');
     if (!canvas) return;
 
     // --- First-visit player hint ---
@@ -646,6 +660,16 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     var danmakuRemoteCursorByTrack = {};
     var danmakuRemoteLoading = false;
     var danmakuRemoteAvailable = !!DANMAKU_API_URL;
+    var danmakuNoAudioShuffled = null;
+    var danmakuNoAudioIndex = 0;
+
+    function updateDanmakuCount() {
+      if (!danmakuTotalCount) return;
+      var key = getCurrentDanmakuTrackKey();
+      var count = 0;
+      danmakuItems.forEach(function(d) { if (d.track === key) count++; });
+      danmakuTotalCount.textContent = count > 0 ? (count + ' 条弹幕') : '';
+    }
 
     function getCoverBounds() {
       var el = document.getElementById('immersiveCover');
@@ -866,6 +890,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
           var items = data && Array.isArray(data.items) ? data.items : [];
           mergeDanmakuItems(items);
           updateRemoteCursor(key, items);
+          updateDanmakuCount();
         })
         .catch(function(error) {
           console.warn('[danmaku] remote load failed, local cache remains active', error);
@@ -918,6 +943,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       saveDanmakuItems();
       danmakuLastShown[item.id] = Date.now();
       spawnDanmaku(item.text, { fast: true, isSelf: true });
+      updateDanmakuCount();
       // Send flash effect
       if (danmakuSendFlash) {
         danmakuSendFlash.classList.remove('flash');
@@ -956,38 +982,76 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       if (key !== danmakuTrackKey) {
         danmakuTrackKey = key;
         danmakuLastShown = {};
+        danmakuNoAudioShuffled = null;
+        danmakuNoAudioIndex = 0;
         loadRemoteDanmaku(key, true);
+        updateDanmakuCount();
       }
       var audioEl = getSekaiAudio();
-      if (!audioEl || audioEl.paused || audioEl.ended) return;
-      var now = getCurrentDanmakuTime();
+      var isAudioPlaying = audioEl && !audioEl.paused && !audioEl.ended;
       var wallNow = Date.now();
-      danmakuItems.forEach(function(item) {
-        if (item.track !== key) return;
-        var active = danmakuActiveTexts[item.text];
-        if (active === true || active === 'deleted') return;
-        var lastShown = danmakuLastShown[item.id] || 0;
-        // Cooldown just expired → respawn immediately (3s after natural disappearance)
-        if (typeof active === 'number' && wallNow >= active) {
-          delete danmakuActiveTexts[item.text];
-          danmakuLastShown[item.id] = wallNow;
-          spawnDanmaku(item.text);
-          return;
+
+      if (isAudioPlaying) {
+        // Audio playing: timeline-based spawning + respawn after cooldown
+        var now = getCurrentDanmakuTime();
+        danmakuItems.forEach(function(item) {
+          if (item.track !== key) return;
+          var active = danmakuActiveTexts[item.text];
+          if (active === true || active === 'deleted') return;
+          var lastShown = danmakuLastShown[item.id] || 0;
+          // Cooldown just expired → respawn immediately (3s after natural disappearance)
+          if (typeof active === 'number' && wallNow >= active) {
+            delete danmakuActiveTexts[item.text];
+            danmakuLastShown[item.id] = wallNow;
+            spawnDanmaku(item.text);
+            return;
+          }
+          // Still in cooldown → skip
+          if (typeof active === 'number') return;
+          // No active state → spawn at natural timeline point
+          var nearTimelinePoint = item.time <= now && item.time > now - 0.65;
+          if (nearTimelinePoint && wallNow - lastShown > 1200) {
+            danmakuLastShown[item.id] = wallNow;
+            spawnDanmaku(item.text);
+          }
+        });
+      } else {
+        // No audio playing: spawn danmaku at intervals for ambient feel
+        var pool = [];
+        danmakuItems.forEach(function(item) {
+          if (item.track === key) pool.push(item);
+        });
+        if (pool.length > 0) {
+          if (!danmakuNoAudioShuffled || danmakuNoAudioShuffled.length !== pool.length) {
+            danmakuNoAudioShuffled = pool.slice();
+            for (var i = danmakuNoAudioShuffled.length - 1; i > 0; i--) {
+              var j = Math.floor(Math.random() * (i + 1));
+              var tmp = danmakuNoAudioShuffled[i];
+              danmakuNoAudioShuffled[i] = danmakuNoAudioShuffled[j];
+              danmakuNoAudioShuffled[j] = tmp;
+            }
+            danmakuNoAudioIndex = 0;
+          }
+          var spawnId = '__noaudio_global';
+          var lastShown = danmakuLastShown[spawnId] || 0;
+          if (wallNow - lastShown > 4000) {
+            var pick = danmakuNoAudioShuffled[danmakuNoAudioIndex % danmakuNoAudioShuffled.length];
+            var active = danmakuActiveTexts[pick.text];
+            if (!active || (typeof active === 'number' && wallNow >= active)) {
+              if (typeof active === 'number') delete danmakuActiveTexts[pick.text];
+              danmakuLastShown[spawnId] = wallNow;
+              spawnDanmaku(pick.text);
+            }
+            danmakuNoAudioIndex = (danmakuNoAudioIndex + 1) % danmakuNoAudioShuffled.length;
+          }
         }
-        // Still in cooldown → skip
-        if (typeof active === 'number') return;
-        // No active state → spawn at natural timeline point
-        var nearTimelinePoint = item.time <= now && item.time > now - 0.65;
-        if (nearTimelinePoint && wallNow - lastShown > 1200) {
-          danmakuLastShown[item.id] = wallNow;
-          spawnDanmaku(item.text);
-        }
-      });
+      }
     }
 
     danmakuEnabled = readDanmakuEnabled();
     danmakuItems = readDanmakuItems();
     setDanmakuEnabled(danmakuEnabled);
+    updateDanmakuCount();
     if (window.__immersiveDanmakuTimer) window.clearInterval(window.__immersiveDanmakuTimer);
     window.__immersiveDanmakuTimer = window.setInterval(tickDanmaku, 250);
     if (window.__immersiveDanmakuSyncTimer) window.clearInterval(window.__immersiveDanmakuSyncTimer);
