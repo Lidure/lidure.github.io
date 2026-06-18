@@ -129,7 +129,7 @@ function momentImageSrc(src: string) {
     </div>
 
     <!-- 时间线 -->
-    <div class="moments-list">
+    <div class="moments-list" id="moments-list">
       {sortedMoments.map((moment, idx) => (
         <article class="moment-card" data-category={moment.category} style={`--delay: ${idx * 60}ms`}>
           <div class={`card-glow glow-${moment.category}`}></div>
