@@ -7,11 +7,11 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
   <div class="player-hint" id="playerHint">
     <div class="player-hint-content">
       <div class="player-hint-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5" opacity="0.35"/><line x1="12" y1="19" x2="12" y2="22" opacity="0.35"/><line x1="2" y1="12" x2="5" y2="12" opacity="0.35"/><line x1="19" y1="12" x2="22" y2="12" opacity="0.35"/></svg>
       </div>
       <div class="player-hint-text">
-        <span class="player-hint-title">点击右下角按钮</span>
-        <span class="player-hint-sub">开启音乐之旅</span>
+        <span class="player-hint-title">点击右下角唱片</span>
+        <span class="player-hint-sub">听 PJSK 的歌，发弹幕</span>
       </div>
       <div class="player-hint-arrow">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
@@ -58,6 +58,16 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       <button type="submit" aria-label="发送" id="danmakuSendBtn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
+    </div>
+    <div class="danmaku-colors" id="danmakuColors">
+      <button type="button" class="danmaku-color-dot active" data-color="" style="background:#fff" title="默认白"></button>
+      <button type="button" class="danmaku-color-dot" data-color="#FF5252" style="background:#FF5252" title="红"></button>
+      <button type="button" class="danmaku-color-dot" data-color="#448AFF" style="background:#448AFF" title="蓝"></button>
+      <button type="button" class="danmaku-color-dot" data-color="#69F0AE" style="background:#69F0AE" title="绿"></button>
+      <button type="button" class="danmaku-color-dot" data-color="#FFD740" style="background:#FFD740" title="黄"></button>
+      <button type="button" class="danmaku-color-dot" data-color="#FF80AB" style="background:#FF80AB" title="粉"></button>
+      <button type="button" class="danmaku-color-dot" data-color="#B388FF" style="background:#B388FF" title="紫"></button>
+      <button type="button" class="danmaku-color-dot" data-color="#FFAB40" style="background:#FFAB40" title="橙"></button>
     </div>
     <div class="danmaku-send-flash" id="danmakuSendFlash"></div>
   </form>
@@ -281,6 +291,41 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     @keyframes danmaku-flash-anim {
       0% { opacity: 1; }
       100% { opacity: 0; }
+    }
+
+    .danmaku-colors {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 6px 0 2px;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.25s, transform 0.25s;
+      pointer-events: none;
+    }
+    .danmaku-composer-inner:focus-within ~ .danmaku-colors,
+    .danmaku-colors:hover {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .danmaku-color-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    }
+    .danmaku-color-dot:hover {
+      transform: scale(1.25);
+    }
+    .danmaku-color-dot.active {
+      border-color: rgba(255,255,255,0.8);
+      box-shadow: 0 0 0 2px rgba(255,255,255,0.25), 0 1px 4px rgba(0,0,0,0.3);
     }
 
     .danmaku-total-count {
@@ -608,6 +653,8 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     var danmakuSendBtn = document.getElementById('danmakuSendBtn');
     var danmakuSendFlash = document.getElementById('danmakuSendFlash');
     var danmakuTotalCount = document.getElementById('danmakuTotalCount');
+    var danmakuColors = document.getElementById('danmakuColors');
+    var danmakuSelectedColor = '';
     if (!canvas) return;
 
     // --- First-visit player hint ---
@@ -616,14 +663,17 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     function showPlayerHint() {
       if (!playerHint) return;
       try { if (localStorage.getItem(HINT_STORAGE_KEY) === '1') return; } catch (e) {}
+      var sekaiBtn = document.getElementById('sekaiPlayerBtn');
       setTimeout(function() {
         if (!playerHint) return;
         playerHint.classList.add('visible');
+        if (sekaiBtn) sekaiBtn.classList.add('attention');
       }, 800);
       function dismissHint() {
         if (!playerHint || playerHint.classList.contains('fade-out')) return;
         playerHint.classList.remove('visible');
         playerHint.classList.add('fade-out');
+        if (sekaiBtn) sekaiBtn.classList.remove('attention');
         try { localStorage.setItem(HINT_STORAGE_KEY, '1'); } catch (e) {}
         cleanupHint();
       }
@@ -637,8 +687,11 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
         if (btn && btn.contains(e.target)) { dismissHint(); return; }
         if (!playerHint.contains(e.target)) dismissHint();
       }
-      var autoHideTimer = setTimeout(dismissHint, 12000);
-      playerHint.addEventListener('click', dismissHint);
+      var autoHideTimer = setTimeout(dismissHint, 15000);
+      playerHint.addEventListener('click', function() {
+        dismissHint();
+        if (sekaiBtn) sekaiBtn.click();
+      });
       document.addEventListener('pointerdown', onAnyPointer, { capture: true, passive: true });
     }
     showPlayerHint();
@@ -925,6 +978,25 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
         });
     }
 
+    function fullSyncDanmaku(key) {
+      if (!danmakuRemoteAvailable || !key) return;
+      var url = DANMAKU_API_URL + '?track=' + encodeURIComponent(key) + '&since=0&limit=300';
+      fetch(url, { method: 'GET', cache: 'no-store' })
+        .then(function(response) {
+          if (!response.ok) throw new Error('Danmaku API ' + response.status);
+          return response.json();
+        })
+        .then(function(data) {
+          var remoteItems = data && Array.isArray(data.items) ? data.items : [];
+          // Replace local items for this track with remote (removes deleted ones)
+          danmakuItems = danmakuItems.filter(function(d) { return d.track !== key; });
+          mergeDanmakuItems(remoteItems);
+          updateRemoteCursor(key, remoteItems);
+          updateDanmakuCount();
+        })
+        .catch(function() {});
+    }
+
     function getSekaiAudio() {
       return document.getElementById('sekaiAudio');
     }
@@ -962,12 +1034,13 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
         text: clean,
         time: getCurrentDanmakuTime(),
         track: getCurrentDanmakuTrackKey(),
+        color: danmakuSelectedColor || null,
         createdAt: Date.now()
       };
       danmakuItems.push(item);
       saveDanmakuItems();
       danmakuLastShown[item.id] = Date.now();
-      spawnDanmaku(item.text, { fast: true, isSelf: true, danmakuData: item });
+      spawnDanmaku(item.text, { fast: true, isSelf: true, danmakuData: item, color: item.color });
       updateDanmakuCount();
       // Send flash effect
       if (danmakuSendFlash) {
@@ -982,7 +1055,8 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
           body: JSON.stringify({
             track: item.track,
             text: item.text,
-            time: item.time
+            time: item.time,
+            color: item.color
           })
         })
           .then(function(response) {
@@ -1028,7 +1102,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
           if (typeof active === 'number' && wallNow >= active) {
             delete danmakuActiveTexts[item.text];
             danmakuLastShown[item.id] = wallNow;
-            spawnDanmaku(item.text, { danmakuData: item });
+            spawnDanmaku(item.text, { danmakuData: item, color: item.color });
             return;
           }
           // Still in cooldown → skip
@@ -1037,7 +1111,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
           var nearTimelinePoint = item.time <= now && item.time > now - 0.65;
           if (nearTimelinePoint && wallNow - lastShown > 1200) {
             danmakuLastShown[item.id] = wallNow;
-            spawnDanmaku(item.text, { danmakuData: item });
+            spawnDanmaku(item.text, { danmakuData: item, color: item.color });
           }
         });
       } else {
@@ -1065,7 +1139,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
             if (!active || (typeof active === 'number' && wallNow >= active)) {
               if (typeof active === 'number') delete danmakuActiveTexts[pick.text];
               danmakuLastShown[spawnId] = wallNow;
-              spawnDanmaku(pick.text, { danmakuData: pick });
+              spawnDanmaku(pick.text, { danmakuData: pick, color: pick.color });
             }
             danmakuNoAudioIndex = (danmakuNoAudioIndex + 1) % danmakuNoAudioShuffled.length;
           }
@@ -1083,6 +1157,10 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
     window.__immersiveDanmakuSyncTimer = window.setInterval(function() {
       loadRemoteDanmaku(getCurrentDanmakuTrackKey(), false);
     }, 8000);
+    if (window.__immersiveDanmakuFullSyncTimer) window.clearInterval(window.__immersiveDanmakuFullSyncTimer);
+    window.__immersiveDanmakuFullSyncTimer = window.setInterval(function() {
+      fullSyncDanmaku(getCurrentDanmakuTrackKey());
+    }, 30000);
 
     if (danmakuToggleBtn) {
       danmakuToggleBtn.addEventListener('click', function(e) {
@@ -1108,6 +1186,19 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
           danmakuCounter.className = 'danmaku-counter' + (len >= 55 ? ' is-near-limit' : '') + (len >= 60 ? ' is-at-limit' : '');
         });
       }
+    }
+
+    // Color palette handler
+    if (danmakuColors) {
+      danmakuColors.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var dot = e.target.closest('.danmaku-color-dot');
+        if (!dot) return;
+        danmakuSelectedColor = dot.getAttribute('data-color') || '';
+        var dots = danmakuColors.querySelectorAll('.danmaku-color-dot');
+        for (var i = 0; i < dots.length; i++) dots[i].classList.remove('active');
+        dot.classList.add('active');
+      });
     }
 
     function resumeSekaiAudioContext() {

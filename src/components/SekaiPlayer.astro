@@ -6,7 +6,7 @@
   <img id="sekaiDockCover" class="sekai-dock-cover" src="" alt="" aria-hidden="true" />
   <canvas id="sekaiDockVisualizer" class="sekai-dock-visualizer" aria-hidden="true"></canvas>
   <span id="sekaiDockIcon" class="sekai-dock-icon">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5" opacity="0.35"/><line x1="12" y1="19" x2="12" y2="22" opacity="0.35"/><line x1="2" y1="12" x2="5" y2="12" opacity="0.35"/><line x1="19" y1="12" x2="22" y2="12" opacity="0.35"/></svg>
   </span>
 </button>
 
@@ -290,6 +290,26 @@
       0 4px 28px rgba(var(--accent-rgb), 0.4),
       inset 0 1px 0 rgba(255, 255, 255, 0.15),
       0 0 0 1px rgba(var(--accent-rgb), 0.2);
+  }
+}
+
+.sekai-player-btn.attention {
+  animation: sekaiAttention 1.8s ease-in-out infinite;
+}
+@keyframes sekaiAttention {
+  0%, 100% {
+    box-shadow:
+      0 4px 20px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 0 0 1px rgba(255, 255, 255, 0.08),
+      0 0 0 0px rgba(var(--accent-rgb), 0.4);
+  }
+  50% {
+    box-shadow:
+      0 4px 28px rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15),
+      0 0 0 1px rgba(255, 255, 255, 0.12),
+      0 0 0 10px rgba(var(--accent-rgb), 0);
   }
 }
 
