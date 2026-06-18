@@ -9,12 +9,16 @@ const MAX_TRACK_LENGTH = 160;
 const MAX_LIMIT = 300;
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMIT_MAX = 8;
+const PUBLIC_WRITE_RATE_LIMIT_MAX = 6;
 
 /* ===== Moments constants ===== */
 const MOMENT_MAX_TEXT = 2000;
 const MOMENT_MAX_IMAGES = 9;
 const MOMENT_CATEGORIES = ['游戏', '音乐', '生活'];
 const MOMENT_IMAGE_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+const GUEST_MESSAGE_MAX_TEXT = 800;
+const COMMENT_MAX_TEXT = 500;
+const USER_ID_MAX_LENGTH = 32;
 
 export default {
   async fetch(request, env) {
@@ -44,6 +48,18 @@ export default {
 
       if (url.pathname === '/api/moments/upload') {
         if (request.method === 'POST') return requireAdmin(request, env, function() { return handleMomentsUpload(request, env); });
+        return json({ error: 'Method not allowed' }, 405, request, env);
+      }
+
+      if (url.pathname === '/api/messages') {
+        if (request.method === 'GET') return handleMessagesList(url, request, env);
+        if (request.method === 'POST') return handleMessagesCreate(request, env);
+        return json({ error: 'Method not allowed' }, 405, request, env);
+      }
+
+      if (url.pathname === '/api/comments') {
+        if (request.method === 'GET') return handleCommentsList(url, request, env);
+        if (request.method === 'POST') return handleCommentsCreate(request, env);
         return json({ error: 'Method not allowed' }, 405, request, env);
       }
 
@@ -339,6 +355,119 @@ async function handleMomentsUpload(request, env) {
 }
 
 /* ===========================
+ *  Guest messages + comments
+ * =========================== */
+async function handleMessagesList(url, request, env) {
+  var limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') || '50', 10) || 50));
+  var result = await env.DB.prepare(
+    'SELECT id, user_id, text, created_at FROM guest_messages ORDER BY created_at DESC LIMIT ?'
+  ).bind(limit).all();
+
+  var messages = (result.results || []).map(toGuestMessageItem);
+  if (!messages.length) {
+    return json({ items: [], now: Date.now() }, 200, request, env);
+  }
+
+  var ids = messages.map(function(item) { return item.id; });
+  var placeholders = ids.map(function() { return '?'; }).join(',');
+  var stmt = env.DB.prepare(
+    'SELECT target_id, COUNT(*) AS count FROM comments WHERE target_type = ? AND target_id IN (' + placeholders + ') GROUP BY target_id'
+  );
+  var counts = await stmt.bind(...['message'].concat(ids)).all();
+  var countMap = {};
+  (counts.results || []).forEach(function(row) { countMap[row.target_id] = row.count || 0; });
+  messages.forEach(function(item) { item.commentCount = countMap[item.id] || 0; });
+
+  return json({ items: messages, now: Date.now() }, 200, request, env);
+}
+
+async function handleMessagesCreate(request, env) {
+  var contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ error: 'Expected application/json' }, 415, request, env);
+  }
+
+  var body = await readJsonBody(request);
+  var userId = normalizeUserId(body.userId);
+  var text = normalizePublicText(body.text, GUEST_MESSAGE_MAX_TEXT);
+  if (!userId || !text) return json({ error: 'Missing userId or text' }, 400, request, env);
+
+  var ipHash = await hashClient(request);
+  var now = Date.now();
+  var limited = await isPublicWriteLimited(env, ipHash, now, 'guest_messages');
+  if (limited) return json({ error: 'Too many messages' }, 429, request, env);
+
+  var item = {
+    id: crypto.randomUUID(),
+    userId: userId,
+    text: text,
+    createdAt: now,
+    commentCount: 0
+  };
+
+  await env.DB.prepare(
+    'INSERT INTO guest_messages (id, user_id, text, ip_hash, created_at) VALUES (?, ?, ?, ?, ?)'
+  ).bind(item.id, item.userId, item.text, ipHash, item.createdAt).run();
+
+  return json({ item: item }, 201, request, env);
+}
+
+async function handleCommentsList(url, request, env) {
+  var targetType = normalizeTargetType(url.searchParams.get('targetType'));
+  var targetId = typeof url.searchParams.get('targetId') === 'string' ? url.searchParams.get('targetId').trim() : '';
+  if (!targetType || !targetId) return json({ error: 'Missing targetType or targetId' }, 400, request, env);
+
+  var limit = Math.min(100, Math.max(1, parseInt(url.searchParams.get('limit') || '80', 10) || 80));
+  var result = await env.DB.prepare(
+    'SELECT id, target_type, target_id, user_id, text, created_at FROM comments WHERE target_type = ? AND target_id = ? ORDER BY created_at ASC LIMIT ?'
+  ).bind(targetType, targetId, limit).all();
+
+  return json({
+    items: (result.results || []).map(toCommentItem),
+    now: Date.now()
+  }, 200, request, env);
+}
+
+async function handleCommentsCreate(request, env) {
+  var contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ error: 'Expected application/json' }, 415, request, env);
+  }
+
+  var body = await readJsonBody(request);
+  var targetType = normalizeTargetType(body.targetType);
+  var targetId = typeof body.targetId === 'string' ? body.targetId.trim() : '';
+  var userId = normalizeUserId(body.userId);
+  var text = normalizePublicText(body.text, COMMENT_MAX_TEXT);
+  if (!targetType || !targetId || !userId || !text) {
+    return json({ error: 'Missing targetType, targetId, userId or text' }, 400, request, env);
+  }
+
+  var exists = await targetExists(env, targetType, targetId);
+  if (!exists) return json({ error: 'Target not found' }, 404, request, env);
+
+  var ipHash = await hashClient(request);
+  var now = Date.now();
+  var limited = await isPublicWriteLimited(env, ipHash, now, 'comments');
+  if (limited) return json({ error: 'Too many comments' }, 429, request, env);
+
+  var item = {
+    id: crypto.randomUUID(),
+    targetType: targetType,
+    targetId: targetId,
+    userId: userId,
+    text: text,
+    createdAt: now
+  };
+
+  await env.DB.prepare(
+    'INSERT INTO comments (id, target_type, target_id, user_id, text, ip_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).bind(item.id, item.targetType, item.targetId, item.userId, item.text, ipHash, item.createdAt).run();
+
+  return json({ item: item }, 201, request, env);
+}
+
+/* ===========================
  *  Helpers (shared)
  * =========================== */
 async function readJsonBody(request) {
@@ -370,6 +499,36 @@ function normalizeColor(value) {
   return /^#[0-9a-fA-F]{6}$/.test(color) ? color : null;
 }
 
+function normalizeUserId(value) {
+  if (typeof value !== 'string') return '';
+  return value.replace(/\s+/g, ' ').trim().slice(0, USER_ID_MAX_LENGTH);
+}
+
+function normalizePublicText(value, maxLength) {
+  if (typeof value !== 'string') return '';
+  return value.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim().slice(0, maxLength);
+}
+
+function normalizeTargetType(value) {
+  return value === 'moment' || value === 'message' ? value : '';
+}
+
+async function isPublicWriteLimited(env, ipHash, now, tableName) {
+  var sql = tableName === 'comments'
+    ? 'SELECT COUNT(*) AS count FROM comments WHERE ip_hash = ? AND created_at > ?'
+    : 'SELECT COUNT(*) AS count FROM guest_messages WHERE ip_hash = ? AND created_at > ?';
+  var recent = await env.DB.prepare(sql).bind(ipHash, now - RATE_LIMIT_WINDOW_MS).first();
+  return (recent && recent.count || 0) >= PUBLIC_WRITE_RATE_LIMIT_MAX;
+}
+
+async function targetExists(env, targetType, targetId) {
+  var tableName = targetType === 'moment' ? 'moments' : 'guest_messages';
+  var sql = tableName === 'moments'
+    ? 'SELECT id FROM moments WHERE id = ? LIMIT 1'
+    : 'SELECT id FROM guest_messages WHERE id = ? LIMIT 1';
+  return !!(await env.DB.prepare(sql).bind(targetId).first());
+}
+
 async function hashClient(request) {
   var ip = request.headers.get('CF-Connecting-IP') || 'unknown';
   var ua = request.headers.get('User-Agent') || '';
@@ -399,6 +558,27 @@ function toMomentItem(row) {
     text: row.text,
     link: row.link || undefined,
     images: images,
+    createdAt: row.created_at
+  };
+}
+
+function toGuestMessageItem(row) {
+  return {
+    id: row.id,
+    userId: row.user_id,
+    text: row.text,
+    createdAt: row.created_at,
+    commentCount: 0
+  };
+}
+
+function toCommentItem(row) {
+  return {
+    id: row.id,
+    targetType: row.target_type,
+    targetId: row.target_id,
+    userId: row.user_id,
+    text: row.text,
     createdAt: row.created_at
   };
 }

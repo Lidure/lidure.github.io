@@ -733,6 +733,13 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     gap: 8px;
   }
 
+  .card-meta-left,
+  .card-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
   .cat-pill {
     padding: 3px 10px;
     border-radius: 999px;
@@ -752,6 +759,31 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   .card-date {
     font-size: 0.78rem;
     color: var(--muted);
+  }
+
+  .delete-moment-btn {
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+
+  .delete-moment-btn:hover {
+    color: #d94040;
+    border-color: rgba(217, 64, 64, 0.3);
+    background: rgba(217, 64, 64, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .delete-moment-btn:disabled {
+    cursor: wait;
+    opacity: 0.6;
+    transform: none;
   }
 
   .card-text {
@@ -810,6 +842,35 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
   .moment-card.hidden {
     display: none !important;
+  }
+
+  .moments-toast {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 10001;
+    max-width: min(320px, calc(100vw - 36px));
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .moments-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .moments-toast.error {
+    color: #d94040;
+    border-color: rgba(217, 64, 64, 0.25);
   }
 
   /* ===== 图片灯箱 ===== */
@@ -1048,6 +1109,11 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       font-size: 0.75rem;
     }
 
+    .card-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+
     .card-text {
       font-size: 0.9rem;
       line-height: 1.7;
@@ -1101,6 +1167,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
 <script>
   import { uploadToR2 } from '../lib/r2-upload';
+  import { createCommentsWidget } from '../lib/public-interactions';
 
   // === Config ===
   const MOMENTS_API_URL = 'https://danmaku.lidure22.xyz/api/moments';
@@ -1110,12 +1177,6 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   const maxImageBytes = 8 * 1024 * 1024;
 
   // === Helpers ===
-  function escapeHtml(s: string) {
-    const d = document.createElement('div');
-    d.textContent = s;
-    return d.innerHTML;
-  }
-
   function resolveImageUrl(src: string) {
     if (!src) return '';
     if (src.startsWith('http://') || src.startsWith('https://')) return src;
@@ -1136,6 +1197,90 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     try { return localStorage.getItem(ADMIN_TOKEN_KEY) || ''; } catch { return ''; }
   }
 
+  type RenderMoment = {
+    id?: string;
+    date: string;
+    category: string;
+    text: string;
+    link?: string;
+    images: string[];
+    createdAt?: number;
+  };
+
+  const knownCategories = new Set(['游戏', '音乐', '生活']);
+  const categoryIcons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕' };
+  let currentMoments: RenderMoment[] = [];
+  let toastTimer: number | undefined;
+
+  let scopedStyleAttribute: string | null | undefined;
+
+  function getScopedStyleAttribute() {
+    if (scopedStyleAttribute !== undefined) return scopedStyleAttribute;
+    const anchor = document.querySelector<HTMLElement>('.moments-shell');
+    scopedStyleAttribute = anchor?.getAttributeNames().find((name) => name.startsWith('data-astro-cid-')) ?? null;
+    return scopedStyleAttribute;
+  }
+
+  function applyScopedStyles(root: Element) {
+    const attr = getScopedStyleAttribute();
+    if (!attr) return root;
+    root.setAttribute(attr, '');
+    root.querySelectorAll('*').forEach((node) => node.setAttribute(attr, ''));
+    return root;
+  }
+
+  function normalizeMoment(raw: any): RenderMoment | null {
+    if (!raw || typeof raw !== 'object') return null;
+
+    const category = String(raw.category ?? '').trim();
+    const text = String(raw.text ?? '').trim();
+    if (!text) return null;
+
+    const createdAt = typeof raw.createdAt === 'number' ? raw.createdAt : undefined;
+    const date = String(raw.date ?? '').trim() || (createdAt ? localDateTimeValue(new Date(createdAt)) : localDateTimeValue());
+    const images = Array.isArray(raw.images)
+      ? raw.images.map((src: unknown) => String(src ?? '').trim()).filter(Boolean)
+      : [];
+    const link = String(raw.link ?? '').trim();
+
+    return {
+      id: raw.id ? String(raw.id) : undefined,
+      date,
+      category: knownCategories.has(category) ? category : '生活',
+      text,
+      ...(link && { link }),
+      images,
+      ...(createdAt && { createdAt }),
+    };
+  }
+
+  function renderListMessage(text: string, className = '') {
+    const list = document.getElementById('moments-list');
+    if (!list) return;
+    const message = document.createElement('p');
+    message.className = `empty-state ${className}`.trim();
+    message.textContent = text;
+    applyScopedStyles(message);
+    list.replaceChildren(message);
+  }
+
+  function notifyMomentAction(text: string) {
+    let toast = document.getElementById('moments-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'moments-toast';
+      toast.className = 'moments-toast';
+      toast.setAttribute('role', 'status');
+      applyScopedStyles(toast);
+      document.body.appendChild(toast);
+    }
+
+    toast.textContent = text;
+    toast.className = `moments-toast show ${text.includes('失败') ? 'error' : 'success'}`;
+    window.clearTimeout(toastTimer);
+    toastTimer = window.setTimeout(() => toast?.classList.remove('show'), 2200);
+  }
+
   // === API Fetch & Render ===
   async function fetchMomentsFromApi() {
     const res = await fetch(MOMENTS_API_URL + '?limit=200', { cache: 'no-store' });
@@ -1145,23 +1290,31 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
   function syncMoments(apiMoments: any[]) {
     const list = document.getElementById('moments-list');
-    if (!list || apiMoments.length === 0) return;
+    if (!list) return;
+
+    const moments = apiMoments.map(normalizeMoment).filter((moment): moment is RenderMoment => Boolean(moment));
+    currentMoments = moments;
+    if (moments.length === 0) {
+      renderListMessage('暂时没有碎碎念，敬请期待 ✨');
+      updateStats([]);
+      return;
+    }
 
     // Get current active filter
     const activeTab = document.querySelector('.pill[data-category].active') as HTMLElement | null;
     const activeCategory = activeTab?.dataset?.category || 'all';
 
     list.innerHTML = '';
-    apiMoments.forEach((moment: any, idx: number) => {
+    moments.forEach((moment, idx) => {
       const card = buildMomentCard(moment, idx, activeCategory);
       if (card) list.appendChild(card);
     });
 
-    updateStats(apiMoments);
+    updateStats(moments);
     setupLightboxForNewCards();
   }
 
-  function buildMomentCard(moment: any, idx: number, activeCategory: string) {
+  function buildMomentCard(moment: RenderMoment, idx: number, activeCategory: string) {
     const card = document.createElement('article');
     card.className = 'moment-card';
     card.dataset.category = moment.category;
@@ -1181,17 +1334,36 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     const meta = document.createElement('div');
     meta.className = 'card-meta';
 
+    const leftMeta = document.createElement('div');
+    leftMeta.className = 'card-meta-left';
+
     const catPill = document.createElement('span');
     catPill.className = `cat-pill pill-${moment.category}`;
-    const icons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕' };
-    catPill.textContent = `${icons[moment.category] || ''} ${moment.category}`;
+    catPill.textContent = `${categoryIcons[moment.category] || ''} ${moment.category}`;
 
     const dateEl = document.createElement('time');
     dateEl.className = 'card-date';
     dateEl.dateTime = moment.date;
     dateEl.textContent = formatMomentDate(moment.date);
 
-    meta.append(catPill, dateEl);
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
+    actions.appendChild(dateEl);
+
+    if (moment.id) {
+      card.dataset.id = moment.id;
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'delete-moment-btn';
+      deleteBtn.dataset.momentId = moment.id;
+      deleteBtn.title = '删除这条动态';
+      deleteBtn.setAttribute('aria-label', '删除这条动态');
+      deleteBtn.textContent = '删除';
+      actions.appendChild(deleteBtn);
+    }
+
+    leftMeta.appendChild(catPill);
+    meta.append(leftMeta, actions);
     content.appendChild(meta);
 
     // Text
@@ -1231,18 +1403,23 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       content.appendChild(link);
     }
 
+    if (moment.id) {
+      content.appendChild(createCommentsWidget('moment', moment.id));
+    }
+
     card.append(glow, content);
+    applyScopedStyles(card);
     return card;
   }
 
-  function updateStats(moments: any[]) {
+  function updateStats(moments: RenderMoment[]) {
     const totalEl = document.getElementById('stat-total');
     const gameEl = document.getElementById('stat-game');
     const musicEl = document.getElementById('stat-music');
     const lifeEl = document.getElementById('stat-life');
 
     const catCounts: Record<string, number> = {};
-    moments.forEach((m: any) => {
+    moments.forEach((m) => {
       catCounts[m.category] = (catCounts[m.category] || 0) + 1;
     });
 
@@ -1256,16 +1433,14 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   fetchMomentsFromApi()
     .then((items) => {
       if (items.length === 0) {
-        const list = document.getElementById('moments-list');
-        if (list) list.innerHTML = '<p class="empty-state">暂时没有碎碎念，敬请期待 ✨</p>';
+        renderListMessage('暂时没有碎碎念，敬请期待 ✨');
         return;
       }
       syncMoments(items);
     })
     .catch((err) => {
       console.warn('Failed to fetch moments from API:', err);
-      const list = document.getElementById('moments-list');
-      if (list) list.innerHTML = '<p class="empty-state error-state">加载失败，请刷新页面重试 😢</p>';
+      renderListMessage('加载失败，请刷新页面重试 😢', 'error-state');
     });
 
   // === Category filter ===
@@ -1281,6 +1456,67 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         card.classList.toggle('hidden', selected !== 'all' && card.dataset.category !== selected);
       });
     });
+  });
+
+  async function deleteMoment(momentId: string, trigger: HTMLButtonElement) {
+    const target = currentMoments.find((moment) => moment.id === momentId);
+    const label = target?.text ? `「${target.text.slice(0, 24)}${target.text.length > 24 ? '...' : ''}」` : '这条动态';
+    if (!window.confirm(`确定删除 ${label} 吗？删除后不可恢复。`)) return;
+
+    let adminToken = getAdminToken();
+    if (!adminToken) {
+      adminToken = window.prompt('请输入管理密钥以删除动态')?.trim() || '';
+      if (adminToken) {
+        try { localStorage.setItem(ADMIN_TOKEN_KEY, adminToken); } catch {}
+      }
+    }
+    if (!adminToken) return;
+
+    trigger.disabled = true;
+    const originalText = trigger.textContent || '删除';
+    trigger.textContent = '删除中...';
+
+    try {
+      const res = await fetch(MOMENTS_API_URL, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Authorization': `Bearer ${adminToken}`,
+        },
+        body: JSON.stringify({ id: momentId }),
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        if (res.status === 401) {
+          try { localStorage.removeItem(ADMIN_TOKEN_KEY); } catch {}
+        }
+        throw new Error(errData.error || `API 错误 (${res.status})`);
+      }
+
+      currentMoments = currentMoments.filter((moment) => moment.id !== momentId);
+      syncMoments(currentMoments);
+      notifyMomentAction('✅ 删除成功');
+
+      setTimeout(async () => {
+        try {
+          const fresh = await fetchMomentsFromApi();
+          syncMoments(fresh);
+        } catch {}
+      }, 800);
+    } catch (err) {
+      const detail = err instanceof Error ? err.message : String(err);
+      notifyMomentAction('❌ 删除失败: ' + detail.slice(0, 200));
+      trigger.disabled = false;
+      trigger.textContent = originalText;
+    }
+  }
+
+  document.getElementById('moments-list')?.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.delete-moment-btn');
+    if (!button?.dataset.momentId) return;
+    event.preventDefault();
+    deleteMoment(button.dataset.momentId, button);
   });
 
   // === Publish panel toggle ===
@@ -1352,6 +1588,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         }
       });
       div.append(img, progress, removeBtn);
+      applyScopedStyles(div);
       imagePreviews.appendChild(div);
       if (item.remoteUrl) setPreviewStatus(item.id, '已上传', 'uploaded');
     });
@@ -1518,10 +1755,15 @@ import { categoryMeta, categoryOrder } from '../data/moments';
             const existing = await fetchMomentsFromApi().catch(() => null);
             if (existing) {
               // Deduplicate: add new moment only if not already in API results
-              const ids = new Set(existing.map((m: any) => m.date + m.text));
+              const normalizedExisting: RenderMoment[] = [];
+              existing.forEach((item: any) => {
+                const moment = normalizeMoment(item);
+                if (moment) normalizedExisting.push(moment);
+              });
+              const ids = new Set(normalizedExisting.map((m: RenderMoment) => m.date + m.text));
               const key = newMoment.date + newMoment.text;
-              if (!ids.has(key)) existing.unshift(newMoment);
-              updateStats(existing);
+              if (!ids.has(key)) normalizedExisting.unshift(newMoment);
+              updateStats(normalizedExisting);
             }
           } catch {}
         }

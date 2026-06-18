@@ -1483,3 +1483,141 @@ img {
 }
 .sekai-playlist-item:hover .sekai-pl-sub { color: rgba(99,102,241,0.8); }
 .sekai-playlist-item.active .sekai-pl-sub { color: rgba(200,160,255,0.88); }
+
+/* Public comments shared by moments and guestbook */
+.public-comments {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.public-comments-toggle {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--panel-border);
+  background: var(--tag-bg);
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.public-comments-toggle:hover,
+.public-comments-toggle.open {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(var(--accent-rgb), 0.08);
+}
+
+.public-comments-body {
+  margin-top: 10px;
+}
+
+.public-comments-body[hidden] {
+  display: none;
+}
+
+.public-comments-list {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 10px;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.public-comment-item {
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: rgba(var(--accent-rgb), 0.05);
+  border: 1px solid var(--panel-border);
+}
+
+.public-comment-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.public-comment-meta strong {
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.public-comment-meta time {
+  color: var(--muted);
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+
+.public-comment-item p,
+.public-comment-empty,
+.public-comment-status {
+  margin: 0;
+}
+
+.public-comment-item p {
+  color: var(--text-soft);
+  line-height: 1.55;
+}
+
+.public-comment-form {
+  display: grid;
+  grid-template-columns: minmax(92px, 130px) minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.public-comment-form input,
+.public-comment-form button {
+  height: 36px;
+  border-radius: 10px;
+  font: inherit;
+}
+
+.public-comment-form input {
+  min-width: 0;
+  padding: 0 10px;
+  border: 1px solid var(--panel-border);
+  background: var(--bg);
+  color: var(--text);
+}
+
+.public-comment-form input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.public-comment-form button {
+  padding: 0 14px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  color: #fff;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.public-comment-form button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.public-comment-status {
+  min-height: 18px;
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 640px) {
+  .public-comment-form {
+    grid-template-columns: 1fr auto;
+  }
+
+  .public-comment-form input[name="userId"] {
+    grid-column: 1 / -1;
+  }
+}
