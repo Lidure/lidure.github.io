@@ -113,20 +113,17 @@ function momentImageSrc(src: string) {
         </div>
 
         <label class="field full token-field">
-          <span class="field-label">🔑 GitHub Token <span id="token-saved-badge" class="token-saved-badge" style="display:none">✓ 已保存</span></span>
+          <span class="field-label">🔑 管理密钥 <span id="token-saved-badge" class="token-saved-badge" style="display:none">✓ 已保存</span></span>
           <div class="token-input-wrap">
-            <input type="password" name="githubToken" id="token-input" placeholder="首次输入后自动保存，下次不用再填" />
-            <button type="button" id="token-clear-btn" class="token-clear-btn" title="清除已保存的 Token" style="display:none">✕</button>
-            <a href="https://github.com/settings/tokens/new?scopes=repo&description=Moments%20Blog" target="_blank" rel="noreferrer" class="token-link">
-              如何获取？
-            </a>
+            <input type="password" name="adminToken" id="token-input" placeholder="首次输入后自动保存，下次不用再填" />
+            <button type="button" id="token-clear-btn" class="token-clear-btn" title="清除已保存的密钥" style="display:none">✕</button>
           </div>
         </label>
 
 
 
         <button type="submit" class="submit-btn" id="submit-btn">🚀 发布</button>
-        <p class="form-note">Token 需要 repo 权限。首次输入后会自动保存，无需重复填写。</p>
+        <p class="form-note">管理密钥在首次输入后自动保存，无需重复填写。</p>
       </form>
       <div id="form-message"></div>
     </div>
@@ -1120,25 +1117,185 @@ function momentImageSrc(src: string) {
 <script>
   import { uploadToR2 } from '../lib/r2-upload';
 
-  // 分类筛选
+  // === Config ===
+  const MOMENTS_API_URL = 'https://danmaku.lidure22.xyz/api/moments';
+  const IMAGE_BASE_URL = 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev';
+  const ADMIN_TOKEN_KEY = 'moments_admin_token';
+  const maxImages = 9;
+  const maxImageBytes = 8 * 1024 * 1024;
+
+  // === Helpers ===
+  function escapeHtml(s: string) {
+    const d = document.createElement('div');
+    d.textContent = s;
+    return d.innerHTML;
+  }
+
+  function resolveImageUrl(src: string) {
+    if (!src) return '';
+    if (src.startsWith('http://') || src.startsWith('https://')) return src;
+    return IMAGE_BASE_URL + '/' + src.replace(/^\//, '');
+  }
+
+  function formatMomentDate(value: string) {
+    const [datePart, timePart] = value.split('T');
+    return timePart ? `${datePart} ${timePart.slice(0, 5)}` : datePart;
+  }
+
+  function localDateTimeValue(date = new Date()) {
+    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+    return local.toISOString().slice(0, 16);
+  }
+
+  function getAdminToken(): string {
+    try { return localStorage.getItem(ADMIN_TOKEN_KEY) || ''; } catch { return ''; }
+  }
+
+  // === API Fetch & Render ===
+  async function fetchMomentsFromApi() {
+    const res = await fetch(MOMENTS_API_URL + '?limit=200', { cache: 'no-store' });
+    if (!res.ok) throw new Error('API error: ' + res.status);
+    return (await res.json()).items || [];
+  }
+
+  function syncMoments(apiMoments: any[]) {
+    const list = document.getElementById('moments-list');
+    if (!list || apiMoments.length === 0) return;
+
+    // Get current active filter
+    const activeTab = document.querySelector('.pill[data-category].active') as HTMLElement | null;
+    const activeCategory = activeTab?.dataset?.category || 'all';
+
+    list.innerHTML = '';
+    apiMoments.forEach((moment: any, idx: number) => {
+      const card = buildMomentCard(moment, idx, activeCategory);
+      if (card) list.appendChild(card);
+    });
+
+    updateStats(apiMoments);
+    setupLightboxForNewCards();
+  }
+
+  function buildMomentCard(moment: any, idx: number, activeCategory: string) {
+    const card = document.createElement('article');
+    card.className = 'moment-card';
+    card.dataset.category = moment.category;
+    card.style.setProperty('--delay', `${idx * 40}ms`);
+
+    if (activeCategory !== 'all' && moment.category !== activeCategory) {
+      card.classList.add('hidden');
+    }
+
+    const glow = document.createElement('div');
+    glow.className = `card-glow glow-${moment.category}`;
+
+    const content = document.createElement('div');
+    content.className = 'card-content';
+
+    // Meta
+    const meta = document.createElement('div');
+    meta.className = 'card-meta';
+
+    const catPill = document.createElement('span');
+    catPill.className = `cat-pill pill-${moment.category}`;
+    const icons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕' };
+    catPill.textContent = `${icons[moment.category] || ''} ${moment.category}`;
+
+    const dateEl = document.createElement('time');
+    dateEl.className = 'card-date';
+    dateEl.dateTime = moment.date;
+    dateEl.textContent = formatMomentDate(moment.date);
+
+    meta.append(catPill, dateEl);
+    content.appendChild(meta);
+
+    // Text
+    const text = document.createElement('p');
+    text.className = 'card-text';
+    text.textContent = moment.text;
+    content.appendChild(text);
+
+    // Images
+    if (moment.images && moment.images.length > 0) {
+      const imgDiv = document.createElement('div');
+      imgDiv.className = 'card-images';
+      imgDiv.dataset.count = String(moment.images.length);
+      moment.images.forEach((imgSrc: string) => {
+        const img = document.createElement('img');
+        const resolvedSrc = resolveImageUrl(imgSrc);
+        img.src = resolvedSrc;
+        img.dataset.lightboxSrc = resolvedSrc;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.decoding = 'async';
+        img.setAttribute('role', 'button');
+        img.tabIndex = 0;
+        imgDiv.appendChild(img);
+      });
+      content.appendChild(imgDiv);
+    }
+
+    // Link
+    if (moment.link) {
+      const link = document.createElement('a');
+      link.className = 'card-link';
+      link.href = moment.link;
+      link.target = '_blank';
+      link.rel = 'noreferrer';
+      link.textContent = `🔗 ${moment.link.replace(/^https?:\/\//, '').split('/')[0]}`;
+      content.appendChild(link);
+    }
+
+    card.append(glow, content);
+    return card;
+  }
+
+  function updateStats(moments: any[]) {
+    const statsContainer = document.querySelector('.hero-stats');
+    if (!statsContainer) return;
+
+    const total = moments.length;
+    const catCounts: Record<string, number> = {};
+    moments.forEach((m: any) => {
+      catCounts[m.category] = (catCounts[m.category] || 0) + 1;
+    });
+
+    const icons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕' };
+    const catOrder = ['游戏', '音乐', '生活'];
+
+    let html = `<span class="stat-badge"><strong>${total}</strong> 条动态</span>`;
+    catOrder.forEach((cat) => {
+      if (catCounts[cat]) {
+        html += `<span class="stat-badge">${icons[cat]} <strong>${catCounts[cat]}</strong></span>`;
+      }
+    });
+    statsContainer.innerHTML = html;
+  }
+
+  // Load from API on page load
+  fetchMomentsFromApi()
+    .then(syncMoments)
+    .catch((err) => console.warn('Failed to fetch moments from API:', err));
+
+  // === Category filter ===
   const tabs = document.querySelectorAll<HTMLButtonElement>('.pill[data-category]');
-  const cards = document.querySelectorAll<HTMLElement>('.moment-card');
 
   tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       tabs.forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
       const selected = tab.dataset.category ?? 'all';
+      const cards = document.querySelectorAll<HTMLElement>('.moment-card');
       cards.forEach((card) => {
         card.classList.toggle('hidden', selected !== 'all' && card.dataset.category !== selected);
       });
     });
   });
 
-  // 发布面板开关
+  // === Publish panel toggle ===
   const toggleBtn = document.getElementById('publish-toggle');
   const publishBox = document.getElementById('publish-box');
-  const closeBtn = document.getElementById('close-btn');
+  const closeBtnEl = document.getElementById('close-btn');
   const toggleIcon = document.getElementById('toggle-icon');
 
   toggleBtn?.addEventListener('click', () => {
@@ -1148,12 +1305,12 @@ function momentImageSrc(src: string) {
     if (isOpen) publishBox?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 
-  closeBtn?.addEventListener('click', () => {
+  closeBtnEl?.addEventListener('click', () => {
     publishBox?.classList.add('hidden');
     if (toggleIcon) toggleIcon.textContent = '✏️';
   });
 
-  // 图片上传
+  // === Image upload (R2 client-side) ===
   const imageInput = document.getElementById('image-input') as HTMLInputElement | null;
   const uploadPlaceholder = document.getElementById('upload-placeholder');
   const imagePreviews = document.getElementById('image-previews');
@@ -1162,145 +1319,6 @@ function momentImageSrc(src: string) {
   const msg = document.getElementById('form-message');
   const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
   const selectedImages: Array<{ id: string; file: File; previewUrl: string; remoteUrl?: string }> = [];
-  const githubOwner = 'Lidure';
-  const githubRepo = 'lidure.github.io';
-  const githubBranch = 'main';
-  const momentsPath = 'src/data/moments.json';
-  const maxImages = 9;
-  const maxImageBytes = 8 * 1024 * 1024;
-
-  type GitHubContentPayload = {
-    sha?: string;
-    content?: string;
-    message?: string;
-  };
-
-  type MomentPayload = {
-    date: string;
-    category: string;
-    text: string;
-    link?: string;
-    images?: string[];
-  };
-
-  function localDateTimeValue(date = new Date()) {
-    const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
-    return local.toISOString().slice(0, 16);
-  }
-
-  function githubHeaders(token: string, withJson = false) {
-    const headers: Record<string, string> = {
-      Authorization: `Bearer ${token}`,
-      Accept: 'application/vnd.github+json',
-      'X-GitHub-Api-Version': '2022-11-28',
-    };
-
-    if (withJson) headers['Content-Type'] = 'application/json';
-
-    return headers;
-  }
-
-  async function readGitHubResponse(res: Response): Promise<GitHubContentPayload> {
-    const text = await res.text();
-    let result: GitHubContentPayload = {};
-
-    if (text) {
-      try {
-        result = JSON.parse(text);
-      } catch {
-        result = { message: text.slice(0, 500) };
-      }
-    }
-
-    if (!res.ok) {
-      throw new Error(result.message ?? `GitHub API HTTP ${res.status}`);
-    }
-
-    return result;
-  }
-
-  function arrayBufferToBase64(buffer: ArrayBuffer) {
-    const bytes = new Uint8Array(buffer);
-    const chunkSize = 0x8000;
-    let binary = '';
-
-    for (let i = 0; i < bytes.length; i += chunkSize) {
-      const chunk = bytes.subarray(i, i + chunkSize);
-      binary += String.fromCharCode(...chunk);
-    }
-
-    return btoa(binary);
-  }
-
-  function stringToBase64(value: string) {
-    const bytes = new TextEncoder().encode(value);
-    const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
-    return arrayBufferToBase64(buffer);
-  }
-
-  function base64ToString(value: string) {
-    const binary = atob(value.replace(/\s/g, ''));
-    const bytes = new Uint8Array(binary.length);
-
-    for (let i = 0; i < binary.length; i += 1) {
-      bytes[i] = binary.charCodeAt(i);
-    }
-
-    return new TextDecoder().decode(bytes);
-  }
-
-  async function fetchCurrentMoments(token: string) {
-    const res = await fetch(
-      `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${momentsPath}?ref=${githubBranch}`,
-      { headers: githubHeaders(token) }
-    );
-
-    if (res.status === 404) return { moments: [] as MomentPayload[], sha: undefined };
-
-    const result = await readGitHubResponse(res);
-    if (!result.content || !result.sha) {
-      throw new Error('GitHub 返回的 moments.json 内容不完整');
-    }
-
-    const parsed = JSON.parse(base64ToString(result.content));
-    return {
-      moments: Array.isArray(parsed) ? parsed as MomentPayload[] : [],
-      sha: result.sha,
-    };
-  }
-
-  async function putGitHubFile(token: string, path: string, content: string, message: string, sha?: string) {
-    const res = await fetch(
-      `https://api.github.com/repos/${githubOwner}/${githubRepo}/contents/${path}`,
-      {
-        method: 'PUT',
-        headers: githubHeaders(token, true),
-        body: JSON.stringify({
-          message,
-          content,
-          ...(sha && { sha }),
-          branch: githubBranch,
-        }),
-      }
-    );
-
-    return readGitHubResponse(res);
-  }
-
-  async function publishMoment(token: string, moment: MomentPayload) {
-    const current = await fetchCurrentMoments(token);
-    const momentsJson = JSON.stringify([moment, ...current.moments], null, 2) + '\n';
-
-    await putGitHubFile(
-      token,
-      momentsPath,
-      stringToBase64(momentsJson),
-      `Add moment: ${moment.text.slice(0, 30)}${moment.text.length > 30 ? '...' : ''}`,
-      current.sha
-    );
-  }
-
-
 
   function setMessage(text: string, type: 'success' | 'error' | '') {
     if (!msg) return;
@@ -1312,7 +1330,6 @@ function momentImageSrc(src: string) {
     const item = document.getElementById(`preview-${id}`);
     const progress = item?.querySelector<HTMLElement>('.upload-progress');
     if (!item || !progress) return;
-
     item.classList.toggle('uploaded', state === 'uploaded');
     item.classList.toggle('failed', state === 'failed');
     progress.classList.toggle('hidden', state === 'idle');
@@ -1322,19 +1339,15 @@ function momentImageSrc(src: string) {
   function renderPreviews() {
     if (!imagePreviews) return;
     imagePreviews.innerHTML = '';
-
     selectedImages.forEach((item) => {
       const div = document.createElement('div');
       div.className = 'preview-item';
       div.id = `preview-${item.id}`;
-
       const img = document.createElement('img');
       img.src = item.previewUrl;
       img.alt = item.file.name;
-
       const progress = document.createElement('div');
       progress.className = 'upload-progress hidden';
-
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
       removeBtn.className = 'remove-img';
@@ -1347,30 +1360,21 @@ function momentImageSrc(src: string) {
           renderPreviews();
         }
       });
-
       div.append(img, progress, removeBtn);
       imagePreviews.appendChild(div);
-
       if (item.remoteUrl) setPreviewStatus(item.id, '已上传', 'uploaded');
     });
   }
 
-  async function uploadSelectedImages() {
+  async function uploadImagesToR2() {
     const urls: string[] = [];
-
     for (const item of selectedImages) {
-      if (item.remoteUrl) {
-        urls.push(item.remoteUrl);
-        continue;
-      }
-
+      if (item.remoteUrl) { urls.push(item.remoteUrl); continue; }
       setPreviewStatus(item.id, '上传中...', 'uploading');
-
       if (item.file.size > maxImageBytes) {
         setPreviewStatus(item.id, '过大', 'failed');
         throw new Error('图片过大，请控制在 8 MB 以内');
       }
-
       try {
         const url = await uploadToR2(item.file);
         item.remoteUrl = url;
@@ -1381,7 +1385,6 @@ function momentImageSrc(src: string) {
         throw err;
       }
     }
-
     return urls;
   }
 
@@ -1399,9 +1402,8 @@ function momentImageSrc(src: string) {
     imageInput.value = '';
   });
 
-  // 剪贴板粘贴图片
+  // Paste images
   document.addEventListener('paste', (e) => {
-    // 只在发布面板打开时拦截
     if (publishBox?.classList.contains('hidden')) return;
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -1419,41 +1421,35 @@ function momentImageSrc(src: string) {
     }
   });
 
-  async function handleFiles(files: File[]) {
+  function handleFiles(files: File[]) {
     for (const file of files) {
       if (!file.type.startsWith('image/')) continue;
-
       if (selectedImages.length >= maxImages) {
         setMessage(`最多选择 ${maxImages} 张图片`, 'error');
         break;
       }
-
       selectedImages.push({
         id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
         file,
         previewUrl: URL.createObjectURL(file),
       });
     }
-
     renderPreviews();
   }
 
+  // === Form submit → API ===
   if (form && msg && submitBtn) {
     const dateInput = form.querySelector<HTMLInputElement>('input[name="date"]');
     if (dateInput) dateInput.value = localDateTimeValue();
 
-    // Token 自动保存/填充
-    const TOKEN_KEY = 'blog_gh_token';
     const tokenInput = document.getElementById('token-input') as HTMLInputElement | null;
     const savedBadge = document.getElementById('token-saved-badge');
     const clearBtn = document.getElementById('token-clear-btn');
 
     function refreshTokenUI() {
-      const saved = localStorage.getItem(TOKEN_KEY);
-      if (saved && tokenInput && !tokenInput.value) {
-        tokenInput.value = saved;
-      }
-      const hasToken = !!(tokenInput?.value || localStorage.getItem(TOKEN_KEY));
+      const saved = getAdminToken();
+      if (saved && tokenInput && !tokenInput.value) tokenInput.value = saved;
+      const hasToken = !!(tokenInput?.value || getAdminToken());
       if (savedBadge) savedBadge.style.display = hasToken ? 'inline' : 'none';
       if (clearBtn) clearBtn.style.display = hasToken ? 'inline-flex' : 'none';
     }
@@ -1461,7 +1457,7 @@ function momentImageSrc(src: string) {
     refreshTokenUI();
 
     clearBtn?.addEventListener('click', () => {
-      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(ADMIN_TOKEN_KEY);
       if (tokenInput) tokenInput.value = '';
       refreshTokenUI();
     });
@@ -1469,46 +1465,69 @@ function momentImageSrc(src: string) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fd = new FormData(form);
-      let githubToken = String(fd.get('githubToken') ?? '').trim();
-
-      // 如果输入框为空，尝试从 localStorage 读取
-      if (!githubToken) {
-        githubToken = localStorage.getItem(TOKEN_KEY) || '';
-      }
+      let adminToken = String(fd.get('adminToken') ?? '').trim();
+      if (!adminToken) adminToken = getAdminToken();
 
       submitBtn.disabled = true;
       submitBtn.textContent = selectedImages.length > 0 ? '上传图片...' : '发布中...';
       setMessage('', '');
 
       try {
+        if (!adminToken) throw new Error('请输入管理密钥（首次使用需要输入一次，之后自动保存）');
+
         const link = String(fd.get('link') ?? '').trim();
-        const baseMoment: MomentPayload = {
-          date: String(fd.get('date') ?? '').trim(),
-          category: String(fd.get('category') ?? '').trim(),
-          text: String(fd.get('text') ?? '').trim(),
-          ...(link && { link }),
-        };
+        const date = String(fd.get('date') ?? '').trim();
+        const category = String(fd.get('category') ?? '').trim();
+        const text = String(fd.get('text') ?? '').trim();
 
-        if (!githubToken) throw new Error('请填写 GitHub Token（首次使用需要输入一次，之后自动保存）');
-        if (!baseMoment.date || !baseMoment.category || !baseMoment.text) throw new Error('请填写时间、分类和内容');
+        if (!date || !category || !text) throw new Error('请填写时间、分类和内容');
 
-        const imageUrls = selectedImages.length > 0 ? await uploadSelectedImages() : [];
-        const moment: MomentPayload = {
-          ...baseMoment,
-          ...(imageUrls.length > 0 && { images: imageUrls }),
-        };
+        // Upload images to R2 first
+        const imageUrls = selectedImages.length > 0 ? await uploadImagesToR2() : [];
 
         submitBtn.textContent = '发布中...';
-        await publishMoment(githubToken, moment);
 
-        // 发布成功后保存 token
-        try { localStorage.setItem(TOKEN_KEY, githubToken); } catch(e) {}
+        // POST to moments API
+        const res = await fetch(MOMENTS_API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8',
+            'Authorization': `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            date, category, text,
+            ...(link && { link }),
+            ...(imageUrls.length > 0 && { images: imageUrls }),
+          }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `API 错误 (${res.status})`);
+        }
+
+        // Save token
+        try { localStorage.setItem(ADMIN_TOKEN_KEY, adminToken); } catch {}
         refreshTokenUI();
 
-        setMessage('✅ 已提交到 GitHub。等待 GitHub Pages 构建完成后刷新页面查看。', 'success');
+        setMessage('✅ 发布成功！正在刷新列表...', 'success');
+
+        // Refresh moments from API
+        try {
+          const freshMoments = await fetchMomentsFromApi();
+          syncMoments(freshMoments);
+        } catch {}
+
+        // Reset form
+        form.reset();
+        selectedImages.length = 0;
+        if (imagePreviews) imagePreviews.innerHTML = '';
+        if (dateInput) dateInput.value = localDateTimeValue();
+
+        setMessage('✅ 发布成功！', 'success');
       } catch (err) {
         const detail = err instanceof Error ? err.message : String(err);
-        setMessage('❌ 发布失败: ' + detail.slice(0, 160), 'error');
+        setMessage('❌ 发布失败: ' + detail.slice(0, 200), 'error');
       } finally {
         submitBtn.disabled = false;
         submitBtn.textContent = '🚀 发布';
@@ -1516,7 +1535,20 @@ function momentImageSrc(src: string) {
     });
   }
 
-  // 图片灯箱
+  // === Lightbox ===
+  function setupLightboxForNewCards() {
+    document.querySelectorAll<HTMLImageElement>('.card-images img').forEach((img) => {
+      if (img.dataset.lightboxBound) return;
+      img.dataset.lightboxBound = '1';
+      img.addEventListener('click', () => openLightbox(img));
+      img.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        openLightbox(img);
+      });
+    });
+  }
+
   const lightbox = document.getElementById('moment-lightbox') as HTMLElement | null;
   const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
   const lightboxCounter = document.getElementById('lightbox-counter');
@@ -1530,26 +1562,22 @@ function momentImageSrc(src: string) {
 
   function setLightboxImage(index: number) {
     if (!lightboxImage || !lightboxCounter || !lightboxPrev || !lightboxNext || lightboxImages.length === 0) return;
-
     lightboxIndex = (index + lightboxImages.length) % lightboxImages.length;
     const image = lightboxImages[lightboxIndex];
     lightboxImage.src = image.dataset.lightboxSrc || image.currentSrc || image.src;
     lightboxImage.alt = image.alt || '';
-
-    const hasMultipleImages = lightboxImages.length > 1;
-    lightboxCounter.textContent = hasMultipleImages ? `${lightboxIndex + 1} / ${lightboxImages.length}` : '';
-    lightboxPrev.hidden = !hasMultipleImages;
-    lightboxNext.hidden = !hasMultipleImages;
+    const hasMultiple = lightboxImages.length > 1;
+    lightboxCounter.textContent = hasMultiple ? `${lightboxIndex + 1} / ${lightboxImages.length}` : '';
+    lightboxPrev.hidden = !hasMultiple;
+    lightboxNext.hidden = !hasMultiple;
   }
 
   function openLightbox(target: HTMLImageElement) {
     if (!lightbox || !lightboxImage) return;
-
     const gallery = target.closest<HTMLElement>('.card-images');
     lightboxImages = gallery ? Array.from(gallery.querySelectorAll<HTMLImageElement>('img')) : [target];
     returnFocusTarget = target;
     setLightboxImage(Math.max(0, lightboxImages.indexOf(target)));
-
     lightbox.hidden = false;
     lightbox.setAttribute('aria-hidden', 'false');
     document.body.classList.add('lightbox-open');
@@ -1558,7 +1586,6 @@ function momentImageSrc(src: string) {
 
   function closeLightbox() {
     if (!lightbox || lightbox.hidden) return;
-
     lightbox.hidden = true;
     lightbox.setAttribute('aria-hidden', 'true');
     document.body.classList.remove('lightbox-open');
@@ -1572,29 +1599,14 @@ function momentImageSrc(src: string) {
     setLightboxImage(lightboxIndex + delta);
   }
 
-  document.querySelectorAll<HTMLImageElement>('.card-images img').forEach((img) => {
-    img.addEventListener('click', () => openLightbox(img));
-    img.addEventListener('keydown', (event) => {
-      if (event.key !== 'Enter' && event.key !== ' ') return;
-      event.preventDefault();
-      openLightbox(img);
-    });
-  });
+  // Bind lightbox to initially rendered cards
+  setupLightboxForNewCards();
 
   lightbox?.addEventListener('click', closeLightbox);
   lightboxStage?.addEventListener('click', (event) => event.stopPropagation());
-  lightboxClose?.addEventListener('click', (event) => {
-    event.stopPropagation();
-    closeLightbox();
-  });
-  lightboxPrev?.addEventListener('click', (event) => {
-    event.stopPropagation();
-    moveLightbox(-1);
-  });
-  lightboxNext?.addEventListener('click', (event) => {
-    event.stopPropagation();
-    moveLightbox(1);
-  });
+  lightboxClose?.addEventListener('click', (event) => { event.stopPropagation(); closeLightbox(); });
+  lightboxPrev?.addEventListener('click', (event) => { event.stopPropagation(); moveLightbox(-1); });
+  lightboxNext?.addEventListener('click', (event) => { event.stopPropagation(); moveLightbox(1); });
   document.addEventListener('keydown', (event) => {
     if (lightbox?.hidden !== false) return;
     if (event.key === 'Escape') closeLightbox();

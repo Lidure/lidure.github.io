@@ -1,7 +1,7 @@
 /**
- * Danmaku API — Cloudflare Pages Advanced Mode Worker
+ * Danmaku + Moments API — Cloudflare Pages Advanced Mode Worker
  * Deploy to: danmaku-api.pages.dev
- * Bindings: DB (D1), ALLOWED_ORIGINS (env var)
+ * Bindings: DB (D1), BUCKET (R2), ALLOWED_ORIGINS (env var), ADMIN_TOKEN (env var)
  */
 
 const MAX_TEXT_LENGTH = 60;
@@ -9,6 +9,12 @@ const MAX_TRACK_LENGTH = 160;
 const MAX_LIMIT = 300;
 const RATE_LIMIT_WINDOW_MS = 60000;
 const RATE_LIMIT_MAX = 8;
+
+/* ===== Moments constants ===== */
+const MOMENT_MAX_TEXT = 2000;
+const MOMENT_MAX_IMAGES = 9;
+const MOMENT_CATEGORIES = ['游戏', '音乐', '生活'];
+const MOMENT_IMAGE_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 
 export default {
   async fetch(request, env) {
@@ -18,23 +24,30 @@ export default {
       }
 
       const url = new URL(request.url);
-      if (url.pathname !== '/api/danmaku') {
-        return json({ error: 'Not found' }, 404, request, env);
+
+      /* --- Danmaku routes --- */
+      if (url.pathname === '/api/danmaku') {
+        if (request.method === 'GET') return handleDanmakuList(url, request, env);
+        if (request.method === 'POST') return handleDanmakuCreate(request, env);
+        if (request.method === 'DELETE') return handleDanmakuDelete(request, env);
+        return json({ error: 'Method not allowed' }, 405, request, env);
       }
 
-      if (request.method === 'GET') {
-        return handleList(url, request, env);
+      /* --- Moments routes --- */
+      if (url.pathname === '/api/moments') {
+        if (request.method === 'GET') return handleMomentsList(url, request, env);
+        if (request.method === 'POST') return requireAdmin(request, env, function() { return handleMomentsCreate(request, env); });
+        if (request.method === 'PUT') return requireAdmin(request, env, function() { return handleMomentsUpdate(request, env); });
+        if (request.method === 'DELETE') return requireAdmin(request, env, function() { return handleMomentsDelete(request, env); });
+        return json({ error: 'Method not allowed' }, 405, request, env);
       }
 
-      if (request.method === 'POST') {
-        return handleCreate(request, env);
+      if (url.pathname === '/api/moments/upload') {
+        if (request.method === 'POST') return requireAdmin(request, env, function() { return handleMomentsUpload(request, env); });
+        return json({ error: 'Method not allowed' }, 405, request, env);
       }
 
-      if (request.method === 'DELETE') {
-        return handleDelete(request, env);
-      }
-
-      return json({ error: 'Method not allowed' }, 405, request, env);
+      return json({ error: 'Not found' }, 404, request, env);
     } catch (error) {
       console.error(JSON.stringify({ level: 'error', message: 'Unhandled error', error: String(error) }));
       return json({ error: 'Internal server error' }, 500, request, env);
@@ -42,56 +55,75 @@ export default {
   }
 };
 
-async function handleList(url, request, env) {
-  const track = normalizeTrack(url.searchParams.get('track'));
+/* ===========================
+ *  Admin auth middleware
+ * =========================== */
+function requireAdmin(request, env, handler) {
+  var adminToken = env.ADMIN_TOKEN || '';
+  if (!adminToken) {
+    return json({ error: 'Admin not configured' }, 503, request, env);
+  }
+  var auth = request.headers.get('Authorization') || '';
+  var token = auth.replace(/^Bearer\s+/i, '').trim();
+  if (!token || token !== adminToken) {
+    return json({ error: 'Unauthorized' }, 401, request, env);
+  }
+  return handler();
+}
+
+/* ===========================
+ *  Danmaku handlers (existing)
+ * =========================== */
+async function handleDanmakuList(url, request, env) {
+  var track = normalizeTrack(url.searchParams.get('track'));
   if (!track) return json({ error: 'Missing track' }, 400, request, env);
 
-  const since = Math.max(0, parseInt(url.searchParams.get('since') || '0', 10) || 0);
-  const requestedLimit = parseInt(url.searchParams.get('limit') || String(MAX_LIMIT), 10);
-  const limit = Math.min(MAX_LIMIT, Math.max(1, Number.isFinite(requestedLimit) ? requestedLimit : MAX_LIMIT));
+  var since = Math.max(0, parseInt(url.searchParams.get('since') || '0', 10) || 0);
+  var requestedLimit = parseInt(url.searchParams.get('limit') || String(MAX_LIMIT), 10);
+  var limit = Math.min(MAX_LIMIT, Math.max(1, Number.isFinite(requestedLimit) ? requestedLimit : MAX_LIMIT));
 
-  const { results } = await env.DB.prepare(
+  var result = await env.DB.prepare(
     'SELECT id, track, text, time, color, created_at FROM danmaku WHERE track = ? AND created_at > ? ORDER BY time ASC, created_at ASC LIMIT ?'
   ).bind(track, since, limit).all();
 
   return json({
-    items: (results || []).map(toClientItem),
+    items: (result.results || []).map(toClientItem),
     now: Date.now()
   }, 200, request, env);
 }
 
-async function handleCreate(request, env) {
-  const contentType = request.headers.get('content-type') || '';
+async function handleDanmakuCreate(request, env) {
+  var contentType = request.headers.get('content-type') || '';
   if (!contentType.toLowerCase().includes('application/json')) {
     return json({ error: 'Expected application/json' }, 415, request, env);
   }
 
-  const body = await readJsonBody(request);
-  const track = normalizeTrack(body.track);
-  const text = normalizeText(body.text);
-  const time = normalizeTime(body.time);
-  const color = normalizeColor(body.color);
+  var body = await readJsonBody(request);
+  var track = normalizeTrack(body.track);
+  var text = normalizeText(body.text);
+  var time = normalizeTime(body.time);
+  var color = normalizeColor(body.color);
 
   if (!track || !text || time == null) {
     return json({ error: 'Invalid danmaku' }, 400, request, env);
   }
 
-  const ipHash = await hashClient(request);
-  const now = Date.now();
-  const recent = await env.DB.prepare(
+  var ipHash = await hashClient(request);
+  var now = Date.now();
+  var recent = await env.DB.prepare(
     'SELECT COUNT(*) AS count FROM danmaku WHERE ip_hash = ? AND created_at > ?'
   ).bind(ipHash, now - RATE_LIMIT_WINDOW_MS).first();
 
-  if ((recent?.count || 0) >= RATE_LIMIT_MAX) {
+  if ((recent && recent.count || 0) >= RATE_LIMIT_MAX) {
     return json({ error: 'Too many danmaku' }, 429, request, env);
   }
 
-  const item = {
+  var item = {
     id: crypto.randomUUID(),
-    track,
-    text,
-    time,
-    color,
+    track: track,
+    text: text,
+    time: time,
+    color: color,
     createdAt: now
   };
 
@@ -99,27 +131,26 @@ async function handleCreate(request, env) {
     'INSERT INTO danmaku (id, track, text, time, color, ip_hash, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
   ).bind(item.id, item.track, item.text, item.time, item.color, ipHash, item.createdAt).run();
 
-  return json({ item }, 201, request, env);
+  return json({ item: item }, 201, request, env);
 }
 
-async function handleDelete(request, env) {
-  const contentType = request.headers.get('content-type') || '';
+async function handleDanmakuDelete(request, env) {
+  var contentType = request.headers.get('content-type') || '';
   if (!contentType.toLowerCase().includes('application/json')) {
     return json({ error: 'Expected application/json' }, 415, request, env);
   }
 
-  const body = await readJsonBody(request);
-  const id = typeof body.id === 'string' ? body.id.trim() : '';
-  const track = normalizeTrack(body.track);
-  const text = normalizeText(body.text);
+  var body = await readJsonBody(request);
+  var id = typeof body.id === 'string' ? body.id.trim() : '';
+  var track = normalizeTrack(body.track);
+  var text = normalizeText(body.text);
 
   if (!track && !id) {
     return json({ error: 'Missing id or track' }, 400, request, env);
   }
 
-  // Try by ID first, then by track+text as fallback
   if (id) {
-    const existing = await env.DB.prepare(
+    var existing = await env.DB.prepare(
       'SELECT id FROM danmaku WHERE id = ? LIMIT 1'
     ).bind(id).first();
     if (existing) {
@@ -137,11 +168,184 @@ async function handleDelete(request, env) {
   return json({ deleted: false }, 404, request, env);
 }
 
+/* ===========================
+ *  Moments handlers (NEW)
+ * =========================== */
+async function handleMomentsList(url, request, env) {
+  var category = url.searchParams.get('category') || '';
+  var limit = Math.min(200, Math.max(1, parseInt(url.searchParams.get('limit') || '200', 10) || 200));
+
+  var sql, stmt;
+  if (category && MOMENT_CATEGORIES.indexOf(category) >= 0) {
+    sql = 'SELECT id, date, category, text, link, images, created_at FROM moments WHERE category = ? ORDER BY date DESC, created_at DESC LIMIT ?';
+    stmt = env.DB.prepare(sql).bind(category, limit);
+  } else {
+    sql = 'SELECT id, date, category, text, link, images, created_at FROM moments ORDER BY date DESC, created_at DESC LIMIT ?';
+    stmt = env.DB.prepare(sql).bind(limit);
+  }
+
+  var result = await stmt.all();
+
+  return json({
+    items: (result.results || []).map(toMomentItem),
+    now: Date.now()
+  }, 200, request, env);
+}
+
+async function handleMomentsCreate(request, env) {
+  var contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ error: 'Expected application/json' }, 415, request, env);
+  }
+
+  var body = await readJsonBody(request);
+  var date = typeof body.date === 'string' ? body.date.trim() : '';
+  var category = typeof body.category === 'string' ? body.category.trim() : '';
+  var text = typeof body.text === 'string' ? body.text.trim() : '';
+  var link = typeof body.link === 'string' ? body.link.trim() : '';
+  var images = Array.isArray(body.images) ? body.images.filter(function(s) { return typeof s === 'string'; }).slice(0, MOMENT_MAX_IMAGES) : [];
+
+  if (!date || !category || !text) {
+    return json({ error: 'Missing required fields: date, category, text' }, 400, request, env);
+  }
+  if (MOMENT_CATEGORIES.indexOf(category) < 0) {
+    return json({ error: 'Invalid category' }, 400, request, env);
+  }
+  if (text.length > MOMENT_MAX_TEXT) {
+    text = text.slice(0, MOMENT_MAX_TEXT);
+  }
+
+  var id = crypto.randomUUID();
+  var now = Date.now();
+  var imagesJson = JSON.stringify(images);
+
+  await env.DB.prepare(
+    'INSERT INTO moments (id, date, category, text, link, images, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)'
+  ).bind(id, date, category, text, link, imagesJson, now).run();
+
+  return json({
+    item: { id: id, date: date, category: category, text: text, link: link, images: images, createdAt: now }
+  }, 201, request, env);
+}
+
+async function handleMomentsUpdate(request, env) {
+  var contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ error: 'Expected application/json' }, 415, request, env);
+  }
+
+  var body = await readJsonBody(request);
+  var id = typeof body.id === 'string' ? body.id.trim() : '';
+  if (!id) return json({ error: 'Missing id' }, 400, request, env);
+
+  var existing = await env.DB.prepare('SELECT * FROM moments WHERE id = ? LIMIT 1').bind(id).first();
+  if (!existing) return json({ error: 'Not found' }, 404, request, env);
+
+  var date = typeof body.date === 'string' ? body.date.trim() : existing.date;
+  var category = typeof body.category === 'string' ? body.category.trim() : existing.category;
+  var text = typeof body.text === 'string' ? body.text.trim() : existing.text;
+  var link = body.link !== undefined ? (typeof body.link === 'string' ? body.link.trim() : '') : (existing.link || '');
+  var images = Array.isArray(body.images) ? body.images.filter(function(s) { return typeof s === 'string'; }).slice(0, MOMENT_MAX_IMAGES) : JSON.parse(existing.images || '[]');
+
+  if (MOMENT_CATEGORIES.indexOf(category) < 0) {
+    return json({ error: 'Invalid category' }, 400, request, env);
+  }
+  if (text.length > MOMENT_MAX_TEXT) text = text.slice(0, MOMENT_MAX_TEXT);
+
+  var imagesJson = JSON.stringify(images);
+  await env.DB.prepare(
+    'UPDATE moments SET date = ?, category = ?, text = ?, link = ?, images = ? WHERE id = ?'
+  ).bind(date, category, text, link, imagesJson, id).run();
+
+  return json({
+    item: { id: id, date: date, category: category, text: text, link: link, images: images }
+  }, 200, request, env);
+}
+
+async function handleMomentsDelete(request, env) {
+  var contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ error: 'Expected application/json' }, 415, request, env);
+  }
+
+  var body = await readJsonBody(request);
+  var id = typeof body.id === 'string' ? body.id.trim() : '';
+  if (!id) return json({ error: 'Missing id' }, 400, request, env);
+
+  var existing = await env.DB.prepare('SELECT id, images FROM moments WHERE id = ? LIMIT 1').bind(id).first();
+  if (!existing) return json({ error: 'Not found' }, 404, request, env);
+
+  // Delete associated images from R2
+  if (existing.images && env.BUCKET) {
+    try {
+      var imgs = JSON.parse(existing.images);
+      for (var i = 0; i < imgs.length; i++) {
+        var src = imgs[i];
+        if (typeof src === 'string' && src.indexOf('/moments/') >= 0) {
+          var key = src.replace(/^.*\/moments\//, 'moments/');
+          await env.BUCKET.delete(key);
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  await env.DB.prepare('DELETE FROM moments WHERE id = ?').bind(id).run();
+  return json({ deleted: true }, 200, request, env);
+}
+
+async function handleMomentsUpload(request, env) {
+  if (!env.BUCKET) {
+    return json({ error: 'R2 bucket not configured' }, 503, request, env);
+  }
+
+  var contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('multipart/form-data')) {
+    return json({ error: 'Expected multipart/form-data' }, 415, request, env);
+  }
+
+  var formData = await request.formData();
+  var file = formData.get('file');
+  if (!file || !(file instanceof File)) {
+    return json({ error: 'Missing file field' }, 400, request, env);
+  }
+
+  // Validate file type
+  var mimeType = file.type || 'image/png';
+  if (!mimeType.startsWith('image/')) {
+    return json({ error: 'Only image files allowed' }, 400, request, env);
+  }
+
+  // Validate size
+  if (file.size > MOMENT_IMAGE_MAX_SIZE) {
+    return json({ error: 'File too large (max 5MB)' }, 413, request, env);
+  }
+
+  // Generate unique filename
+  var ext = mimeType.split('/')[1] || 'png';
+  if (ext === 'jpeg') ext = 'jpg';
+  var filename = Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+  var key = 'moments/' + filename;
+
+  // Upload to R2
+  var arrayBuffer = await file.arrayBuffer();
+  await env.BUCKET.put(key, arrayBuffer, {
+    httpMetadata: { contentType: mimeType }
+  });
+
+  // Return the public URL path (assumes R2 is connected to a custom domain or we return the key)
+  var imageUrl = '/moments/' + filename;
+
+  return json({ url: imageUrl, key: key }, 201, request, env);
+}
+
+/* ===========================
+ *  Helpers (shared)
+ * =========================== */
 async function readJsonBody(request) {
   try {
-    const body = await request.json();
+    var body = await request.json();
     return body && typeof body === 'object' && !Array.isArray(body) ? body : {};
-  } catch {
+  } catch (e) {
     return {};
   }
 }
@@ -155,22 +359,22 @@ function normalizeText(value) {
 }
 
 function normalizeTime(value) {
-  const time = typeof value === 'number' ? value : Number(value);
+  var time = typeof value === 'number' ? value : Number(value);
   if (!Number.isFinite(time) || time < 0 || time > 60 * 60 * 6) return null;
   return Math.round(time * 100) / 100;
 }
 
 function normalizeColor(value) {
   if (typeof value !== 'string') return null;
-  const color = value.trim();
+  var color = value.trim();
   return /^#[0-9a-fA-F]{6}$/.test(color) ? color : null;
 }
 
 async function hashClient(request) {
-  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
-  const ua = request.headers.get('User-Agent') || '';
-  const data = new TextEncoder().encode(ip + '|' + ua);
-  const digest = await crypto.subtle.digest('SHA-256', data);
+  var ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  var ua = request.headers.get('User-Agent') || '';
+  var data = new TextEncoder().encode(ip + '|' + ua);
+  var digest = await crypto.subtle.digest('SHA-256', data);
   return Array.from(new Uint8Array(digest), function(byte) { return byte.toString(16).padStart(2, '0'); }).join('');
 }
 
@@ -185,25 +389,39 @@ function toClientItem(row) {
   };
 }
 
+function toMomentItem(row) {
+  var images = [];
+  try { images = JSON.parse(row.images || '[]'); } catch (e) {}
+  return {
+    id: row.id,
+    date: row.date,
+    category: row.category,
+    text: row.text,
+    link: row.link || undefined,
+    images: images,
+    createdAt: row.created_at
+  };
+}
+
 function corsHeaders(request, env) {
-  const headers = new Headers();
-  const origin = request.headers.get('Origin') || '';
-  const allowedOrigins = (env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '*')
+  var headers = new Headers();
+  var origin = request.headers.get('Origin') || '';
+  var allowedOrigins = (env.ALLOWED_ORIGINS || env.ALLOWED_ORIGIN || '*')
     .split(',')
     .map(function(v) { return v.trim(); })
     .filter(Boolean);
-  const allowAll = allowedOrigins.includes('*');
-  const fallbackOrigin = allowedOrigins[0] || '*';
-  headers.set('Access-Control-Allow-Origin', allowAll ? '*' : (origin && allowedOrigins.includes(origin) ? origin : fallbackOrigin));
-  headers.set('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
-  headers.set('Access-Control-Allow-Headers', 'Content-Type');
+  var allowAll = allowedOrigins.indexOf('*') >= 0;
+  var fallbackOrigin = allowedOrigins[0] || '*';
+  headers.set('Access-Control-Allow-Origin', allowAll ? '*' : (origin && allowedOrigins.indexOf(origin) >= 0 ? origin : fallbackOrigin));
+  headers.set('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   headers.set('Access-Control-Max-Age', '86400');
   headers.set('Vary', 'Origin');
   return headers;
 }
 
 function json(payload, status, request, env) {
-  const headers = corsHeaders(request, env);
+  var headers = corsHeaders(request, env);
   headers.set('Content-Type', 'application/json; charset=utf-8');
   headers.set('Cache-Control', 'no-store');
   return new Response(JSON.stringify(payload), { status: status, headers: headers });
