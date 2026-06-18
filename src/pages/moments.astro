@@ -1521,7 +1521,7 @@ function momentImageSrc(src: string) {
           const newCard = buildMomentCard(newMoment, 0, activeCat);
           if (newCard) list.prepend(newCard);
           // Re-index animation delays
-          list.querySelectorAll('.moment-card').forEach((c, i) => c.style.setProperty('--delay', `${i * 40}ms`));
+          list.querySelectorAll<HTMLElement>('.moment-card').forEach((c, i) => c.style.setProperty('--delay', `${i * 40}ms`));
           // Update stats optimistically
           try {
             const existing = await fetchMomentsFromApi().catch(() => null);
