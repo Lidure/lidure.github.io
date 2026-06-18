@@ -690,22 +690,27 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       var lanes = Math.max(1, Math.floor(stageRect.height / laneH));
       var cover = getCoverBounds();
 
-      var top = null;
+      // Build lane lists: normal lanes vs cover-overlapping lanes
+      var normalLanes = [];
+      var coverLanes = [];
       for (var i = 0; i < lanes; i++) {
         var y = stageRect.top + i * laneH;
-        if (cover && y + laneH > cover.top && y < cover.bottom) continue;
-        top = y;
-        break;
-      }
-      if (top === null) {
-        for (var j = lanes - 1; j >= 0; j--) {
-          var yb = stageRect.top + j * laneH;
-          if (cover && yb + laneH > cover.top && yb < cover.bottom) continue;
-          top = yb;
-          break;
+        if (cover && y + laneH > cover.top && y < cover.bottom) {
+          coverLanes.push(y);
+        } else {
+          normalLanes.push(y);
         }
       }
-      if (top === null) top = stageRect.bottom - laneH;
+      // Pick random normal lane; fall back to cover lane (behind the record)
+      var top, behindCover = false;
+      if (normalLanes.length > 0) {
+        top = normalLanes[Math.floor(Math.random() * normalLanes.length)];
+      } else if (coverLanes.length > 0) {
+        top = coverLanes[Math.floor(Math.random() * coverLanes.length)];
+        behindCover = true;
+      } else {
+        top = stageRect.bottom - laneH;
+      }
 
       var item = document.createElement('span');
       item.className = 'danmaku-item' + (isSelf ? ' is-self' : '');
@@ -717,7 +722,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       item.style.position = 'fixed';
       item.style.left = '0px';
       item.style.top = Math.round(top) + 'px';
-      item.style.zIndex = '3';
+      item.style.zIndex = behindCover ? '1' : '3';
       item.style.pointerEvents = 'auto';
       item.style.color = options && options.color ? options.color : '';
       document.body.appendChild(item);
@@ -750,6 +755,26 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
         item.classList.add('danmaku-removing');
         danmakuActiveTexts[clean] = 'deleted';
         setTimeout(function() { if (item.isConnected) item.remove(); }, 220);
+        // Permanent delete: remove from local storage + remote API
+        var danmakuData = options && options.danmakuData;
+        danmakuItems = danmakuItems.filter(function(d) {
+          if (danmakuData && d.id === danmakuData.id) return false;
+          if (d.text === clean && d.track === getCurrentDanmakuTrackKey()) return false;
+          return true;
+        });
+        saveDanmakuItems();
+        updateDanmakuCount();
+        if (danmakuRemoteAvailable) {
+          fetch(DANMAKU_API_URL, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              id: danmakuData ? danmakuData.id : '',
+              track: getCurrentDanmakuTrackKey(),
+              text: clean
+            })
+          }).catch(function() {});
+        }
       });
 
       function tick(now) {
@@ -942,7 +967,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       danmakuItems.push(item);
       saveDanmakuItems();
       danmakuLastShown[item.id] = Date.now();
-      spawnDanmaku(item.text, { fast: true, isSelf: true });
+      spawnDanmaku(item.text, { fast: true, isSelf: true, danmakuData: item });
       updateDanmakuCount();
       // Send flash effect
       if (danmakuSendFlash) {
@@ -1003,7 +1028,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
           if (typeof active === 'number' && wallNow >= active) {
             delete danmakuActiveTexts[item.text];
             danmakuLastShown[item.id] = wallNow;
-            spawnDanmaku(item.text);
+            spawnDanmaku(item.text, { danmakuData: item });
             return;
           }
           // Still in cooldown → skip
@@ -1012,7 +1037,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
           var nearTimelinePoint = item.time <= now && item.time > now - 0.65;
           if (nearTimelinePoint && wallNow - lastShown > 1200) {
             danmakuLastShown[item.id] = wallNow;
-            spawnDanmaku(item.text);
+            spawnDanmaku(item.text, { danmakuData: item });
           }
         });
       } else {
@@ -1040,7 +1065,7 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
             if (!active || (typeof active === 'number' && wallNow >= active)) {
               if (typeof active === 'number') delete danmakuActiveTexts[pick.text];
               danmakuLastShown[spawnId] = wallNow;
-              spawnDanmaku(pick.text);
+              spawnDanmaku(pick.text, { danmakuData: pick });
             }
             danmakuNoAudioIndex = (danmakuNoAudioIndex + 1) % danmakuNoAudioShuffled.length;
           }

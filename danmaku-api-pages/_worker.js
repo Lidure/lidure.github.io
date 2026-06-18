@@ -30,6 +30,10 @@ export default {
         return handleCreate(request, env);
       }
 
+      if (request.method === 'DELETE') {
+        return handleDelete(request, env);
+      }
+
       return json({ error: 'Method not allowed' }, 405, request, env);
     } catch (error) {
       console.error(JSON.stringify({ level: 'error', message: 'Unhandled error', error: String(error) }));
@@ -98,6 +102,41 @@ async function handleCreate(request, env) {
   return json({ item }, 201, request, env);
 }
 
+async function handleDelete(request, env) {
+  const contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ error: 'Expected application/json' }, 415, request, env);
+  }
+
+  const body = await readJsonBody(request);
+  const id = typeof body.id === 'string' ? body.id.trim() : '';
+  const track = normalizeTrack(body.track);
+  const text = normalizeText(body.text);
+
+  if (!track && !id) {
+    return json({ error: 'Missing id or track' }, 400, request, env);
+  }
+
+  // Try by ID first, then by track+text as fallback
+  if (id) {
+    const existing = await env.DB.prepare(
+      'SELECT id FROM danmaku WHERE id = ? LIMIT 1'
+    ).bind(id).first();
+    if (existing) {
+      await env.DB.prepare('DELETE FROM danmaku WHERE id = ?').bind(id).run();
+      return json({ deleted: true, byId: true }, 200, request, env);
+    }
+  }
+  if (track && text) {
+    await env.DB.prepare(
+      'DELETE FROM danmaku WHERE track = ? AND text = ?'
+    ).bind(track, text).run();
+    return json({ deleted: true, byText: true }, 200, request, env);
+  }
+
+  return json({ deleted: false }, 404, request, env);
+}
+
 async function readJsonBody(request) {
   try {
     const body = await request.json();
@@ -156,7 +195,7 @@ function corsHeaders(request, env) {
   const allowAll = allowedOrigins.includes('*');
   const fallbackOrigin = allowedOrigins[0] || '*';
   headers.set('Access-Control-Allow-Origin', allowAll ? '*' : (origin && allowedOrigins.includes(origin) ? origin : fallbackOrigin));
-  headers.set('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  headers.set('Access-Control-Allow-Methods', 'GET,POST,DELETE,OPTIONS');
   headers.set('Access-Control-Allow-Headers', 'Content-Type');
   headers.set('Access-Control-Max-Age', '86400');
   headers.set('Vary', 'Origin');
