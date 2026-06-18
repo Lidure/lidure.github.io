@@ -305,27 +305,50 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       pointer-events: none;
     }
     .danmaku-composer-inner:focus-within ~ .danmaku-colors,
+    .danmaku-composer:hover .danmaku-colors,
     .danmaku-colors:hover {
       opacity: 1;
       transform: translateY(0);
       pointer-events: auto;
     }
     .danmaku-color-dot {
-      width: 16px;
-      height: 16px;
+      position: relative;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      border: 2px solid transparent;
+      border: 2.5px solid transparent;
       cursor: pointer;
       padding: 0;
-      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      transition: transform 0.2s cubic-bezier(.34,1.56,.64,1), border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    }
+    .danmaku-color-dot::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      opacity: 0;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5' fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/10px no-repeat;
+      transition: opacity 0.15s;
     }
     .danmaku-color-dot:hover {
-      transform: scale(1.25);
+      transform: scale(1.2);
     }
     .danmaku-color-dot.active {
-      border-color: rgba(255,255,255,0.8);
-      box-shadow: 0 0 0 2px rgba(255,255,255,0.25), 0 1px 4px rgba(0,0,0,0.3);
+      border-color: #fff;
+      box-shadow: 0 0 0 2.5px rgba(255,255,255,0.35), 0 2px 8px rgba(0,0,0,0.3);
+      transform: scale(1.1);
+    }
+    .danmaku-color-dot.active::after {
+      opacity: 1;
+    }
+    @keyframes color-pop {
+      0% { transform: scale(0.7); }
+      60% { transform: scale(1.25); }
+      100% { transform: scale(1.1); }
+    }
+    .danmaku-color-dot.just-clicked {
+      animation: color-pop 0.3s cubic-bezier(.34,1.56,.64,1) forwards;
     }
 
     .danmaku-total-count {
@@ -667,13 +690,11 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
       setTimeout(function() {
         if (!playerHint) return;
         playerHint.classList.add('visible');
-        if (sekaiBtn) sekaiBtn.classList.add('attention');
       }, 800);
       function dismissHint() {
         if (!playerHint || playerHint.classList.contains('fade-out')) return;
         playerHint.classList.remove('visible');
         playerHint.classList.add('fade-out');
-        if (sekaiBtn) sekaiBtn.classList.remove('attention');
         try { localStorage.setItem(HINT_STORAGE_KEY, '1'); } catch (e) {}
         cleanupHint();
       }
@@ -1196,8 +1217,13 @@ const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUr
         if (!dot) return;
         danmakuSelectedColor = dot.getAttribute('data-color') || '';
         var dots = danmakuColors.querySelectorAll('.danmaku-color-dot');
-        for (var i = 0; i < dots.length; i++) dots[i].classList.remove('active');
+        for (var i = 0; i < dots.length; i++) {
+          dots[i].classList.remove('active');
+          dots[i].classList.remove('just-clicked');
+        }
         dot.classList.add('active');
+        void dot.offsetWidth;
+        dot.classList.add('just-clicked');
       });
     }
 
