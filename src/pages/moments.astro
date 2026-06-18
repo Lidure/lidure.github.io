@@ -2,7 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { categoryMeta, categoryOrder } from '../data/moments';
 ---
-<BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏，音乐、生活，随时碎碎念。" showTime={true}>
+<BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏，音乐、生活、吐槽，随时碎碎念。" showTime={true}>
   <section class="moments-shell">
 
     <!-- Hero -->
@@ -14,12 +14,13 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       </div>
       <span class="kicker">✨ Moments</span>
       <h1>碎碎念</h1>
-      <p>随手记下的碎片，游戏 · 音乐 · 生活。随时更新，想到什么说什么。</p>
+      <p>随手记下的碎片，游戏 · 音乐 · 生活 · 吐槽。随时更新，想到什么说什么。</p>
       <div class="hero-stats" id="hero-stats">
         <span class="stat-badge"><strong id="stat-total">—</strong> 条动态</span>
         <span class="stat-badge">🎮 <strong id="stat-game">—</strong></span>
         <span class="stat-badge">🎵 <strong id="stat-music">—</strong></span>
         <span class="stat-badge">☕ <strong id="stat-life">—</strong></span>
+        <span class="stat-badge">💬 <strong id="stat-rant">—</strong></span>
       </div>
     </div>
 
@@ -62,7 +63,11 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         </div>
         <label class="field full">
           <span class="field-label">✏️ 内容</span>
-          <textarea name="text" rows="3" placeholder="想说点什么..." required></textarea>
+          <div class="emoji-input-wrap">
+            <textarea name="text" rows="3" placeholder="想说点什么..." required></textarea>
+            <button type="button" class="emoji-toggle" id="moment-emoji-toggle" title="插入 emoji" aria-label="插入 emoji" aria-expanded="false">😊</button>
+            <div class="emoji-panel hidden" id="moment-emoji-panel"></div>
+          </div>
         </label>
         <label class="field full">
           <span class="field-label">🔗 链接（可选）</span>
@@ -374,6 +379,70 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   .field textarea {
     resize: vertical;
     min-height: 80px;
+  }
+
+  .emoji-input-wrap {
+    position: relative;
+  }
+
+  .emoji-input-wrap textarea {
+    width: 100%;
+    padding-right: 48px;
+  }
+
+  .emoji-toggle {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: var(--tag-bg);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .emoji-toggle:hover {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.1);
+  }
+
+  .emoji-panel {
+    position: absolute;
+    right: 0;
+    top: 48px;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(6, 34px);
+    gap: 4px;
+    padding: 8px;
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    background: var(--panel);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .emoji-panel.hidden {
+    display: none;
+  }
+
+  .emoji-panel button {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+
+  .emoji-panel button:hover {
+    background: var(--tag-bg);
   }
 
   /* 图片上传 */
@@ -719,6 +788,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   .glow-游戏 { background: linear-gradient(to bottom, #FF6B9D, #7C8CF8); }
   .glow-音乐 { background: linear-gradient(to bottom, #FFB347, #FF6B9D); }
   .glow-生活 { background: linear-gradient(to bottom, #7C8CF8, #FFB347); }
+  .glow-吐槽 { background: linear-gradient(to bottom, #50C878, #FFB347); }
 
   .card-content {
     padding: 20px 22px 20px 26px;
@@ -751,10 +821,12 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   .pill-游戏 { background: rgba(255, 107, 157, 0.12); color: #E0456E; }
   .pill-音乐 { background: rgba(255, 179, 71, 0.12); color: #CC8820; }
   .pill-生活 { background: rgba(124, 140, 248, 0.12); color: #5566CC; }
+  .pill-吐槽 { background: rgba(80, 200, 120, 0.12); color: #2F9D58; }
 
   [data-theme="light"] .pill-游戏 { background: rgba(255, 107, 157, 0.18); color: #FF9EBE; }
   [data-theme="light"] .pill-音乐 { background: rgba(255, 179, 71, 0.18); color: #FFCC77; }
   [data-theme="light"] .pill-生活 { background: rgba(124, 140, 248, 0.18); color: #A0AEFF; }
+  [data-theme="light"] .pill-吐槽 { background: rgba(80, 200, 120, 0.18); color: #72D68C; }
 
   .card-date {
     font-size: 0.78rem;
@@ -1197,6 +1269,15 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     try { return localStorage.getItem(ADMIN_TOKEN_KEY) || ''; } catch { return ''; }
   }
 
+  function insertTextAtCursor(input: HTMLInputElement | HTMLTextAreaElement, text: string) {
+    const start = input.selectionStart ?? input.value.length;
+    const end = input.selectionEnd ?? input.value.length;
+    input.value = input.value.slice(0, start) + text + input.value.slice(end);
+    const nextPos = start + text.length;
+    input.focus();
+    input.setSelectionRange(nextPos, nextPos);
+  }
+
   type RenderMoment = {
     id?: string;
     date: string;
@@ -1207,8 +1288,9 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     createdAt?: number;
   };
 
-  const knownCategories = new Set(['游戏', '音乐', '生活']);
-  const categoryIcons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕' };
+  const knownCategories = new Set(['游戏', '音乐', '生活', '吐槽']);
+  const categoryIcons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕', '吐槽': '💬' };
+  const MOMENT_EMOJIS = ['😀', '😂', '😭', '🥺', '😎', '🤔', '👍', '👏', '🎉', '✨', '💯', '❤️'];
   let currentMoments: RenderMoment[] = [];
   let toastTimer: number | undefined;
 
@@ -1404,7 +1486,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     }
 
     if (moment.id) {
-      content.appendChild(createCommentsWidget('moment', moment.id));
+      content.appendChild(createCommentsWidget('moment', moment.id, undefined, 2));
     }
 
     card.append(glow, content);
@@ -1417,6 +1499,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     const gameEl = document.getElementById('stat-game');
     const musicEl = document.getElementById('stat-music');
     const lifeEl = document.getElementById('stat-life');
+    const rantEl = document.getElementById('stat-rant');
 
     const catCounts: Record<string, number> = {};
     moments.forEach((m) => {
@@ -1427,36 +1510,8 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     if (gameEl) gameEl.textContent = String(catCounts['游戏'] || 0);
     if (musicEl) musicEl.textContent = String(catCounts['音乐'] || 0);
     if (lifeEl) lifeEl.textContent = String(catCounts['生活'] || 0);
+    if (rantEl) rantEl.textContent = String(catCounts['吐槽'] || 0);
   }
-
-  // Load from API on page load
-  fetchMomentsFromApi()
-    .then((items) => {
-      if (items.length === 0) {
-        renderListMessage('暂时没有碎碎念，敬请期待 ✨');
-        return;
-      }
-      syncMoments(items);
-    })
-    .catch((err) => {
-      console.warn('Failed to fetch moments from API:', err);
-      renderListMessage('加载失败，请刷新页面重试 😢', 'error-state');
-    });
-
-  // === Category filter ===
-  const tabs = document.querySelectorAll<HTMLButtonElement>('.pill[data-category]');
-
-  tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
-      tabs.forEach((t) => t.classList.remove('active'));
-      tab.classList.add('active');
-      const selected = tab.dataset.category ?? 'all';
-      const cards = document.querySelectorAll<HTMLElement>('.moment-card');
-      cards.forEach((card) => {
-        card.classList.toggle('hidden', selected !== 'all' && card.dataset.category !== selected);
-      });
-    });
-  });
 
   async function deleteMoment(momentId: string, trigger: HTMLButtonElement) {
     const target = currentMoments.find((moment) => moment.id === momentId);
@@ -1512,286 +1567,18 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     }
   }
 
-  document.getElementById('moments-list')?.addEventListener('click', (event) => {
-    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.delete-moment-btn');
-    if (!button?.dataset.momentId) return;
-    event.preventDefault();
-    deleteMoment(button.dataset.momentId, button);
-  });
-
-  // === Publish panel toggle ===
-  const toggleBtn = document.getElementById('publish-toggle');
-  const publishBox = document.getElementById('publish-box');
-  const closeBtnEl = document.getElementById('close-btn');
-  const toggleIcon = document.getElementById('toggle-icon');
-
-  toggleBtn?.addEventListener('click', () => {
-    publishBox?.classList.toggle('hidden');
-    const isOpen = !publishBox?.classList.contains('hidden');
-    if (toggleIcon) toggleIcon.textContent = isOpen ? '🔼' : '✏️';
-    if (isOpen) publishBox?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  });
-
-  closeBtnEl?.addEventListener('click', () => {
-    publishBox?.classList.add('hidden');
-    if (toggleIcon) toggleIcon.textContent = '✏️';
-  });
-
-  // === Image upload (R2 client-side) ===
-  const imageInput = document.getElementById('image-input') as HTMLInputElement | null;
-  const uploadPlaceholder = document.getElementById('upload-placeholder');
-  const imagePreviews = document.getElementById('image-previews');
-  const uploadArea = document.getElementById('image-upload-area');
-  const form = document.getElementById('publish-form') as HTMLFormElement | null;
-  const msg = document.getElementById('form-message');
-  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
-  const selectedImages: Array<{ id: string; file: File; previewUrl: string; remoteUrl?: string }> = [];
-
-  function setMessage(text: string, type: 'success' | 'error' | '') {
-    if (!msg) return;
-    msg.textContent = text;
-    msg.className = type;
-  }
-
-  function setPreviewStatus(id: string, text: string, state: 'idle' | 'uploading' | 'uploaded' | 'failed') {
-    const item = document.getElementById(`preview-${id}`);
-    const progress = item?.querySelector<HTMLElement>('.upload-progress');
-    if (!item || !progress) return;
-    item.classList.toggle('uploaded', state === 'uploaded');
-    item.classList.toggle('failed', state === 'failed');
-    progress.classList.toggle('hidden', state === 'idle');
-    progress.textContent = text;
-  }
-
-  function renderPreviews() {
-    if (!imagePreviews) return;
-    imagePreviews.innerHTML = '';
-    selectedImages.forEach((item) => {
-      const div = document.createElement('div');
-      div.className = 'preview-item';
-      div.id = `preview-${item.id}`;
-      const img = document.createElement('img');
-      img.src = item.previewUrl;
-      img.alt = item.file.name;
-      const progress = document.createElement('div');
-      progress.className = 'upload-progress hidden';
-      const removeBtn = document.createElement('button');
-      removeBtn.type = 'button';
-      removeBtn.className = 'remove-img';
-      removeBtn.textContent = '✕';
-      removeBtn.addEventListener('click', () => {
-        const index = selectedImages.findIndex((image) => image.id === item.id);
-        if (index > -1) {
-          URL.revokeObjectURL(selectedImages[index].previewUrl);
-          selectedImages.splice(index, 1);
-          renderPreviews();
-        }
-      });
-      div.append(img, progress, removeBtn);
-      applyScopedStyles(div);
-      imagePreviews.appendChild(div);
-      if (item.remoteUrl) setPreviewStatus(item.id, '已上传', 'uploaded');
-    });
-  }
-
-  async function uploadImagesToR2() {
-    const urls: string[] = [];
-    for (const item of selectedImages) {
-      if (item.remoteUrl) { urls.push(item.remoteUrl); continue; }
-      setPreviewStatus(item.id, '上传中...', 'uploading');
-      if (item.file.size > maxImageBytes) {
-        setPreviewStatus(item.id, '过大', 'failed');
-        throw new Error('图片过大，请控制在 8 MB 以内');
-      }
-      try {
-        const url = await uploadToR2(item.file);
-        item.remoteUrl = url;
-        urls.push(url);
-        setPreviewStatus(item.id, '已上传', 'uploaded');
-      } catch (err) {
-        setPreviewStatus(item.id, '失败', 'failed');
-        throw err;
-      }
-    }
-    return urls;
-  }
-
-  uploadPlaceholder?.addEventListener('click', () => imageInput?.click());
-  uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadPlaceholder?.classList.add('drag-over'); });
-  uploadArea?.addEventListener('dragleave', () => { uploadPlaceholder?.classList.remove('drag-over'); });
-  uploadArea?.addEventListener('drop', (e) => {
-    e.preventDefault();
-    uploadPlaceholder?.classList.remove('drag-over');
-    const files = (e as DragEvent).dataTransfer?.files;
-    if (files) handleFiles(Array.from(files));
-  });
-  imageInput?.addEventListener('change', () => {
-    if (imageInput.files) handleFiles(Array.from(imageInput.files));
-    imageInput.value = '';
-  });
-
-  // Paste images
-  document.addEventListener('paste', (e) => {
-    if (publishBox?.classList.contains('hidden')) return;
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    const files: File[] = [];
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].type.startsWith('image/')) {
-        const file = items[i].getAsFile();
-        if (file) files.push(file);
-      }
-    }
-    if (files.length > 0) {
-      e.preventDefault();
-      handleFiles(files);
-      setMessage(`📷 已粘贴 ${files.length} 张图片`, 'success');
-    }
-  });
-
-  function handleFiles(files: File[]) {
-    for (const file of files) {
-      if (!file.type.startsWith('image/')) continue;
-      if (selectedImages.length >= maxImages) {
-        setMessage(`最多选择 ${maxImages} 张图片`, 'error');
-        break;
-      }
-      selectedImages.push({
-        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-        file,
-        previewUrl: URL.createObjectURL(file),
-      });
-    }
-    renderPreviews();
-  }
-
-  // === Form submit → API ===
-  if (form && msg && submitBtn) {
-    const dateInput = form.querySelector<HTMLInputElement>('input[name="date"]');
-    if (dateInput) dateInput.value = localDateTimeValue();
-
-    const tokenInput = document.getElementById('token-input') as HTMLInputElement | null;
-    const savedBadge = document.getElementById('token-saved-badge');
-    const clearBtn = document.getElementById('token-clear-btn');
-
-    function refreshTokenUI() {
-      const saved = getAdminToken();
-      if (saved && tokenInput && !tokenInput.value) tokenInput.value = saved;
-      const hasToken = !!(tokenInput?.value || getAdminToken());
-      if (savedBadge) savedBadge.style.display = hasToken ? 'inline' : 'none';
-      if (clearBtn) clearBtn.style.display = hasToken ? 'inline-flex' : 'none';
-    }
-
-    refreshTokenUI();
-
-    clearBtn?.addEventListener('click', () => {
-      localStorage.removeItem(ADMIN_TOKEN_KEY);
-      if (tokenInput) tokenInput.value = '';
-      refreshTokenUI();
-    });
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const fd = new FormData(form);
-      let adminToken = String(fd.get('adminToken') ?? '').trim();
-      if (!adminToken) adminToken = getAdminToken();
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = selectedImages.length > 0 ? '上传图片...' : '发布中...';
-      setMessage('', '');
-
-      try {
-        if (!adminToken) throw new Error('请输入管理密钥（首次使用需要输入一次，之后自动保存）');
-
-        const link = String(fd.get('link') ?? '').trim();
-        const date = String(fd.get('date') ?? '').trim();
-        const category = String(fd.get('category') ?? '').trim();
-        const text = String(fd.get('text') ?? '').trim();
-
-        if (!date || !category || !text) throw new Error('请填写时间、分类和内容');
-
-        // Upload images to R2 first
-        const imageUrls = selectedImages.length > 0 ? await uploadImagesToR2() : [];
-
-        submitBtn.textContent = '发布中...';
-
-        // POST to moments API
-        const res = await fetch(MOMENTS_API_URL, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json; charset=utf-8',
-            'Authorization': `Bearer ${adminToken}`,
-          },
-          body: JSON.stringify({
-            date, category, text,
-            ...(link && { link }),
-            ...(imageUrls.length > 0 && { images: imageUrls }),
-          }),
-        });
-
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.error || `API 错误 (${res.status})`);
-        }
-
-        // Save token
-        try { localStorage.setItem(ADMIN_TOKEN_KEY, adminToken); } catch {}
-        refreshTokenUI();
-
-        setMessage('✅ 发布成功！', 'success');
-
-        // Optimistic render: immediately show the new card
-        const list = document.getElementById('moments-list');
-        if (list) {
-          const activeTab = document.querySelector('.pill[data-category].active') as HTMLElement | null;
-          const activeCat = activeTab?.dataset?.category || 'all';
-          const newMoment = { date, category, text, link: link || undefined, images: imageUrls };
-          const newCard = buildMomentCard(newMoment, 0, activeCat);
-          if (newCard) list.prepend(newCard);
-          // Re-index animation delays
-          list.querySelectorAll<HTMLElement>('.moment-card').forEach((c, i) => c.style.setProperty('--delay', `${i * 40}ms`));
-          // Update stats optimistically
-          try {
-            const existing = await fetchMomentsFromApi().catch(() => null);
-            if (existing) {
-              // Deduplicate: add new moment only if not already in API results
-              const normalizedExisting: RenderMoment[] = [];
-              existing.forEach((item: any) => {
-                const moment = normalizeMoment(item);
-                if (moment) normalizedExisting.push(moment);
-              });
-              const ids = new Set(normalizedExisting.map((m: RenderMoment) => m.date + m.text));
-              const key = newMoment.date + newMoment.text;
-              if (!ids.has(key)) normalizedExisting.unshift(newMoment);
-              updateStats(normalizedExisting);
-            }
-          } catch {}
-        }
-
-        // Background refresh (handles replication lag gracefully)
-        setTimeout(async () => {
-          try {
-            const fresh = await fetchMomentsFromApi();
-            syncMoments(fresh);
-          } catch {}
-        }, 2000);
-
-        // Reset form
-        form.reset();
-        selectedImages.length = 0;
-        if (imagePreviews) imagePreviews.innerHTML = '';
-        if (dateInput) dateInput.value = localDateTimeValue();
-      } catch (err) {
-        const detail = err instanceof Error ? err.message : String(err);
-        setMessage('❌ 发布失败: ' + detail.slice(0, 200), 'error');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = '🚀 发布';
-      }
-    });
-  }
-
   // === Lightbox ===
+  let lightbox: HTMLElement | null = null;
+  let lightboxImage: HTMLImageElement | null = null;
+  let lightboxCounter: HTMLElement | null = null;
+  let lightboxStage: HTMLElement | null = null;
+  let lightboxClose: HTMLButtonElement | null = null;
+  let lightboxPrev: HTMLButtonElement | null = null;
+  let lightboxNext: HTMLButtonElement | null = null;
+  let lightboxImages: HTMLImageElement[] = [];
+  let lightboxIndex = 0;
+  let returnFocusTarget: HTMLElement | null = null;
+
   function setupLightboxForNewCards() {
     document.querySelectorAll<HTMLImageElement>('.card-images img').forEach((img) => {
       if (img.dataset.lightboxBound) return;
@@ -1804,17 +1591,6 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       });
     });
   }
-
-  const lightbox = document.getElementById('moment-lightbox') as HTMLElement | null;
-  const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
-  const lightboxCounter = document.getElementById('lightbox-counter');
-  const lightboxStage = document.getElementById('lightbox-stage');
-  const lightboxClose = document.getElementById('lightbox-close') as HTMLButtonElement | null;
-  const lightboxPrev = document.getElementById('lightbox-prev') as HTMLButtonElement | null;
-  const lightboxNext = document.getElementById('lightbox-next') as HTMLButtonElement | null;
-  let lightboxImages: HTMLImageElement[] = [];
-  let lightboxIndex = 0;
-  let returnFocusTarget: HTMLElement | null = null;
 
   function setLightboxImage(index: number) {
     if (!lightboxImage || !lightboxCounter || !lightboxPrev || !lightboxNext || lightboxImages.length === 0) return;
@@ -1855,18 +1631,404 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     setLightboxImage(lightboxIndex + delta);
   }
 
-  // Bind lightbox to initially rendered cards
-  setupLightboxForNewCards();
+  let cleanupMomentsPage: AbortController | undefined;
 
-  lightbox?.addEventListener('click', closeLightbox);
-  lightboxStage?.addEventListener('click', (event) => event.stopPropagation());
-  lightboxClose?.addEventListener('click', (event) => { event.stopPropagation(); closeLightbox(); });
-  lightboxPrev?.addEventListener('click', (event) => { event.stopPropagation(); moveLightbox(-1); });
-  lightboxNext?.addEventListener('click', (event) => { event.stopPropagation(); moveLightbox(1); });
-  document.addEventListener('keydown', (event) => {
-    if (lightbox?.hidden !== false) return;
-    if (event.key === 'Escape') closeLightbox();
-    if (event.key === 'ArrowLeft') moveLightbox(-1);
-    if (event.key === 'ArrowRight') moveLightbox(1);
-  });
+  function initMomentsPage() {
+    const shell = document.querySelector<HTMLElement>('.moments-shell');
+    if (!shell || shell.dataset.momentsInitialized === '1') return;
+
+    cleanupMomentsPage?.abort();
+    const controller = new AbortController();
+    cleanupMomentsPage = controller;
+    const { signal } = controller;
+
+    shell.dataset.momentsInitialized = '1';
+    scopedStyleAttribute = undefined;
+    currentMoments = [];
+    lightboxImages = [];
+    lightboxIndex = 0;
+    returnFocusTarget = null;
+
+    const selectedImages: Array<{ id: string; file: File; previewUrl: string; remoteUrl?: string }> = [];
+
+    function cleanupPageState() {
+      selectedImages.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      selectedImages.length = 0;
+      closeLightbox();
+      if (cleanupMomentsPage === controller) cleanupMomentsPage = undefined;
+      controller.abort();
+    }
+
+    document.addEventListener('astro:before-swap', cleanupPageState, { once: true, signal });
+
+    // Load from API on page load and after Astro client-side navigation.
+    fetchMomentsFromApi()
+      .then((items) => {
+        if (signal.aborted) return;
+        if (items.length === 0) {
+          renderListMessage('暂时没有碎碎念，敬请期待 ✨');
+          return;
+        }
+        syncMoments(items);
+      })
+      .catch((err) => {
+        if (signal.aborted) return;
+        console.warn('Failed to fetch moments from API:', err);
+        renderListMessage('加载失败，请刷新页面重试 😢', 'error-state');
+      });
+
+    // === Category filter ===
+    const tabs = document.querySelectorAll<HTMLButtonElement>('.pill[data-category]');
+    tabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        tabs.forEach((t) => t.classList.remove('active'));
+        tab.classList.add('active');
+        const selected = tab.dataset.category ?? 'all';
+        const cards = document.querySelectorAll<HTMLElement>('.moment-card');
+        cards.forEach((card) => {
+          card.classList.toggle('hidden', selected !== 'all' && card.dataset.category !== selected);
+        });
+      }, { signal });
+    });
+
+    document.getElementById('moments-list')?.addEventListener('click', (event) => {
+      const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.delete-moment-btn');
+      if (!button?.dataset.momentId) return;
+      event.preventDefault();
+      deleteMoment(button.dataset.momentId, button);
+    }, { signal });
+
+    // === Publish panel toggle ===
+    const toggleBtn = document.getElementById('publish-toggle');
+    const publishBox = document.getElementById('publish-box');
+    const closeBtnEl = document.getElementById('close-btn');
+    const toggleIcon = document.getElementById('toggle-icon');
+
+    toggleBtn?.addEventListener('click', () => {
+      publishBox?.classList.toggle('hidden');
+      const isOpen = !publishBox?.classList.contains('hidden');
+      if (toggleIcon) toggleIcon.textContent = isOpen ? '🔼' : '✏️';
+      if (isOpen) publishBox?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, { signal });
+
+    closeBtnEl?.addEventListener('click', () => {
+      publishBox?.classList.add('hidden');
+      if (toggleIcon) toggleIcon.textContent = '✏️';
+    }, { signal });
+
+    // === Image upload (R2 client-side) ===
+    const imageInput = document.getElementById('image-input') as HTMLInputElement | null;
+    const uploadPlaceholder = document.getElementById('upload-placeholder');
+    const imagePreviews = document.getElementById('image-previews');
+    const uploadArea = document.getElementById('image-upload-area');
+    const form = document.getElementById('publish-form') as HTMLFormElement | null;
+    const msg = document.getElementById('form-message');
+    const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement | null;
+    const emojiToggle = document.getElementById('moment-emoji-toggle') as HTMLButtonElement | null;
+    const emojiPanel = document.getElementById('moment-emoji-panel');
+
+    if (emojiPanel && emojiPanel.childElementCount === 0) {
+      MOMENT_EMOJIS.forEach((emoji) => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.textContent = emoji;
+        button.addEventListener('click', () => {
+          const textInput = form?.querySelector<HTMLTextAreaElement>('textarea[name="text"]');
+          if (textInput) insertTextAtCursor(textInput, emoji);
+          emojiPanel.classList.add('hidden');
+          emojiToggle?.setAttribute('aria-expanded', 'false');
+        }, { signal });
+        emojiPanel.appendChild(button);
+      });
+    }
+
+    emojiToggle?.addEventListener('click', () => {
+      emojiPanel?.classList.toggle('hidden');
+      emojiToggle.setAttribute('aria-expanded', String(!emojiPanel?.classList.contains('hidden')));
+    }, { signal });
+
+    document.addEventListener('click', (event) => {
+      if (emojiPanel?.classList.contains('hidden')) return;
+      const target = event.target as Node;
+      if (emojiPanel?.contains(target) || emojiToggle?.contains(target)) return;
+      emojiPanel?.classList.add('hidden');
+      emojiToggle?.setAttribute('aria-expanded', 'false');
+    }, { signal });
+
+    function setMessage(text: string, type: 'success' | 'error' | '') {
+      if (!msg) return;
+      msg.textContent = text;
+      msg.className = type;
+    }
+
+    function setPreviewStatus(id: string, text: string, state: 'idle' | 'uploading' | 'uploaded' | 'failed') {
+      const item = document.getElementById(`preview-${id}`);
+      const progress = item?.querySelector<HTMLElement>('.upload-progress');
+      if (!item || !progress) return;
+      item.classList.toggle('uploaded', state === 'uploaded');
+      item.classList.toggle('failed', state === 'failed');
+      progress.classList.toggle('hidden', state === 'idle');
+      progress.textContent = text;
+    }
+
+    function renderPreviews() {
+      if (!imagePreviews) return;
+      imagePreviews.innerHTML = '';
+      selectedImages.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'preview-item';
+        div.id = `preview-${item.id}`;
+        const img = document.createElement('img');
+        img.src = item.previewUrl;
+        img.alt = item.file.name;
+        const progress = document.createElement('div');
+        progress.className = 'upload-progress hidden';
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-img';
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', () => {
+          const index = selectedImages.findIndex((image) => image.id === item.id);
+          if (index > -1) {
+            URL.revokeObjectURL(selectedImages[index].previewUrl);
+            selectedImages.splice(index, 1);
+            renderPreviews();
+          }
+        }, { signal });
+        div.append(img, progress, removeBtn);
+        applyScopedStyles(div);
+        imagePreviews.appendChild(div);
+        if (item.remoteUrl) setPreviewStatus(item.id, '已上传', 'uploaded');
+      });
+    }
+
+    async function uploadImagesToR2() {
+      const urls: string[] = [];
+      for (const item of selectedImages) {
+        if (item.remoteUrl) { urls.push(item.remoteUrl); continue; }
+        setPreviewStatus(item.id, '上传中...', 'uploading');
+        if (item.file.size > maxImageBytes) {
+          setPreviewStatus(item.id, '过大', 'failed');
+          throw new Error('图片过大，请控制在 8 MB 以内');
+        }
+        try {
+          const url = await uploadToR2(item.file);
+          item.remoteUrl = url;
+          urls.push(url);
+          setPreviewStatus(item.id, '已上传', 'uploaded');
+        } catch (err) {
+          setPreviewStatus(item.id, '失败', 'failed');
+          throw err;
+        }
+      }
+      return urls;
+    }
+
+    function handleFiles(files: File[]) {
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        if (selectedImages.length >= maxImages) {
+          setMessage(`最多选择 ${maxImages} 张图片`, 'error');
+          break;
+        }
+        selectedImages.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          file,
+          previewUrl: URL.createObjectURL(file),
+        });
+      }
+      renderPreviews();
+    }
+
+    uploadPlaceholder?.addEventListener('click', () => imageInput?.click(), { signal });
+    uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadPlaceholder?.classList.add('drag-over'); }, { signal });
+    uploadArea?.addEventListener('dragleave', () => { uploadPlaceholder?.classList.remove('drag-over'); }, { signal });
+    uploadArea?.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadPlaceholder?.classList.remove('drag-over');
+      const files = (e as DragEvent).dataTransfer?.files;
+      if (files) handleFiles(Array.from(files));
+    }, { signal });
+    imageInput?.addEventListener('change', () => {
+      if (imageInput.files) handleFiles(Array.from(imageInput.files));
+      imageInput.value = '';
+    }, { signal });
+
+    // Paste images
+    document.addEventListener('paste', (e) => {
+      if (publishBox?.classList.contains('hidden')) return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
+      const files: File[] = [];
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith('image/')) {
+          const file = items[i].getAsFile();
+          if (file) files.push(file);
+        }
+      }
+      if (files.length > 0) {
+        e.preventDefault();
+        handleFiles(files);
+        setMessage(`📷 已粘贴 ${files.length} 张图片`, 'success');
+      }
+    }, { signal });
+
+    // === Form submit → API ===
+    if (form && msg && submitBtn) {
+      const dateInput = form.querySelector<HTMLInputElement>('input[name="date"]');
+      if (dateInput) dateInput.value = localDateTimeValue();
+
+      const tokenInput = document.getElementById('token-input') as HTMLInputElement | null;
+      const savedBadge = document.getElementById('token-saved-badge');
+      const clearBtn = document.getElementById('token-clear-btn');
+
+      function refreshTokenUI() {
+        const saved = getAdminToken();
+        if (saved && tokenInput && !tokenInput.value) tokenInput.value = saved;
+        const hasToken = !!(tokenInput?.value || getAdminToken());
+        if (savedBadge) savedBadge.style.display = hasToken ? 'inline' : 'none';
+        if (clearBtn) clearBtn.style.display = hasToken ? 'inline-flex' : 'none';
+      }
+
+      refreshTokenUI();
+
+      clearBtn?.addEventListener('click', () => {
+        localStorage.removeItem(ADMIN_TOKEN_KEY);
+        if (tokenInput) tokenInput.value = '';
+        refreshTokenUI();
+      }, { signal });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const fd = new FormData(form);
+        let adminToken = String(fd.get('adminToken') ?? '').trim();
+        if (!adminToken) adminToken = getAdminToken();
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = selectedImages.length > 0 ? '上传图片...' : '发布中...';
+        setMessage('', '');
+
+        try {
+          if (!adminToken) throw new Error('请输入管理密钥（首次使用需要输入一次，之后自动保存）');
+
+          const link = String(fd.get('link') ?? '').trim();
+          const date = String(fd.get('date') ?? '').trim();
+          const category = String(fd.get('category') ?? '').trim();
+          const text = String(fd.get('text') ?? '').trim();
+
+          if (!date || !category || !text) throw new Error('请填写时间、分类和内容');
+
+          // Upload images to R2 first
+          const imageUrls = selectedImages.length > 0 ? await uploadImagesToR2() : [];
+
+          submitBtn.textContent = '发布中...';
+
+          // POST to moments API
+          const res = await fetch(MOMENTS_API_URL, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json; charset=utf-8',
+              'Authorization': `Bearer ${adminToken}`,
+            },
+            body: JSON.stringify({
+              date, category, text,
+              ...(link && { link }),
+              ...(imageUrls.length > 0 && { images: imageUrls }),
+            }),
+          });
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.error || `API 错误 (${res.status})`);
+          }
+
+          // Save token
+          try { localStorage.setItem(ADMIN_TOKEN_KEY, adminToken); } catch {}
+          refreshTokenUI();
+
+          setMessage('✅ 发布成功！', 'success');
+
+          // Optimistic render: immediately show the new card
+          const list = document.getElementById('moments-list');
+          if (list) {
+            const activeTab = document.querySelector('.pill[data-category].active') as HTMLElement | null;
+            const activeCat = activeTab?.dataset?.category || 'all';
+            const newMoment = { date, category, text, link: link || undefined, images: imageUrls };
+            const newCard = buildMomentCard(newMoment, 0, activeCat);
+            if (newCard) list.prepend(newCard);
+            // Re-index animation delays
+            list.querySelectorAll<HTMLElement>('.moment-card').forEach((c, i) => c.style.setProperty('--delay', `${i * 40}ms`));
+            // Update stats optimistically
+            try {
+              const existing = await fetchMomentsFromApi().catch(() => null);
+              if (existing) {
+                // Deduplicate: add new moment only if not already in API results
+                const normalizedExisting: RenderMoment[] = [];
+                existing.forEach((item: any) => {
+                  const moment = normalizeMoment(item);
+                  if (moment) normalizedExisting.push(moment);
+                });
+                const ids = new Set(normalizedExisting.map((m: RenderMoment) => m.date + m.text));
+                const key = newMoment.date + newMoment.text;
+                if (!ids.has(key)) normalizedExisting.unshift(newMoment);
+                updateStats(normalizedExisting);
+              }
+            } catch {}
+          }
+
+          // Background refresh (handles replication lag gracefully)
+          setTimeout(async () => {
+            if (signal.aborted) return;
+            try {
+              const fresh = await fetchMomentsFromApi();
+              if (!signal.aborted) syncMoments(fresh);
+            } catch {}
+          }, 2000);
+
+          // Reset form
+          form.reset();
+          selectedImages.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+          selectedImages.length = 0;
+          if (imagePreviews) imagePreviews.innerHTML = '';
+          if (dateInput) dateInput.value = localDateTimeValue();
+        } catch (err) {
+          const detail = err instanceof Error ? err.message : String(err);
+          setMessage('❌ 发布失败: ' + detail.slice(0, 200), 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '🚀 发布';
+        }
+      }, { signal });
+    }
+
+    lightbox = document.getElementById('moment-lightbox') as HTMLElement | null;
+    lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
+    lightboxCounter = document.getElementById('lightbox-counter');
+    lightboxStage = document.getElementById('lightbox-stage');
+    lightboxClose = document.getElementById('lightbox-close') as HTMLButtonElement | null;
+    lightboxPrev = document.getElementById('lightbox-prev') as HTMLButtonElement | null;
+    lightboxNext = document.getElementById('lightbox-next') as HTMLButtonElement | null;
+
+    // Bind lightbox to initially rendered cards.
+    setupLightboxForNewCards();
+
+    lightbox?.addEventListener('click', closeLightbox, { signal });
+    lightboxStage?.addEventListener('click', (event) => event.stopPropagation(), { signal });
+    lightboxClose?.addEventListener('click', (event) => { event.stopPropagation(); closeLightbox(); }, { signal });
+    lightboxPrev?.addEventListener('click', (event) => { event.stopPropagation(); moveLightbox(-1); }, { signal });
+    lightboxNext?.addEventListener('click', (event) => { event.stopPropagation(); moveLightbox(1); }, { signal });
+    document.addEventListener('keydown', (event) => {
+      if (lightbox?.hidden !== false) return;
+      if (event.key === 'Escape') closeLightbox();
+      if (event.key === 'ArrowLeft') moveLightbox(-1);
+      if (event.key === 'ArrowRight') moveLightbox(1);
+    }, { signal });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMomentsPage, { once: true });
+  } else {
+    initMomentsPage();
+  }
+  document.addEventListener('astro:page-load', initMomentsPage);
 </script>

@@ -1,6 +1,6 @@
 import rawMoments from './moments.json';
 
-export type MomentCategory = '游戏' | '音乐' | '生活';
+export type MomentCategory = '游戏' | '音乐' | '生活' | '吐槽';
 
 export interface Moment {
   /** 时间，格式 YYYY-MM-DD 或 YYYY-MM-DDTHH:mm */
@@ -19,9 +19,10 @@ export const categoryMeta: Record<MomentCategory, { icon: string; label: string 
   游戏: { icon: '🎮', label: '游戏' },
   音乐: { icon: '🎵', label: '音乐' },
   生活: { icon: '☕', label: '生活' },
+  吐槽: { icon: '💬', label: '吐槽' },
 };
 
-export const categoryOrder: MomentCategory[] = ['游戏', '音乐', '生活'];
+export const categoryOrder: MomentCategory[] = ['游戏', '音乐', '生活', '吐槽'];
 
 /**
  * 碎碎念列表 —— 发新动态只需在数组最前面加一行：

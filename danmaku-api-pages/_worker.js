@@ -14,11 +14,12 @@ const PUBLIC_WRITE_RATE_LIMIT_MAX = 6;
 /* ===== Moments constants ===== */
 const MOMENT_MAX_TEXT = 2000;
 const MOMENT_MAX_IMAGES = 9;
-const MOMENT_CATEGORIES = ['游戏', '音乐', '生活'];
+const MOMENT_CATEGORIES = ['游戏', '音乐', '生活', '吐槽'];
 const MOMENT_IMAGE_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 const GUEST_MESSAGE_MAX_TEXT = 800;
 const COMMENT_MAX_TEXT = 500;
 const USER_ID_MAX_LENGTH = 32;
+const COMMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨'];
 
 export default {
   async fetch(request, env) {
@@ -60,6 +61,11 @@ export default {
       if (url.pathname === '/api/comments') {
         if (request.method === 'GET') return handleCommentsList(url, request, env);
         if (request.method === 'POST') return handleCommentsCreate(request, env);
+        return json({ error: 'Method not allowed' }, 405, request, env);
+      }
+
+      if (url.pathname === '/api/comment-reactions') {
+        if (request.method === 'POST') return handleCommentReactionCreate(request, env);
         return json({ error: 'Method not allowed' }, 405, request, env);
       }
 
@@ -422,8 +428,11 @@ async function handleCommentsList(url, request, env) {
     'SELECT id, target_type, target_id, user_id, text, created_at FROM comments WHERE target_type = ? AND target_id = ? ORDER BY created_at ASC LIMIT ?'
   ).bind(targetType, targetId, limit).all();
 
+  var comments = (result.results || []).map(toCommentItem);
+  await attachCommentReactions(env, comments);
+
   return json({
-    items: (result.results || []).map(toCommentItem),
+    items: comments,
     now: Date.now()
   }, 200, request, env);
 }
@@ -465,6 +474,32 @@ async function handleCommentsCreate(request, env) {
   ).bind(item.id, item.targetType, item.targetId, item.userId, item.text, ipHash, item.createdAt).run();
 
   return json({ item: item }, 201, request, env);
+}
+
+async function handleCommentReactionCreate(request, env) {
+  var contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ error: 'Expected application/json' }, 415, request, env);
+  }
+
+  var body = await readJsonBody(request);
+  var commentId = typeof body.commentId === 'string' ? body.commentId.trim() : '';
+  var emoji = typeof body.emoji === 'string' ? body.emoji.trim() : '';
+  if (!commentId || COMMENT_REACTION_EMOJIS.indexOf(emoji) < 0) {
+    return json({ error: 'Missing commentId or invalid emoji' }, 400, request, env);
+  }
+
+  var exists = await env.DB.prepare('SELECT id FROM comments WHERE id = ? LIMIT 1').bind(commentId).first();
+  if (!exists) return json({ error: 'Comment not found' }, 404, request, env);
+
+  var ipHash = await hashClient(request);
+  var now = Date.now();
+  await env.DB.prepare(
+    'INSERT OR IGNORE INTO comment_reactions (comment_id, emoji, ip_hash, created_at) VALUES (?, ?, ?, ?)'
+  ).bind(commentId, emoji, ipHash, now).run();
+
+  var counts = await getCommentReactionCounts(env, [commentId]);
+  return json({ reactions: counts[commentId] || {} }, 201, request, env);
 }
 
 /* ===========================
@@ -579,8 +614,32 @@ function toCommentItem(row) {
     targetId: row.target_id,
     userId: row.user_id,
     text: row.text,
-    createdAt: row.created_at
+    createdAt: row.created_at,
+    reactions: {}
   };
+}
+
+async function attachCommentReactions(env, comments) {
+  if (!comments.length) return;
+  var ids = comments.map(function(comment) { return comment.id; });
+  var counts = await getCommentReactionCounts(env, ids);
+  comments.forEach(function(comment) {
+    comment.reactions = counts[comment.id] || {};
+  });
+}
+
+async function getCommentReactionCounts(env, commentIds) {
+  if (!commentIds.length) return {};
+  var placeholders = commentIds.map(function() { return '?'; }).join(',');
+  var result = await env.DB.prepare(
+    'SELECT comment_id, emoji, COUNT(*) AS count FROM comment_reactions WHERE comment_id IN (' + placeholders + ') GROUP BY comment_id, emoji'
+  ).bind(...commentIds).all();
+  var counts = {};
+  (result.results || []).forEach(function(row) {
+    if (!counts[row.comment_id]) counts[row.comment_id] = {};
+    counts[row.comment_id][row.emoji] = row.count || 0;
+  });
+  return counts;
 }
 
 function corsHeaders(request, env) {

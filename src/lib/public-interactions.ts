@@ -10,6 +10,7 @@ export type PublicComment = {
   userId: string;
   text: string;
   createdAt: number;
+  reactions?: Record<string, number>;
 };
 
 export type GuestMessage = {
@@ -19,6 +20,8 @@ export type GuestMessage = {
   createdAt: number;
   commentCount?: number;
 };
+
+const COMMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨'];
 
 export function getStoredUserId() {
   try {
@@ -71,6 +74,16 @@ export async function createComment(targetType: CommentTargetType, targetId: str
   return data.item as PublicComment;
 }
 
+export async function reactToComment(commentId: string, emoji: string) {
+  const res = await fetch(`${PUBLIC_API_BASE}/comment-reactions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ commentId, emoji }),
+  });
+  const data = await readApiJson(res);
+  return (data.reactions || {}) as Record<string, number>;
+}
+
 export async function fetchGuestMessages() {
   const res = await fetch(`${PUBLIC_API_BASE}/messages?limit=80`, { cache: 'no-store' });
   const data = await readApiJson(res);
@@ -87,7 +100,7 @@ export async function createGuestMessage(userId: string, text: string) {
   return data.item as GuestMessage;
 }
 
-export function createCommentsWidget(targetType: CommentTargetType, targetId: string, initialCount?: number) {
+export function createCommentsWidget(targetType: CommentTargetType, targetId: string, initialCount?: number, previewCount = 0) {
   const root = document.createElement('section');
   root.className = 'public-comments';
   root.dataset.targetType = targetType;
@@ -96,11 +109,13 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
   const toggle = document.createElement('button');
   toggle.type = 'button';
   toggle.className = 'public-comments-toggle';
-  toggle.textContent = initialCount && initialCount > 0 ? `评论 ${initialCount}` : '评论';
+  toggle.textContent = previewCount > 0
+    ? (initialCount && initialCount > 0 ? `查看全部评论 ${initialCount}` : '查看全部评论')
+    : (initialCount && initialCount > 0 ? `评论 ${initialCount}` : '评论');
 
   const body = document.createElement('div');
   body.className = 'public-comments-body';
-  body.hidden = true;
+  body.hidden = previewCount <= 0;
 
   const list = document.createElement('div');
   list.className = 'public-comments-list';
@@ -108,6 +123,7 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
 
   const form = document.createElement('form');
   form.className = 'public-comment-form';
+  form.hidden = previewCount > 0;
 
   const userInput = document.createElement('input');
   userInput.name = 'userId';
@@ -128,24 +144,30 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
 
   const status = document.createElement('p');
   status.className = 'public-comment-status';
+  status.hidden = previewCount > 0;
 
   form.append(userInput, textInput, submit);
   body.append(list, form, status);
   root.append(toggle, body);
 
   let loaded = false;
+  let expanded = previewCount <= 0;
+  let allComments: PublicComment[] = [];
 
   function render(comments: PublicComment[]) {
     list.innerHTML = '';
+    allComments = comments;
     if (!comments.length) {
       const empty = document.createElement('p');
       empty.className = 'public-comment-empty';
       empty.textContent = '还没有评论';
       list.appendChild(empty);
+      toggle.textContent = '评论';
       return;
     }
 
-    comments.forEach((comment) => {
+    const visibleComments = expanded ? comments : comments.slice(0, previewCount);
+    visibleComments.forEach((comment) => {
       const item = document.createElement('article');
       item.className = 'public-comment-item';
       const meta = document.createElement('div');
@@ -158,9 +180,41 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
       meta.append(user, time);
       const text = document.createElement('p');
       text.textContent = comment.text;
-      item.append(meta, text);
+      const reactions = document.createElement('div');
+      reactions.className = 'public-comment-reactions';
+
+      COMMENT_REACTION_EMOJIS.forEach((emoji) => {
+        const count = comment.reactions?.[emoji] || 0;
+        const reaction = document.createElement('button');
+        reaction.type = 'button';
+        reaction.className = 'public-comment-reaction';
+        reaction.textContent = count > 0 ? `${emoji} ${count}` : emoji;
+        reaction.title = `回应 ${emoji}`;
+        reaction.setAttribute('aria-label', `用 ${emoji} 回应这条评论`);
+        reaction.addEventListener('click', async () => {
+          reaction.disabled = true;
+          try {
+            comment.reactions = await reactToComment(comment.id, emoji);
+            render(allComments);
+          } catch (err) {
+            status.hidden = false;
+            status.textContent = err instanceof Error ? err.message : '回应失败';
+          } finally {
+            reaction.disabled = false;
+          }
+        });
+        reactions.appendChild(reaction);
+      });
+
+      item.append(meta, text, reactions);
       list.appendChild(item);
     });
+
+    if (previewCount > 0 && comments.length > previewCount) {
+      toggle.textContent = expanded ? '收起评论' : `查看全部评论 ${comments.length}`;
+    } else {
+      toggle.textContent = comments.length > 0 ? `评论 ${comments.length}` : '评论';
+    }
   }
 
   async function refresh() {
@@ -173,7 +227,16 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
   }
 
   toggle.addEventListener('click', () => {
+    if (previewCount > 0 && loaded) {
+      expanded = !expanded;
+      form.hidden = !expanded;
+      status.hidden = !expanded;
+      toggle.classList.toggle('open', expanded);
+      render(allComments);
+      return;
+    }
     body.hidden = !body.hidden;
+    expanded = !body.hidden;
     toggle.classList.toggle('open', !body.hidden);
     if (!body.hidden && !loaded) refresh();
   });
@@ -200,6 +263,10 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
       submit.disabled = false;
     }
   });
+
+  if (previewCount > 0) {
+    refresh();
+  }
 
   return root;
 }
