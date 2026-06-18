@@ -1,37 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { moments, categoryMeta, categoryOrder } from '../data/moments';
-import type { MomentCategory } from '../data/moments';
-
-const sortedMoments = [...moments].sort(
-  (a, b) => toSortTime(b.date) - toSortTime(a.date)
-);
-
-const stats = categoryOrder.map((cat) => ({
-  cat,
-  count: sortedMoments.filter((m) => m.category === cat).length,
-}));
-const total = sortedMoments.length;
-const rawImageBase = 'https://raw.githubusercontent.com/Lidure/lidure.github.io/main/public/moments/';
-const legacyImageBase = 'https://lidure.github.io/moments/';
-
-function toSortTime(value: string) {
-  const normalized = value.includes('T') ? value : `${value}T00:00`;
-  const time = new Date(normalized).valueOf();
-  return Number.isNaN(time) ? 0 : time;
-}
-
-function formatMomentDate(value: string) {
-  const [datePart, timePart] = value.split('T');
-  return timePart ? `${datePart} ${timePart.slice(0, 5)}` : datePart;
-}
-
-function momentImageSrc(src: string) {
-  if (src.startsWith(rawImageBase)) return `/moments/${src.slice(rawImageBase.length)}`;
-  if (src.startsWith(legacyImageBase)) return `/moments/${src.slice(legacyImageBase.length)}`;
-  if (src.startsWith('/moments/')) return src;
-  return src;
-}
+import { categoryMeta, categoryOrder } from '../data/moments';
 ---
 <BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏，音乐、生活，随时碎碎念。" showTime={true}>
   <section class="moments-shell">
@@ -46,15 +15,11 @@ function momentImageSrc(src: string) {
       <span class="kicker">✨ Moments</span>
       <h1>碎碎念</h1>
       <p>随手记下的碎片，游戏 · 音乐 · 生活。随时更新，想到什么说什么。</p>
-      <div class="hero-stats">
-        <span class="stat-badge">
-          <strong>{total}</strong> 条动态
-        </span>
-        {stats.map((s) => (
-          <span class="stat-badge">
-            {categoryMeta[s.cat].icon} <strong>{s.count}</strong>
-          </span>
-        ))}
+      <div class="hero-stats" id="hero-stats">
+        <span class="stat-badge"><strong id="stat-total">—</strong> 条动态</span>
+        <span class="stat-badge">🎮 <strong id="stat-game">—</strong></span>
+        <span class="stat-badge">🎵 <strong id="stat-music">—</strong></span>
+        <span class="stat-badge">☕ <strong id="stat-life">—</strong></span>
       </div>
     </div>
 
@@ -130,43 +95,11 @@ function momentImageSrc(src: string) {
 
     <!-- 时间线 -->
     <div class="moments-list" id="moments-list">
-      {sortedMoments.map((moment, idx) => (
-        <article class="moment-card" data-category={moment.category} style={`--delay: ${idx * 60}ms`}>
-          <div class={`card-glow glow-${moment.category}`}></div>
-          <div class="card-content">
-            <div class="card-meta">
-              <span class={`cat-pill pill-${moment.category}`}>
-                {categoryMeta[moment.category as MomentCategory].icon}
-                {categoryMeta[moment.category as MomentCategory].label}
-              </span>
-              <time class="card-date" datetime={moment.date}>{formatMomentDate(moment.date)}</time>
-            </div>
-            <p class="card-text">{moment.text}</p>
-            {moment.images && moment.images.length > 0 && (
-              <div class="card-images" data-count={moment.images.length}>
-                {moment.images.map((img: string) => (
-                  <img
-                    src={momentImageSrc(img)}
-                    data-lightbox-src={momentImageSrc(img)}
-                    data-original-src={img}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    role="button"
-                    tabindex="0"
-                    aria-label="Open image preview"
-                  />
-                ))}
-              </div>
-            )}
-            {moment.link && (
-              <a class="card-link" href={moment.link} target="_blank" rel="noreferrer">
-                🔗 {moment.link.replace(/^https?:\/\//, '').split('/')[0]}
-              </a>
-            )}
-          </div>
-        </article>
-      ))}
+      <div class="loading-skeleton">
+        <div class="skeleton-card" style="--delay: 0ms"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+        <div class="skeleton-card" style="--delay: 80ms"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+        <div class="skeleton-card" style="--delay: 160ms"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+      </div>
     </div>
 
     <div class="lightbox-overlay" id="moment-lightbox" aria-hidden="true" hidden>
@@ -676,6 +609,58 @@ function momentImageSrc(src: string) {
 
   .publish-panel:not(.hidden) {
     animation: slide-down 250ms ease both;
+  }
+
+  /* ===== 加载骨架屏 ===== */
+  .loading-skeleton {
+    display: grid;
+    gap: 16px;
+  }
+
+  .skeleton-card {
+    background: var(--panel-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    padding: 20px 26px;
+    margin-left: 20px;
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  .skeleton-bar {
+    width: 80px;
+    height: 20px;
+    border-radius: 999px;
+    background: var(--tag-bg);
+    margin-bottom: 14px;
+  }
+
+  .skeleton-line {
+    height: 14px;
+    border-radius: 7px;
+    background: var(--tag-bg);
+    margin-bottom: 8px;
+  }
+
+  .skeleton-line.short {
+    width: 55%;
+  }
+
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 0.8; }
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1rem;
+    padding: 48px 20px;
+    margin-left: 20px;
+  }
+
+  .error-state {
+    color: #d94040;
   }
 
   /* ===== 时间线卡片 ===== */
@@ -1251,31 +1236,37 @@ function momentImageSrc(src: string) {
   }
 
   function updateStats(moments: any[]) {
-    const statsContainer = document.querySelector('.hero-stats');
-    if (!statsContainer) return;
+    const totalEl = document.getElementById('stat-total');
+    const gameEl = document.getElementById('stat-game');
+    const musicEl = document.getElementById('stat-music');
+    const lifeEl = document.getElementById('stat-life');
 
-    const total = moments.length;
     const catCounts: Record<string, number> = {};
     moments.forEach((m: any) => {
       catCounts[m.category] = (catCounts[m.category] || 0) + 1;
     });
 
-    const icons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕' };
-    const catOrder = ['游戏', '音乐', '生活'];
-
-    let html = `<span class="stat-badge"><strong>${total}</strong> 条动态</span>`;
-    catOrder.forEach((cat) => {
-      if (catCounts[cat]) {
-        html += `<span class="stat-badge">${icons[cat]} <strong>${catCounts[cat]}</strong></span>`;
-      }
-    });
-    statsContainer.innerHTML = html;
+    if (totalEl) totalEl.textContent = String(moments.length);
+    if (gameEl) gameEl.textContent = String(catCounts['游戏'] || 0);
+    if (musicEl) musicEl.textContent = String(catCounts['音乐'] || 0);
+    if (lifeEl) lifeEl.textContent = String(catCounts['生活'] || 0);
   }
 
   // Load from API on page load
   fetchMomentsFromApi()
-    .then(syncMoments)
-    .catch((err) => console.warn('Failed to fetch moments from API:', err));
+    .then((items) => {
+      if (items.length === 0) {
+        const list = document.getElementById('moments-list');
+        if (list) list.innerHTML = '<p class="empty-state">暂时没有碎碎念，敬请期待 ✨</p>';
+        return;
+      }
+      syncMoments(items);
+    })
+    .catch((err) => {
+      console.warn('Failed to fetch moments from API:', err);
+      const list = document.getElementById('moments-list');
+      if (list) list.innerHTML = '<p class="empty-state error-state">加载失败，请刷新页面重试 😢</p>';
+    });
 
   // === Category filter ===
   const tabs = document.querySelectorAll<HTMLButtonElement>('.pill[data-category]');
