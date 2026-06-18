@@ -912,6 +912,207 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     color: var(--accent-hover);
   }
 
+  .moment-reactions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    margin: 13px 0 0;
+  }
+
+  .moment-reaction-panel {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 10px);
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 6px 7px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: color-mix(in srgb, var(--panel) 96%, transparent);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12);
+    backdrop-filter: blur(20px) saturate(1.15);
+    transform-origin: 22px calc(100% + 8px);
+    animation: tg-reaction-panel-in 170ms cubic-bezier(.2, .9, .25, 1.25);
+  }
+
+  .moment-reaction-panel[hidden] {
+    display: none;
+  }
+
+  .moment-reaction-panel::after {
+    content: '';
+    position: absolute;
+    left: 22px;
+    bottom: -5px;
+    width: 10px;
+    height: 10px;
+    background: color-mix(in srgb, var(--panel) 96%, transparent);
+    border-right: 1px solid rgba(255,255,255,0.12);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    transform: rotate(45deg);
+  }
+
+  .moment-reaction-choice {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.3rem;
+    line-height: 1;
+    transform: translateY(0) scale(1);
+    animation: tg-reaction-choice-in 220ms cubic-bezier(.2, 1.5, .42, 1) both;
+    animation-delay: calc(var(--index, 0) * 22ms);
+    transition: background 120ms ease, transform 150ms cubic-bezier(.2, 1.6, .42, 1);
+  }
+
+  .moment-reaction-choice:hover,
+  .moment-reaction-choice.active {
+    background: rgba(var(--accent-rgb), 0.08);
+    transform: translateY(-9px) scale(1.24);
+  }
+
+  .moment-reaction-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .moment-reaction-chip,
+  .moment-reaction-add {
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: color-mix(in srgb, var(--tag-bg) 86%, transparent);
+    color: var(--text-soft);
+    cursor: pointer;
+    font: inherit;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+
+  .moment-reaction-chip {
+    min-width: 42px;
+    padding: 0 10px;
+    gap: 5px;
+    font-size: 0.84rem;
+  }
+
+  .moment-reaction-chip:hover,
+  .moment-reaction-chip.active {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.55);
+    background: rgba(var(--accent-rgb), 0.12);
+    box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.12);
+    transform: translateY(-1px);
+  }
+
+  .moment-reaction-chip.just-reacted {
+    animation: tg-reaction-chip-pop 360ms cubic-bezier(.18, 1.55, .36, 1);
+  }
+
+  .moment-reaction-add {
+    position: relative;
+    width: 34px;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .moment-reaction-add:hover,
+  .moment-reaction-add[aria-expanded="true"] {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.55);
+    background: rgba(var(--accent-rgb), 0.1);
+    transform: translateY(-1px);
+  }
+
+  .moment-reaction-add-icon {
+    font-size: 1rem;
+    transform: translateY(-1px);
+  }
+
+  .moment-reaction-add-plus {
+    position: absolute;
+    right: 5px;
+    bottom: 3px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.64rem;
+    line-height: 10px;
+    font-weight: 800;
+  }
+
+  .moment-reaction-burst {
+    position: absolute;
+    left: 12px;
+    top: -20px;
+    z-index: 45;
+    font-size: 1.45rem;
+    pointer-events: none;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+    animation: tg-reaction-burst 620ms cubic-bezier(.18, .9, .22, 1) forwards;
+  }
+
+  @keyframes tg-reaction-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(7px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes tg-reaction-choice-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.78);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes tg-reaction-chip-pop {
+    0% { transform: scale(0.78); }
+    62% { transform: scale(1.16); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes tg-reaction-burst {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.7);
+    }
+    18% {
+      opacity: 1;
+      transform: translateY(-4px) scale(1.2);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-42px) scale(0.95);
+    }
+  }
+
   .moment-card.hidden {
     display: none !important;
   }
@@ -1243,8 +1444,10 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
   // === Config ===
   const MOMENTS_API_URL = 'https://danmaku.lidure22.xyz/api/moments';
+  const MOMENT_REACTIONS_API_URL = 'https://danmaku.lidure22.xyz/api/moment-reactions';
   const IMAGE_BASE_URL = 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev';
   const ADMIN_TOKEN_KEY = 'moments_admin_token';
+  const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
   const maxImages = 9;
   const maxImageBytes = 8 * 1024 * 1024;
 
@@ -1278,6 +1481,42 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     input.setSelectionRange(nextPos, nextPos);
   }
 
+  function readMomentReactionState(): Record<string, string> {
+    try {
+      const raw = localStorage.getItem(MOMENT_REACTION_STORAGE_KEY);
+      const data = raw ? JSON.parse(raw) : {};
+      return data && typeof data === 'object' && !Array.isArray(data) ? data : {};
+    } catch {
+      return {};
+    }
+  }
+
+  function getStoredMomentReaction(momentId: string) {
+    return readMomentReactionState()[momentId] || '';
+  }
+
+  function setStoredMomentReaction(momentId: string, emoji: string) {
+    const state = readMomentReactionState();
+    if (emoji) {
+      state[momentId] = emoji;
+    } else {
+      delete state[momentId];
+    }
+    try { localStorage.setItem(MOMENT_REACTION_STORAGE_KEY, JSON.stringify(state)); } catch {}
+  }
+
+  function updateReactionCounts(counts: Record<string, number>, previousEmoji: string, nextEmoji: string) {
+    const nextCounts = { ...counts };
+    if (previousEmoji) {
+      nextCounts[previousEmoji] = Math.max(0, (nextCounts[previousEmoji] || 0) - 1);
+      if (nextCounts[previousEmoji] <= 0) delete nextCounts[previousEmoji];
+    }
+    if (nextEmoji) {
+      nextCounts[nextEmoji] = (nextCounts[nextEmoji] || 0) + 1;
+    }
+    return nextCounts;
+  }
+
   type RenderMoment = {
     id?: string;
     date: string;
@@ -1286,11 +1525,13 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     link?: string;
     images: string[];
     createdAt?: number;
+    reactions?: Record<string, number>;
   };
 
   const knownCategories = new Set(['游戏', '音乐', '生活', '吐槽']);
   const categoryIcons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕', '吐槽': '💬' };
   const MOMENT_EMOJIS = ['😀', '😂', '😭', '🥺', '😎', '🤔', '👍', '👏', '🎉', '✨', '💯', '❤️'];
+  const MOMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨'];
   let currentMoments: RenderMoment[] = [];
   let toastTimer: number | undefined;
 
@@ -1333,6 +1574,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       ...(link && { link }),
       images,
       ...(createdAt && { createdAt }),
+      reactions: raw.reactions && typeof raw.reactions === 'object' ? raw.reactions : {},
     };
   }
 
@@ -1368,6 +1610,136 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     const res = await fetch(MOMENTS_API_URL + '?limit=200', { cache: 'no-store' });
     if (!res.ok) throw new Error('API error: ' + res.status);
     return (await res.json()).items || [];
+  }
+
+  async function reactToMoment(momentId: string, emoji: string, previousEmoji: string) {
+    const res = await fetch(MOMENT_REACTIONS_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ momentId, emoji, previousEmoji }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(typeof data.error === 'string' ? data.error : `API 错误 (${res.status})`);
+    }
+    return {
+      reactions: data.reactions && typeof data.reactions === 'object' ? data.reactions as Record<string, number> : {},
+      selectedEmoji: typeof data.selectedEmoji === 'string' ? data.selectedEmoji : (previousEmoji === emoji ? '' : emoji),
+    };
+  }
+
+  function closeMomentReactionPanel(panel: HTMLElement) {
+    panel.hidden = true;
+    const toggle = panel.parentElement?.querySelector<HTMLButtonElement>('.moment-reaction-add');
+    toggle?.setAttribute('aria-expanded', 'false');
+  }
+
+  function closeMomentReactionPanels(except?: HTMLElement) {
+    document.querySelectorAll<HTMLElement>('.moment-reaction-panel').forEach((panel) => {
+      if (except && panel === except) return;
+      closeMomentReactionPanel(panel);
+    });
+  }
+
+  function renderMomentReactions(moment: RenderMoment, burstEmoji = '') {
+    const reactions = document.createElement('div');
+    reactions.className = 'moment-reactions';
+    if (!moment.id) return reactions;
+
+    const selectedEmoji = getStoredMomentReaction(moment.id);
+    const counts = moment.reactions || {};
+    const chips = document.createElement('div');
+    chips.className = 'moment-reaction-chips';
+
+    const addButton = document.createElement('button');
+    addButton.type = 'button';
+    addButton.className = 'moment-reaction-add';
+    addButton.title = selectedEmoji ? '更换或取消表情' : '贴表情';
+    addButton.setAttribute('aria-label', selectedEmoji ? '更换或取消表情' : '贴表情');
+    addButton.setAttribute('aria-expanded', 'false');
+    addButton.innerHTML = '<span class="moment-reaction-add-icon" aria-hidden="true">☺</span><span class="moment-reaction-add-plus" aria-hidden="true">+</span>';
+
+    const picker = document.createElement('div');
+    picker.className = 'moment-reaction-panel';
+    picker.hidden = true;
+
+    function openPicker(event: MouseEvent) {
+      event.stopPropagation();
+      const shouldOpen = picker.hidden;
+      closeMomentReactionPanels(picker);
+      picker.hidden = !shouldOpen;
+      addButton.setAttribute('aria-expanded', String(shouldOpen));
+    }
+
+    async function chooseReaction(emoji: string) {
+      if (!moment.id) return;
+      const previousEmoji = getStoredMomentReaction(moment.id);
+      const nextEmoji = previousEmoji === emoji ? '' : emoji;
+      const previousCounts = { ...(moment.reactions || {}) };
+
+      moment.reactions = updateReactionCounts(previousCounts, previousEmoji, nextEmoji);
+      setStoredMomentReaction(moment.id, nextEmoji);
+      const nextUi = renderMomentReactions(moment, nextEmoji);
+      reactions.replaceWith(nextUi);
+      applyScopedStyles(nextUi);
+
+      try {
+        const result = await reactToMoment(moment.id, emoji, previousEmoji);
+        moment.reactions = result.reactions;
+        setStoredMomentReaction(moment.id, result.selectedEmoji);
+        const confirmedUi = renderMomentReactions(moment);
+        nextUi.replaceWith(confirmedUi);
+        applyScopedStyles(confirmedUi);
+      } catch (err) {
+        moment.reactions = previousCounts;
+        setStoredMomentReaction(moment.id, previousEmoji);
+        const rollbackUi = renderMomentReactions(moment);
+        nextUi.replaceWith(rollbackUi);
+        applyScopedStyles(rollbackUi);
+        notifyMomentAction('贴表情失败: ' + (err instanceof Error ? err.message : String(err)).slice(0, 120));
+      }
+    }
+
+    MOMENT_REACTION_EMOJIS.forEach((emoji) => {
+      const option = document.createElement('button');
+      option.type = 'button';
+      option.className = 'moment-reaction-choice';
+      option.classList.toggle('active', selectedEmoji === emoji);
+      option.style.setProperty('--index', String(MOMENT_REACTION_EMOJIS.indexOf(emoji)));
+      option.textContent = emoji;
+      option.title = selectedEmoji === emoji ? `取消 ${emoji}` : `贴 ${emoji}`;
+      option.setAttribute('aria-label', selectedEmoji === emoji ? `取消 ${emoji}` : `贴 ${emoji}`);
+      option.addEventListener('click', () => chooseReaction(emoji));
+      picker.appendChild(option);
+    });
+
+    MOMENT_REACTION_EMOJIS.forEach((emoji) => {
+      const count = counts[emoji] || 0;
+      if (count <= 0 && selectedEmoji !== emoji) return;
+      const reaction = document.createElement('button');
+      reaction.type = 'button';
+      reaction.className = 'moment-reaction-chip';
+      reaction.classList.toggle('active', selectedEmoji === emoji);
+      reaction.classList.toggle('just-reacted', burstEmoji === emoji);
+      reaction.textContent = count > 0 ? `${emoji} ${count}` : emoji;
+      reaction.title = selectedEmoji === emoji ? `取消 ${emoji}` : `贴 ${emoji}`;
+      reaction.setAttribute('aria-label', selectedEmoji === emoji ? `取消 ${emoji}` : `贴 ${emoji}`);
+      reaction.addEventListener('click', () => chooseReaction(emoji));
+      chips.appendChild(reaction);
+    });
+
+    addButton.addEventListener('click', openPicker);
+    chips.appendChild(addButton);
+    reactions.append(chips, picker);
+
+    if (burstEmoji) {
+      const burst = document.createElement('span');
+      burst.className = 'moment-reaction-burst';
+      burst.textContent = burstEmoji;
+      reactions.appendChild(burst);
+    }
+
+    return reactions;
   }
 
   function syncMoments(apiMoments: any[]) {
@@ -1486,6 +1858,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     }
 
     if (moment.id) {
+      content.appendChild(renderMomentReactions(moment));
       content.appendChild(createCommentsWidget('moment', moment.id, undefined, 2));
     }
 
@@ -1696,6 +2069,12 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       if (!button?.dataset.momentId) return;
       event.preventDefault();
       deleteMoment(button.dataset.momentId, button);
+    }, { signal });
+
+    document.addEventListener('click', (event) => {
+      const target = event.target as HTMLElement | null;
+      if (target?.closest?.('.moment-reactions')) return;
+      closeMomentReactionPanels();
     }, { signal });
 
     // === Publish panel toggle ===

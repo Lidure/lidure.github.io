@@ -1,5 +1,6 @@
 export const PUBLIC_API_BASE = 'https://danmaku.lidure22.xyz/api';
 export const USER_ID_KEY = 'guest_user_id';
+const COMMENT_REACTION_STORAGE_KEY = 'public_comment_reactions_v1';
 
 export type CommentTargetType = 'moment' | 'message';
 
@@ -22,6 +23,24 @@ export type GuestMessage = {
 };
 
 const COMMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨'];
+type CommentReactionMap = Record<string, string>;
+let commentReactionOutsideListenerBound = false;
+
+function closeCommentReactionPanel(panel: HTMLElement) {
+  panel.hidden = true;
+  const toggleButton = panel.parentElement?.querySelector<HTMLButtonElement>('.public-comment-reaction-add');
+  toggleButton?.setAttribute('aria-expanded', 'false');
+}
+
+function ensureCommentReactionOutsideListener() {
+  if (commentReactionOutsideListenerBound) return;
+  commentReactionOutsideListenerBound = true;
+  document.addEventListener('click', (event) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest?.('.public-comment-reactions')) return;
+    document.querySelectorAll<HTMLElement>('.public-comment-reaction-panel').forEach(closeCommentReactionPanel);
+  });
+}
 
 export function getStoredUserId() {
   try {
@@ -34,6 +53,33 @@ export function getStoredUserId() {
 export function setStoredUserId(userId: string) {
   try {
     localStorage.setItem(USER_ID_KEY, userId);
+  } catch {}
+}
+
+function getStoredCommentReactions(): CommentReactionMap {
+  try {
+    const raw = localStorage.getItem(COMMENT_REACTION_STORAGE_KEY);
+    const data = raw ? JSON.parse(raw) : {};
+    return data && typeof data === 'object' && !Array.isArray(data) ? data as CommentReactionMap : {};
+  } catch {
+    return {};
+  }
+}
+
+function getStoredCommentReaction(commentId: string) {
+  return getStoredCommentReactions()[commentId] || '';
+}
+
+function setStoredCommentReaction(commentId: string, emoji: string) {
+  const reactions = getStoredCommentReactions();
+  if (emoji) {
+    reactions[commentId] = emoji;
+  } else {
+    delete reactions[commentId];
+  }
+
+  try {
+    localStorage.setItem(COMMENT_REACTION_STORAGE_KEY, JSON.stringify(reactions));
   } catch {}
 }
 
@@ -74,14 +120,17 @@ export async function createComment(targetType: CommentTargetType, targetId: str
   return data.item as PublicComment;
 }
 
-export async function reactToComment(commentId: string, emoji: string) {
+export async function reactToComment(commentId: string, emoji: string, previousEmoji = '') {
   const res = await fetch(`${PUBLIC_API_BASE}/comment-reactions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json; charset=utf-8' },
-    body: JSON.stringify({ commentId, emoji }),
+    body: JSON.stringify({ commentId, emoji, previousEmoji }),
   });
   const data = await readApiJson(res);
-  return (data.reactions || {}) as Record<string, number>;
+  return {
+    reactions: (data.reactions || {}) as Record<string, number>,
+    selectedEmoji: typeof data.selectedEmoji === 'string' ? data.selectedEmoji : (previousEmoji === emoji ? '' : emoji),
+  };
 }
 
 export async function fetchGuestMessages() {
@@ -154,6 +203,13 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
   let expanded = previewCount <= 0;
   let allComments: PublicComment[] = [];
 
+  function closeReactionPanels(except?: HTMLElement) {
+    root.querySelectorAll<HTMLElement>('.public-comment-reaction-panel').forEach((panel) => {
+      if (except && panel === except) return;
+      closeCommentReactionPanel(panel);
+    });
+  }
+
   function render(comments: PublicComment[]) {
     list.innerHTML = '';
     allComments = comments;
@@ -182,29 +238,87 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
       text.textContent = comment.text;
       const reactions = document.createElement('div');
       reactions.className = 'public-comment-reactions';
+      const selectedEmoji = getStoredCommentReaction(comment.id);
+
+      const chips = document.createElement('div');
+      chips.className = 'public-comment-reaction-chips';
+
+      const pickerToggle = document.createElement('button');
+      pickerToggle.type = 'button';
+      pickerToggle.className = 'public-comment-reaction-add';
+      pickerToggle.classList.toggle('active', Boolean(selectedEmoji));
+      pickerToggle.title = selectedEmoji ? '更换或取消表情' : '贴表情';
+      pickerToggle.setAttribute('aria-label', selectedEmoji ? '更换或取消表情' : '贴表情');
+      pickerToggle.setAttribute('aria-expanded', 'false');
+      pickerToggle.innerHTML = '<span class="public-comment-reaction-add-icon" aria-hidden="true">☺</span><span class="public-comment-reaction-add-plus" aria-hidden="true">+</span>';
+
+      const picker = document.createElement('div');
+      picker.className = 'public-comment-reaction-panel';
+      picker.hidden = true;
+
+      function togglePicker(event: MouseEvent) {
+        event.stopPropagation();
+        const shouldOpen = picker.hidden;
+        closeReactionPanels(picker);
+        picker.hidden = !shouldOpen;
+        pickerToggle.setAttribute('aria-expanded', String(shouldOpen));
+      }
+
+      async function chooseReaction(emoji: string) {
+        pickerToggle.disabled = true;
+        picker.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
+          button.disabled = true;
+        });
+
+        try {
+          const currentEmoji = getStoredCommentReaction(comment.id);
+          const result = await reactToComment(comment.id, emoji, currentEmoji);
+          comment.reactions = result.reactions;
+          setStoredCommentReaction(comment.id, result.selectedEmoji);
+          render(allComments);
+        } catch (err) {
+          status.hidden = false;
+          status.textContent = err instanceof Error ? err.message : '回应失败';
+        } finally {
+          pickerToggle.disabled = false;
+          picker.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
+            button.disabled = false;
+          });
+        }
+      }
+
+      COMMENT_REACTION_EMOJIS.forEach((emoji) => {
+        const option = document.createElement('button');
+        option.type = 'button';
+        option.className = 'public-comment-reaction-choice';
+        option.classList.toggle('active', selectedEmoji === emoji);
+        option.style.setProperty('--index', String(COMMENT_REACTION_EMOJIS.indexOf(emoji)));
+        option.textContent = emoji;
+        option.title = selectedEmoji === emoji ? `取消 ${emoji}` : `贴 ${emoji}`;
+        option.setAttribute('aria-label', selectedEmoji === emoji ? `取消 ${emoji} 回应` : `用 ${emoji} 回应这条评论`);
+        option.addEventListener('click', () => chooseReaction(emoji));
+        picker.appendChild(option);
+      });
 
       COMMENT_REACTION_EMOJIS.forEach((emoji) => {
         const count = comment.reactions?.[emoji] || 0;
+        if (count <= 0 && selectedEmoji !== emoji) return;
+
         const reaction = document.createElement('button');
         reaction.type = 'button';
-        reaction.className = 'public-comment-reaction';
+        reaction.className = 'public-comment-reaction-chip';
+        reaction.classList.toggle('active', selectedEmoji === emoji);
         reaction.textContent = count > 0 ? `${emoji} ${count}` : emoji;
-        reaction.title = `回应 ${emoji}`;
-        reaction.setAttribute('aria-label', `用 ${emoji} 回应这条评论`);
-        reaction.addEventListener('click', async () => {
-          reaction.disabled = true;
-          try {
-            comment.reactions = await reactToComment(comment.id, emoji);
-            render(allComments);
-          } catch (err) {
-            status.hidden = false;
-            status.textContent = err instanceof Error ? err.message : '回应失败';
-          } finally {
-            reaction.disabled = false;
-          }
-        });
-        reactions.appendChild(reaction);
+        reaction.title = selectedEmoji === emoji ? `取消 ${emoji}` : `回应 ${emoji}`;
+        reaction.setAttribute('aria-label', selectedEmoji === emoji ? `取消 ${emoji} 回应` : `用 ${emoji} 回应这条评论`);
+        reaction.addEventListener('click', () => chooseReaction(emoji));
+        chips.appendChild(reaction);
       });
+
+      pickerToggle.addEventListener('click', togglePicker);
+
+      chips.appendChild(pickerToggle);
+      reactions.append(chips, picker);
 
       item.append(meta, text, reactions);
       list.appendChild(item);
@@ -216,6 +330,8 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
       toggle.textContent = comments.length > 0 ? `评论 ${comments.length}` : '评论';
     }
   }
+
+  ensureCommentReactionOutsideListener();
 
   async function refresh() {
     try {

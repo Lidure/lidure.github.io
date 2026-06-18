@@ -20,6 +20,7 @@ const GUEST_MESSAGE_MAX_TEXT = 800;
 const COMMENT_MAX_TEXT = 500;
 const USER_ID_MAX_LENGTH = 32;
 const COMMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨'];
+const MOMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨'];
 
 export default {
   async fetch(request, env) {
@@ -49,6 +50,11 @@ export default {
 
       if (url.pathname === '/api/moments/upload') {
         if (request.method === 'POST') return requireAdmin(request, env, function() { return handleMomentsUpload(request, env); });
+        return json({ error: 'Method not allowed' }, 405, request, env);
+      }
+
+      if (url.pathname === '/api/moment-reactions') {
+        if (request.method === 'POST') return handleMomentReactionCreate(request, env);
         return json({ error: 'Method not allowed' }, 405, request, env);
       }
 
@@ -207,9 +213,11 @@ async function handleMomentsList(url, request, env) {
   }
 
   var result = await stmt.all();
+  var items = (result.results || []).map(toMomentItem);
+  await attachMomentReactions(env, items);
 
   return json({
-    items: (result.results || []).map(toMomentItem),
+    items: items,
     now: Date.now()
   }, 200, request, env);
 }
@@ -313,6 +321,48 @@ async function handleMomentsDelete(request, env) {
 
   await env.DB.prepare('DELETE FROM moments WHERE id = ?').bind(id).run();
   return json({ deleted: true }, 200, request, env);
+}
+
+async function handleMomentReactionCreate(request, env) {
+  var contentType = request.headers.get('content-type') || '';
+  if (!contentType.toLowerCase().includes('application/json')) {
+    return json({ error: 'Expected application/json' }, 415, request, env);
+  }
+
+  var body = await readJsonBody(request);
+  var momentId = typeof body.momentId === 'string' ? body.momentId.trim() : '';
+  var emoji = typeof body.emoji === 'string' ? body.emoji.trim() : '';
+  var previousEmoji = typeof body.previousEmoji === 'string' ? body.previousEmoji.trim() : '';
+  if (!momentId || MOMENT_REACTION_EMOJIS.indexOf(emoji) < 0) {
+    return json({ error: 'Missing momentId or invalid emoji' }, 400, request, env);
+  }
+  if (previousEmoji && MOMENT_REACTION_EMOJIS.indexOf(previousEmoji) < 0) {
+    previousEmoji = '';
+  }
+
+  var exists = await env.DB.prepare('SELECT id FROM moments WHERE id = ? LIMIT 1').bind(momentId).first();
+  if (!exists) return json({ error: 'Moment not found' }, 404, request, env);
+
+  var ipHash = await hashClient(request);
+  var selectedEmoji = '';
+
+  if (previousEmoji === emoji) {
+    await env.DB.prepare(
+      'DELETE FROM moment_reactions WHERE moment_id = ? AND ip_hash = ?'
+    ).bind(momentId, ipHash).run();
+  } else {
+    var now = Date.now();
+    await env.DB.prepare(
+      'DELETE FROM moment_reactions WHERE moment_id = ? AND ip_hash = ?'
+    ).bind(momentId, ipHash).run();
+    await env.DB.prepare(
+      'INSERT INTO moment_reactions (moment_id, emoji, ip_hash, created_at) VALUES (?, ?, ?, ?)'
+    ).bind(momentId, emoji, ipHash, now).run();
+    selectedEmoji = emoji;
+  }
+
+  var counts = await getMomentReactionCounts(env, [momentId]);
+  return json({ reactions: counts[momentId] || {}, selectedEmoji: selectedEmoji }, 200, request, env);
 }
 
 async function handleMomentsUpload(request, env) {
@@ -485,21 +535,37 @@ async function handleCommentReactionCreate(request, env) {
   var body = await readJsonBody(request);
   var commentId = typeof body.commentId === 'string' ? body.commentId.trim() : '';
   var emoji = typeof body.emoji === 'string' ? body.emoji.trim() : '';
+  var previousEmoji = typeof body.previousEmoji === 'string' ? body.previousEmoji.trim() : '';
   if (!commentId || COMMENT_REACTION_EMOJIS.indexOf(emoji) < 0) {
     return json({ error: 'Missing commentId or invalid emoji' }, 400, request, env);
+  }
+  if (previousEmoji && COMMENT_REACTION_EMOJIS.indexOf(previousEmoji) < 0) {
+    previousEmoji = '';
   }
 
   var exists = await env.DB.prepare('SELECT id FROM comments WHERE id = ? LIMIT 1').bind(commentId).first();
   if (!exists) return json({ error: 'Comment not found' }, 404, request, env);
 
   var ipHash = await hashClient(request);
-  var now = Date.now();
-  await env.DB.prepare(
-    'INSERT OR IGNORE INTO comment_reactions (comment_id, emoji, ip_hash, created_at) VALUES (?, ?, ?, ?)'
-  ).bind(commentId, emoji, ipHash, now).run();
+  var selectedEmoji = '';
+
+  if (previousEmoji === emoji) {
+    await env.DB.prepare(
+      'DELETE FROM comment_reactions WHERE comment_id = ? AND ip_hash = ?'
+    ).bind(commentId, ipHash).run();
+  } else {
+    var now = Date.now();
+    await env.DB.prepare(
+      'DELETE FROM comment_reactions WHERE comment_id = ? AND ip_hash = ?'
+    ).bind(commentId, ipHash).run();
+    await env.DB.prepare(
+      'INSERT INTO comment_reactions (comment_id, emoji, ip_hash, created_at) VALUES (?, ?, ?, ?)'
+    ).bind(commentId, emoji, ipHash, now).run();
+    selectedEmoji = emoji;
+  }
 
   var counts = await getCommentReactionCounts(env, [commentId]);
-  return json({ reactions: counts[commentId] || {} }, 201, request, env);
+  return json({ reactions: counts[commentId] || {}, selectedEmoji: selectedEmoji }, 200, request, env);
 }
 
 /* ===========================
@@ -593,7 +659,8 @@ function toMomentItem(row) {
     text: row.text,
     link: row.link || undefined,
     images: images,
-    createdAt: row.created_at
+    createdAt: row.created_at,
+    reactions: {}
   };
 }
 
@@ -638,6 +705,29 @@ async function getCommentReactionCounts(env, commentIds) {
   (result.results || []).forEach(function(row) {
     if (!counts[row.comment_id]) counts[row.comment_id] = {};
     counts[row.comment_id][row.emoji] = row.count || 0;
+  });
+  return counts;
+}
+
+async function attachMomentReactions(env, moments) {
+  if (!moments.length) return;
+  var ids = moments.map(function(moment) { return moment.id; });
+  var counts = await getMomentReactionCounts(env, ids);
+  moments.forEach(function(moment) {
+    moment.reactions = counts[moment.id] || {};
+  });
+}
+
+async function getMomentReactionCounts(env, momentIds) {
+  if (!momentIds.length) return {};
+  var placeholders = momentIds.map(function() { return '?'; }).join(',');
+  var result = await env.DB.prepare(
+    'SELECT moment_id, emoji, COUNT(*) AS count FROM moment_reactions WHERE moment_id IN (' + placeholders + ') GROUP BY moment_id, emoji'
+  ).bind(...momentIds).all();
+  var counts = {};
+  (result.results || []).forEach(function(row) {
+    if (!counts[row.moment_id]) counts[row.moment_id] = {};
+    counts[row.moment_id][row.emoji] = row.count || 0;
   });
   return counts;
 }
