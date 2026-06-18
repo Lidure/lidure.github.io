@@ -1510,21 +1510,44 @@ function momentImageSrc(src: string) {
         try { localStorage.setItem(ADMIN_TOKEN_KEY, adminToken); } catch {}
         refreshTokenUI();
 
-        setMessage('✅ 发布成功！正在刷新列表...', 'success');
+        setMessage('✅ 发布成功！', 'success');
 
-        // Refresh moments from API
-        try {
-          const freshMoments = await fetchMomentsFromApi();
-          syncMoments(freshMoments);
-        } catch {}
+        // Optimistic render: immediately show the new card
+        const list = document.getElementById('moments-list');
+        if (list) {
+          const activeTab = document.querySelector('.pill[data-category].active') as HTMLElement | null;
+          const activeCat = activeTab?.dataset?.category || 'all';
+          const newMoment = { date, category, text, link: link || undefined, images: imageUrls };
+          const newCard = buildMomentCard(newMoment, 0, activeCat);
+          if (newCard) list.prepend(newCard);
+          // Re-index animation delays
+          list.querySelectorAll('.moment-card').forEach((c, i) => c.style.setProperty('--delay', `${i * 40}ms`));
+          // Update stats optimistically
+          try {
+            const existing = await fetchMomentsFromApi().catch(() => null);
+            if (existing) {
+              // Deduplicate: add new moment only if not already in API results
+              const ids = new Set(existing.map((m: any) => m.date + m.text));
+              const key = newMoment.date + newMoment.text;
+              if (!ids.has(key)) existing.unshift(newMoment);
+              updateStats(existing);
+            }
+          } catch {}
+        }
+
+        // Background refresh (handles replication lag gracefully)
+        setTimeout(async () => {
+          try {
+            const fresh = await fetchMomentsFromApi();
+            syncMoments(fresh);
+          } catch {}
+        }, 2000);
 
         // Reset form
         form.reset();
         selectedImages.length = 0;
         if (imagePreviews) imagePreviews.innerHTML = '';
         if (dateInput) dateInput.value = localDateTimeValue();
-
-        setMessage('✅ 发布成功！', 'success');
       } catch (err) {
         const detail = err instanceof Error ? err.message : String(err);
         setMessage('❌ 发布失败: ' + detail.slice(0, 200), 'error');
