@@ -1554,6 +1554,33 @@ img {
   white-space: nowrap;
 }
 
+.public-comment-meta-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.public-comment-delete {
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.72rem;
+  line-height: 1;
+  transition: color 160ms ease;
+}
+
+.public-comment-delete:hover {
+  color: #d94040;
+}
+
+.public-comment-delete:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
 .public-comment-item p,
 .public-comment-empty,
 .public-comment-status {

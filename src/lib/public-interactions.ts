@@ -1,6 +1,7 @@
 export const PUBLIC_API_BASE = 'https://danmaku.lidure22.xyz/api';
 export const USER_ID_KEY = 'guest_user_id';
 const COMMENT_REACTION_STORAGE_KEY = 'public_comment_reactions_v1';
+const PUBLIC_ADMIN_TOKEN_KEY = 'moments_admin_token';
 
 export type CommentTargetType = 'moment' | 'message';
 
@@ -22,7 +23,7 @@ export type GuestMessage = {
   commentCount?: number;
 };
 
-const COMMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨'];
+const COMMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯'];
 type CommentReactionMap = Record<string, string>;
 let commentReactionOutsideListenerBound = false;
 
@@ -83,6 +84,10 @@ function setStoredCommentReaction(commentId: string, emoji: string) {
   } catch {}
 }
 
+function clearStoredCommentReaction(commentId: string) {
+  setStoredCommentReaction(commentId, '');
+}
+
 export function normalizeUserId(userId: string) {
   return userId.replace(/\s+/g, ' ').trim().slice(0, 32);
 }
@@ -118,6 +123,18 @@ export async function createComment(targetType: CommentTargetType, targetId: str
   });
   const data = await readApiJson(res);
   return data.item as PublicComment;
+}
+
+export async function deleteComment(commentId: string, adminToken: string) {
+  const res = await fetch(`${PUBLIC_API_BASE}/comments`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json; charset=utf-8',
+      'Authorization': `Bearer ${adminToken}`,
+    },
+    body: JSON.stringify({ id: commentId }),
+  });
+  await readApiJson(res);
 }
 
 export async function reactToComment(commentId: string, emoji: string, previousEmoji = '') {
@@ -203,6 +220,18 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
   let expanded = previewCount <= 0;
   let allComments: PublicComment[] = [];
 
+  function getAdminToken() {
+    try { return localStorage.getItem(PUBLIC_ADMIN_TOKEN_KEY) || ''; } catch { return ''; }
+  }
+
+  function setAdminToken(token: string) {
+    try { localStorage.setItem(PUBLIC_ADMIN_TOKEN_KEY, token); } catch {}
+  }
+
+  function clearAdminToken() {
+    try { localStorage.removeItem(PUBLIC_ADMIN_TOKEN_KEY); } catch {}
+  }
+
   function closeReactionPanels(except?: HTMLElement) {
     root.querySelectorAll<HTMLElement>('.public-comment-reaction-panel').forEach((panel) => {
       if (except && panel === except) return;
@@ -233,7 +262,42 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
       const time = document.createElement('time');
       time.dateTime = new Date(comment.createdAt).toISOString();
       time.textContent = formatPublicTime(comment.createdAt);
-      meta.append(user, time);
+      const metaActions = document.createElement('span');
+      metaActions.className = 'public-comment-meta-actions';
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'public-comment-delete';
+      deleteBtn.textContent = '删除';
+      deleteBtn.title = '删除这条评论';
+      deleteBtn.setAttribute('aria-label', '删除这条评论');
+      deleteBtn.addEventListener('click', async () => {
+        const label = comment.text ? `「${comment.text.slice(0, 18)}${comment.text.length > 18 ? '...' : ''}」` : '这条评论';
+        if (!window.confirm(`确定删除 ${label} 吗？删除后不可恢复。`)) return;
+
+        let adminToken = getAdminToken();
+        if (!adminToken) {
+          adminToken = window.prompt('请输入管理密钥以删除评论')?.trim() || '';
+          if (adminToken) setAdminToken(adminToken);
+        }
+        if (!adminToken) return;
+
+        deleteBtn.disabled = true;
+        try {
+          await deleteComment(comment.id, adminToken);
+          clearStoredCommentReaction(comment.id);
+          allComments = allComments.filter((item) => item.id !== comment.id);
+          render(allComments);
+          status.hidden = false;
+          status.textContent = '已删除';
+        } catch (err) {
+          if (err instanceof Error && err.message.toLowerCase().includes('unauthorized')) clearAdminToken();
+          status.hidden = false;
+          status.textContent = err instanceof Error ? err.message : '删除失败';
+          deleteBtn.disabled = false;
+        }
+      });
+      metaActions.append(time, deleteBtn);
+      meta.append(user, metaActions);
       const text = document.createElement('p');
       text.textContent = comment.text;
       const reactions = document.createElement('div');
