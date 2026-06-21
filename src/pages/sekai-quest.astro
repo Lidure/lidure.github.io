@@ -27,6 +27,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="quest-hud" aria-live="polite">
       <div><span>HP</span><strong id="questHp">5</strong></div>
       <div><span>Fragments</span><strong id="questFragments">0/5</strong></div>
+      <div><span>Resonance</span><strong id="questResonance">35%</strong></div>
       <div><span>Score</span><strong id="questScore">0</strong></div>
       <div><span>Best</span><strong id="questBest">0</strong></div>
     </div>
@@ -41,7 +42,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <button type="button" data-control="left">◀</button>
         <button type="button" data-control="right">▶</button>
         <button type="button" data-control="jump">Jump</button>
-        <button type="button" data-control="action">Spark</button>
+        <button type="button" data-control="action">Tune</button>
       </div>
     </div>
   </section>
@@ -131,7 +132,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     .quest-hud {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 8px;
       padding: 0 18px;
     }
@@ -271,6 +272,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
 
       .quest-hud {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
         padding: 0;
         gap: 6px;
       }
@@ -317,6 +319,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       type Pickup = { x: number; y: number; taken: boolean; unit: UnitKey };
       type Enemy = { x: number; y: number; w: number; h: number; vx: number; left: number; right: number; alive: boolean };
       type Spark = { x: number; y: number; vx: number; life: number; color: string };
+      type Bridge = Rect & { life: number; maxLife: number; accent: string };
 
       function initQuest() {
         const rootCandidate = document.querySelector<HTMLElement>('[data-sekai-quest]');
@@ -331,9 +334,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const overlayCandidate = root.querySelector<HTMLElement>('#questOverlay');
         const hpElCandidate = root.querySelector<HTMLElement>('#questHp');
         const fragmentsElCandidate = root.querySelector<HTMLElement>('#questFragments');
+        const resonanceElCandidate = root.querySelector<HTMLElement>('#questResonance');
         const scoreElCandidate = root.querySelector<HTMLElement>('#questScore');
         const bestElCandidate = root.querySelector<HTMLElement>('#questBest');
-        if (!canvasCandidate || !startButtonCandidate || !restartButtonCandidate || !unitSelectCandidate || !overlayCandidate || !hpElCandidate || !fragmentsElCandidate || !scoreElCandidate || !bestElCandidate) return;
+        if (!canvasCandidate || !startButtonCandidate || !restartButtonCandidate || !unitSelectCandidate || !overlayCandidate || !hpElCandidate || !fragmentsElCandidate || !resonanceElCandidate || !scoreElCandidate || !bestElCandidate) return;
         const canvas = canvasCandidate;
         const startButton = startButtonCandidate;
         const restartButton = restartButtonCandidate;
@@ -341,6 +345,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const overlay = overlayCandidate;
         const hpEl = hpElCandidate;
         const fragmentsEl = fragmentsElCandidate;
+        const resonanceEl = resonanceElCandidate;
         const scoreEl = scoreElCandidate;
         const bestEl = bestElCandidate;
         const ctxCandidate = canvas.getContext('2d');
@@ -357,8 +362,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         let running = false;
         let finished = false;
         let score = 0;
+        let resonance = 35;
         let best = Number(localStorage.getItem(STORAGE_KEY) || 0);
         let sparks: Spark[] = [];
+        let bridges: Bridge[] = [];
         let particles: Spark[] = [];
         let message = '';
         let messageTime = 0;
@@ -421,9 +428,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             enemy.x = [760, 1440, 2210, 2580, 3380][index];
           });
           sparks = [];
+          bridges = [];
           particles = [];
           cameraX = 0;
           score = 0;
+          resonance = 35;
           message = currentUnit().name;
           messageTime = 1.6;
           running = true;
@@ -436,6 +445,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           const collected = pickups.filter((item) => item.taken).length;
           hpEl.textContent = String(Math.max(0, player.hp));
           fragmentsEl.textContent = `${collected}/5`;
+          resonanceEl.textContent = `${Math.round(resonance)}%`;
           scoreEl.textContent = String(score);
           bestEl.textContent = String(best);
         }
@@ -492,6 +502,50 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           });
         }
 
+        function tuneResonance() {
+          if (!running || finished) return;
+          const cost = 35;
+          if (resonance < cost) {
+            createSpark();
+            message = 'Need 35% resonance';
+            messageTime = 0.9;
+            return;
+          }
+
+          const unit = currentUnit();
+          resonance -= cost;
+          const width = currentUnitKey() === 'ichika' ? 190 : 160;
+          const bridgeX = player.facing > 0 ? player.x + player.w + 26 : player.x - width - 26;
+          const bridgeY = Math.max(170, Math.min(454, player.y + player.h + 18));
+          bridges.push({
+            x: Math.max(18, Math.min(worldW - width - 18, bridgeX)),
+            y: bridgeY,
+            w: width,
+            h: 16,
+            color: unit.color,
+            accent: unit.accent,
+            life: 4.6,
+            maxLife: 4.6,
+          });
+
+          let tuned = 0;
+          for (const enemy of enemies) {
+            if (!enemy.alive) continue;
+            const bridge = bridges[bridges.length - 1];
+            if (overlaps({ x: bridge.x - 36, y: bridge.y - 46, w: bridge.w + 72, h: 86 }, enemy)) {
+              enemy.alive = false;
+              tuned += 1;
+              score += 180;
+              burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, unit.color, 12);
+            }
+          }
+
+          message = tuned > 0 ? `Tuned ${tuned} Noise` : 'Starline bridge';
+          messageTime = 1;
+          burst(player.x + player.w / 2, player.y + player.h, unit.color, 14);
+          updateHud();
+        }
+
         function burst(x: number, y: number, color: string, count = 12) {
           for (let i = 0; i < count; i += 1) {
             const angle = (Math.PI * 2 * i) / count;
@@ -513,6 +567,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           const unit = currentUnit();
           const accel = 2600 * unit.speed;
           const maxSpeed = 315 * unit.speed;
+          const solids = platforms.concat(bridges);
           if (keys.left) {
             player.vx -= accel * dt;
             player.facing = -1;
@@ -529,7 +584,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           player.invuln = Math.max(0, player.invuln - dt);
 
           player.x += player.vx * dt;
-          for (const platform of platforms) {
+          for (const platform of solids) {
             if (!overlaps(player, platform)) continue;
             if (player.vx > 0) player.x = platform.x - player.w;
             if (player.vx < 0) player.x = platform.x + platform.w;
@@ -538,7 +593,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
           player.y += player.vy * dt;
           player.grounded = false;
-          for (const platform of platforms) {
+          for (const platform of solids) {
             if (!overlaps(player, platform)) continue;
             if (player.vy > 0) {
               player.y = platform.y - player.h;
@@ -573,7 +628,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
 
         function updateWorld(dt: number) {
+          for (const bridge of bridges) {
+            bridge.life -= dt;
+          }
+          bridges = bridges.filter((bridge) => bridge.life > 0);
           updatePlayer(dt);
+          if (player.grounded && Math.abs(player.vx) > 80) {
+            resonance = Math.min(100, resonance + dt * 3.2);
+          }
 
           for (const item of pickups) {
             if (item.taken) continue;
@@ -581,6 +643,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
               item.taken = true;
               const color = UNITS[item.unit].color;
               score += 500;
+              resonance = Math.min(100, resonance + 28);
               message = UNITS[item.unit].name;
               messageTime = 1.1;
               burst(item.x, item.y, color, 16);
@@ -599,6 +662,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 enemy.alive = false;
                 player.vy = -520;
                 score += 250;
+                resonance = Math.min(100, resonance + 18);
                 burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#b58cff', 10);
                 updateHud();
               } else {
@@ -616,6 +680,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
                 enemy.alive = false;
                 spark.life = 0;
                 score += 220;
+                resonance = Math.min(100, resonance + 14);
                 burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, spark.color, 10);
                 updateHud();
               }
@@ -640,6 +705,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             messageTime = 1;
           }
 
+          updateHud();
           cameraX += (Math.max(0, Math.min(worldW - VIEW_W, player.x - VIEW_W * 0.42)) - cameraX) * Math.min(1, dt * 7);
         }
 
@@ -681,6 +747,43 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           ctx.fillRect(x, platform.y, platform.w, 5);
           ctx.strokeStyle = 'rgba(255,255,255,0.14)';
           ctx.strokeRect(x + 0.5, platform.y + 0.5, platform.w - 1, platform.h - 1);
+        }
+
+        function drawBridge(bridge: Bridge, time: number) {
+          const x = bridge.x - cameraX;
+          if (x + bridge.w < -60 || x > VIEW_W + 60) return;
+          const alpha = Math.max(0.12, Math.min(1, bridge.life / bridge.maxLife));
+          ctx.save();
+          ctx.globalAlpha = alpha;
+          ctx.shadowBlur = 24;
+          ctx.shadowColor = bridge.color || '#52dbff';
+          ctx.fillStyle = bridge.color || '#52dbff';
+          ctx.beginPath();
+          ctx.roundRect(x, bridge.y, bridge.w, bridge.h, 8);
+          ctx.fill();
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = 'rgba(255,255,255,0.55)';
+          ctx.fillRect(x + 8, bridge.y + 4, Math.max(0, bridge.w - 16), 2);
+          ctx.strokeStyle = bridge.accent;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          const points: Array<{ x: number; y: number }> = [];
+          for (let i = 0; i < 6; i += 1) {
+            const px = x + 12 + i * ((bridge.w - 24) / 5);
+            const py = bridge.y - 8 + Math.sin(time * 5 + i) * 4;
+            points.push({ x: px, y: py });
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+          }
+          ctx.stroke();
+          for (let i = 0; i < points.length; i += 1) {
+            const point = points[i];
+            ctx.fillStyle = i % 2 === 0 ? '#ffd66e' : '#fff';
+            ctx.beginPath();
+            ctx.arc(point.x, point.y, 2.6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
         }
 
         function drawPickup(item: Pickup, time: number) {
@@ -918,6 +1021,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           const unit = currentUnit();
           drawSky(unit);
           platforms.forEach(drawPlatform);
+          bridges.forEach((bridge) => drawBridge(bridge, time / 1000));
           pickups.forEach((item) => drawPickup(item, time / 1000));
           enemies.forEach((enemy) => drawEnemy(enemy, time / 1000));
           drawGoal(time / 1000);
@@ -954,7 +1058,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           if (control === 'left') keys.left = active;
           if (control === 'right') keys.right = active;
           if (control === 'jump' && active) jump();
-          if (control === 'action' && active) createSpark();
+          if (control === 'action' && active) tuneResonance();
         }
 
         function handleKeydown(event: KeyboardEvent) {
@@ -962,7 +1066,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           if (key === 'arrowleft' || key === 'a') keys.left = true;
           else if (key === 'arrowright' || key === 'd') keys.right = true;
           else if (key === 'arrowup' || key === 'w' || key === ' ') jump();
-          else if (key === 'j' || key === 'k') createSpark();
+          else if (key === 'j' || key === 'k') tuneResonance();
           else return;
           event.preventDefault();
         }
