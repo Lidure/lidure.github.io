@@ -926,11 +926,16 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     left: 0;
     bottom: calc(100% + 10px);
     z-index: 40;
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(6, 38px);
+    justify-items: center;
     gap: 3px;
     padding: 6px 7px;
-    border-radius: 999px;
+    max-height: min(58vh, 260px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    border-radius: 22px;
     border: 1px solid rgba(255,255,255,0.12);
     background: color-mix(in srgb, var(--panel) 96%, transparent);
     box-shadow: 0 16px 40px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12);
@@ -941,6 +946,15 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
   .moment-reaction-panel[hidden] {
     display: none;
+  }
+
+  .moment-reaction-panel::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .moment-reaction-panel::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(var(--accent-rgb), 0.28);
   }
 
   .moment-reaction-panel::after {
@@ -1531,7 +1545,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   const knownCategories = new Set(['游戏', '音乐', '生活', '吐槽']);
   const categoryIcons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕', '吐槽': '💬' };
   const MOMENT_EMOJIS = ['😀', '😂', '😭', '🥺', '😎', '🤔', '👍', '👏', '🎉', '✨', '💯', '❤️'];
-  const MOMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯'];
+  const MOMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '👎', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯', '😍', '😎', '🥺', '😡', '😴', '🙏', '💪', '🌟', '🍀', '🫶', '😆', '🤯', '😱', '😢', '🤣', '🤩', '🙌', '👌', '😋', '😇', '🤗', '😤', '😐', '😵', '😳', '🤓', '👀', '💔', '⚡', '🏆', '🎁', '🍻', '☕', '🌈', '💤'];
   let currentMoments: RenderMoment[] = [];
   let toastTimer: number | undefined;
 

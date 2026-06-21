@@ -23,7 +23,7 @@ export type GuestMessage = {
   commentCount?: number;
 };
 
-const COMMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯'];
+const COMMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '👎', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯', '😍', '😎', '🥺', '😡', '😴', '🙏', '💪', '🌟', '🍀', '🫶', '😆', '🤯', '😱', '😢', '🤣', '🤩', '🙌', '👌', '😋', '😇', '🤗', '😤', '😐', '😵', '😳', '🤓', '👀', '💔', '⚡', '🏆', '🎁', '🍻', '☕', '🌈', '💤'];
 type CommentReactionMap = Record<string, string>;
 let commentReactionOutsideListenerBound = false;
 

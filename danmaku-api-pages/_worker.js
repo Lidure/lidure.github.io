@@ -19,7 +19,7 @@ const MOMENT_IMAGE_MAX_SIZE = 5 * 1024 * 1024; // 5 MB
 const GUEST_MESSAGE_MAX_TEXT = 800;
 const COMMENT_MAX_TEXT = 500;
 const USER_ID_MAX_LENGTH = 32;
-const REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯'];
+const REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '👎', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯', '😍', '😎', '🥺', '😡', '😴', '🙏', '💪', '🌟', '🍀', '🫶', '😆', '🤯', '😱', '😢', '🤣', '🤩', '🙌', '👌', '😋', '😇', '🤗', '😤', '😐', '😵', '😳', '🤓', '👀', '💔', '⚡', '🏆', '🎁', '🍻', '☕', '🌈', '💤'];
 const COMMENT_REACTION_EMOJIS = REACTION_EMOJIS;
 const MOMENT_REACTION_EMOJIS = REACTION_EMOJIS;
 

@@ -1652,11 +1652,16 @@ img {
   left: 0;
   bottom: calc(100% + 9px);
   z-index: 20;
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(6, 34px);
+  justify-items: center;
   gap: 3px;
   padding: 5px 6px;
-  border-radius: 999px;
+  max-height: min(54vh, 232px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  border-radius: 20px;
   border: 1px solid rgba(255,255,255,0.12);
   background: color-mix(in srgb, var(--panel) 96%, transparent);
   box-shadow: 0 14px 34px rgba(0,0,0,0.2), 0 2px 8px rgba(0,0,0,0.12);
@@ -1667,6 +1672,15 @@ img {
 
 .public-comment-reaction-panel[hidden] {
   display: none;
+}
+
+.public-comment-reaction-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.public-comment-reaction-panel::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(var(--accent-rgb), 0.28);
 }
 
 .public-comment-reaction-panel::after {
