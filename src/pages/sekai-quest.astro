@@ -1,0 +1,901 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="SEKAI Quest | 搁浅 的小窝" description="一个 PJSK 氛围的原创横板闯关小游戏。">
+  <section class="quest-shell" data-sekai-quest>
+    <div class="quest-top">
+      <div class="quest-title">
+        <span>Fan-made mini adventure</span>
+        <h1>SEKAI Quest</h1>
+      </div>
+      <div class="quest-actions">
+        <select id="questUnit" class="quest-select" aria-label="选择 SEKAI 风格">
+          <option value="virtual">Virtual Singer</option>
+          <option value="leo">Leo/need</option>
+          <option value="jump">MORE MORE JUMP!</option>
+          <option value="vivid">Vivid BAD SQUAD</option>
+          <option value="wonder">Wonderlands x Showtime</option>
+          <option value="night">Nightcord at 25:00</option>
+        </select>
+        <button type="button" id="questStart" class="quest-button primary">Start</button>
+        <button type="button" id="questRestart" class="quest-button">Restart</button>
+      </div>
+    </div>
+
+    <div class="quest-hud" aria-live="polite">
+      <div><span>HP</span><strong id="questHp">5</strong></div>
+      <div><span>Fragments</span><strong id="questFragments">0/5</strong></div>
+      <div><span>Score</span><strong id="questScore">0</strong></div>
+      <div><span>Best</span><strong id="questBest">0</strong></div>
+    </div>
+
+    <div class="quest-stage">
+      <canvas id="questCanvas" class="quest-canvas" width="960" height="540" aria-label="SEKAI Quest game stage"></canvas>
+      <div id="questOverlay" class="quest-overlay">
+        <strong>SEKAI Quest</strong>
+        <span>Start</span>
+      </div>
+      <div class="quest-touch" aria-label="移动端控制">
+        <button type="button" data-control="left">◀</button>
+        <button type="button" data-control="right">▶</button>
+        <button type="button" data-control="jump">Jump</button>
+        <button type="button" data-control="action">Spark</button>
+      </div>
+    </div>
+  </section>
+
+  <style>
+    .quest-shell {
+      min-height: calc(100vh - 190px);
+      display: grid;
+      gap: 14px;
+      color: var(--text);
+    }
+
+    .quest-top {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 18px 18px 0;
+    }
+
+    .quest-title {
+      display: grid;
+      gap: 2px;
+    }
+
+    .quest-title span {
+      color: #52dbff;
+      font-size: 0.78rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .quest-title h1 {
+      margin: 0;
+      color: #fff;
+      font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+      font-size: clamp(2rem, 7vw, 4.2rem);
+      line-height: 0.95;
+      letter-spacing: 0;
+      text-shadow: 0 0 22px rgba(var(--accent-rgb), 0.52), 0 0 40px rgba(82, 219, 255, 0.28);
+    }
+
+    .quest-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .quest-select,
+    .quest-button {
+      height: 38px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(13, 16, 31, 0.72);
+      color: var(--text);
+      font: inherit;
+      font-weight: 800;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    }
+
+    .quest-select {
+      max-width: min(100%, 230px);
+      padding: 0 34px 0 14px;
+      color-scheme: dark;
+    }
+
+    .quest-button {
+      min-width: 88px;
+      padding: 0 16px;
+      cursor: pointer;
+      transition: transform 160ms ease, border-color 160ms ease;
+    }
+
+    .quest-button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(255,255,255,0.34);
+    }
+
+    .quest-button.primary {
+      border: none;
+      color: #130e1c;
+      background: linear-gradient(135deg, #52dbff, #ff6ba7 52%, #ffd66e);
+    }
+
+    .quest-hud {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      padding: 0 18px;
+    }
+
+    .quest-hud > div {
+      min-width: 0;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(13, 16, 31, 0.58);
+      backdrop-filter: blur(18px) saturate(1.15);
+    }
+
+    .quest-hud span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.72rem;
+      line-height: 1.1;
+    }
+
+    .quest-hud strong {
+      display: block;
+      overflow: hidden;
+      color: #fff;
+      font-size: clamp(1rem, 3.4vw, 1.55rem);
+      line-height: 1.15;
+      text-overflow: ellipsis;
+    }
+
+    .quest-stage {
+      position: relative;
+      height: min(68vh, 690px);
+      min-height: 500px;
+      overflow: hidden;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background:
+        radial-gradient(circle at 15% 18%, rgba(82, 219, 255, 0.18), transparent 28%),
+        radial-gradient(circle at 74% 18%, rgba(255, 107, 167, 0.22), transparent 30%),
+        linear-gradient(180deg, rgba(10, 13, 32, 0.9), rgba(5, 7, 18, 0.96));
+      box-shadow: 0 22px 70px rgba(0,0,0,0.36);
+      isolation: isolate;
+    }
+
+    .quest-canvas {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    .quest-overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+      display: grid;
+      place-content: center;
+      gap: 8px;
+      color: #fff;
+      text-align: center;
+      pointer-events: none;
+      background: radial-gradient(circle at center, rgba(5,8,20,0.24), rgba(5,8,20,0.76));
+      transition: opacity 180ms ease;
+    }
+
+    .quest-overlay.hidden {
+      opacity: 0;
+    }
+
+    .quest-overlay strong {
+      font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+      font-size: clamp(2rem, 8vw, 5rem);
+      line-height: 1;
+      text-shadow: 0 0 28px rgba(var(--accent-rgb), 0.72);
+    }
+
+    .quest-overlay span {
+      color: var(--text-soft);
+      font-weight: 900;
+      letter-spacing: 0.05em;
+    }
+
+    .quest-touch {
+      position: absolute;
+      left: 50%;
+      bottom: 14px;
+      z-index: 4;
+      width: min(620px, calc(100% - 24px));
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: 1fr 1fr 1.35fr 1.35fr;
+      gap: 8px;
+      pointer-events: auto;
+    }
+
+    .quest-touch button {
+      height: clamp(52px, 12vw, 72px);
+      border: 1px solid rgba(255,255,255,0.18);
+      border-radius: 14px;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      font: inherit;
+      font-weight: 900;
+      cursor: pointer;
+      touch-action: manipulation;
+      backdrop-filter: blur(18px);
+      transition: transform 80ms ease, background 80ms ease, border-color 80ms ease;
+    }
+
+    .quest-touch button.active {
+      transform: translateY(2px) scale(0.98);
+      border-color: rgba(255,255,255,0.46);
+      background: rgba(var(--accent-rgb),0.32);
+    }
+
+    @media (max-width: 720px) {
+      .quest-shell {
+        min-height: calc(100svh - 150px);
+        gap: 10px;
+      }
+
+      .quest-top {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 6px 2px 0;
+      }
+
+      .quest-actions {
+        justify-content: stretch;
+      }
+
+      .quest-actions > * {
+        flex: 1 1 auto;
+      }
+
+      .quest-hud {
+        padding: 0;
+        gap: 6px;
+      }
+
+      .quest-hud > div {
+        padding: 7px 6px;
+      }
+
+      .quest-stage {
+        height: min(68svh, 620px);
+        min-height: 420px;
+        border-radius: 14px;
+      }
+    }
+
+    @media (max-width: 460px) {
+      .quest-hud strong {
+        font-size: 0.95rem;
+      }
+
+      .quest-touch {
+        gap: 6px;
+      }
+    }
+  </style>
+
+  <script>
+    (() => {
+      const STORAGE_KEY = 'sekai_quest_best_v1';
+      const VIEW_W = 960;
+      const VIEW_H = 540;
+      const GRAVITY = 2100;
+      const UNITS = {
+        virtual: { name: 'Virtual Singer', color: '#52dbff', accent: '#ff6ba7', speed: 1, jump: 1 },
+        leo: { name: 'Leo/need', color: '#7cc7ff', accent: '#ffe86b', speed: 1, jump: 1.07 },
+        jump: { name: 'MORE MORE JUMP!', color: '#8effb1', accent: '#ff8fcb', speed: 1.02, jump: 1 },
+        vivid: { name: 'Vivid BAD SQUAD', color: '#ff5b5b', accent: '#52dbff', speed: 1.12, jump: 0.96 },
+        wonder: { name: 'Wonderlands x Showtime', color: '#ffcf5a', accent: '#ff79c6', speed: 1.04, jump: 1.03 },
+        night: { name: 'Nightcord at 25:00', color: '#9b8cff', accent: '#6ce7ff', speed: 0.96, jump: 1.02 },
+      } as const;
+      type UnitKey = keyof typeof UNITS;
+      type Rect = { x: number; y: number; w: number; h: number; color?: string };
+      type Pickup = { x: number; y: number; taken: boolean; unit: UnitKey };
+      type Enemy = { x: number; y: number; w: number; h: number; vx: number; left: number; right: number; alive: boolean };
+      type Spark = { x: number; y: number; vx: number; life: number; color: string };
+
+      function initQuest() {
+        const rootCandidate = document.querySelector<HTMLElement>('[data-sekai-quest]');
+        if (!rootCandidate || rootCandidate.dataset.ready === 'true') return;
+        const root = rootCandidate;
+        root.dataset.ready = 'true';
+
+        const canvasCandidate = root.querySelector<HTMLCanvasElement>('#questCanvas');
+        const startButtonCandidate = root.querySelector<HTMLButtonElement>('#questStart');
+        const restartButtonCandidate = root.querySelector<HTMLButtonElement>('#questRestart');
+        const unitSelectCandidate = root.querySelector<HTMLSelectElement>('#questUnit');
+        const overlayCandidate = root.querySelector<HTMLElement>('#questOverlay');
+        const hpElCandidate = root.querySelector<HTMLElement>('#questHp');
+        const fragmentsElCandidate = root.querySelector<HTMLElement>('#questFragments');
+        const scoreElCandidate = root.querySelector<HTMLElement>('#questScore');
+        const bestElCandidate = root.querySelector<HTMLElement>('#questBest');
+        if (!canvasCandidate || !startButtonCandidate || !restartButtonCandidate || !unitSelectCandidate || !overlayCandidate || !hpElCandidate || !fragmentsElCandidate || !scoreElCandidate || !bestElCandidate) return;
+        const canvas = canvasCandidate;
+        const startButton = startButtonCandidate;
+        const restartButton = restartButtonCandidate;
+        const unitSelect = unitSelectCandidate;
+        const overlay = overlayCandidate;
+        const hpEl = hpElCandidate;
+        const fragmentsEl = fragmentsElCandidate;
+        const scoreEl = scoreElCandidate;
+        const bestEl = bestElCandidate;
+        const ctxCandidate = canvas.getContext('2d');
+        if (!ctxCandidate) return;
+        const ctx = ctxCandidate;
+
+        const keys = { left: false, right: false, jump: false, action: false };
+        const touchButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('.quest-touch button[data-control]'));
+        const worldW = 3650;
+        const player = { x: 80, y: 340, w: 34, h: 46, vx: 0, vy: 0, hp: 5, grounded: false, facing: 1, invuln: 0, jumps: 0 };
+        let cameraX = 0;
+        let raf = 0;
+        let lastTime = performance.now();
+        let running = false;
+        let finished = false;
+        let score = 0;
+        let best = Number(localStorage.getItem(STORAGE_KEY) || 0);
+        let sparks: Spark[] = [];
+        let particles: Spark[] = [];
+        let message = '';
+        let messageTime = 0;
+
+        const platforms: Rect[] = [
+          { x: 0, y: 486, w: 560, h: 54, color: '#26365f' },
+          { x: 650, y: 444, w: 230, h: 28, color: '#29476d' },
+          { x: 980, y: 396, w: 250, h: 28, color: '#3d356a' },
+          { x: 1320, y: 458, w: 360, h: 34, color: '#2f4b71' },
+          { x: 1780, y: 418, w: 250, h: 30, color: '#51406f' },
+          { x: 2120, y: 360, w: 230, h: 30, color: '#315076' },
+          { x: 2460, y: 448, w: 420, h: 38, color: '#3a386b' },
+          { x: 2970, y: 404, w: 250, h: 30, color: '#455074' },
+          { x: 3310, y: 486, w: 340, h: 54, color: '#26365f' },
+          { x: 460, y: 384, w: 140, h: 24, color: '#51406f' },
+          { x: 1700, y: 300, w: 130, h: 24, color: '#51406f' },
+          { x: 2680, y: 316, w: 150, h: 24, color: '#29476d' },
+        ];
+
+        const pickups: Pickup[] = [
+          { x: 510, y: 340, taken: false, unit: 'leo' },
+          { x: 1060, y: 352, taken: false, unit: 'jump' },
+          { x: 1808, y: 256, taken: false, unit: 'vivid' },
+          { x: 2728, y: 272, taken: false, unit: 'wonder' },
+          { x: 3098, y: 360, taken: false, unit: 'night' },
+        ];
+
+        const enemies: Enemy[] = [
+          { x: 760, y: 408, w: 36, h: 34, vx: 60, left: 670, right: 850, alive: true },
+          { x: 1440, y: 422, w: 40, h: 36, vx: -75, left: 1340, right: 1640, alive: true },
+          { x: 2210, y: 324, w: 38, h: 34, vx: 80, left: 2140, right: 2310, alive: true },
+          { x: 2580, y: 412, w: 42, h: 38, vx: -90, left: 2480, right: 2840, alive: true },
+          { x: 3380, y: 450, w: 44, h: 38, vx: 70, left: 3330, right: 3600, alive: true },
+        ];
+
+        bestEl.textContent = String(best);
+
+        function currentUnit() {
+          return UNITS[unitSelect.value as UnitKey] || UNITS.virtual;
+        }
+
+        function resetGame() {
+          player.x = 80;
+          player.y = 340;
+          player.vx = 0;
+          player.vy = 0;
+          player.hp = 5;
+          player.grounded = false;
+          player.facing = 1;
+          player.invuln = 0;
+          player.jumps = 0;
+          pickups.forEach((item) => item.taken = false);
+          enemies.forEach((enemy, index) => {
+            enemy.alive = true;
+            enemy.x = [760, 1440, 2210, 2580, 3380][index];
+          });
+          sparks = [];
+          particles = [];
+          cameraX = 0;
+          score = 0;
+          message = currentUnit().name;
+          messageTime = 1.6;
+          running = true;
+          finished = false;
+          overlay.classList.add('hidden');
+          updateHud();
+        }
+
+        function updateHud() {
+          const collected = pickups.filter((item) => item.taken).length;
+          hpEl.textContent = String(Math.max(0, player.hp));
+          fragmentsEl.textContent = `${collected}/5`;
+          scoreEl.textContent = String(score);
+          bestEl.textContent = String(best);
+        }
+
+        function setOverlay(title: string, subtitle: string, visible: boolean) {
+          overlay.innerHTML = `<strong>${title}</strong><span>${subtitle}</span>`;
+          overlay.classList.toggle('hidden', !visible);
+        }
+
+        function resizeCanvas() {
+          const rect = canvas.getBoundingClientRect();
+          const ratio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          canvas.width = Math.max(1, Math.round(rect.width * ratio));
+          canvas.height = Math.max(1, Math.round(rect.height * ratio));
+        }
+
+        function viewTransform() {
+          const rect = canvas.getBoundingClientRect();
+          const scale = Math.min(rect.width / VIEW_W, rect.height / VIEW_H);
+          const ox = (rect.width - VIEW_W * scale) / 2;
+          const oy = (rect.height - VIEW_H * scale) / 2;
+          const ratio = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+          ctx.setTransform(ratio * scale, 0, 0, ratio * scale, ratio * ox, ratio * oy);
+          return { scale, ox, oy };
+        }
+
+        function overlaps(a: Rect, b: Rect) {
+          return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+        }
+
+        function damagePlayer() {
+          if (player.invuln > 0 || finished) return;
+          player.hp -= 1;
+          player.invuln = 1.05;
+          player.vx = -player.facing * 330;
+          player.vy = -520;
+          message = 'Noise hit';
+          messageTime = 0.9;
+          updateHud();
+          if (player.hp <= 0) {
+            finish(false);
+          }
+        }
+
+        function createSpark() {
+          if (!running || finished) return;
+          const unit = currentUnit();
+          sparks.push({
+            x: player.x + player.w / 2 + player.facing * 28,
+            y: player.y + 20,
+            vx: player.facing * 620,
+            life: 0.42,
+            color: unit.accent,
+          });
+        }
+
+        function burst(x: number, y: number, color: string, count = 12) {
+          for (let i = 0; i < count; i += 1) {
+            const angle = (Math.PI * 2 * i) / count;
+            particles.push({ x, y, vx: Math.cos(angle) * (120 + i * 8), life: 0.45, color });
+            particles[particles.length - 1].y += Math.sin(angle) * 10;
+          }
+        }
+
+        function finish(win: boolean) {
+          running = false;
+          finished = true;
+          best = Math.max(best, score);
+          localStorage.setItem(STORAGE_KEY, String(best));
+          updateHud();
+          setOverlay(win ? 'CLEAR' : 'RETRY', win ? `Score ${score}` : 'HP 0', true);
+        }
+
+        function updatePlayer(dt: number) {
+          const unit = currentUnit();
+          const accel = 2600 * unit.speed;
+          const maxSpeed = 315 * unit.speed;
+          if (keys.left) {
+            player.vx -= accel * dt;
+            player.facing = -1;
+          }
+          if (keys.right) {
+            player.vx += accel * dt;
+            player.facing = 1;
+          }
+          if (!keys.left && !keys.right) {
+            player.vx *= Math.pow(0.001, dt);
+          }
+          player.vx = Math.max(-maxSpeed, Math.min(maxSpeed, player.vx));
+          player.vy += GRAVITY * dt;
+          player.invuln = Math.max(0, player.invuln - dt);
+
+          player.x += player.vx * dt;
+          for (const platform of platforms) {
+            if (!overlaps(player, platform)) continue;
+            if (player.vx > 0) player.x = platform.x - player.w;
+            if (player.vx < 0) player.x = platform.x + platform.w;
+            player.vx = 0;
+          }
+
+          player.y += player.vy * dt;
+          player.grounded = false;
+          for (const platform of platforms) {
+            if (!overlaps(player, platform)) continue;
+            if (player.vy > 0) {
+              player.y = platform.y - player.h;
+              player.vy = 0;
+              player.grounded = true;
+              player.jumps = 0;
+            } else if (player.vy < 0) {
+              player.y = platform.y + platform.h;
+              player.vy = 0;
+            }
+          }
+
+          if (player.y > VIEW_H + 120) {
+            player.x = Math.max(60, cameraX + 80);
+            player.y = 80;
+            player.vy = 0;
+            damagePlayer();
+          }
+
+          player.x = Math.max(0, Math.min(worldW - player.w, player.x));
+        }
+
+        function jump() {
+          if (!running || finished) return;
+          const unit = currentUnit();
+          const maxJumps = unit === UNITS.wonder ? 2 : 1;
+          if (player.grounded || player.jumps < maxJumps) {
+            player.vy = -760 * unit.jump;
+            player.grounded = false;
+            player.jumps += 1;
+          }
+        }
+
+        function updateWorld(dt: number) {
+          updatePlayer(dt);
+
+          for (const item of pickups) {
+            if (item.taken) continue;
+            if (overlaps(player, { x: item.x - 16, y: item.y - 16, w: 32, h: 32 })) {
+              item.taken = true;
+              const color = UNITS[item.unit].color;
+              score += 500;
+              message = UNITS[item.unit].name;
+              messageTime = 1.1;
+              burst(item.x, item.y, color, 16);
+              updateHud();
+            }
+          }
+
+          for (const enemy of enemies) {
+            if (!enemy.alive) continue;
+            enemy.x += enemy.vx * dt;
+            if (enemy.x < enemy.left || enemy.x + enemy.w > enemy.right) {
+              enemy.vx *= -1;
+            }
+            if (overlaps(player, enemy)) {
+              if (player.vy > 120 && player.y + player.h - enemy.y < 18) {
+                enemy.alive = false;
+                player.vy = -520;
+                score += 250;
+                burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#b58cff', 10);
+                updateHud();
+              } else {
+                damagePlayer();
+              }
+            }
+          }
+
+          for (const spark of sparks) {
+            spark.x += spark.vx * dt;
+            spark.life -= dt;
+            for (const enemy of enemies) {
+              if (!enemy.alive || spark.life <= 0) continue;
+              if (overlaps({ x: spark.x - 8, y: spark.y - 5, w: 16, h: 10 }, enemy)) {
+                enemy.alive = false;
+                spark.life = 0;
+                score += 220;
+                burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, spark.color, 10);
+                updateHud();
+              }
+            }
+          }
+          sparks = sparks.filter((spark) => spark.life > 0);
+
+          for (const particle of particles) {
+            particle.x += particle.vx * dt;
+            particle.y += Math.sin((particle.life + particle.x) * 0.1) * 22 * dt;
+            particle.life -= dt;
+          }
+          particles = particles.filter((particle) => particle.life > 0);
+          messageTime = Math.max(0, messageTime - dt);
+
+          const collected = pickups.filter((item) => item.taken).length;
+          if (player.x > worldW - 170 && collected >= pickups.length) {
+            score += Math.max(0, Math.round(player.hp * 300));
+            finish(true);
+          } else if (player.x > worldW - 170 && messageTime <= 0) {
+            message = 'Fragments missing';
+            messageTime = 1;
+          }
+
+          cameraX += (Math.max(0, Math.min(worldW - VIEW_W, player.x - VIEW_W * 0.42)) - cameraX) * Math.min(1, dt * 7);
+        }
+
+        function drawSky(unit: typeof UNITS[UnitKey]) {
+          const grad = ctx.createLinearGradient(0, 0, 0, VIEW_H);
+          grad.addColorStop(0, '#081022');
+          grad.addColorStop(0.55, '#111638');
+          grad.addColorStop(1, '#050711');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+
+          for (let i = 0; i < 58; i += 1) {
+            const x = (i * 127 - cameraX * (0.08 + (i % 4) * 0.02)) % (VIEW_W + 90) - 45;
+            const y = 30 + (i * 71) % 300;
+            ctx.globalAlpha = 0.16 + (i % 5) * 0.035;
+            ctx.fillStyle = i % 3 === 0 ? unit.color : i % 3 === 1 ? unit.accent : '#ffd66e';
+            ctx.beginPath();
+            ctx.arc(x, y, 1.5 + (i % 3), 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+
+          for (let i = 0; i < 9; i += 1) {
+            const x = (i * 420 - cameraX * 0.22) % (VIEW_W + 360) - 180;
+            const h = 120 + (i % 3) * 36;
+            ctx.fillStyle = 'rgba(255,255,255,0.045)';
+            ctx.fillRect(x, VIEW_H - 90 - h, 96, h);
+            ctx.fillStyle = 'rgba(82,219,255,0.08)';
+            ctx.fillRect(x + 18, VIEW_H - 120 - h, 40, h + 30);
+          }
+        }
+
+        function drawPlatform(platform: Rect) {
+          const x = platform.x - cameraX;
+          if (x + platform.w < -40 || x > VIEW_W + 40) return;
+          ctx.fillStyle = platform.color || '#26365f';
+          ctx.fillRect(x, platform.y, platform.w, platform.h);
+          ctx.fillStyle = 'rgba(255,255,255,0.16)';
+          ctx.fillRect(x, platform.y, platform.w, 5);
+          ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+          ctx.strokeRect(x + 0.5, platform.y + 0.5, platform.w - 1, platform.h - 1);
+        }
+
+        function drawPickup(item: Pickup, time: number) {
+          if (item.taken) return;
+          const unit = UNITS[item.unit];
+          const x = item.x - cameraX;
+          const y = item.y + Math.sin(time * 4 + item.x) * 5;
+          if (x < -40 || x > VIEW_W + 40) return;
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(time * 1.2);
+          ctx.shadowBlur = 18;
+          ctx.shadowColor = unit.color;
+          ctx.fillStyle = unit.color;
+          ctx.beginPath();
+          for (let i = 0; i < 5; i += 1) {
+            const angle = -Math.PI / 2 + i * Math.PI * 0.4;
+            const outerX = Math.cos(angle) * 17;
+            const outerY = Math.sin(angle) * 17;
+            const innerX = Math.cos(angle + Math.PI * 0.2) * 7;
+            const innerY = Math.sin(angle + Math.PI * 0.2) * 7;
+            if (i === 0) ctx.moveTo(outerX, outerY);
+            else ctx.lineTo(outerX, outerY);
+            ctx.lineTo(innerX, innerY);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.restore();
+        }
+
+        function drawEnemy(enemy: Enemy, time: number) {
+          if (!enemy.alive) return;
+          const x = enemy.x - cameraX;
+          if (x + enemy.w < -40 || x > VIEW_W + 40) return;
+          ctx.save();
+          ctx.translate(x + enemy.w / 2, enemy.y + enemy.h / 2);
+          ctx.fillStyle = '#171526';
+          ctx.strokeStyle = '#b58cff';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.roundRect(-enemy.w / 2, -enemy.h / 2, enemy.w, enemy.h, 9);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#ff6ba7';
+          ctx.beginPath();
+          ctx.arc(-8, -3 + Math.sin(time * 7) * 2, 3, 0, Math.PI * 2);
+          ctx.arc(8, -3 + Math.sin(time * 7) * 2, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        function drawPlayer(time: number) {
+          const unit = currentUnit();
+          const x = player.x - cameraX;
+          const blink = player.invuln > 0 && Math.floor(time * 18) % 2 === 0;
+          if (blink) return;
+          ctx.save();
+          ctx.translate(x + player.w / 2, player.y + player.h / 2);
+          ctx.scale(player.facing, 1);
+          ctx.fillStyle = unit.color;
+          ctx.shadowBlur = 16;
+          ctx.shadowColor = unit.color;
+          ctx.fillRect(-12, -13, 24, 30);
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(-14, -28, 28, 22);
+          ctx.fillStyle = unit.accent;
+          ctx.fillRect(-16, -31, 32, 8);
+          ctx.fillStyle = '#111827';
+          ctx.fillRect(-7, -21, 4, 4);
+          ctx.fillRect(5, -21, 4, 4);
+          ctx.fillStyle = '#10131f';
+          ctx.fillRect(-12, 17, 9, 16);
+          ctx.fillRect(3, 17, 9, 16);
+          ctx.restore();
+        }
+
+        function drawGoal(time: number) {
+          const x = worldW - 120 - cameraX;
+          const collected = pickups.filter((item) => item.taken).length;
+          ctx.save();
+          ctx.translate(x, 410);
+          ctx.strokeStyle = collected >= pickups.length ? '#ffd66e' : 'rgba(255,255,255,0.35)';
+          ctx.lineWidth = 5;
+          ctx.shadowBlur = collected >= pickups.length ? 22 : 0;
+          ctx.shadowColor = '#ffd66e';
+          ctx.beginPath();
+          ctx.roundRect(-32, -80, 64, 110, 16);
+          ctx.stroke();
+          ctx.fillStyle = collected >= pickups.length ? 'rgba(255,214,110,0.18)' : 'rgba(255,255,255,0.06)';
+          ctx.fill();
+          ctx.fillStyle = '#fff';
+          ctx.font = '900 16px Noto Sans SC, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(collected >= pickups.length ? 'LIVE' : `${collected}/5`, 0, -18 + Math.sin(time * 5) * 2);
+          ctx.restore();
+        }
+
+        function drawUiMessage() {
+          if (messageTime <= 0) return;
+          ctx.save();
+          ctx.globalAlpha = Math.min(1, messageTime * 2);
+          ctx.fillStyle = 'rgba(5,8,20,0.58)';
+          ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+          ctx.beginPath();
+          ctx.roundRect(VIEW_W / 2 - 140, 74, 280, 42, 21);
+          ctx.fill();
+          ctx.stroke();
+          ctx.fillStyle = '#fff';
+          ctx.font = '900 18px Noto Sans SC, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(message, VIEW_W / 2, 101);
+          ctx.restore();
+        }
+
+        function draw(time: number) {
+          resizeCanvas();
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          viewTransform();
+          const unit = currentUnit();
+          drawSky(unit);
+          platforms.forEach(drawPlatform);
+          pickups.forEach((item) => drawPickup(item, time / 1000));
+          enemies.forEach((enemy) => drawEnemy(enemy, time / 1000));
+          drawGoal(time / 1000);
+          for (const spark of sparks) {
+            ctx.fillStyle = spark.color;
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = spark.color;
+            ctx.fillRect(spark.x - cameraX - 8, spark.y - 4, 16, 8);
+          }
+          ctx.shadowBlur = 0;
+          for (const particle of particles) {
+            ctx.globalAlpha = Math.max(0, particle.life * 2);
+            ctx.fillStyle = particle.color;
+            ctx.beginPath();
+            ctx.arc(particle.x - cameraX, particle.y, 3 + particle.life * 6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          drawPlayer(time / 1000);
+          drawUiMessage();
+        }
+
+        function loop(time: number) {
+          const dt = Math.min(0.032, (time - lastTime) / 1000 || 0);
+          lastTime = time;
+          if (running && !finished) {
+            updateWorld(dt);
+          }
+          draw(time);
+          raf = requestAnimationFrame(loop);
+        }
+
+        function setControl(control: string, active: boolean) {
+          if (control === 'left') keys.left = active;
+          if (control === 'right') keys.right = active;
+          if (control === 'jump' && active) jump();
+          if (control === 'action' && active) createSpark();
+        }
+
+        function handleKeydown(event: KeyboardEvent) {
+          const key = event.key.toLowerCase();
+          if (key === 'arrowleft' || key === 'a') keys.left = true;
+          else if (key === 'arrowright' || key === 'd') keys.right = true;
+          else if (key === 'arrowup' || key === 'w' || key === ' ') jump();
+          else if (key === 'j' || key === 'k') createSpark();
+          else return;
+          event.preventDefault();
+        }
+
+        function handleKeyup(event: KeyboardEvent) {
+          const key = event.key.toLowerCase();
+          if (key === 'arrowleft' || key === 'a') keys.left = false;
+          if (key === 'arrowright' || key === 'd') keys.right = false;
+        }
+
+        function cleanup() {
+          cancelAnimationFrame(raf);
+          window.removeEventListener('resize', resizeCanvas);
+          window.removeEventListener('keydown', handleKeydown);
+          window.removeEventListener('keyup', handleKeyup);
+          root.dataset.ready = 'false';
+        }
+
+        startButton.addEventListener('click', resetGame);
+        restartButton.addEventListener('click', resetGame);
+        unitSelect.addEventListener('change', () => {
+          if (!running) {
+            message = currentUnit().name;
+            messageTime = 1.2;
+          }
+        });
+        touchButtons.forEach((button) => {
+          const control = button.dataset.control || '';
+          const setActive = (active: boolean) => {
+            button.classList.toggle('active', active);
+            setControl(control, active);
+          };
+          button.addEventListener('pointerdown', (event) => {
+            event.preventDefault();
+            button.setPointerCapture(event.pointerId);
+            setActive(true);
+          });
+          button.addEventListener('pointerup', () => setActive(false));
+          button.addEventListener('pointercancel', () => setActive(false));
+          button.addEventListener('lostpointercapture', () => setActive(false));
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('keydown', handleKeydown);
+        window.addEventListener('keyup', handleKeyup);
+        document.addEventListener('astro:before-swap', cleanup, { once: true });
+        resizeCanvas();
+        updateHud();
+        setOverlay('SEKAI Quest', 'Start', true);
+        raf = requestAnimationFrame(loop);
+      }
+
+      document.addEventListener('astro:page-load', initQuest);
+      initQuest();
+    })();
+  </script>
+</BaseLayout>
