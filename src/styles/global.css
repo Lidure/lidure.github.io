@@ -1529,10 +1529,15 @@ img {
 }
 
 .public-comment-item {
+  position: relative;
   padding: 9px 10px;
   border-radius: 10px;
   background: rgba(var(--accent-rgb), 0.05);
   border: 1px solid var(--panel-border);
+}
+
+.public-comment-item:has(.public-comment-reaction-panel:not([hidden])) {
+  z-index: 120;
 }
 
 .public-comment-meta {
@@ -1645,13 +1650,14 @@ img {
   width: fit-content;
   max-width: 100%;
   margin-top: 8px;
+  z-index: 1;
 }
 
 .public-comment-reaction-panel {
   position: absolute;
   left: 0;
   bottom: calc(100% + 9px);
-  z-index: 20;
+  z-index: 2000;
   display: grid;
   grid-template-columns: repeat(6, 34px);
   justify-items: center;
@@ -1686,6 +1692,7 @@ img {
 .public-comment-reaction-panel::after {
   content: '';
   position: absolute;
+  pointer-events: none;
   left: 20px;
   bottom: -5px;
   width: 9px;
@@ -1697,6 +1704,8 @@ img {
 }
 
 .public-comment-reaction-choice {
+  position: relative;
+  z-index: 1;
   width: 34px;
   height: 34px;
   padding: 0;

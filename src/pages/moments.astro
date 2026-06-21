@@ -764,6 +764,10 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     box-shadow: var(--shadow);
   }
 
+  .moment-card:has(.moment-reaction-panel:not([hidden])) {
+    z-index: 120;
+  }
+
   .moment-card::before {
     content: '';
     position: absolute;
@@ -919,13 +923,14 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     width: fit-content;
     max-width: 100%;
     margin: 13px 0 0;
+    z-index: 1;
   }
 
   .moment-reaction-panel {
     position: absolute;
     left: 0;
     bottom: calc(100% + 10px);
-    z-index: 40;
+    z-index: 2000;
     display: grid;
     grid-template-columns: repeat(6, 38px);
     justify-items: center;
@@ -960,6 +965,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   .moment-reaction-panel::after {
     content: '';
     position: absolute;
+    pointer-events: none;
     left: 22px;
     bottom: -5px;
     width: 10px;
@@ -971,6 +977,8 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   }
 
   .moment-reaction-choice {
+    position: relative;
+    z-index: 1;
     width: 38px;
     height: 38px;
     padding: 0;
