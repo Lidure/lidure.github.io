@@ -393,7 +393,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         let finished = false;
         let startedAt = 0;
         let travelTime = 1.62;
-        let nextBeat = 0;
+        let nextMusicStep = 0;
         let score = 0;
         let combo = 0;
         let maxCombo = 0;
@@ -460,25 +460,77 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           }
         }
 
-        function playTone(lane: number, judge: JudgeName | 'beat') {
+        function triggerOsc(freq: number, start: number, duration: number, type: OscillatorType, peak: number, cutoff: number) {
           if (!audio) return;
           const now = audio.currentTime;
+          const safeStart = Math.max(start, now + 0.001);
+          const stopAt = safeStart + duration;
           const osc = audio.createOscillator();
           const gain = audio.createGain();
           const filter = audio.createBiquadFilter();
-          const baseFreq = [523.25, 659.25, 783.99, 987.77][lane] || 523.25;
-          osc.type = judge === 'beat' ? 'triangle' : 'sine';
-          osc.frequency.setValueAtTime(judge === 'beat' ? 196 : baseFreq, now);
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, safeStart);
           filter.type = 'lowpass';
-          filter.frequency.setValueAtTime(judge === 'beat' ? 700 : 2600, now);
-          gain.gain.setValueAtTime(0.0001, now);
-          gain.gain.exponentialRampToValueAtTime(judge === 'Miss' ? 0.025 : judge === 'beat' ? 0.03 : 0.1, now + 0.012);
-          gain.gain.exponentialRampToValueAtTime(0.0001, now + (judge === 'beat' ? 0.08 : 0.18));
+          filter.frequency.setValueAtTime(cutoff, safeStart);
+          gain.gain.setValueAtTime(0.0001, safeStart);
+          gain.gain.exponentialRampToValueAtTime(peak, safeStart + 0.012);
+          gain.gain.exponentialRampToValueAtTime(0.0001, stopAt);
           osc.connect(filter);
           filter.connect(gain);
           gain.connect(audio.destination);
-          osc.start(now);
-          osc.stop(now + 0.22);
+          osc.start(safeStart);
+          osc.stop(stopAt + 0.03);
+        }
+
+        function playTone(lane: number, judge: JudgeName) {
+          if (!audio) return;
+          const now = audio.currentTime;
+          const baseFreq = [523.25, 659.25, 783.99, 987.77][lane] || 523.25;
+          const peak = judge === 'Miss' ? 0.026 : judge === 'Good' ? 0.07 : 0.1;
+          triggerOsc(judge === 'Miss' ? 155.56 : baseFreq, now, judge === 'Miss' ? 0.1 : 0.18, judge === 'Miss' ? 'sawtooth' : 'sine', peak, judge === 'Miss' ? 700 : 2600);
+        }
+
+        function musicStepDuration() {
+          return (60 / DIFFICULTY[currentDifficulty()].bpm) / 2;
+        }
+
+        function scheduleMusicStep(step: number, when: number) {
+          if (!audio) return;
+          const root = currentDifficulty() === 'expert' ? 246.94 : 220;
+          const bassPattern = [0, 0, 7, 7, 9, 9, 7, 4];
+          const leadPattern = [12, 16, 19, 16, 14, 17, 21, 19, 16, 14, 12, 14, 16, 19, 24, 21];
+          const semitone = (n: number) => root * Math.pow(2, n / 12);
+
+          if (step % 2 === 0) {
+            triggerOsc(semitone(bassPattern[(step / 2) % bassPattern.length] - 12), when, 0.16, 'triangle', 0.055, 640);
+          }
+          if (step % 4 === 0) {
+            const chord = step % 16 === 8 ? [9, 12, 16] : [0, 4, 7];
+            chord.forEach((offset, index) => {
+              triggerOsc(semitone(offset), when + index * 0.006, 0.42, 'sine', 0.026, 1800);
+            });
+          }
+          if (step % 2 === 1 || currentDifficulty() === 'expert') {
+            const note = leadPattern[step % leadPattern.length];
+            triggerOsc(semitone(note), when, currentDifficulty() === 'easy' ? 0.14 : 0.105, 'square', currentDifficulty() === 'expert' ? 0.035 : 0.028, 2100);
+          }
+          if (step % 2 === 0) {
+            triggerOsc(92, when, 0.045, 'sawtooth', 0.04, 360);
+          } else {
+            triggerOsc(1240, when, 0.035, 'triangle', 0.018, 4200);
+          }
+        }
+
+        function scheduleMusic(now: number) {
+          if (!audio) return;
+          const stepDur = musicStepDuration();
+          while (nextMusicStep * stepDur <= now + 0.22) {
+            const when = startedAt + nextMusicStep * stepDur;
+            if (when >= audio.currentTime - 0.03) {
+              scheduleMusicStep(nextMusicStep, when);
+            }
+            nextMusicStep += 1;
+          }
         }
 
         function updateHud() {
@@ -564,7 +616,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           finished = false;
           running = true;
           travelTime = currentDifficulty() === 'expert' ? 1.48 : currentDifficulty() === 'easy' ? 1.78 : 1.62;
-          nextBeat = 0;
+          nextMusicStep = 0;
           startedAt = audio.currentTime + 0.18;
           setOverlay('', '', false);
           cancelAnimationFrame(raf);
@@ -584,7 +636,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           const left = (width - stageWidth) / 2;
           const hitY = height - Math.max(92, height * 0.17);
           const topY = Math.max(52, height * 0.08);
-          return { left, stageWidth, laneWidth, hitY, topY };
+          const topScale = 0.24;
+          return { left, stageWidth, laneWidth, hitY, topY, topScale };
+        }
+
+        function trackX(width: number, geo: ReturnType<typeof laneGeometry>, x: number, progress: number) {
+          const topX = width / 2 + (x - width / 2) * geo.topScale;
+          return topX + (x - topX) * progress;
+        }
+
+        function lanePoint(width: number, geo: ReturnType<typeof laneGeometry>, lane: number, progress: number) {
+          const clamped = Math.max(0, Math.min(1, progress));
+          const bottomLeft = geo.left + lane * geo.laneWidth;
+          const bottomRight = bottomLeft + geo.laneWidth;
+          const left = trackX(width, geo, bottomLeft, clamped);
+          const right = trackX(width, geo, bottomRight, clamped);
+          return {
+            center: (left + right) / 2,
+            width: Math.max(18, right - left),
+          };
         }
 
         function drawBackground(width: number, height: number, now: number) {
@@ -630,7 +700,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             grad.addColorStop(1, i % 2 ? 'rgba(82,219,255,0.44)' : 'rgba(255,107,167,0.42)');
             ctx.strokeStyle = grad;
             ctx.beginPath();
-            ctx.moveTo(vanishX + (x - width / 2) * 0.24, vanishY);
+            ctx.moveTo(vanishX + (x - width / 2) * geo.topScale, vanishY);
             ctx.lineTo(x, geo.hitY + 56);
             ctx.stroke();
           }
@@ -639,8 +709,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const x = geo.left + i * geo.laneWidth;
             ctx.fillStyle = i % 2 ? 'rgba(82,219,255,0.055)' : 'rgba(255,107,167,0.055)';
             ctx.beginPath();
-            ctx.moveTo(vanishX + (x - width / 2) * 0.24, vanishY);
-            ctx.lineTo(vanishX + (x + geo.laneWidth - width / 2) * 0.24, vanishY);
+            ctx.moveTo(vanishX + (x - width / 2) * geo.topScale, vanishY);
+            ctx.lineTo(vanishX + (x + geo.laneWidth - width / 2) * geo.topScale, vanishY);
             ctx.lineTo(x + geo.laneWidth, geo.hitY + 56);
             ctx.lineTo(x, geo.hitY + 56);
             ctx.closePath();
@@ -694,11 +764,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             const until = note.time - now;
             const progress = 1 - until / travelTime;
             if (progress < -0.08 || progress > 1.18) continue;
-            const y = geo.topY + (geo.hitY - geo.topY) * progress;
-            const scale = 0.48 + progress * 0.72;
-            const center = geo.left + geo.laneWidth * (note.lane + 0.5);
-            const widthNote = geo.laneWidth * (0.44 + progress * 0.18);
-            const heightNote = 16 + scale * 12;
+            const visibleProgress = Math.max(0, Math.min(1.12, progress));
+            const y = geo.topY + (geo.hitY - geo.topY) * visibleProgress;
+            const scale = 0.5 + visibleProgress * 0.78;
+            const point = lanePoint(width, geo, note.lane, visibleProgress);
+            const center = point.center;
+            const widthNote = point.width * 0.72;
+            const heightNote = 14 + scale * 11;
             const hue = note.lane % 2 ? '82,219,255' : '255,107,167';
             ctx.save();
             ctx.shadowBlur = 18 + progress * 16;
@@ -736,10 +808,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           drawBackground(width, height, now);
           drawStage(width, height);
           if (running) {
-            if (now >= nextBeat) {
-              playTone(nextBeat % 2 ? 2 : 1, 'beat');
-              nextBeat += 60 / DIFFICULTY[currentDifficulty()].bpm;
-            }
+            scheduleMusic(now);
             missOldNotes(now);
             drawNotes(width, height, now);
             const lastNote = notes[notes.length - 1];
