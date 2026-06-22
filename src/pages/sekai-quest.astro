@@ -8,42 +8,42 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <!-- Title Screen -->
     <div class="title-screen" id="titleScreen">
       <div class="title-logo">
-        <span class="title-sub">Fan-made pixel adventure</span>
+        <span class="title-sub">同人像素冒险</span>
         <h1 class="title-main">SEKAI DASH</h1>
       </div>
 
       <div class="stage-select" id="stageSelect">
-        <h2 class="sel-label">STAGE</h2>
+        <h2 class="sel-label">关卡</h2>
         <div class="stage-pills" id="stagePills">
-          <button class="stage-pill active" data-stage="0"><span class="pill-dot" style="background:#45d"></span>Act 1</button>
-          <button class="stage-pill" data-stage="1"><span class="pill-dot" style="background:#e16"></span>Act 2</button>
-          <button class="stage-pill" data-stage="2"><span class="pill-dot" style="background:#849"></span>Final Boss</button>
+          <button class="stage-pill active" data-stage="0"><span class="pill-dot" style="background:#45d"></span>第一幕</button>
+          <button class="stage-pill" data-stage="1"><span class="pill-dot" style="background:#e16"></span>第二幕</button>
+          <button class="stage-pill" data-stage="2"><span class="pill-dot" style="background:#849"></span>最终Boss</button>
         </div>
       </div>
 
       <div class="char-select">
-        <h2 class="sel-label">CHARACTER</h2>
+        <h2 class="sel-label">角色</h2>
         <div class="char-row" id="charRow">
           <button class="char-btn" data-char="0">
-            <img src="/knd.png" alt="Kanade" /><span>Kanade</span><small>Balance</small>
+            <img src="/knd.png" alt="Kanade" /><span>Kanade</span><small>均衡</small>
           </button>
           <button class="char-btn active" data-char="1">
-            <img src="/mfy/mfy1.png" alt="Mafuyu" /><span>Mafuyu</span><small>Power</small>
+            <img src="/mfy/mfy1.png" alt="Mafuyu" /><span>Mafuyu</span><small>力量</small>
           </button>
           <button class="char-btn" data-char="2">
-            <img src="/mzk.png" alt="Mizuki" /><span>Mizuki</span><small>Speed</small>
+            <img src="/mzk.png" alt="Mizuki" /><span>Mizuki</span><small>速度</small>
           </button>
           <button class="char-btn" data-char="3">
-            <img src="/ena.png" alt="Ena" /><span>Ena</span><small>Agile</small>
+            <img src="/ena.png" alt="Ena" /><span>Ena</span><small>灵活</small>
           </button>
           <button class="char-btn" data-char="4">
-            <img src="/25miku.png" alt="Miku" /><span>Miku</span><small>Ranged</small>
+            <img src="/25miku.png" alt="Miku" /><span>Miku</span><small>远程</small>
           </button>
         </div>
       </div>
 
       <button class="go-btn" id="goBtn">
-        <span class="go-text">START</span>
+        <span class="go-text">开始</span>
         <span class="go-keys">← → ↑ J</span>
       </button>
     </div>
@@ -53,8 +53,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <canvas class="game-canvas" id="gameCanvas" width="960" height="540"></canvas>
       <div class="game-hud-top">
         <div class="hud-hp" id="hudHp"></div>
-        <div class="hud-lvl"><span>LV</span><strong id="hudLevel">1</strong><em id="hudXp">0/100</em></div>
-        <div class="hud-notes"><span>NOTE</span><strong id="hudNotes">0</strong></div>
+        <div class="hud-lvl"><span>等级</span><strong id="hudLevel">1</strong><em id="hudXp">0/100</em></div>
+        <div class="hud-notes"><span>音符</span><strong id="hudNotes">0</strong></div>
         <div class="hud-score"><strong id="hudScore">0</strong></div>
       </div>
       <div class="game-msg" id="gameMsg"></div>
@@ -63,16 +63,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <!-- Results -->
     <div class="results-screen hidden" id="resultsScreen">
       <div class="results-card">
-        <div class="res-title" id="resTitle">STAGE CLEAR!</div>
+        <div class="res-title" id="resTitle">通关！</div>
         <div class="res-stats">
-          <div class="res-row"><span>Notes</span><strong id="resNotes">0</strong></div>
-          <div class="res-row"><span>Enemies</span><strong id="resEnemies">0</strong></div>
-          <div class="res-row"><span>Level</span><strong id="resLevel">1</strong></div>
-          <div class="res-row"><span>Score</span><strong id="resScore">0</strong></div>
+          <div class="res-row"><span>音符</span><strong id="resNotes">0</strong></div>
+          <div class="res-row"><span>敌人</span><strong id="resEnemies">0</strong></div>
+          <div class="res-row"><span>等级</span><strong id="resLevel">1</strong></div>
+          <div class="res-row"><span>得分</span><strong id="resScore">0</strong></div>
         </div>
         <div class="res-actions">
-          <button class="retry-btn" id="retryBtn">RETRY</button>
-          <button class="back-btn" id="backBtn">MENU</button>
+          <button class="retry-btn" id="retryBtn">重试</button>
+          <button class="back-btn" id="backBtn">返回</button>
         </div>
       </div>
     </div>
@@ -174,22 +174,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const VW = 960, VH = 540, GRAVITY = 1800;
 
     const CHARS = [
-      { name: 'Kanade', img: '/knd.png', speed: 280, jumpPow: 620, atkCd: 350, projSpd: 520, hp: 5, color: '#33ccbb', desc: 'Balance' },
-      { name: 'Mafuyu', img: '/mfy/mfy1.png', speed: 250, jumpPow: 580, atkCd: 280, projSpd: 480, hp: 4, color: '#9966cc', desc: 'Power' },
-      { name: 'Mizuki', img: '/mzk.png', speed: 360, jumpPow: 660, atkCd: 320, projSpd: 560, hp: 4, color: '#ff99aa', desc: 'Speed' },
-      { name: 'Ena', img: '/ena.png', speed: 300, jumpPow: 700, atkCd: 340, projSpd: 500, hp: 5, color: '#88cc44', desc: 'Agile' },
-      { name: 'Miku', img: '/25miku.png', speed: 270, jumpPow: 600, atkCd: 260, projSpd: 640, hp: 4, color: '#ccddff', desc: 'Ranged' },
+      { name: 'Kanade', img: '/knd.png', speed: 280, jumpPow: 620, atkCd: 350, projSpd: 520, hp: 5, color: '#33ccbb', desc: '均衡' },
+      { name: 'Mafuyu', img: '/mfy/mfy1.png', speed: 250, jumpPow: 580, atkCd: 280, projSpd: 480, hp: 4, color: '#9966cc', desc: '力量' },
+      { name: 'Mizuki', img: '/mzk.png', speed: 360, jumpPow: 660, atkCd: 320, projSpd: 560, hp: 4, color: '#ff99aa', desc: '速度' },
+      { name: 'Ena', img: '/ena.png', speed: 300, jumpPow: 700, atkCd: 340, projSpd: 500, hp: 5, color: '#88cc44', desc: '灵活' },
+      { name: 'Miku', img: '/25miku.png', speed: 270, jumpPow: 600, atkCd: 260, projSpd: 640, hp: 4, color: '#ccddff', desc: '远程' },
     ];
 
     const STAGES = [
-      { name: 'Act 1 - Street Rehearsal', bg1: '#0a1628', bg2: '#162040', platColor: '#1e3460', platTop: '#4488cc', accent: '#4455dd', starColor: '#77aaff', enemies: 10, worldW: 3300, boss: false,
+      { name: '第一幕 - 街头排练', bg1: '#0a1628', bg2: '#162040', platColor: '#1e3460', platTop: '#4488cc', accent: '#4455dd', starColor: '#77aaff', enemies: 10, worldW: 3300, boss: false,
         buildPlatforms: (P: Rect[]) => {
           P.push({x:0,y:476,w:620,h:64});P.push({x:720,y:438,w:220,h:24});P.push({x:1040,y:392,w:190,h:24});
           P.push({x:1330,y:440,w:340,h:24});P.push({x:1760,y:396,w:260,h:24});P.push({x:2110,y:348,w:210,h:24});
           P.push({x:2410,y:420,w:300,h:24});P.push({x:2810,y:476,w:490,h:64});
           P.push({x:520,y:338,w:120,h:20});P.push({x:1530,y:300,w:110,h:20});P.push({x:2660,y:308,w:130,h:20});
         }},
-      { name: 'Act 2 - Broken SEKAI', bg1: '#1a0a14', bg2: '#2a1020', platColor: '#4a1830', platTop: '#cc3366', accent: '#ee1166', starColor: '#ff6699', enemies: 15, worldW: 3900, boss: false,
+      { name: '第二幕 - 破碎的 SEKAI', bg1: '#1a0a14', bg2: '#2a1020', platColor: '#4a1830', platTop: '#cc3366', accent: '#ee1166', starColor: '#ff6699', enemies: 15, worldW: 3900, boss: false,
         buildPlatforms: (P: Rect[]) => {
           P.push({x:0,y:476,w:430,h:64});P.push({x:540,y:420,w:190,h:24});P.push({x:830,y:370,w:170,h:24});
           P.push({x:1100,y:422,w:210,h:24});P.push({x:1410,y:350,w:190,h:24});P.push({x:1700,y:404,w:210,h:24});
@@ -197,7 +197,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           P.push({x:2920,y:420,w:210,h:24});P.push({x:3220,y:360,w:190,h:24});P.push({x:3510,y:476,w:390,h:64});
           P.push({x:460,y:312,w:110,h:20});P.push({x:1220,y:270,w:120,h:20});P.push({x:2060,y:260,w:110,h:20});P.push({x:2760,y:282,w:130,h:20});
         }},
-      { name: 'Act 3 - Empty Stage Core', bg1: '#120a1a', bg2: '#1a1030', platColor: '#2a1848', platTop: '#884499', accent: '#9966cc', starColor: '#bb88dd', enemies: 8, worldW: 3200, boss: true,
+      { name: '第三幕 - 空虚的舞台核心', bg1: '#120a1a', bg2: '#1a1030', platColor: '#2a1848', platTop: '#884499', accent: '#9966cc', starColor: '#bb88dd', enemies: 8, worldW: 3200, boss: true,
         buildPlatforms: (P: Rect[]) => {
           P.push({x:0,y:476,w:520,h:64});P.push({x:620,y:430,w:190,h:24});P.push({x:900,y:378,w:170,h:24});
           P.push({x:1180,y:430,w:220,h:24});P.push({x:1500,y:370,w:190,h:24});P.push({x:1790,y:420,w:210,h:24});
@@ -356,10 +356,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       while (heroXp >= heroXpNext) {
         heroXp -= heroXpNext; heroLevel++; heroXpNext += 45; leveled = true;
         const mod = heroLevel % 4;
-        if (mod === 2) { upgradePower++; showMsg(`LEVEL ${heroLevel}: DMG UP`, 1.2); }
-        else if (mod === 3) { upgradeHaste++; showMsg(`LEVEL ${heroLevel}: FIRE RATE UP`, 1.2); }
-        else if (mod === 0) { upgradeHp++; player.maxHp = maxHpForChar(); player.hp = Math.min(player.maxHp, player.hp + 1); showMsg(`LEVEL ${heroLevel}: MAX HP UP`, 1.2); }
-        else { upgradeJump++; player.maxJumps = Math.max(player.maxJumps, 2); showMsg(`LEVEL ${heroLevel}: MOBILITY UP`, 1.2); }
+        if (mod === 2) { upgradePower++; showMsg(`等级 ${heroLevel}: 攻击提升`, 1.2); }
+        else if (mod === 3) { upgradeHaste++; showMsg(`等级 ${heroLevel}: 射速提升`, 1.2); }
+        else if (mod === 0) { upgradeHp++; player.maxHp = maxHpForChar(); player.hp = Math.min(player.maxHp, player.hp + 1); showMsg(`等级 ${heroLevel}: 生命提升`, 1.2); }
+        else { upgradeJump++; player.maxJumps = Math.max(player.maxJumps, 2); showMsg(`等级 ${heroLevel}: 机动提升`, 1.2); }
       }
       if (leveled) { sfxClear(); burst(player.x + player.w / 2, player.y + player.h / 2, CHARS[selChar].color, 16); }
       updateHud();
@@ -420,7 +420,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     function updateHud() {
       const maxHp = player.maxHp;
-      hudHp.textContent = 'HP ' + '#'.repeat(Math.max(0, player.hp)) + '-'.repeat(Math.max(0, maxHp - player.hp));
+      hudHp.textContent = '生命 ' + '#'.repeat(Math.max(0, player.hp)) + '-'.repeat(Math.max(0, maxHp - player.hp));
       hudNotes.textContent = String(notesCollected);
       hudLevel.textContent = String(heroLevel);
       hudXp.textContent = `${heroXp}/${heroXpNext}`;
@@ -486,8 +486,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         boss.alive = false; boss.active = false; score += 2500; gainXp(220);
         burst(boss.x + boss.w / 2, boss.y + boss.h / 2, STAGES[selStage].accent, 36);
         finished = true; running = false; pendingNextStage = false; sfxClear(); setTimeout(showResults, 900);
-      } else if (boss.phase === 1 && boss.hp <= boss.maxHp * 0.66) { boss.phase = 2; boss.attackTimer = 0.5; showMsg('BOSS PHASE 2', 1.1); shake(12); }
-      else if (boss.phase === 2 && boss.hp <= boss.maxHp * 0.34) { boss.phase = 3; boss.attackTimer = 0.4; showMsg('BOSS PHASE 3', 1.1); shake(14); }
+      } else if (boss.phase === 1 && boss.hp <= boss.maxHp * 0.66) { boss.phase = 2; boss.attackTimer = 0.5; showMsg('BOSS 第二阶段', 1.1); shake(12); }
+      else if (boss.phase === 2 && boss.hp <= boss.maxHp * 0.34) { boss.phase = 3; boss.attackTimer = 0.4; showMsg('BOSS 第三阶段', 1.1); shake(14); }
       updateHud();
     }
     function chooseBossPattern() {
@@ -499,7 +499,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     function updateBoss(dt: number) {
       if (!boss || !boss.alive) return;
       boss.y = 300 + Math.sin(performance.now() * 0.002) * 10;
-      if (!boss.active) { if (player.x > boss.x - 650) { boss.active = true; showMsg('BOSS: 25 MIKU CORE', 1.4); shake(12); } return; }
+      if (!boss.active) { if (player.x > boss.x - 650) { boss.active = true; showMsg('BOSS: 25 初音核心', 1.4); shake(12); } return; }
       if (boss.beamWarn > 0) { boss.beamWarn -= dt; if (boss.beamWarn <= 0) { projectiles.push({ x: Math.max(0, player.x - 320), y: boss.beamY - 9, w: 640, h: 18, vx: 0, vy: 0, life: 0.42, damage: 1, kind: 'boss', color: '#ff66dd' }); sfxHurt(); shake(16); } }
       boss.attackTimer -= dt;
       if (boss.pattern === 'idle' && boss.attackTimer <= 0 && boss.beamWarn <= 0) chooseBossPattern();
@@ -596,8 +596,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         if (pk.taken) continue;
         if (overlaps(player, { x: pk.x - 12, y: pk.y - 12, w: 24, h: 24 })) {
           pk.taken = true;
-          if (pk.type === 'health' && player.hp < player.maxHp) { player.hp++; showMsg('+1 HP', 0.8); }
-          else if (pk.type === 'amp') { score += 80; gainXp(35); showMsg('+XP', 0.7); }
+          if (pk.type === 'health' && player.hp < player.maxHp) { player.hp++; showMsg('+1 生命', 0.8); }
+          else if (pk.type === 'amp') { score += 80; gainXp(35); showMsg('+经验', 0.7); }
           else score += 50;
           burst(pk.x, pk.y, pk.type === 'amp' ? '#88ddff' : '#ff6688', 6); updateHud();
         }
@@ -653,20 +653,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       updateHud();
       if (player.hp <= 0) {
         finished = true; running = false;
-        showMsg('GAME OVER', 2);
+        showMsg('游戏结束', 2);
         setTimeout(showResults, 1500);
       }
     }
 
     function showResults() {
       const clear = player.hp > 0;
-      document.getElementById('resTitle')!.textContent = clear ? (pendingNextStage ? 'ACT CLEAR!' : 'SEKAI SAVED!') : 'GAME OVER';
+      document.getElementById('resTitle')!.textContent = clear ? (pendingNextStage ? '本幕通关！' : 'SEKAI 已拯救！') : '游戏结束';
       document.getElementById('resNotes')!.textContent = String(notesCollected);
       document.getElementById('resEnemies')!.textContent = String(enemiesKilled);
       document.getElementById('resLevel')!.textContent = String(heroLevel);
       document.getElementById('resScore')!.textContent = String(score);
       const retry = document.getElementById('retryBtn')!;
-      retry.textContent = clear && pendingNextStage ? 'NEXT ACT' : 'RETRY';
+      retry.textContent = clear && pendingNextStage ? '下一幕' : '重试';
       gameScreen.classList.add('hidden'); resultsScreen.classList.remove('hidden'); touchControls.classList.add('hidden');
     }
     // --- Render ---
@@ -745,7 +745,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.fillStyle = '#fff';
         ctx.font = '900 14px Courier New, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('GOAL', gateX, 430 + Math.sin(t * 3) * 3);
+        ctx.fillText('终点', gateX, 430 + Math.sin(t * 3) * 3);
         ctx.restore();
       }
       // Collectibles
@@ -757,7 +757,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.save();
         ctx.fillStyle = '#ffd66e'; ctx.shadowColor = '#ffd66e'; ctx.shadowBlur = 8;
         ctx.font = '900 10px Courier New, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('NOTE', nx, ny);
+        ctx.fillText('♪', nx, ny);
         ctx.restore();
       }
       // Pickups
@@ -771,7 +771,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.fillStyle = isAmp ? '#88ddff' : '#ff6688'; ctx.shadowColor = isAmp ? '#88ddff' : '#ff6688'; ctx.shadowBlur = 7;
         ctx.fillRect(px - 13, py - 9, 26, 18);
         ctx.fillStyle = '#0a0e18'; ctx.font = '900 9px Courier New, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(isAmp ? 'XP' : 'HP', px, py + 1);
+        ctx.fillText(isAmp ? '经验' : '生命', px, py + 1);
         ctx.restore();
       }
       // Enemies
@@ -869,7 +869,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.fillStyle = 'rgba(5,8,18,0.78)'; ctx.fillRect(barX, 48, barW, 18);
         ctx.fillStyle = '#ff66dd'; ctx.fillRect(barX + 3, 51, (barW - 6) * (boss.hp / boss.maxHp), 12);
         ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.strokeRect(barX, 48, barW, 18);
-        ctx.fillStyle = '#fff'; ctx.font = '900 12px Courier New, monospace'; ctx.textAlign = 'center'; ctx.fillText(`25 MIKU CORE  PHASE ${boss.phase}`, VW / 2, 43);
+        ctx.fillStyle = '#fff'; ctx.font = '900 12px Courier New, monospace'; ctx.textAlign = 'center'; ctx.fillText(`25 初音核心  第${boss.phase}阶段`, VW / 2, 43);
         ctx.restore();
       }
     }

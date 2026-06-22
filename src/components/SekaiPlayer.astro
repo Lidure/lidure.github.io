@@ -199,10 +199,16 @@
     0 0 0 1.5px rgba(255, 92, 168, 0.25),
     inset 0 1px 0 rgba(255, 255, 255, 0.15),
     inset 0 -1px 0 rgba(168, 85, 247, 0.1);
-  cursor: pointer;
+  cursor: grab;
   font-size: 1.35rem;
+  touch-action: none;
   transition: transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s, background .3s;
   user-select: none;
+}
+.sekai-player-btn.dragging {
+  cursor: grabbing;
+  transition: none !important;
+  animation: none !important;
 }
 
 [data-theme="light"] .sekai-player-btn {
@@ -3531,10 +3537,102 @@
     selectSong(song, false, state.vocalId, state.time || 0);
   }
 
-  btn.addEventListener('click', function(event) {
-    event.stopPropagation();
+  // --- Draggable floating button ---
+  var DRAG_THRESHOLD = 8;
+  var dockStartX = 0, dockStartY = 0;
+  var ptrStartX = 0, ptrStartY = 0;
+  var isDragging = false;
+
+  // Restore saved position
+  (function() {
+    try {
+      var saved = localStorage.getItem('sekai-dock-pos');
+      if (saved) {
+        var pos = JSON.parse(saved);
+        if (typeof pos.x === 'number' && typeof pos.y === 'number') {
+          var bw = btn.offsetWidth || 52, bh = btn.offsetHeight || 52;
+          var maxX = window.innerWidth - bw, maxY = window.innerHeight - bh;
+          btn.style.left = Math.max(20, Math.min(maxX - 20, pos.x)) + 'px';
+          btn.style.top = Math.max(20, Math.min(maxY - 20, pos.y)) + 'px';
+          btn.style.right = 'auto';
+          btn.style.bottom = 'auto';
+        }
+      }
+    } catch(e) {}
+  })();
+
+  function togglePanel() {
     panel.classList.toggle('hidden');
     if (!panel.classList.contains('hidden')) ensureCatalog().catch(function() {});
+  }
+
+  btn.addEventListener('pointerdown', function(e) {
+    if (e.button !== 0 && e.pointerType === 'mouse') return;
+    ptrStartX = e.clientX; ptrStartY = e.clientY;
+    var rect = btn.getBoundingClientRect();
+    dockStartX = rect.left; dockStartY = rect.top;
+    isDragging = false;
+    btn.setPointerCapture(e.pointerId);
+  });
+
+  btn.addEventListener('pointermove', function(e) {
+    if (!btn.hasPointerCapture(e.pointerId)) return;
+    var dx = e.clientX - ptrStartX, dy = e.clientY - ptrStartY;
+    if (!isDragging && Math.hypot(dx, dy) < DRAG_THRESHOLD) return;
+    if (!isDragging) {
+      isDragging = true;
+      btn.classList.add('dragging');
+      // Switch from right/bottom to left/top positioning
+      btn.style.left = dockStartX + 'px';
+      btn.style.top = dockStartY + 'px';
+      btn.style.right = 'auto';
+      btn.style.bottom = 'auto';
+    }
+    var bw = btn.offsetWidth, bh = btn.offsetHeight;
+    var maxX = window.innerWidth - bw, maxY = window.innerHeight - bh;
+    var nx = Math.max(0, Math.min(maxX, dockStartX + dx));
+    var ny = Math.max(0, Math.min(maxY, dockStartY + dy));
+    btn.style.left = nx + 'px';
+    btn.style.top = ny + 'px';
+  });
+
+  btn.addEventListener('pointerup', function(e) {
+    if (!btn.hasPointerCapture(e.pointerId)) return;
+    btn.releasePointerCapture(e.pointerId);
+    if (isDragging) {
+      isDragging = false;
+      btn.classList.remove('dragging');
+      // Snap to nearest horizontal edge (leave room for cover art glow)
+      var bw = btn.offsetWidth, bh = btn.offsetHeight;
+      var cx = parseFloat(btn.style.left) || 0;
+      var cy = parseFloat(btn.style.top) || 0;
+      var midX = (window.innerWidth - bw) / 2;
+      var snappedX = cx < midX ? 20 : window.innerWidth - bw - 20;
+      var maxY = window.innerHeight - bh;
+      var snappedY = Math.max(20, Math.min(maxY - 20, cy));
+      btn.style.left = snappedX + 'px';
+      btn.style.top = snappedY + 'px';
+      try { localStorage.setItem('sekai-dock-pos', JSON.stringify({x: snappedX, y: snappedY})); } catch(ex) {}
+    } else {
+      // It was a click, not a drag
+      togglePanel();
+    }
+  });
+
+  btn.addEventListener('pointercancel', function(e) {
+    if (isDragging) { isDragging = false; btn.classList.remove('dragging'); }
+  });
+
+  // Re-clamp position on window resize
+  window.addEventListener('resize', function() {
+    if (btn.style.left === 'auto' || btn.style.left === '') return; // not yet dragged
+    var bw = btn.offsetWidth, bh = btn.offsetHeight;
+    var maxX = window.innerWidth - bw, maxY = window.innerHeight - bh;
+    var cx = Math.max(20, Math.min(maxX - 20, parseFloat(btn.style.left) || 0));
+    var cy = Math.max(20, Math.min(maxY - 20, parseFloat(btn.style.top) || 0));
+    btn.style.left = cx + 'px';
+    btn.style.top = cy + 'px';
+    try { localStorage.setItem('sekai-dock-pos', JSON.stringify({x: cx, y: cy})); } catch(ex) {}
   });
   closeBtn.addEventListener('click', function(event) {
     event.stopPropagation();
