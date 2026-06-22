@@ -29,7 +29,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             <img src="/knd.png" alt="Kanade" /><span>Kanade</span><small>Balance</small>
           </button>
           <button class="char-btn active" data-char="1">
-            <img src="/mfy/mfy.png" alt="Mafuyu" /><span>Mafuyu</span><small>Power</small>
+            <img src="/mfy/mfy1.png" alt="Mafuyu" /><span>Mafuyu</span><small>Power</small>
           </button>
           <button class="char-btn" data-char="2">
             <img src="/mzk.png" alt="Mizuki" /><span>Mizuki</span><small>Speed</small>
@@ -174,7 +174,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     const CHARS = [
       { name: 'Kanade', img: '/knd.png', speed: 280, jumpPow: 620, atkCd: 350, projSpd: 520, hp: 5, color: '#33ccbb', desc: 'Balance' },
-      { name: 'Mafuyu', img: '/mfy/mfy.png', speed: 250, jumpPow: 580, atkCd: 280, projSpd: 480, hp: 4, color: '#9966cc', desc: 'Power' },
+      { name: 'Mafuyu', img: '/mfy/mfy1.png', speed: 250, jumpPow: 580, atkCd: 280, projSpd: 480, hp: 4, color: '#9966cc', desc: 'Power' },
       { name: 'Mizuki', img: '/mzk.png', speed: 360, jumpPow: 660, atkCd: 320, projSpd: 560, hp: 4, color: '#ff99aa', desc: 'Speed' },
       { name: 'Ena', img: '/ena.png', speed: 300, jumpPow: 700, atkCd: 340, projSpd: 500, hp: 5, color: '#88cc44', desc: 'Agile' },
       { name: 'Miku', img: '/25miku.png', speed: 270, jumpPow: 600, atkCd: 260, projSpd: 640, hp: 4, color: '#ccddff', desc: 'Ranged' },
@@ -243,13 +243,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const keys: Record<string, boolean> = {};
     const charImages: HTMLImageElement[] = [];
     const MFY_SPRITES = {
-      idle: '/mfy/mfy.png',
-      run: '/mfy/mfy_run1.png',
+      idle: '/mfy/mfy1.png',
       jump: '/mfy/mfy_run_jump.png',
       fall: '/mfy/mfy_run_jump.png',
       attack: '/mfy/mfy_att1.png',
     } as const;
+    const MFY_RUN_FRAMES = [
+      '/mfy/mfy_run1.png',
+      '/mfy/mfy_run2.png',
+      '/mfy/mfy_run3.png',
+      '/mfy/mfy_run4.png',
+      '/mfy/mfy_run5.png',
+      '/mfy/mfy_run6.png',
+      '/mfy/mfy_run7.png',
+      '/mfy/mfy_run8.png',
+      '/mfy/mfy_run9.png',
+      '/mfy/mfy_run10.png',
+      '/mfy/mfy_run11.png',
+    ] as const;
     const mfyImages: Record<keyof typeof MFY_SPRITES, HTMLImageElement> = {} as Record<keyof typeof MFY_SPRITES, HTMLImageElement>;
+    const mfyRunImages: HTMLImageElement[] = [];
 
     // --- DOM ---
     const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -273,6 +286,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const img = new Image();
       img.src = src;
       mfyImages[state as keyof typeof MFY_SPRITES] = img;
+    });
+    MFY_RUN_FRAMES.forEach((src, index) => {
+      const img = new Image();
+      img.src = src;
+      mfyRunImages[index] = img;
     });
 
     // --- Audio ---
@@ -554,7 +572,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         animState = player.vy < 0 ? 'jump' : 'fall';
       } else if (Math.abs(player.vx) > 30) {
         if (animState !== 'run') { animState = 'run'; animFrame = 0; animTimer = 0; }
-        if (animTimer > 0.08) { animFrame = (animFrame + 1) % 6; animTimer = 0; }
+        const runFrameCount = selChar === 1 ? MFY_RUN_FRAMES.length : 6;
+        const runFrameDelay = selChar === 1 ? 0.055 : 0.08;
+        if (animTimer > runFrameDelay) { animFrame = (animFrame + 1) % runFrameCount; animTimer = 0; }
         runDustTimer += dt;
         if (runDustTimer > 0.12) { runDustTimer = 0; particles.push({ x: player.x + player.w / 2, y: player.y + player.h, vx: -player.facing * (20 + Math.random() * 30), vy: -(10 + Math.random() * 20), life: 0.3, color: 'rgba(200,200,200,0.5)', size: 2 + Math.random() * 2 }); }
       } else {
@@ -785,7 +805,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       let img = charImages[selChar];
       if (isMafuyu) {
         if (animState === 'attack') img = mfyImages.attack;
-        else if (animState === 'run') img = mfyImages.run;
+        else if (animState === 'run') img = mfyRunImages[animFrame % mfyRunImages.length] || mfyImages.idle;
         else if (animState === 'jump') img = mfyImages.jump;
         else if (animState === 'fall') img = mfyImages.fall;
         else img = mfyImages.idle;
@@ -794,8 +814,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const W = player.w, H = player.h;
 
       // Sprite draw dimensions. Mafuyu uses full action-frame PNGs from /public/mfy.
-      const spW = isMafuyu ? (animState === 'attack' ? 92 : 72) : 50;
-      const spH = isMafuyu ? (animState === 'attack' ? 92 : 72) : 58;
+      const spW = isMafuyu ? (animState === 'attack' ? 92 : animState === 'run' ? 82 : 76) : 50;
+      const spH = isMafuyu ? (animState === 'attack' ? 92 : animState === 'run' ? 82 : 76) : 58;
       const spLift = isMafuyu ? 8 : 2;
       const legH_px = 12; // height of the leg region at bottom of PNG to overlay
 
