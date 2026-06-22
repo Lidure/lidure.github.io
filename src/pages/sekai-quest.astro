@@ -58,6 +58,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="hud-score"><strong id="hudScore">0</strong></div>
       </div>
       <div class="game-msg" id="gameMsg"></div>
+      <div class="secret-toast hidden" id="secretToast">超能力已解锁</div>
+      <div class="boss-finisher hidden" id="bossFinisher">
+        <div class="boss-finisher-flash"></div>
+        <img id="bossFinisherImg" src="/25miku/25miku_%E6%88%98%E8%B4%A51.png" alt="25 Miku boss defeated" />
+        <div class="boss-finisher-title">25 初音核心 崩坏</div>
+      </div>
     </div>
 
     <!-- Results -->
@@ -126,14 +132,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     /* ===== Game ===== */
     .game-screen { position: relative; height: calc(100vh - 140px); min-height: 460px; }
     .game-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
-    .game-hud-top { position: absolute; top: 10px; left: 14px; right: 14px; display: flex; justify-content: space-between; pointer-events: none; z-index: 2; }
-    .game-hud-top > div { padding: 6px 14px; border-radius: 10px; background: rgba(6,8,18,.78); backdrop-filter: blur(6px); font-family: 'Courier New', monospace; }
-    .hud-hp { font-size: 1rem; letter-spacing: 2px; }
-    .hud-notes { display: flex; align-items: center; gap: 6px; }
-    .hud-notes span { color: #ffd66e; font-size: 1.1rem; }
-    .hud-notes strong, .hud-score strong { color: #fff; font-size: 1.1rem; font-weight: 900; }
+    .game-hud-top { position: absolute; top: 10px; left: 14px; right: 14px; display: flex; justify-content: space-between; pointer-events: none; z-index: 2; gap: 8px; }
+    .game-hud-top > div { min-height: 34px; padding: 7px 12px; border-radius: 10px; background: rgba(6,8,18,.8); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); font-family: 'Courier New', monospace; box-shadow: 0 6px 20px rgba(0,0,0,.16); }
+    .hud-hp { display: flex; align-items: center; gap: 5px; font-size: .92rem; letter-spacing: 0; color: #fff; }
+    .hp-label { margin-right: 3px; color: #ff8aa8; font-size: .82rem; font-weight: 900; }
+    .hp-dot { width: 12px; height: 12px; display: inline-block; background: rgba(255,102,136,.18); border: 1px solid rgba(255,102,136,.45); clip-path: polygon(50% 100%, 6% 48%, 6% 22%, 24% 6%, 42% 18%, 50% 30%, 58% 18%, 76% 6%, 94% 22%, 94% 48%); }
+    .hp-dot.filled { background: #ff6688; border-color: rgba(255,255,255,.52); box-shadow: 0 0 8px rgba(255,102,136,.42); }
+    .hud-notes, .hud-lvl { display: flex; align-items: center; gap: 7px; }
+    .hud-notes span { color: #ffd66e; font-size: .82rem; font-weight: 900; }
+    .hud-lvl span { color: var(--dash-accent); font-size: .82rem; font-weight: 900; }
+    .hud-lvl em { color: var(--muted); font-size: .72rem; font-style: normal; }
+    .hud-notes strong, .hud-lvl strong, .hud-score strong { color: #fff; font-size: 1.1rem; font-weight: 900; }
     .game-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Courier New', monospace; font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(0,0,0,.6); pointer-events: none; z-index: 3; opacity: 0; transition: opacity .3s ease; }
     .game-msg.show { opacity: 1; }
+    .secret-toast { position: absolute; left: 50%; top: 18%; z-index: 8; transform: translate(-50%, -14px) scale(.96); padding: 13px 22px; border-radius: 14px; background: rgba(10,12,26,.92); border: 1.5px solid rgba(255,214,110,.72); color: #ffd66e; font-family: 'Courier New', monospace; font-size: .95rem; font-weight: 900; letter-spacing: .04em; box-shadow: 0 0 28px rgba(255,214,110,.25); opacity: 0; pointer-events: none; transition: opacity 180ms ease, transform 180ms ease; }
+    .secret-toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    .boss-finisher { position: absolute; inset: 0; z-index: 7; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 48%, rgba(153,102,204,.28), rgba(5,5,14,.9) 64%); pointer-events: none; animation: finisherFade 2.45s ease both; }
+    .boss-finisher-flash { position: absolute; inset: 0; background: rgba(255,255,255,.65); animation: finisherFlash 2.45s ease both; }
+    .boss-finisher img { position: relative; width: min(46vw, 380px); max-height: 70vh; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(0 0 30px rgba(255,102,221,.55)); animation: finisherSprite 2.45s ease both; }
+    .boss-finisher-title { position: absolute; bottom: 16%; left: 50%; transform: translateX(-50%); font-family: 'Courier New', monospace; font-size: clamp(1.2rem, 4vw, 2.4rem); font-weight: 900; color: #fff; text-shadow: 0 0 18px rgba(255,102,221,.9); white-space: nowrap; }
+    @keyframes finisherFlash { 0% { opacity: 1; } 16%, 78% { opacity: 0; } 100% { opacity: .2; } }
+    @keyframes finisherFade { 0% { opacity: 0; } 10%, 82% { opacity: 1; } 100% { opacity: 0; } }
+    @keyframes finisherSprite { 0% { transform: scale(.75) translateY(26px); opacity: 0; } 18%, 68% { transform: scale(1) translateY(0); opacity: 1; } 100% { transform: scale(1.22) translateY(-18px); opacity: 0; } }
 
     /* ===== Results ===== */
     .results-screen { position: fixed; inset: 0; z-index: 90; display: grid; place-content: center; background: rgba(5,8,18,.9); backdrop-filter: blur(14px); padding: 20px; }
@@ -231,6 +251,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     let running = false, finished = false;
     let shakeX = 0, shakeY = 0, shakeT = 0;
     let msgTimer = 0;
+    let secretBuffer = '';
+    let superMode = false;
+    let secretToastTimer = 0;
+    let bossDefeatCutscene = 0;
     let worldW = 3200;
     let raf = 0, lastTime = 0;
     let animState: 'idle' | 'run' | 'jump' | 'fall' | 'attack' = 'idle';
@@ -282,6 +306,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const resultsScreen = document.getElementById('resultsScreen')!;
     const touchControls = document.getElementById('touchControls')!;
     const gameMsg = document.getElementById('gameMsg')!;
+    const secretToast = document.getElementById('secretToast')!;
+    const bossFinisher = document.getElementById('bossFinisher')!;
+    const bossFinisherImg = document.getElementById('bossFinisherImg') as HTMLImageElement;
     const hudHp = document.getElementById('hudHp')!;
     const hudNotes = document.getElementById('hudNotes')!;
     const hudLevel = document.getElementById('hudLevel')!;
@@ -336,15 +363,95 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     function showMsg(text: string, dur = 1.5) { msgTimer = dur; gameMsg.textContent = text; gameMsg.classList.add('show'); }
 
+    function showSecretToast(text: string) {
+      secretToast.textContent = text;
+      secretToastTimer = 2.4;
+      secretToast.classList.add('show');
+      secretToast.classList.remove('hidden');
+    }
+
+    function unlockSuperMode() {
+      if (superMode) { showSecretToast('超能力已经处于激活状态'); return; }
+      superMode = true;
+      if (player) {
+        player.maxJumps = Math.max(player.maxJumps, 3);
+        player.hp = Math.min(player.maxHp, player.hp + 1);
+      }
+      burst(player ? player.x + player.w / 2 : 80, player ? player.y + player.h / 2 : 360, '#ffd66e', 28);
+      sfxClear();
+      showSecretToast('解锁超能力：超远射程 / 高伤害 / 三段跳');
+      showMsg('超能力已解锁', 1.4);
+      if (player) updateHud();
+    }
+
+    function handleSecretInput(key: string) {
+      if (!/^[wasdjk]$/.test(key)) return;
+      const code = 'wwssaaddjkjk';
+      secretBuffer = (secretBuffer + key).slice(-code.length);
+      if (secretBuffer === code) {
+        secretBuffer = '';
+        unlockSuperMode();
+      }
+    }
+
+    function drawTinyNote(x: number, y: number, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fillStyle = '#ffd66e';
+      ctx.fillRect(-2, -12, 4, 17);
+      ctx.fillRect(2, -12, 9, 4);
+      ctx.fillRect(7, -8, 4, 4);
+      ctx.beginPath();
+      ctx.ellipse(-5, 6, 7, 5, -0.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawHeartIcon(x: number, y: number, filled: boolean, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fillStyle = filled ? '#ff6688' : 'rgba(255,102,136,.22)';
+      ctx.fillRect(-5, -6, 4, 4);
+      ctx.fillRect(1, -6, 4, 4);
+      ctx.fillRect(-7, -2, 14, 5);
+      ctx.fillRect(-5, 3, 10, 4);
+      ctx.fillRect(-2, 7, 4, 3);
+      ctx.restore();
+    }
+
+    function drawXpShard(x: number, y: number, scale = 1) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fillStyle = '#88ddff';
+      ctx.shadowColor = '#88ddff';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(0, -12);
+      ctx.lineTo(11, 0);
+      ctx.lineTo(0, 12);
+      ctx.lineTo(-11, 0);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(-2, -5, 4, 10);
+      ctx.restore();
+    }
+
     function resetCampaign() {
       heroLevel = 1; heroXp = 0; heroXpNext = 100;
       upgradeHp = 0; upgradePower = 0; upgradeHaste = 0; upgradeJump = 0;
       score = 0; notesCollected = 0; enemiesKilled = 0; pendingNextStage = false;
+      bossDefeatCutscene = 0;
     }
     function maxHpForChar() { return CHARS[selChar].hp + upgradeHp; }
-    function attackDamage() { return 1 + upgradePower; }
+    function attackDamage() { return superMode ? 8 + upgradePower : 1 + upgradePower; }
     function attackCooldown() { return Math.max(120, CHARS[selChar].atkCd * (1 - upgradeHaste * 0.08)); }
     function jumpPower() { return CHARS[selChar].jumpPow + upgradeJump * 35; }
+    function projectileLife() { return superMode ? 2.4 : 0.7; }
+    function projectileSpeed() { return CHARS[selChar].projSpd * (superMode ? 1.35 : 1); }
     function activateStageButton() {
       document.querySelectorAll('.stage-pill').forEach(b => b.classList.remove('active'));
       const btn = document.querySelector<HTMLElement>(`.stage-pill[data-stage="${selStage}"]`);
@@ -359,7 +466,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         if (mod === 2) { upgradePower++; showMsg(`等级 ${heroLevel}: 攻击提升`, 1.2); }
         else if (mod === 3) { upgradeHaste++; showMsg(`等级 ${heroLevel}: 射速提升`, 1.2); }
         else if (mod === 0) { upgradeHp++; player.maxHp = maxHpForChar(); player.hp = Math.min(player.maxHp, player.hp + 1); showMsg(`等级 ${heroLevel}: 生命提升`, 1.2); }
-        else { upgradeJump++; player.maxJumps = Math.max(player.maxJumps, 2); showMsg(`等级 ${heroLevel}: 机动提升`, 1.2); }
+        else { upgradeJump++; player.maxJumps = Math.max(player.maxJumps, superMode ? 3 : 2); showMsg(`等级 ${heroLevel}: 机动提升`, 1.2); }
       }
       if (leveled) { sfxClear(); burst(player.x + player.w / 2, player.y + player.h / 2, CHARS[selChar].color, 16); }
       updateHud();
@@ -407,7 +514,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       const maxHp = maxHpForChar();
       const startHp = resetRun ? maxHp : Math.min(maxHp, Math.max(1, prevHp) + 1);
-      player = { x: 60, y: 400, w: 36, h: 48, vx: 0, vy: 0, grounded: false, facing: 1, hp: startHp, maxHp, invuln: 0, jumps: 0, maxJumps: (selChar === 2 || selChar === 3 || upgradeJump > 0) ? 2 : 1, atkTimer: 0 };
+      player = { x: 60, y: 400, w: 36, h: 48, vx: 0, vy: 0, grounded: false, facing: 1, hp: startHp, maxHp, invuln: 0, jumps: 0, maxJumps: superMode ? 3 : (selChar === 2 || selChar === 3 || upgradeJump > 0) ? 2 : 1, atkTimer: 0 };
       cameraX = 0; running = true; finished = false; pendingNextStage = false;
 
       titleScreen.classList.add('hidden');
@@ -420,7 +527,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     function updateHud() {
       const maxHp = player.maxHp;
-      hudHp.textContent = '生命 ' + '#'.repeat(Math.max(0, player.hp)) + '-'.repeat(Math.max(0, maxHp - player.hp));
+      hudHp.innerHTML = '<span class="hp-label">生命</span>' + Array.from({ length: maxHp }, (_, i) => `<span class="hp-dot${i < player.hp ? ' filled' : ''}"></span>`).join('');
       hudNotes.textContent = String(notesCollected);
       hudLevel.textContent = String(heroLevel);
       hudXp.textContent = `${heroXp}/${heroXpNext}`;
@@ -430,6 +537,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     document.addEventListener('keydown', e => {
       const k = e.key.toLowerCase();
       keys[k] = true;
+      handleSecretInput(k);
       if (k === 'arrowup' || k === 'w' || k === ' ') { e.preventDefault(); doJump(); }
       if (k === 'j' || k === 'k') doAttack();
       if (k === 'enter' && !running && !titleScreen.classList.contains('hidden')) initGame(true);
@@ -462,7 +570,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (!running || finished || player.atkTimer > 0) return;
       const c = CHARS[selChar];
       player.atkTimer = attackCooldown();
-      projectiles.push({ x: player.x + (player.facing > 0 ? player.w : -16), y: player.y + 16, w: 16, h: 12, vx: c.projSpd * player.facing, vy: 0, life: 0.7, damage: attackDamage(), kind: 'player', color: c.color });
+      projectiles.push({ x: player.x + (player.facing > 0 ? player.w : -22), y: player.y + 16, w: superMode ? 26 : 16, h: superMode ? 15 : 12, vx: projectileSpeed() * player.facing, vy: 0, life: projectileLife(), damage: attackDamage(), kind: 'player', color: superMode ? '#ffd66e' : c.color });
       sfxHit();
       burst(player.x + player.w / 2 + player.facing * 20, player.y + 20, c.color, 4);
     }
@@ -485,10 +593,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (boss.hp <= 0) {
         boss.alive = false; boss.active = false; score += 2500; gainXp(220);
         burst(boss.x + boss.w / 2, boss.y + boss.h / 2, STAGES[selStage].accent, 36);
-        finished = true; running = false; pendingNextStage = false; sfxClear(); setTimeout(showResults, 900);
+        finished = true; running = false; pendingNextStage = false; sfxClear();
+        startBossDefeatCutscene();
       } else if (boss.phase === 1 && boss.hp <= boss.maxHp * 0.66) { boss.phase = 2; boss.attackTimer = 0.5; showMsg('BOSS 第二阶段', 1.1); shake(12); }
       else if (boss.phase === 2 && boss.hp <= boss.maxHp * 0.34) { boss.phase = 3; boss.attackTimer = 0.4; showMsg('BOSS 第三阶段', 1.1); shake(14); }
       updateHud();
+    }
+
+    function startBossDefeatCutscene() {
+      bossDefeatCutscene = 2.65;
+     
+      bossFinisher.classList.remove('hidden');
+      bossFinisherImg.src = BOSS_SPRITES.defeat1;
+      setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.defeat2; }, 520);
+      setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade1; }, 1040);
+      setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade2; }, 1500);
+      setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade3; }, 1960);
+      setTimeout(() => {
+        bossFinisher.classList.add('hidden');
+        showResults();
+      }, 2650);
     }
     function chooseBossPattern() {
       if (!boss) return;
@@ -612,6 +736,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       // Message
       if (msgTimer > 0) { msgTimer -= dt; if (msgTimer <= 0) gameMsg.classList.remove('show'); }
+      if (secretToastTimer > 0) {
+        secretToastTimer -= dt;
+        if (secretToastTimer <= 0) {
+          secretToast.classList.remove('show');
+          setTimeout(() => secretToast.classList.add('hidden'), 180);
+        }
+      }
 
       // Check win
       if (!stage.boss && player.x > worldW - 80) {
@@ -755,9 +886,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const ny = Math.round(note.y + Math.sin(t * 3 + note.x * 0.01) * 4);
         if (nx < -30 || nx > VW + 30) continue;
         ctx.save();
-        ctx.fillStyle = '#ffd66e'; ctx.shadowColor = '#ffd66e'; ctx.shadowBlur = 8;
-        ctx.font = '900 10px Courier New, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText('♪', nx, ny);
+        ctx.shadowColor = '#ffd66e'; ctx.shadowBlur = 8;
+        drawTinyNote(nx, ny, 1.15);
         ctx.restore();
       }
       // Pickups
@@ -768,10 +898,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         if (px < -30 || px > VW + 30) continue;
         const isAmp = pk.type === 'amp';
         ctx.save();
-        ctx.fillStyle = isAmp ? '#88ddff' : '#ff6688'; ctx.shadowColor = isAmp ? '#88ddff' : '#ff6688'; ctx.shadowBlur = 7;
-        ctx.fillRect(px - 13, py - 9, 26, 18);
-        ctx.fillStyle = '#0a0e18'; ctx.font = '900 9px Courier New, monospace'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillText(isAmp ? '经验' : '生命', px, py + 1);
+        if (isAmp) {
+          drawXpShard(px, py, 1.05);
+        } else {
+          drawHeartIcon(px, py, true, 1.35);
+        }
         ctx.restore();
       }
       // Enemies
@@ -842,6 +973,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     function drawBoss(t: number) {
       if (!boss) return;
+      if (!boss.alive && bossDefeatCutscene > 0) return;
       const bx = Math.round(boss.x - cameraX), by = Math.round(boss.y);
       if (bx + boss.w < -120 || bx > VW + 140) return;
       if (boss.beamWarn > 0) {
