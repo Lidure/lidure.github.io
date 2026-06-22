@@ -57,7 +57,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <div class="hud-notes"><span>音符</span><strong id="hudNotes">0</strong></div>
         <div class="hud-score"><strong id="hudScore">0</strong></div>
       </div>
+      <div class="game-action-bar">
+        <button class="game-action-btn" id="pauseBtn" type="button">暂停</button>
+        <button class="game-action-btn" id="menuBtn" type="button">菜单</button>
+      </div>
       <div class="game-msg" id="gameMsg"></div>
+      <div class="pause-overlay hidden" id="pauseOverlay">
+        <div class="pause-panel">
+          <div class="pause-title">已暂停</div>
+          <div class="pause-actions">
+            <button class="retry-btn" id="resumeBtn" type="button">继续</button>
+            <button class="back-btn" id="pauseMenuBtn" type="button">返回菜单</button>
+          </div>
+        </div>
+      </div>
       <div class="secret-toast hidden" id="secretToast">超能力已解锁</div>
       <div class="boss-finisher hidden" id="bossFinisher">
         <div class="boss-finisher-flash"></div>
@@ -136,6 +149,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .game-hud-top > div { min-height: 34px; padding: 7px 12px; border-radius: 10px; background: rgba(6,8,18,.8); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); font-family: 'Courier New', monospace; box-shadow: 0 6px 20px rgba(0,0,0,.16); }
     .hud-hp { display: flex; align-items: center; gap: 5px; font-size: .92rem; letter-spacing: 0; color: #fff; }
     .hp-label { margin-right: 3px; color: #ff8aa8; font-size: .82rem; font-weight: 900; }
+    .hp-count { min-width: 30px; color: #fff; font-size: .92rem; font-weight: 900; text-align: right; }
+    .hp-hearts { display: flex; align-items: center; gap: 4px; }
     .hp-dot { width: 12px; height: 12px; display: inline-block; background: rgba(255,102,136,.18); border: 1px solid rgba(255,102,136,.45); clip-path: polygon(50% 100%, 6% 48%, 6% 22%, 24% 6%, 42% 18%, 50% 30%, 58% 18%, 76% 6%, 94% 22%, 94% 48%); }
     .hp-dot.filled { background: #ff6688; border-color: rgba(255,255,255,.52); box-shadow: 0 0 8px rgba(255,102,136,.42); }
     .hud-notes, .hud-lvl { display: flex; align-items: center; gap: 7px; }
@@ -145,6 +160,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .hud-notes strong, .hud-lvl strong, .hud-score strong { color: #fff; font-size: 1.1rem; font-weight: 900; }
     .game-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Courier New', monospace; font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(0,0,0,.6); pointer-events: none; z-index: 3; opacity: 0; transition: opacity .3s ease; }
     .game-msg.show { opacity: 1; }
+    .game-action-bar { position: absolute; top: 56px; right: 14px; z-index: 4; display: flex; gap: 8px; }
+    .game-action-btn { min-width: 54px; padding: 7px 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,.13); background: rgba(6,8,18,.78); color: #fff; font-family: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; backdrop-filter: blur(6px); }
+    .game-action-btn:hover { border-color: rgba(var(--dash-accent-rgb), .55); color: var(--dash-accent); }
+    .pause-overlay { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; background: rgba(5,8,18,.72); backdrop-filter: blur(8px); }
+    .pause-panel { width: min(320px, calc(100vw - 42px)); padding: 24px; border-radius: 18px; border: 1.5px solid var(--panel-border); background: rgba(10,12,26,.92); box-shadow: 0 20px 60px rgba(0,0,0,.28); }
+    .pause-title { margin-bottom: 16px; text-align: center; font-family: 'Courier New', monospace; font-size: 1.5rem; font-weight: 900; color: var(--dash-accent); }
+    .pause-actions { display: flex; gap: 10px; }
     .secret-toast { position: absolute; left: 50%; top: 18%; z-index: 8; transform: translate(-50%, -14px) scale(.96); padding: 13px 22px; border-radius: 14px; background: rgba(10,12,26,.92); border: 1.5px solid rgba(255,214,110,.72); color: #ffd66e; font-family: 'Courier New', monospace; font-size: .95rem; font-weight: 900; letter-spacing: .04em; box-shadow: 0 0 28px rgba(255,214,110,.25); opacity: 0; pointer-events: none; transition: opacity 180ms ease, transform 180ms ease; }
     .secret-toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
     .boss-finisher { position: absolute; inset: 0; z-index: 7; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 48%, rgba(153,102,204,.28), rgba(5,5,14,.9) 64%); pointer-events: none; animation: finisherFade 2.45s ease both; }
@@ -180,6 +202,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .char-row { grid-template-columns: repeat(5, 1fr); gap: 6px; }
       .char-btn { padding: 8px 3px; } .char-btn img { width: 36px; height: 36px; } .char-btn small { display: none; }
       .stage-pills { gap: 6px; } .stage-pill { padding: 8px 12px; font-size: .8rem; }
+      .game-hud-top { left: 8px; right: 8px; gap: 6px; }
+      .game-hud-top > div { padding: 6px 8px; }
+      .game-action-bar { top: 58px; right: 8px; }
+      .game-action-btn { min-width: 46px; padding: 6px 8px; font-size: .72rem; }
+      .hp-dot { width: 10px; height: 10px; }
     }
 
     @media (max-width: 460px) {
@@ -248,7 +275,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     let heroLevel = 1, heroXp = 0, heroXpNext = 100;
     let upgradeHp = 0, upgradePower = 0, upgradeHaste = 0, upgradeJump = 0;
     let pendingNextStage = false;
-    let running = false, finished = false;
+    let running = false, finished = false, paused = false;
     let shakeX = 0, shakeY = 0, shakeT = 0;
     let msgTimer = 0;
     let secretBuffer = '';
@@ -306,6 +333,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const resultsScreen = document.getElementById('resultsScreen')!;
     const touchControls = document.getElementById('touchControls')!;
     const gameMsg = document.getElementById('gameMsg')!;
+    const pauseBtn = document.getElementById('pauseBtn')!;
+    const menuBtn = document.getElementById('menuBtn')!;
+    const pauseOverlay = document.getElementById('pauseOverlay')!;
+    const resumeBtn = document.getElementById('resumeBtn')!;
+    const pauseMenuBtn = document.getElementById('pauseMenuBtn')!;
     const secretToast = document.getElementById('secretToast')!;
     const bossFinisher = document.getElementById('bossFinisher')!;
     const bossFinisherImg = document.getElementById('bossFinisherImg') as HTMLImageElement;
@@ -457,6 +489,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const btn = document.querySelector<HTMLElement>(`.stage-pill[data-stage="${selStage}"]`);
       if (btn) btn.classList.add('active');
     }
+    function setPaused(value: boolean) {
+      if (!running || finished) value = false;
+      paused = value;
+      pauseOverlay.classList.toggle('hidden', !paused);
+      pauseBtn.textContent = paused ? '继续' : '暂停';
+      Object.keys(keys).forEach(k => { keys[k] = false; });
+    }
+    function returnToMenu() {
+      running = false;
+      finished = false;
+      paused = false;
+      gameScreen.classList.add('hidden');
+      resultsScreen.classList.add('hidden');
+      touchControls.classList.add('hidden');
+      pauseOverlay.classList.add('hidden');
+      titleScreen.classList.remove('hidden');
+    }
     function gainXp(amount: number) {
       heroXp += amount;
       let leveled = false;
@@ -515,7 +564,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const maxHp = maxHpForChar();
       const startHp = resetRun ? maxHp : Math.min(maxHp, Math.max(1, prevHp) + 1);
       player = { x: 60, y: 400, w: 36, h: 48, vx: 0, vy: 0, grounded: false, facing: 1, hp: startHp, maxHp, invuln: 0, jumps: 0, maxJumps: superMode ? 3 : (selChar === 2 || selChar === 3 || upgradeJump > 0) ? 2 : 1, atkTimer: 0 };
-      cameraX = 0; running = true; finished = false; pendingNextStage = false;
+      cameraX = 0; running = true; finished = false; paused = false; pendingNextStage = false;
+      pauseOverlay.classList.add('hidden');
+      pauseBtn.textContent = '暂停';
 
       titleScreen.classList.add('hidden');
       gameScreen.classList.remove('hidden');
@@ -527,7 +578,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     function updateHud() {
       const maxHp = player.maxHp;
-      hudHp.innerHTML = '<span class="hp-label">生命</span>' + Array.from({ length: maxHp }, (_, i) => `<span class="hp-dot${i < player.hp ? ' filled' : ''}"></span>`).join('');
+      hudHp.innerHTML = `<span class="hp-label">生命</span><span class="hp-count">${Math.max(0, player.hp)}/${maxHp}</span><span class="hp-hearts">${Array.from({ length: maxHp }, (_, i) => `<span class="hp-dot${i < player.hp ? ' filled' : ''}"></span>`).join('')}</span>`;
       hudNotes.textContent = String(notesCollected);
       hudLevel.textContent = String(heroLevel);
       hudXp.textContent = `${heroXp}/${heroXpNext}`;
@@ -538,6 +589,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const k = e.key.toLowerCase();
       keys[k] = true;
       handleSecretInput(k);
+      if ((k === 'escape' || k === 'p') && !gameScreen.classList.contains('hidden')) { e.preventDefault(); setPaused(!paused); return; }
       if (k === 'arrowup' || k === 'w' || k === ' ') { e.preventDefault(); doJump(); }
       if (k === 'j' || k === 'k') doAttack();
       if (k === 'enter' && !running && !titleScreen.classList.contains('hidden')) initGame(true);
@@ -557,7 +609,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     });
 
     function doJump() {
-      if (!running || finished) return;
+      if (!running || finished || paused) return;
       if (player.grounded || player.jumps < player.maxJumps) {
         player.vy = -jumpPower();
         player.grounded = false;
@@ -567,7 +619,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     function doAttack() {
-      if (!running || finished || player.atkTimer > 0) return;
+      if (!running || finished || paused || player.atkTimer > 0) return;
       const c = CHARS[selChar];
       player.atkTimer = attackCooldown();
       projectiles.push({ x: player.x + (player.facing > 0 ? player.w : -22), y: player.y + 16, w: superMode ? 26 : 16, h: superMode ? 15 : 12, vx: projectileSpeed() * player.facing, vy: 0, life: projectileLife(), damage: attackDamage(), kind: 'player', color: superMode ? '#ffd66e' : c.color });
@@ -636,6 +688,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     // --- Update ---
     function update(dt: number) {
       if (!running || finished) return;
+      if (paused) return;
       const c = CHARS[selChar];
       const stage = STAGES[selStage];
 
@@ -798,6 +851,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       document.getElementById('resScore')!.textContent = String(score);
       const retry = document.getElementById('retryBtn')!;
       retry.textContent = clear && pendingNextStage ? '下一幕' : '重试';
+      setPaused(false);
       gameScreen.classList.add('hidden'); resultsScreen.classList.remove('hidden'); touchControls.classList.add('hidden');
     }
     // --- Render ---
@@ -1284,13 +1338,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     document.getElementById('goBtn')!.addEventListener('click', () => initGame(true));
     document.getElementById('retryBtn')!.addEventListener('click', () => { if (pendingNextStage) { selStage++; activateStageButton(); setAccent(STAGES[selStage].accent); initGame(false); } else initGame(true); });
-    document.getElementById('backBtn')!.addEventListener('click', () => {
-      cancelAnimationFrame(raf);
-      gameScreen.classList.add('hidden');
-      resultsScreen.classList.add('hidden');
-      touchControls.classList.add('hidden');
-      titleScreen.classList.remove('hidden');
-    });
+    document.getElementById('backBtn')!.addEventListener('click', returnToMenu);
+    pauseBtn.addEventListener('click', () => setPaused(!paused));
+    menuBtn.addEventListener('click', returnToMenu);
+    resumeBtn.addEventListener('click', () => setPaused(false));
+    pauseMenuBtn.addEventListener('click', returnToMenu);
 
     document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
 
