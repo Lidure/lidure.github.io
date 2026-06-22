@@ -261,6 +261,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       '/mfy/mfy_run10.png',
       '/mfy/mfy_run11.png',
     ] as const;
+    const MFY_RUN_CYCLE_SECONDS = 1.1;
     const mfyImages: Record<keyof typeof MFY_SPRITES, HTMLImageElement> = {} as Record<keyof typeof MFY_SPRITES, HTMLImageElement>;
     const mfyRunImages: HTMLImageElement[] = [];
 
@@ -573,8 +574,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       } else if (Math.abs(player.vx) > 30) {
         if (animState !== 'run') { animState = 'run'; animFrame = 0; animTimer = 0; }
         const runFrameCount = selChar === 1 ? MFY_RUN_FRAMES.length : 6;
-        const runFrameDelay = selChar === 1 ? 0.055 : 0.08;
-        if (animTimer > runFrameDelay) { animFrame = (animFrame + 1) % runFrameCount; animTimer = 0; }
+        const runFrameDelay = selChar === 1 ? MFY_RUN_CYCLE_SECONDS / MFY_RUN_FRAMES.length : 0.08;
+        while (animTimer > runFrameDelay) { animFrame = (animFrame + 1) % runFrameCount; animTimer -= runFrameDelay; }
         runDustTimer += dt;
         if (runDustTimer > 0.12) { runDustTimer = 0; particles.push({ x: player.x + player.w / 2, y: player.y + player.h, vx: -player.facing * (20 + Math.random() * 30), vy: -(10 + Math.random() * 20), life: 0.3, color: 'rgba(200,200,200,0.5)', size: 2 + Math.random() * 2 }); }
       } else {
