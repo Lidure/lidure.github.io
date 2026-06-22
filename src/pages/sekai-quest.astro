@@ -2,12 +2,12 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="SEKAI Quest | 搁浅 的小窝" description="一个 PJSK 氛围的原创横板闯关小游戏。">
+<BaseLayout title="PIXEL SEKAI | 搁浅 的小窝" description="一个 PJSK 氛围的像素风横板闯关小游戏。">
   <section class="quest-shell" data-sekai-quest>
     <div class="quest-top">
       <div class="quest-title">
-        <span>Fan-made mini adventure</span>
-        <h1>SEKAI Quest</h1>
+        <span>Fan-made pixel adventure</span>
+        <h1>PIXEL SEKAI</h1>
       </div>
       <div class="quest-actions">
         <select id="questUnit" class="quest-select" aria-label="选择主角或 SEKAI 风格">
@@ -35,7 +35,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     <div class="quest-stage">
       <canvas id="questCanvas" class="quest-canvas" width="960" height="540" aria-label="SEKAI Quest game stage"></canvas>
       <div id="questOverlay" class="quest-overlay">
-        <strong>SEKAI Quest</strong>
+        <strong>PIXEL SEKAI</strong>
         <span>Start</span>
       </div>
       <div class="quest-touch" aria-label="移动端控制">
@@ -79,11 +79,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .quest-title h1 {
       margin: 0;
       color: #fff;
-      font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+      font-family: 'Courier New', 'Noto Sans SC', monospace;
       font-size: clamp(2rem, 7vw, 4.2rem);
       line-height: 0.95;
       letter-spacing: 0;
-      text-shadow: 0 0 22px rgba(var(--accent-rgb), 0.52), 0 0 40px rgba(82, 219, 255, 0.28);
+      text-shadow: 4px 4px 0 #111827, 8px 8px 0 rgba(82, 219, 255, 0.26);
     }
 
     .quest-actions {
@@ -97,13 +97,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .quest-select,
     .quest-button {
       height: 38px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.16);
-      background: rgba(13, 16, 31, 0.72);
+      border-radius: 0;
+      border: 2px solid rgba(255,255,255,0.7);
+      background: #111827;
       color: var(--text);
-      font: inherit;
+      font-family: 'Courier New', 'Noto Sans SC', monospace;
+      font-size: 0.9rem;
       font-weight: 800;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+      box-shadow: 4px 4px 0 #000;
     }
 
     .quest-select {
@@ -116,18 +117,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       min-width: 88px;
       padding: 0 16px;
       cursor: pointer;
-      transition: transform 160ms ease, border-color 160ms ease;
+      transition: transform 80ms steps(1), box-shadow 80ms steps(1), border-color 80ms steps(1);
     }
 
     .quest-button:hover {
-      transform: translateY(-1px);
-      border-color: rgba(255,255,255,0.34);
+      transform: translate(2px, 2px);
+      border-color: #ffd66e;
+      box-shadow: 2px 2px 0 #000;
     }
 
     .quest-button.primary {
       border: none;
       color: #130e1c;
-      background: linear-gradient(135deg, #52dbff, #ff6ba7 52%, #ffd66e);
+      background: #52dbff;
     }
 
     .quest-hud {
@@ -140,10 +142,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .quest-hud > div {
       min-width: 0;
       padding: 8px 10px;
-      border-radius: 8px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(13, 16, 31, 0.58);
-      backdrop-filter: blur(18px) saturate(1.15);
+      border-radius: 0;
+      border: 2px solid rgba(255,255,255,0.5);
+      background: #0b1020;
+      box-shadow: 3px 3px 0 #000;
     }
 
     .quest-hud span {
@@ -167,13 +169,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       height: min(68vh, 690px);
       min-height: 500px;
       overflow: hidden;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background:
-        radial-gradient(circle at 15% 18%, rgba(82, 219, 255, 0.18), transparent 28%),
-        radial-gradient(circle at 74% 18%, rgba(255, 107, 167, 0.22), transparent 30%),
-        linear-gradient(180deg, rgba(10, 13, 32, 0.9), rgba(5, 7, 18, 0.96));
-      box-shadow: 0 22px 70px rgba(0,0,0,0.36);
+      border-radius: 0;
+      border: 4px solid #eaf4ff;
+      background: #07101f;
+      box-shadow: 8px 8px 0 #000;
       isolation: isolate;
     }
 
@@ -185,6 +184,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       width: 100%;
       height: 100%;
       touch-action: none;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
     }
 
     .quest-overlay {
@@ -197,7 +198,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       color: #fff;
       text-align: center;
       pointer-events: none;
-      background: radial-gradient(circle at center, rgba(5,8,20,0.24), rgba(5,8,20,0.76));
+      background: rgba(5,8,20,0.76);
       transition: opacity 180ms ease;
     }
 
@@ -206,10 +207,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     .quest-overlay strong {
-      font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+      font-family: 'Courier New', 'Noto Sans SC', monospace;
       font-size: clamp(2rem, 8vw, 5rem);
       line-height: 1;
-      text-shadow: 0 0 28px rgba(var(--accent-rgb), 0.72);
+      text-shadow: 5px 5px 0 #111827;
     }
 
     .quest-overlay span {
@@ -233,22 +234,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     .quest-touch button {
       height: clamp(52px, 12vw, 72px);
-      border: 1px solid rgba(255,255,255,0.18);
-      border-radius: 14px;
-      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.65);
+      border-radius: 0;
+      background: #111827;
       color: #fff;
-      font: inherit;
+      font-family: 'Courier New', 'Noto Sans SC', monospace;
       font-weight: 900;
       cursor: pointer;
       touch-action: manipulation;
-      backdrop-filter: blur(18px);
-      transition: transform 80ms ease, background 80ms ease, border-color 80ms ease;
+      box-shadow: 4px 4px 0 #000;
+      transition: transform 80ms steps(1), background 80ms steps(1), border-color 80ms steps(1);
     }
 
     .quest-touch button.active {
-      transform: translateY(2px) scale(0.98);
+      transform: translate(3px, 3px);
       border-color: rgba(255,255,255,0.46);
-      background: rgba(var(--accent-rgb),0.32);
+      background: #26365f;
+      box-shadow: 1px 1px 0 #000;
     }
 
     @media (max-width: 720px) {
@@ -284,7 +286,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .quest-stage {
         height: min(68svh, 620px);
         min-height: 420px;
-        border-radius: 14px;
       }
     }
 
@@ -351,6 +352,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const ctxCandidate = canvas.getContext('2d');
         if (!ctxCandidate) return;
         const ctx = ctxCandidate;
+        ctx.imageSmoothingEnabled = false;
 
         const keys = { left: false, right: false, jump: false, action: false };
         const touchButtons = Array.from(root.querySelectorAll<HTMLButtonElement>('.quest-touch button[data-control]'));
@@ -514,25 +516,35 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
           const unit = currentUnit();
           resonance -= cost;
-          const width = currentUnitKey() === 'ichika' ? 190 : 160;
-          const bridgeX = player.facing > 0 ? player.x + player.w + 26 : player.x - width - 26;
-          const bridgeY = Math.max(170, Math.min(454, player.y + player.h + 18));
-          bridges.push({
-            x: Math.max(18, Math.min(worldW - width - 18, bridgeX)),
-            y: bridgeY,
-            w: width,
-            h: 16,
-            color: unit.color,
-            accent: unit.accent,
-            life: 4.6,
-            maxLife: 4.6,
-          });
+          const tileW = currentUnitKey() === 'ichika' ? 72 : 60;
+          const gap = 8;
+          const startY = Math.max(168, Math.min(454, player.y + player.h + 18));
+          const created: Bridge[] = [];
+          const count = player.grounded ? (currentUnitKey() === 'ichika' ? 4 : 3) : 2;
+          for (let i = 0; i < count; i += 1) {
+            const airborne = !player.grounded;
+            const y = airborne ? startY + i * 22 : startY - i * 22;
+            const x = player.facing > 0
+              ? player.x + player.w + 24 + i * (tileW + gap)
+              : player.x - 24 - (i + 1) * (tileW + gap);
+            const bridge: Bridge = {
+              x: Math.max(18, Math.min(worldW - tileW - 18, x)),
+              y: Math.max(148, Math.min(464, y)),
+              w: tileW,
+              h: 16,
+              color: unit.color,
+              accent: unit.accent,
+              life: airborne ? 5.2 : 6.2,
+              maxLife: airborne ? 5.2 : 6.2,
+            };
+            bridges.push(bridge);
+            created.push(bridge);
+          }
 
           let tuned = 0;
           for (const enemy of enemies) {
             if (!enemy.alive) continue;
-            const bridge = bridges[bridges.length - 1];
-            if (overlaps({ x: bridge.x - 36, y: bridge.y - 46, w: bridge.w + 72, h: 86 }, enemy)) {
+            if (created.some((bridge) => overlaps({ x: bridge.x - 28, y: bridge.y - 42, w: bridge.w + 56, h: 78 }, enemy))) {
               enemy.alive = false;
               tuned += 1;
               score += 180;
@@ -540,7 +552,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             }
           }
 
-          message = tuned > 0 ? `Tuned ${tuned} Noise` : 'Starline bridge';
+          message = tuned > 0 ? `Rewrote ${tuned} Noise` : (player.grounded ? 'Riff blocks' : 'Air patch');
           messageTime = 1;
           burst(player.x + player.w / 2, player.y + player.h, unit.color, 14);
           updateHud();
@@ -709,79 +721,73 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           cameraX += (Math.max(0, Math.min(worldW - VIEW_W, player.x - VIEW_W * 0.42)) - cameraX) * Math.min(1, dt * 7);
         }
 
+        function px(x: number, y: number, w: number, h: number, color: string) {
+          ctx.fillStyle = color;
+          ctx.fillRect(Math.round(x), Math.round(y), Math.round(w), Math.round(h));
+        }
+
+        function drawPixelStar(cx: number, cy: number, color: string, size = 4) {
+          px(cx - size, cy, size * 2 + 1, size, color);
+          px(cx, cy - size, size, size * 2 + 1, color);
+          px(cx - size * 2, cy + size, size, size, '#fff');
+          px(cx + size * 2, cy - size, size, size, '#ffd66e');
+        }
+
         function drawSky(unit: typeof UNITS[UnitKey]) {
-          const grad = ctx.createLinearGradient(0, 0, 0, VIEW_H);
-          grad.addColorStop(0, '#081022');
-          grad.addColorStop(0.55, '#111638');
-          grad.addColorStop(1, '#050711');
-          ctx.fillStyle = grad;
-          ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+          px(0, 0, VIEW_W, VIEW_H, '#07101f');
+          px(0, 0, VIEW_W, 148, '#0b1935');
+          px(0, 148, VIEW_W, 154, '#102047');
+          px(0, 302, VIEW_W, VIEW_H - 302, '#07101f');
 
-          for (let i = 0; i < 58; i += 1) {
-            const x = (i * 127 - cameraX * (0.08 + (i % 4) * 0.02)) % (VIEW_W + 90) - 45;
-            const y = 30 + (i * 71) % 300;
-            ctx.globalAlpha = 0.16 + (i % 5) * 0.035;
-            ctx.fillStyle = i % 3 === 0 ? unit.color : i % 3 === 1 ? unit.accent : '#ffd66e';
-            ctx.beginPath();
-            ctx.arc(x, y, 1.5 + (i % 3), 0, Math.PI * 2);
-            ctx.fill();
+          for (let i = 0; i < 64; i += 1) {
+            const x = Math.floor((i * 137 - cameraX * (0.06 + (i % 3) * 0.018)) % (VIEW_W + 96) - 48);
+            const y = 22 + (i * 59) % 260;
+            const color = i % 3 === 0 ? unit.color : i % 3 === 1 ? unit.accent : '#ffd66e';
+            px(x, y, 4 + (i % 2) * 2, 4 + (i % 2) * 2, color);
           }
-          ctx.globalAlpha = 1;
 
-          for (let i = 0; i < 9; i += 1) {
-            const x = (i * 420 - cameraX * 0.22) % (VIEW_W + 360) - 180;
-            const h = 120 + (i % 3) * 36;
-            ctx.fillStyle = 'rgba(255,255,255,0.045)';
-            ctx.fillRect(x, VIEW_H - 90 - h, 96, h);
-            ctx.fillStyle = 'rgba(82,219,255,0.08)';
-            ctx.fillRect(x + 18, VIEW_H - 120 - h, 40, h + 30);
+          for (let i = 0; i < 13; i += 1) {
+            const x = Math.floor((i * 256 - cameraX * 0.18) % (VIEW_W + 220) - 110);
+            const h = 72 + (i % 4) * 28;
+            px(x, VIEW_H - 82 - h, 72, h, i % 2 === 0 ? '#111c34' : '#0c172b');
+            for (let j = 0; j < 4; j += 1) {
+              px(x + 12 + j * 14, VIEW_H - 70 - h, 6, h - 22, 'rgba(82,219,255,0.16)');
+            }
+          }
+
+          for (let x = -Math.floor(cameraX % 32); x < VIEW_W; x += 32) {
+            px(x, VIEW_H - 42, 16, 4, 'rgba(255,255,255,0.08)');
           }
         }
 
         function drawPlatform(platform: Rect) {
-          const x = platform.x - cameraX;
+          const x = Math.round(platform.x - cameraX);
           if (x + platform.w < -40 || x > VIEW_W + 40) return;
-          ctx.fillStyle = platform.color || '#26365f';
-          ctx.fillRect(x, platform.y, platform.w, platform.h);
-          ctx.fillStyle = 'rgba(255,255,255,0.16)';
-          ctx.fillRect(x, platform.y, platform.w, 5);
-          ctx.strokeStyle = 'rgba(255,255,255,0.14)';
-          ctx.strokeRect(x + 0.5, platform.y + 0.5, platform.w - 1, platform.h - 1);
+          const base = platform.color || '#26365f';
+          px(x, platform.y, platform.w, platform.h, '#111827');
+          for (let tx = 0; tx < platform.w; tx += 24) {
+            px(x + tx, platform.y, Math.min(24, platform.w - tx), 8, '#83c9ff');
+            px(x + tx, platform.y + 8, Math.min(24, platform.w - tx), platform.h - 8, base);
+            px(x + tx + 18, platform.y + 16, 4, 4, 'rgba(255,255,255,0.16)');
+          }
+          px(x, platform.y + platform.h - 5, platform.w, 5, '#0b1020');
         }
 
         function drawBridge(bridge: Bridge, time: number) {
-          const x = bridge.x - cameraX;
+          const x = Math.round(bridge.x - cameraX);
           if (x + bridge.w < -60 || x > VIEW_W + 60) return;
-          const alpha = Math.max(0.12, Math.min(1, bridge.life / bridge.maxLife));
+          const alpha = Math.max(0.18, Math.min(1, bridge.life / bridge.maxLife));
           ctx.save();
           ctx.globalAlpha = alpha;
-          ctx.shadowBlur = 24;
-          ctx.shadowColor = bridge.color || '#52dbff';
-          ctx.fillStyle = bridge.color || '#52dbff';
-          ctx.beginPath();
-          ctx.roundRect(x, bridge.y, bridge.w, bridge.h, 8);
-          ctx.fill();
-          ctx.shadowBlur = 0;
-          ctx.fillStyle = 'rgba(255,255,255,0.55)';
-          ctx.fillRect(x + 8, bridge.y + 4, Math.max(0, bridge.w - 16), 2);
-          ctx.strokeStyle = bridge.accent;
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          const points: Array<{ x: number; y: number }> = [];
-          for (let i = 0; i < 6; i += 1) {
-            const px = x + 12 + i * ((bridge.w - 24) / 5);
-            const py = bridge.y - 8 + Math.sin(time * 5 + i) * 4;
-            points.push({ x: px, y: py });
-            if (i === 0) ctx.moveTo(px, py);
-            else ctx.lineTo(px, py);
+          for (let tx = 0; tx < bridge.w; tx += 24) {
+            px(x + tx, bridge.y, Math.min(20, bridge.w - tx), 16, bridge.color || '#52dbff');
+            px(x + tx + 4, bridge.y + 4, 6, 4, '#fff');
+            px(x + tx + 12, bridge.y + 8, 4, 4, bridge.accent);
           }
-          ctx.stroke();
-          for (let i = 0; i < points.length; i += 1) {
-            const point = points[i];
-            ctx.fillStyle = i % 2 === 0 ? '#ffd66e' : '#fff';
-            ctx.beginPath();
-            ctx.arc(point.x, point.y, 2.6, 0, Math.PI * 2);
-            ctx.fill();
+          for (let i = 0; i < 6; i += 1) {
+            const sx = x + 12 + i * ((bridge.w - 24) / 5);
+            const sy = bridge.y - 8 + Math.round(Math.sin(time * 5 + i) * 4);
+            drawPixelStar(sx, sy, i % 2 === 0 ? '#ffd66e' : '#fff', 3);
           }
           ctx.restore();
         }
@@ -789,50 +795,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         function drawPickup(item: Pickup, time: number) {
           if (item.taken) return;
           const unit = UNITS[item.unit];
-          const x = item.x - cameraX;
-          const y = item.y + Math.sin(time * 4 + item.x) * 5;
+          const x = Math.round(item.x - cameraX);
+          const y = Math.round(item.y + Math.sin(time * 4 + item.x) * 4);
           if (x < -40 || x > VIEW_W + 40) return;
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(time * 1.2);
-          ctx.shadowBlur = 18;
-          ctx.shadowColor = unit.color;
-          ctx.fillStyle = unit.color;
-          ctx.beginPath();
-          for (let i = 0; i < 5; i += 1) {
-            const angle = -Math.PI / 2 + i * Math.PI * 0.4;
-            const outerX = Math.cos(angle) * 17;
-            const outerY = Math.sin(angle) * 17;
-            const innerX = Math.cos(angle + Math.PI * 0.2) * 7;
-            const innerY = Math.sin(angle + Math.PI * 0.2) * 7;
-            if (i === 0) ctx.moveTo(outerX, outerY);
-            else ctx.lineTo(outerX, outerY);
-            ctx.lineTo(innerX, innerY);
-          }
-          ctx.closePath();
-          ctx.fill();
-          ctx.restore();
+          drawPixelStar(x, y, unit.color, 6);
+          px(x - 4, y - 4, 8, 8, unit.accent);
+          px(x - 2, y - 2, 4, 4, '#fff');
         }
 
         function drawEnemy(enemy: Enemy, time: number) {
           if (!enemy.alive) return;
-          const x = enemy.x - cameraX;
+          const x = Math.round(enemy.x - cameraX);
           if (x + enemy.w < -40 || x > VIEW_W + 40) return;
-          ctx.save();
-          ctx.translate(x + enemy.w / 2, enemy.y + enemy.h / 2);
-          ctx.fillStyle = '#171526';
-          ctx.strokeStyle = '#b58cff';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.roundRect(-enemy.w / 2, -enemy.h / 2, enemy.w, enemy.h, 9);
-          ctx.fill();
-          ctx.stroke();
-          ctx.fillStyle = '#ff6ba7';
-          ctx.beginPath();
-          ctx.arc(-8, -3 + Math.sin(time * 7) * 2, 3, 0, Math.PI * 2);
-          ctx.arc(8, -3 + Math.sin(time * 7) * 2, 3, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
+          const y = Math.round(enemy.y + Math.sin(time * 8) * 2);
+          px(x, y + 6, enemy.w, enemy.h - 6, '#181528');
+          px(x + 4, y, enemy.w - 8, 8, '#2b2148');
+          px(x - 4, y + 14, 6, 10, '#b58cff');
+          px(x + enemy.w - 2, y + 14, 6, 10, '#b58cff');
+          px(x + 8, y + 14, 6, 6, '#ff6ba7');
+          px(x + enemy.w - 14, y + 14, 6, 6, '#ff6ba7');
+          px(x + 12, y + enemy.h - 5, enemy.w - 24, 5, '#0b1020');
         }
 
         function drawPlayer(time: number) {
@@ -841,158 +823,96 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             drawIchikaPlayer(time, unit);
             return;
           }
-          const x = player.x - cameraX;
+          const x = Math.round(player.x - cameraX);
           const blink = player.invuln > 0 && Math.floor(time * 18) % 2 === 0;
           if (blink) return;
+          const dir = player.facing;
+          const ox = dir > 0 ? x : x + player.w;
+          const sx = dir > 0 ? 1 : -1;
           ctx.save();
-          ctx.translate(x + player.w / 2, player.y + player.h / 2);
-          ctx.scale(player.facing, 1);
-          ctx.fillStyle = unit.color;
-          ctx.shadowBlur = 16;
-          ctx.shadowColor = unit.color;
-          ctx.fillRect(-12, -13, 24, 30);
-          ctx.shadowBlur = 0;
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(-14, -28, 28, 22);
-          ctx.fillStyle = unit.accent;
-          ctx.fillRect(-16, -31, 32, 8);
-          ctx.fillStyle = '#111827';
-          ctx.fillRect(-7, -21, 4, 4);
-          ctx.fillRect(5, -21, 4, 4);
-          ctx.fillStyle = '#10131f';
-          ctx.fillRect(-12, 17, 9, 16);
-          ctx.fillRect(3, 17, 9, 16);
+          ctx.translate(ox, Math.round(player.y) - 16);
+          ctx.scale(sx, 1);
+          px(7, 0, 20, 8, unit.accent);
+          px(5, 8, 24, 20, '#fff');
+          px(9, 13, 5, 5, '#10131f');
+          px(21, 13, 5, 5, '#10131f');
+          px(8, 28, 20, 18, unit.color);
+          px(6, 46, 8, 14, '#0b1020');
+          px(22, 46, 8, 14, '#0b1020');
+          px(4, 58, 10, 4, '#26365f');
+          px(22, 58, 10, 4, '#26365f');
           ctx.restore();
         }
 
         function drawIchikaPlayer(time: number, unit: typeof UNITS[UnitKey]) {
-          const x = player.x - cameraX;
+          const x = Math.round(player.x - cameraX);
           const blink = player.invuln > 0 && Math.floor(time * 18) % 2 === 0;
           if (blink) return;
-
-          const bob = Math.sin(time * 9) * 1.2;
-          const hairSwing = Math.sin(time * 7 + player.vx * 0.01) * 2.4;
+          const bob = Math.round(Math.sin(time * 9) * 1.5);
+          const hairSwing = Math.round(Math.sin(time * 7 + player.vx * 0.01) * 2);
+          const dir = player.facing;
+          const ox = dir > 0 ? x : x + player.w;
+          const sx = dir > 0 ? 1 : -1;
           ctx.save();
-          ctx.translate(x + player.w / 2, player.y + player.h / 2 + bob);
-          ctx.scale(player.facing, 1);
+          ctx.translate(ox, Math.round(player.y) - 26 + bob);
+          ctx.scale(sx, 1);
 
-          ctx.shadowBlur = 18;
-          ctx.shadowColor = unit.color;
-          ctx.fillStyle = 'rgba(51,170,238,0.18)';
-          ctx.beginPath();
-          ctx.ellipse(0, 32, 24, 6, 0, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.shadowBlur = 0;
+          px(0, 54, 34, 6, 'rgba(51,170,238,0.32)');
 
-          ctx.fillStyle = '#111a34';
-          ctx.beginPath();
-          ctx.roundRect(-16 + hairSwing * 0.25, -31, 32, 45, 13);
-          ctx.fill();
-          ctx.fillStyle = '#0a1024';
-          ctx.beginPath();
-          ctx.roundRect(5 + hairSwing, -24, 13, 48, 8);
-          ctx.roundRect(-18 + hairSwing * 0.5, -22, 12, 43, 8);
-          ctx.fill();
+          px(3 + hairSwing, 0, 28, 10, '#172448');
+          px(1 + hairSwing, 8, 32, 26, '#111a34');
+          px(2 + hairSwing, 30, 8, 22, '#0a1024');
+          px(24 + hairSwing, 28, 8, 24, '#0a1024');
+          px(7, 10, 20, 18, '#ffe1cb');
+          px(5, 10, 24, 6, '#172448');
+          px(7, 16, 8, 5, '#172448');
+          px(18, 16, 9, 5, '#172448');
 
-          ctx.fillStyle = '#ffe1cb';
-          ctx.beginPath();
-          ctx.roundRect(-12, -28, 24, 22, 8);
-          ctx.fill();
+          px(10, 20, 4, 4, '#77d8ff');
+          px(22, 20, 4, 4, '#77d8ff');
+          px(11, 20, 1, 1, '#fff');
+          px(23, 20, 1, 1, '#fff');
 
-          ctx.fillStyle = '#172448';
-          ctx.beginPath();
-          ctx.moveTo(-15, -26);
-          ctx.quadraticCurveTo(-5, -36, 11, -28);
-          ctx.lineTo(6, -17);
-          ctx.quadraticCurveTo(0, -25, -15, -19);
-          ctx.closePath();
-          ctx.fill();
-          ctx.fillStyle = '#22396c';
-          ctx.fillRect(-2, -29, 3, 12);
+          px(8, 30, 20, 18, '#eaf4ff');
+          px(5, 31, 6, 17, '#2d3e69');
+          px(25, 31, 6, 17, '#2d3e69');
+          px(15, 30, 5, 16, '#9e2e45');
+          px(13, 42, 9, 4, '#9e2e45');
+          px(6, 48, 24, 8, '#10131f');
+          px(6, 55, 24, 3, unit.color);
+          px(8, 58, 8, 12, '#0b1020');
+          px(20, 58, 8, 12, '#0b1020');
+          px(6, 68, 10, 4, '#20345d');
+          px(20, 68, 10, 4, '#20345d');
 
-          ctx.fillStyle = '#77d8ff';
-          ctx.fillRect(-7, -20, 4, 4);
-          ctx.fillRect(5, -20, 4, 4);
-          ctx.fillStyle = 'rgba(255,255,255,0.9)';
-          ctx.fillRect(-6, -20, 1, 1);
-          ctx.fillRect(6, -20, 1, 1);
+          px(28, 33, 5, 10, '#1f2335');
+          px(30, 40, 4, 5, '#4a3720');
+          px(2, 39, 28, 3, '#4a3720');
+          px(0, 37, 5, 7, '#6b4a24');
 
-          ctx.fillStyle = '#eaf4ff';
-          ctx.beginPath();
-          ctx.roundRect(-12, -8, 24, 20, 4);
-          ctx.fill();
-          ctx.fillStyle = '#2d3e69';
-          ctx.fillRect(-15, -6, 7, 20);
-          ctx.fillRect(8, -6, 7, 20);
-          ctx.fillStyle = '#9e2e45';
-          ctx.beginPath();
-          ctx.moveTo(0, -7);
-          ctx.lineTo(5, 10);
-          ctx.lineTo(0, 17);
-          ctx.lineTo(-5, 10);
-          ctx.closePath();
-          ctx.fill();
-
-          ctx.fillStyle = '#10131f';
-          ctx.fillRect(-13, 11, 26, 8);
-          ctx.fillStyle = unit.color;
-          ctx.fillRect(-13, 18, 26, 2);
-          ctx.fillStyle = '#0b1020';
-          ctx.fillRect(-11, 20, 8, 13);
-          ctx.fillRect(3, 20, 8, 13);
-          ctx.fillStyle = '#20345d';
-          ctx.fillRect(-12, 31, 9, 4);
-          ctx.fillRect(3, 31, 9, 4);
-
-          ctx.strokeStyle = '#1f2335';
-          ctx.lineWidth = 3;
-          ctx.beginPath();
-          ctx.moveTo(12, 0);
-          ctx.lineTo(20, 12);
-          ctx.stroke();
-          ctx.strokeStyle = '#4a3720';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          ctx.moveTo(-15, 6);
-          ctx.lineTo(18, -2);
-          ctx.stroke();
-
-          ctx.fillStyle = '#ffd66e';
-          ctx.beginPath();
-          for (let i = 0; i < 5; i += 1) {
-            const angle = -Math.PI / 2 + i * Math.PI * 0.4;
-            const outerX = 14 + Math.cos(angle) * 4;
-            const outerY = -31 + Math.sin(angle) * 4;
-            const innerAngle = angle + Math.PI * 0.2;
-            const innerX = 14 + Math.cos(innerAngle) * 1.8;
-            const innerY = -31 + Math.sin(innerAngle) * 1.8;
-            if (i === 0) ctx.moveTo(outerX, outerY);
-            else ctx.lineTo(outerX, outerY);
-            ctx.lineTo(innerX, innerY);
-          }
-          ctx.closePath();
-          ctx.fill();
+          drawPixelStar(29, 5, '#ffd66e', 2);
           ctx.restore();
         }
 
         function drawGoal(time: number) {
-          const x = worldW - 120 - cameraX;
+          const x = Math.round(worldW - 120 - cameraX);
           const collected = pickups.filter((item) => item.taken).length;
           ctx.save();
-          ctx.translate(x, 410);
-          ctx.strokeStyle = collected >= pickups.length ? '#ffd66e' : 'rgba(255,255,255,0.35)';
-          ctx.lineWidth = 5;
-          ctx.shadowBlur = collected >= pickups.length ? 22 : 0;
-          ctx.shadowColor = '#ffd66e';
-          ctx.beginPath();
-          ctx.roundRect(-32, -80, 64, 110, 16);
-          ctx.stroke();
-          ctx.fillStyle = collected >= pickups.length ? 'rgba(255,214,110,0.18)' : 'rgba(255,255,255,0.06)';
-          ctx.fill();
+          ctx.translate(x, 410 + Math.round(Math.sin(time * 5) * 2));
+          const ready = collected >= pickups.length;
+          const edge = ready ? '#ffd66e' : 'rgba(255,255,255,0.35)';
+          px(-32, -82, 64, 8, edge);
+          px(-32, 24, 64, 8, edge);
+          px(-32, -82, 8, 114, edge);
+          px(24, -82, 8, 114, edge);
+          px(-20, -64, 40, 78, ready ? 'rgba(255,214,110,0.18)' : 'rgba(255,255,255,0.06)');
+          for (let i = 0; i < 5; i += 1) {
+            px(-14 + i * 7, -52 + (i % 2) * 8, 5, 5, ready ? '#ffd66e' : '#53617a');
+          }
           ctx.fillStyle = '#fff';
-          ctx.font = '900 16px Noto Sans SC, sans-serif';
+          ctx.font = '900 16px Courier New, Noto Sans SC, monospace';
           ctx.textAlign = 'center';
-          ctx.fillText(collected >= pickups.length ? 'LIVE' : `${collected}/5`, 0, -18 + Math.sin(time * 5) * 2);
+          ctx.fillText(ready ? 'LIVE' : `${collected}/5`, 0, -18);
           ctx.restore();
         }
 
@@ -1000,14 +920,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           if (messageTime <= 0) return;
           ctx.save();
           ctx.globalAlpha = Math.min(1, messageTime * 2);
-          ctx.fillStyle = 'rgba(5,8,20,0.58)';
-          ctx.strokeStyle = 'rgba(255,255,255,0.16)';
-          ctx.beginPath();
-          ctx.roundRect(VIEW_W / 2 - 140, 74, 280, 42, 21);
-          ctx.fill();
-          ctx.stroke();
+          px(VIEW_W / 2 - 150, 74, 300, 44, 'rgba(5,8,20,0.78)');
+          px(VIEW_W / 2 - 150, 74, 300, 4, '#eaf4ff');
+          px(VIEW_W / 2 - 150, 114, 300, 4, '#111827');
+          px(VIEW_W / 2 - 150, 74, 4, 44, '#eaf4ff');
+          px(VIEW_W / 2 + 146, 74, 4, 44, '#111827');
           ctx.fillStyle = '#fff';
-          ctx.font = '900 18px Noto Sans SC, sans-serif';
+          ctx.font = '900 18px Courier New, Noto Sans SC, monospace';
           ctx.textAlign = 'center';
           ctx.fillText(message, VIEW_W / 2, 101);
           ctx.restore();
@@ -1016,6 +935,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         function draw(time: number) {
           resizeCanvas();
           ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.imageSmoothingEnabled = false;
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           viewTransform();
           const unit = currentUnit();
@@ -1027,17 +947,16 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           drawGoal(time / 1000);
           for (const spark of sparks) {
             ctx.fillStyle = spark.color;
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = spark.color;
-            ctx.fillRect(spark.x - cameraX - 8, spark.y - 4, 16, 8);
+            ctx.fillRect(Math.round(spark.x - cameraX - 8), Math.round(spark.y - 4), 16, 8);
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(Math.round(spark.x - cameraX - 2), Math.round(spark.y - 2), 4, 4);
           }
           ctx.shadowBlur = 0;
           for (const particle of particles) {
             ctx.globalAlpha = Math.max(0, particle.life * 2);
             ctx.fillStyle = particle.color;
-            ctx.beginPath();
-            ctx.arc(particle.x - cameraX, particle.y, 3 + particle.life * 6, 0, Math.PI * 2);
-            ctx.fill();
+            const size = Math.max(2, Math.round(3 + particle.life * 7));
+            ctx.fillRect(Math.round(particle.x - cameraX), Math.round(particle.y), size, size);
           }
           ctx.globalAlpha = 1;
           drawPlayer(time / 1000);
@@ -1115,7 +1034,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         document.addEventListener('astro:before-swap', cleanup, { once: true });
         resizeCanvas();
         updateHud();
-        setOverlay('SEKAI Quest', 'Start', true);
+        setOverlay('PIXEL SEKAI', 'Start', true);
         raf = requestAnimationFrame(loop);
       }
 
