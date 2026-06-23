@@ -2329,6 +2329,12 @@
     setAudioSource(!!autoPlay, startTime || 0);
     renderPlaylist();
     if (autoPlay) window.setTimeout(revealActiveTrack, 0);
+    // Notify other components of song change
+    try {
+      window.dispatchEvent(new CustomEvent('sekai-song-change', {
+        detail: { title: song.title || '', musicId: song.id, shuffle: playbackOrder === 'shuffle', playing: !!autoPlay }
+      }));
+    } catch(e) {}
   }
 
   function chooseVocal(song, preferredVocalId) {

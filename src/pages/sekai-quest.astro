@@ -312,7 +312,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     interface Enemy extends Rect { vx: number; hp: number; maxHp: number; left: number; right: number; type: EnemyType; alive: boolean; atkTimer: number; xp: number; elite?: boolean; baseY?: number; dashTimer?: number; }
     interface Note { x: number; y: number; taken: boolean; }
     interface Pickup { x: number; y: number; type: 'health' | 'amp'; taken: boolean; }
-    interface NpcEncounter extends Rect { id: string; name: string; text: string; color: string; reward: 'hp' | 'haste' | 'power' | 'jump'; met: boolean; seen?: boolean; }
+    interface NpcEncounter extends Rect { id: string; name: string; text: string; color: string; reward: 'hp' | 'haste' | 'power' | 'jump'; met: boolean; seen?: boolean; char?: number; }
     type ProjectileShape = 'note' | 'slash' | 'fan' | 'paint' | 'beam' | 'orb';
     interface Projectile extends Rect { vx: number; vy: number; life: number; damage: number; kind: 'player' | 'enemy' | 'boss'; color: string; shape?: ProjectileShape; pierce?: number; homing?: number; accelY?: number; aoe?: number; spin?: number; }
     interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; }
@@ -321,13 +321,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     interface AbilityOption { id: string; name: string; desc: string; icon: string; rarity: 'COMMON' | 'RARE' | 'EPIC'; apply: () => void; }
 
     const NPCS_BY_STAGE: Omit<NpcEncounter, 'x' | 'y' | 'w' | 'h' | 'met'>[][] = [
-      [{ id: 'kanade-encounter', name: 'Kanade', text: '把节奏放慢，先活下来。', color: '#33ccbb', reward: 'hp' }],
+      [{ id: 'kanade-encounter', name: 'Kanade', text: '把节奏放慢，先活下来。', color: '#33ccbb', reward: 'hp', char: 0 }],
       [
-        { id: 'mizuki-encounter', name: 'Mizuki', text: '换一条路线试试看。', color: '#ff99aa', reward: 'haste' },
-        { id: 'ena-encounter', name: 'Ena', text: '别只是逃，反击要更重。', color: '#88cc44', reward: 'power' },
+        { id: 'mizuki-encounter', name: 'Mizuki', text: '换一条路线试试看。', color: '#ff99aa', reward: 'haste', char: 2 },
+        { id: 'ena-encounter', name: 'Ena', text: '别只是逃，反击要更重。', color: '#88cc44', reward: 'power', char: 3 },
       ],
-      [{ id: 'empty-sekai-echo', name: '回声中的同伴', text: '精英怪会守住出口，留一点血再推进。', color: '#bb77dd', reward: 'jump' }],
-      [{ id: 'miku-warning', name: '25 Miku', text: '核心正在失控。准备好再靠近舞台。', color: '#ccddff', reward: 'power' }],
+      [{ id: 'empty-sekai-echo', name: 'Mafuyu 的回声', text: '精英怪会守住出口，留一点血再推进。', color: '#bb77dd', reward: 'jump', char: 1 }],
+      [{ id: 'miku-warning', name: '25 Miku', text: '核心正在失控。准备好再靠近舞台。', color: '#ccddff', reward: 'power', char: 4 }],
     ];
 
     // --- State ---
@@ -579,7 +579,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       superMode = true;
       if (player) {
         player.maxJumps = Math.max(player.maxJumps, 3);
-        player.hp = Math.min(player.maxHp, player.hp + 1);
+        player.hp = Math.min(player.maxHp, player.hp + 8);
       }
       burst(player ? player.x + player.w / 2 : 80, player ? player.y + player.h / 2 : 360, '#ffd66e', 28);
       sfxClear();
@@ -1435,13 +1435,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.beginPath();
         ctx.ellipse(nx + npc.w / 2, ny + npc.h + 4, 18, 5, 0, 0, Math.PI * 2);
         ctx.fill();
-        ctx.fillStyle = npc.met ? 'rgba(255,255,255,.36)' : npc.color;
-        ctx.fillRect(nx + 7, ny + 10, 20, 30);
-        ctx.fillStyle = npc.met ? 'rgba(255,255,255,.48)' : hexRgba(npc.color, .7);
-        ctx.fillRect(nx + 5, ny + 2, 24, 14);
-        ctx.fillStyle = '#fff';
-        ctx.fillRect(nx + 11, ny + 9, 4, 4);
-        ctx.fillRect(nx + 20, ny + 9, 4, 4);
+        const npcImg = typeof npc.char === 'number' ? charImages[npc.char] : null;
+        ctx.imageSmoothingEnabled = false;
+        if (npcImg && npcImg.complete && npcImg.naturalWidth > 0) {
+          ctx.globalAlpha = npc.met ? 0.58 : 1;
+          const sw = npc.char === 1 ? 58 : 48;
+          const sh = npc.char === 1 ? 64 : 58;
+          ctx.drawImage(npcImg, nx + npc.w / 2 - sw / 2, ny + npc.h - sh + 4, sw, sh);
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = npc.met ? 'rgba(255,255,255,.25)' : npc.color;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(nx + npc.w / 2 - sw / 2 - 2, ny + npc.h - sh + 2, sw + 4, sh + 4);
+        } else {
+          ctx.fillStyle = npc.met ? 'rgba(255,255,255,.36)' : npc.color;
+          ctx.fillRect(nx + 7, ny + 10, 20, 30);
+          ctx.fillStyle = npc.met ? 'rgba(255,255,255,.48)' : hexRgba(npc.color, .7);
+          ctx.fillRect(nx + 5, ny + 2, 24, 14);
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(nx + 11, ny + 9, 4, 4);
+          ctx.fillRect(nx + 20, ny + 9, 4, 4);
+        }
         if (!npc.met) {
           ctx.fillStyle = '#ffd66e';
           ctx.font = '900 18px Courier New, monospace';
@@ -1943,6 +1956,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (!btn) return;
       chooseAbility(parseInt(btn.dataset.ability || '0'));
     });
+
+    // Easter egg: play "旅に帰る" in shuffle mode on SekaiPlayer to unlock super mode
+    window.addEventListener('sekai-song-change', ((e: CustomEvent) => {
+      if (running && !finished && e.detail.shuffle && e.detail.playing && e.detail.title === '旅に帰る') {
+        unlockSuperMode();
+      }
+    }) as EventListener);
 
     document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
 
