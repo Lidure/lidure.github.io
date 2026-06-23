@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+const VERSION = 'v0.0.1';
 ---
 
 <BaseLayout title="SEKAI DASH | 搁浅 的小窝" description="PJSK 像素风动作闯关 — 选择角色，穿越 SEKAI！">
@@ -11,6 +12,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <span class="title-sub">同人像素冒险</span>
         <h1 class="title-main">SEKAI DASH</h1>
         <div class="save-summary" id="saveSummary">读取本地记录中...</div>
+        <div class="version-label">{VERSION}</div>
       </div>
 
       <div class="stage-select" id="stageSelect">
@@ -77,7 +79,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="pause-overlay hidden" id="pauseOverlay">
         <div class="pause-panel">
           <div class="pause-title">已暂停</div>
-          <button class="resume-btn" id="resumeBtn" type="button">继续游戏</button>
+          <div class="pause-actions">
+            <button class="resume-btn" id="resumeBtn" type="button">继续游戏</button>
+            <button class="menu-btn" id="pauseMenuBtn" type="button">返回菜单</button>
+          </div>
         </div>
       </div>
       <div class="ability-overlay hidden" id="abilityOverlay">
@@ -133,13 +138,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .hidden { display: none !important; }
 
     /* ===== Fullscreen ===== */
-    .fullscreen-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.12); background: rgba(6,8,18,.72); color: rgba(255,255,255,.55); font-size: 1.2rem; cursor: pointer; transition: all 160ms ease; }
-    .fullscreen-btn:hover { border-color: rgba(var(--dash-accent-rgb), .5); color: var(--dash-accent); background: rgba(var(--dash-accent-rgb), .08); }
     .fs-btn { font-size: 1rem; }
     .game-screen:fullscreen { height: 100vh; min-height: 100vh; width: 100vw; background: #000; }
     .game-screen:fullscreen .game-canvas { height: 100vh; width: 100vw; }
     .game-screen:fullscreen .game-hud-top { top: 12px; left: 12px; right: 12px; }
-    .game-screen:fullscreen .touch-controls { bottom: 16px; }
+    .game-screen:fullscreen .touch-controls { bottom: 12px; padding: 0 18px; }
+    .game-screen:fullscreen .touch-left, .game-screen:fullscreen .touch-right { gap: 16px; }
+    .game-screen:fullscreen .t-btn { width: 66px; height: 66px; font-size: 1.6rem; border-width: 2.5px; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
+    .game-screen:fullscreen .t-jump, .game-screen:fullscreen .t-atk { width: 78px; height: 78px; font-size: 1.9rem; }
+    .game-screen:fullscreen .t-btn:active { transform: scale(.85); }
+    @media (orientation: landscape) {
+      .game-screen:fullscreen .touch-controls { bottom: 8px; padding: 0 14px; }
+      .game-screen:fullscreen .touch-left, .game-screen:fullscreen .touch-right { gap: 12px; }
+      .game-screen:fullscreen .t-btn { width: 60px; height: 60px; font-size: 1.4rem; }
+      .game-screen:fullscreen .t-jump, .game-screen:fullscreen .t-atk { width: 70px; height: 70px; font-size: 1.6rem; }
+    }
 
     /* ===== Title ===== */
     .title-screen { display: grid; gap: 22px; padding: 28px 20px; max-width: 860px; margin: 0 auto; position: relative; }
@@ -149,6 +162,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .title-sub { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--dash-accent); margin-bottom: 3px; opacity: .75; }
     .title-main { margin: 0; font-family: 'Courier New', monospace; font-size: clamp(2.4rem, 7vw, 4.6rem); font-weight: 900; line-height: 1; background: linear-gradient(135deg, #fff 24%, var(--dash-accent) 68%, #aaf 92%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 32px rgba(var(--dash-accent-rgb), .3)); letter-spacing: -.02em; }
     .save-summary { margin-top: 10px; color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: .02em; }
+    .version-label { margin-top: 4px; color: rgba(255,255,255,.18); font-size: .6rem; font-weight: 700; letter-spacing: .06em; font-family: 'Courier New', monospace; }
 
     .sel-label { margin: 0 0 7px; font-size: .68rem; font-weight: 800; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
 
@@ -216,9 +230,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .pause-panel { width: min(280px, calc(100vw - 36px)); padding: 28px 24px 22px; border-radius: 18px; border: 1.5px solid rgba(var(--dash-accent-rgb), .2); background: linear-gradient(180deg, rgba(10,12,28,.96), rgba(6,8,18,.96)); box-shadow: 0 16px 48px rgba(0,0,0,.3), 0 0 40px rgba(var(--dash-accent-rgb), .04); text-align: center; animation: panelIn .3s ease both; }
     .pause-title { margin-bottom: 18px; font-family: 'Courier New', monospace; font-size: 1.4rem; font-weight: 900; color: var(--dash-accent); text-shadow: 0 0 20px rgba(var(--dash-accent-rgb), .3); letter-spacing: .04em; }
-    .resume-btn { display: inline-block; padding: 12px 36px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--dash-accent), rgba(var(--dash-accent-rgb), .55)); color: #0a0e18; font-family: 'Courier New', monospace; font-size: .95rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 20px rgba(var(--dash-accent-rgb), .25); transition: transform 120ms ease, box-shadow 120ms ease; letter-spacing: .04em; }
-    .resume-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(var(--dash-accent-rgb), .32); }
-    .resume-btn:active { transform: translateY(0); box-shadow: 0 3px 12px rgba(var(--dash-accent-rgb), .18); }
+    .pause-actions { display: flex; gap: 10px; }
+    .resume-btn, .menu-btn { flex: 1; padding: 12px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: .9rem; font-weight: 900; cursor: pointer; transition: all 140ms ease; }
+    .resume-btn { border: none; background: linear-gradient(135deg, var(--dash-accent), rgba(var(--dash-accent-rgb), .55)); color: #0a0e18; box-shadow: 0 4px 20px rgba(var(--dash-accent-rgb), .25); }
+    .resume-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(var(--dash-accent-rgb), .34); }
+    .menu-btn { border: 1.5px solid var(--panel-border); background: rgba(6,8,18,.6); color: var(--text-soft); }
+    .menu-btn:hover { border-color: rgba(var(--dash-accent-rgb), .4); color: var(--dash-accent); transform: translateY(-1px); }
     .ability-overlay { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 14px; background: radial-gradient(circle at 50% 35%, rgba(var(--dash-accent-rgb), .3), transparent 34%), linear-gradient(180deg, rgba(4,6,16,.92), rgba(6,8,20,.86)); backdrop-filter: blur(10px); overflow: hidden; }
     .ability-overlay::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(circle at center, black, transparent 74%); pointer-events: none; }
     .ability-panel { position: relative; width: min(720px, calc(100vw - 24px)); padding: 24px; border-radius: 18px; border: 1.5px solid rgba(var(--dash-accent-rgb), .45); background: linear-gradient(180deg, rgba(10,12,28,.98), rgba(5,7,16,.98)); box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.07), 0 0 50px rgba(var(--dash-accent-rgb), .06); animation: panelIn .3s ease both; }
@@ -311,11 +328,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .game-action-bar { top: 52px; right: 6px; }
       .game-action-btn { min-width: 40px; padding: 5px 8px; font-size: .68rem; }
       .hp-dot { width: 9px; height: 9px; }
-      .t-btn { width: 52px; height: 52px; font-size: 1.15rem; }
-      .t-jump, .t-atk { width: 60px; height: 60px; }
+      .t-btn { width: 54px; height: 54px; font-size: 1.2rem; }
+      .t-jump, .t-atk { width: 64px; height: 64px; }
       .dialogue-text { font-size: .85rem; }
       .results-card { padding: 22px 18px; }
-      .fullscreen-btn { width: 40px; height: 40px; font-size: 1rem; }
     }
 
     @media (max-width: 460px) {
@@ -328,10 +344,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .hud-notes strong, .hud-lvl strong, .hud-score strong { font-size: .85rem; }
       .hp-count { font-size: .75rem; }
       .hp-dot { width: 7px; height: 7px; }
-      .t-btn { width: 46px; height: 46px; font-size: 1.05rem; }
-      .t-jump, .t-atk { width: 54px; height: 54px; }
+      .t-btn { width: 50px; height: 50px; font-size: 1.1rem; }
+      .t-jump, .t-atk { width: 58px; height: 58px; }
       .xp-track { width: 36px; }
-      .fullscreen-btn { width: 36px; height: 36px; font-size: .9rem; }
     }
   </style>
 
@@ -486,8 +501,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           H.push({x:2980,y:454,w:60,h:22,type:'spike'});   // 尖刺台1右半
           H.push({x:3140,y:454,w:60,h:22,type:'spike'});   // 尖刺台2左半
         }},
-      { name: '第五幕 - 终响', bg1: '#0e0818', bg2: '#1a1030', platColor: '#2a1850', platTop: '#8844aa', accent: '#bb66ee', starColor: '#dd99ff', enemies: 20, worldW: 4000, boss: false,
-        // 终章：三连移动平台、双尖刺区、最大落差
+      { name: '第五幕 - 终响', bg1: '#0e0818', bg2: '#1a1030', platColor: '#2a1850', platTop: '#8844aa', accent: '#bb66ee', starColor: '#dd99ff', enemies: 12, worldW: 4000, boss: true,
+        // 终章：穿越三连移动平台与双尖刺区，抵达Boss Mafuyu的舞台
         buildPlatforms: (P: Rect[]) => {
           P.push({x:0,y:476,w:250,h:64});               // 起点
           P.push({x:360,y:460,w:100,h:24});              // 首跳
@@ -502,14 +517,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           P.push({x:2400,y:476,w:160,h:24});             // 尖刺台1——左安全
           P.push({x:2640,y:476,w:160,h:24});             // 尖刺台2——右安全
           P.push({x:2880,y:476,w:100,h:24});             // 安全落点
-          P.push({x:3080,y:420,w:120,h:24});             // 移动平台3登船
-          P.push({x:3340,y:360,w:100,h:24});             // 最终着陆
-          P.push({x:3580,y:476,w:420,h:64});             // 终点
+          P.push({x:3060,y:430,w:120,h:24});             // 移动平台3登船
+          P.push({x:3260,y:370,w:100,h:24});             // 着陆
+          // Boss 战场
+          P.push({x:3460,y:476,w:540,h:64});             // 主战场地面
+          P.push({x:3700,y:350,w:140,h:24});             // 高台
+          P.push({x:3920,y:420,w:140,h:24});             // 侧台
         },
         buildMovingPlatforms: (M: MovingPlatform[]) => {
           M.push({x:1000,y:400,w:100,h:20,ox:1000,oy:400,dx:160,dy:0,speed:90,t:0});
           M.push({x:1700,y:380,w:100,h:20,ox:1700,oy:380,dx:140,dy:-80,speed:75,t:0.4});
-          M.push({x:3040,y:420,w:100,h:20,ox:3040,oy:420,dx:160,dy:-40,speed:85,t:0.2});
+          M.push({x:3020,y:420,w:100,h:20,ox:3020,oy:420,dx:160,dy:-40,speed:85,t:0.2});
         },
         buildHazards: (H: Hazard[]) => {
           H.push({x:2480,y:454,w:60,h:22,type:'spike'});   // 尖刺台1右半
@@ -519,7 +537,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     interface Rect { x: number; y: number; w: number; h: number; }
     interface Player extends Rect { vx: number; vy: number; grounded: boolean; facing: number; hp: number; maxHp: number; invuln: number; jumps: number; maxJumps: number; atkTimer: number; }
     type EnemyType = 'slime' | 'bat' | 'ghost' | 'charger' | 'sniper' | 'shielder' | 'orbiter' | 'bomber';
-    interface Enemy extends Rect { vx: number; hp: number; maxHp: number; left: number; right: number; type: EnemyType; alive: boolean; atkTimer: number; xp: number; elite?: boolean; dashTimer?: number; deathTimer?: number; baseY?: number; popIn?: number; }
+    interface Enemy extends Rect { vx: number; hp: number; maxHp: number; left: number; right: number; type: EnemyType; alive: boolean; atkTimer: number; xp: number; elite?: boolean; dashTimer?: number; deathTimer?: number; baseY?: number; popIn?: number; summonTag?: string; }
     interface Note { x: number; y: number; taken: boolean; spawnT: number; }
     interface Pickup { x: number; y: number; type: 'health' | 'amp'; taken: boolean; spawnT: number; }
     interface NpcEncounter extends Rect { id: string; name: string; text: string; color: string; reward: 'hp' | 'haste' | 'power' | 'jump'; met: boolean; seen?: boolean; char?: number; }
@@ -527,7 +545,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     interface Projectile extends Rect { vx: number; vy: number; life: number; damage: number; kind: 'player' | 'enemy' | 'boss'; color: string; shape?: ProjectileShape; pierce?: number; homing?: number; accelY?: number; aoe?: number; spin?: number; }
     interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; }
     interface FloatingText { x: number; y: number; text: string; color: string; life: number; vy: number; }
-    interface Boss extends Rect { hp: number; maxHp: number; active: boolean; alive: boolean; phase: number; pattern: 'idle' | 'volley' | 'rain' | 'wave' | 'beam' | 'summon'; timer: number; attackTimer: number; burstCount: number; beamWarn: number; beamY: number; beamX: number; teleportTimer: number; homeY: number; driftX: number; }
+    interface Boss extends Rect { hp: number; maxHp: number; active: boolean; alive: boolean; phase: number; pattern: 'idle' | 'volley' | 'rain' | 'wave' | 'beam' | 'summon' | 'liberate'; timer: number; attackTimer: number; burstCount: number; beamWarn: number; beamY: number; beamX: number; teleportTimer: number; homeY: number; driftX: number; isMfy?: boolean; liberateT?: number; minionIds?: number[]; }
     interface GameSave { runs: number; bestScore: number; clearedStages: number; unlockedChars: number[]; metNpcIds: string[]; totalKills: number; totalNotes: number; bossClears: number; }
     interface AbilityOption { id: string; name: string; desc: string; icon: string; rarity: 'COMMON' | 'RARE' | 'EPIC'; apply: () => void; }
     interface MovingPlatform extends Rect { ox: number; oy: number; dx: number; dy: number; speed: number; t: number; }
@@ -646,6 +664,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       fade3: '/25miku/25miku_%E6%88%98%E8%B4%A5%E6%B6%88%E6%95%A33.png',
     } as const;
     const bossImages: Record<keyof typeof BOSS_SPRITES, HTMLImageElement> = {} as Record<keyof typeof BOSS_SPRITES, HTMLImageElement>;
+    const MFY_BOSS_SPRITES = {
+      idle: '/mfy/boss_mfy.png',
+      liberate: '/mfy/boss_mfy_解放攻击.png',
+      charge: '/mfy/boss_mfy_飞行冲撞.png',
+      attack: '/mfy/mfy_att1.png',
+    } as const;
+    const mfyBossImages: Record<keyof typeof MFY_BOSS_SPRITES, HTMLImageElement> = {} as Record<keyof typeof MFY_BOSS_SPRITES, HTMLImageElement>;
 
     // --- DOM ---
     const canvas = document.getElementById('gameCanvas') as HTMLCanvasElement;
@@ -697,6 +722,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       const img = new Image();
       img.src = src;
       bossImages[state as keyof typeof BOSS_SPRITES] = img;
+    });
+    Object.entries(MFY_BOSS_SPRITES).forEach(([state, src]) => {
+      const img = new Image();
+      img.src = src;
+      mfyBossImages[state as keyof typeof MFY_BOSS_SPRITES] = img;
     });
 
     // --- Audio ---
@@ -1048,7 +1078,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
     }
     document.addEventListener('fullscreenchange', () => {
-      document.querySelectorAll('.fullscreen-btn, .fs-btn').forEach(btn => {
+      document.querySelectorAll('.fs-btn').forEach(btn => {
         (btn as HTMLElement).textContent = document.fullscreenElement ? '⛶' : '⛶';
       });
     });
@@ -1308,7 +1338,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         pickups.push({ x: p.x + 30 + Math.random() * Math.max(0, p.w - 60), y: p.y - 68, type: 'amp', taken: false, spawnT: 0.5 });
       }
       if (stage.boss) {
-        boss = { x: worldW - 430, y: 300, w: 96, h: 144, hp: 120, maxHp: 120, active: false, alive: true, phase: 1, pattern: 'idle', timer: 0, attackTimer: 1.4, burstCount: 0, beamWarn: 0, beamY: 0, beamX: 0, teleportTimer: 3.2, homeY: 300, driftX: 0 };
+        if (stageIdx === 5) {
+          // Mafuyu boss: slower float, no teleport; liberation mechanic
+          boss = { x: worldW - 430, y: 300, w: 96, h: 144, hp: 150, maxHp: 150, active: false, alive: true, phase: 1, pattern: 'idle', timer: 0, attackTimer: 2.0, burstCount: 0, beamWarn: 0, beamY: 0, beamX: 0, teleportTimer: 0, homeY: 300, driftX: 0, isMfy: true, liberateT: 0, minionIds: [] };
+        } else {
+          boss = { x: worldW - 430, y: 300, w: 96, h: 144, hp: 120, maxHp: 120, active: false, alive: true, phase: 1, pattern: 'idle', timer: 0, attackTimer: 1.4, burstCount: 0, beamWarn: 0, beamY: 0, beamX: 0, teleportTimer: 3.2, homeY: 300, driftX: 0 };
+        }
       }
     }
     // --- Init Game ---
@@ -1573,24 +1608,41 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         burst(boss.x + boss.w / 2, boss.y + boss.h / 2, STAGES[selStage].accent, 36);
         sfxClear();
         startBossDefeatCutscene();
-      } else if (boss.phase === 1 && boss.hp <= boss.maxHp * 0.66) { boss.phase = 2; boss.attackTimer = 0.5; boss.teleportTimer = 1.2; screenFlash = 0.5; screenFlashColor = '#ff66dd'; showMsg('BOSS 第二阶段', 1.1); shake(18); burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ff66dd', 36); }
-      else if (boss.phase === 2 && boss.hp <= boss.maxHp * 0.34) { boss.phase = 3; boss.attackTimer = 0.4; boss.teleportTimer = 0.8; screenFlash = 0.6; screenFlashColor = '#ff4488'; showMsg('BOSS 第三阶段', 1.1); shake(22); burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ff4488', 48); }
+      } else if (boss.isMfy) {
+        const phaseThreshold = boss.phase === 1 ? 0.66 : 0.34;
+        if (boss.hp <= boss.maxHp * phaseThreshold) {
+          boss.phase++;
+          screenFlash = 0.5; screenFlashColor = '#bb66ee';
+          showMsg(`BOSS 第${boss.phase}阶段`, 1.1); shake(18);
+          burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#bb66ee', 36);
+          // Phase change triggers liberation
+          if (boss.pattern !== 'liberate') triggerLiberation();
+        }
+      } else {
+        if (boss.phase === 1 && boss.hp <= boss.maxHp * 0.66) { boss.phase = 2; boss.attackTimer = 0.5; boss.teleportTimer = 1.2; screenFlash = 0.5; screenFlashColor = '#ff66dd'; showMsg('BOSS 第二阶段', 1.1); shake(18); burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ff66dd', 36); }
+        else if (boss.phase === 2 && boss.hp <= boss.maxHp * 0.34) { boss.phase = 3; boss.attackTimer = 0.4; boss.teleportTimer = 0.8; screenFlash = 0.6; screenFlashColor = '#ff4488'; showMsg('BOSS 第三阶段', 1.1); shake(22); burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ff4488', 48); }
+      }
       updateHud();
     }
 
     function startBossDefeatCutscene() {
       bossDefeatCutscene = 3.8;
-     
+      const isMfy = boss?.isMfy ?? false;
       bossFinisher.classList.remove('hidden');
       bossFinisher.classList.remove('slowmo');
       void bossFinisher.offsetWidth;
       bossFinisher.classList.add('slowmo');
-      bossFinisherLine.textContent = '破碎的世界....还值得拯救吗...';
-      bossFinisherImg.src = BOSS_SPRITES.defeat1;
-      setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.defeat2; }, 760);
-      setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade1; }, 1780);
-      setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade2; }, 2480);
-      setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade3; }, 3140);
+      if (isMfy) {
+        bossFinisherLine.textContent = '终于理解了……你也一直在寻找自己的世界吗？';
+        bossFinisherImg.src = MFY_BOSS_SPRITES.idle;
+      } else {
+        bossFinisherLine.textContent = '破碎的世界....还值得拯救吗...';
+        bossFinisherImg.src = BOSS_SPRITES.defeat1;
+        setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.defeat2; }, 760);
+        setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade1; }, 1780);
+        setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade2; }, 2480);
+        setTimeout(() => { bossFinisherImg.src = BOSS_SPRITES.fade3; }, 3140);
+      }
       setTimeout(() => {
         bossFinisher.classList.remove('slowmo');
         bossFinisher.classList.add('hidden');
@@ -1625,16 +1677,59 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     }
 
     function bossDmg() { return boss!.phase >= 3 ? 2 : 1; }
+    function triggerLiberation() {
+      if (!boss || !boss.isMfy) return;
+      boss.pattern = 'liberate';
+      boss.timer = 0;
+      boss.liberateT = 3.0;
+      // Teleport to mid-air
+      boss.homeY = 120;
+      boss.y = boss.homeY;
+      burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#bb66ee', 28);
+      shake(14);
+      screenFlash = 0.4;
+      screenFlashColor = '#bb66ee';
+      showMsg('血潮 — 解放攻击', 1.5);
+      // Summon minions: 3 ground (slimes), 3 float (ghosts), 1 elite (charger)
+      const count = 7;
+      const types: EnemyType[] = ['slime','slime','slime','ghost','ghost','ghost','charger'];
+      const elites = [false,false,false,false,false,false,true];
+      for (let i = 0; i < count; i++) {
+        const ex = boss.x + 20 + Math.random() * 60;
+        const ey = boss.y + boss.h - 32;
+        const e: Enemy = {
+          x: ex, y: ey, w: 28, h: 28,
+          vx: (i < 3 ? 50 : 0) * (Math.random() < 0.5 ? 1 : -1),
+          hp: elites[i] ? 6 : 2, maxHp: elites[i] ? 6 : 2,
+          left: 0, right: worldW,
+          type: types[i], alive: true, atkTimer: 1.0, xp: elites[i] ? 60 : 20,
+          elite: elites[i], popIn: 0.3, summonTag: 'mfy',
+        };
+        enemies.push(e);
+      }
+      sfxBoss();
+    }
     function chooseBossPattern() {
       if (!boss) return;
-      let order: Boss['pattern'][] = ['volley', 'wave', 'rain'];
-      if (boss.phase >= 2) order.push('beam');
-      if (boss.phase >= 3) { order = ['beam', 'rain', 'volley', 'wave', 'summon']; }
-      boss.pattern = order[Math.floor(Math.random() * order.length)]; boss.timer = 0; boss.burstCount = 0;
-      if (boss.pattern === 'beam') { boss.beamWarn = 0.5; boss.beamY = Math.max(90, Math.min(430, player.y + player.h / 2)); boss.beamX = player.x + player.w / 2; boss.pattern = 'idle'; boss.attackTimer = 1.6; }
+      if (boss.isMfy) {
+        // Mafuyu: no beam/teleport, uses volley/rain/summon
+        const mfyOrder: Boss['pattern'][] = ['volley', 'rain', 'summon'];
+        if (boss.phase >= 2) mfyOrder.push('volley');
+        if (boss.phase >= 3) mfyOrder.push('rain');
+        boss.pattern = mfyOrder[Math.floor(Math.random() * mfyOrder.length)];
+      } else {
+        let order: Boss['pattern'][] = ['volley', 'wave', 'rain'];
+        if (boss.phase >= 2) order.push('beam');
+        if (boss.phase >= 3) { order = ['beam', 'rain', 'volley', 'wave', 'summon']; }
+        boss.pattern = order[Math.floor(Math.random() * order.length)];
+      }
+      boss.timer = 0; boss.burstCount = 0;
+      if (!boss.isMfy && boss.pattern === 'beam') { boss.beamWarn = 0.5; boss.beamY = Math.max(90, Math.min(430, player.y + player.h / 2)); boss.beamX = player.x + player.w / 2; boss.pattern = 'idle'; boss.attackTimer = 1.6; }
     }
     function updateBoss(dt: number) {
       if (!boss || !boss.alive) return;
+      if (boss.isMfy) return updateBossMfy(dt);
+      // Original Miku boss update
       boss.y = boss.homeY + Math.sin(performance.now() * 0.002) * 10;
       boss.x += boss.driftX * dt;
       const arenaLeft = Math.max(2120, worldW - 1180), arenaRight = worldW - 260;
@@ -1654,6 +1749,67 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       else if (boss.pattern === 'rain' && boss.timer > 0.16) { boss.timer = 0; boss.burstCount++; const rx = player.x + player.w / 2 - 180 + Math.random() * 360; projectiles.push({ x: rx, y: -30, w: 14, h: 24, vx: (Math.random() - 0.5) * 50, vy: 300 + boss.phase * 45, life: 2.2, damage: bossDmg(), kind: 'boss', color: '#aa66ff' }); if (boss.burstCount >= 7 + boss.phase * 3) { boss.pattern = 'idle'; boss.attackTimer = 1.0; } }
       else if (boss.pattern === 'wave' && boss.timer > 0.42) { boss.timer = 0; boss.burstCount++; projectiles.push({ x: boss.x - 24, y: 452, w: 42, h: 20, vx: -(230 + boss.phase * 55), vy: 0, life: 4, damage: bossDmg(), kind: 'boss', color: '#ff99cc' }); if (boss.burstCount >= 2 + boss.phase) { boss.pattern = 'idle'; boss.attackTimer = 1.2; } }
       else if (boss.pattern === 'summon' && boss.timer > 1.0) { boss.timer = 0; boss.burstCount++; const count = 2 + Math.floor(Math.random() * 2); for (let i = 0; i < count; i++) { enemies.push({ x: boss.x + 20 + Math.random() * 60, y: boss.y + boss.h - 32, w: 28, h: 28, vx: (i === 0 ? 70 : -70), hp: 2, maxHp: 2, left: 0, right: worldW, type: 'bat', alive: true, atkTimer: 1.2, xp: 15, popIn: 0.35, elite: false }); } burst(boss.x + boss.w / 2, boss.y + boss.h, '#ff88cc', 16); if (boss.burstCount >= 1) { boss.pattern = 'idle'; boss.attackTimer = 2.4; } }
+      if (overlaps(player, boss)) takeDamage();
+    }
+    function updateBossMfy(dt: number) {
+      if (!boss || !boss.isMfy) return;
+      // Float at homeY with sine bob + horizontal drift
+      boss.y = boss.homeY + Math.sin(performance.now() * 0.002) * 10;
+      boss.x += boss.driftX * dt;
+      const arenaLeft = Math.max(3460, worldW - 540), arenaRight = worldW - 80;
+      if (boss.x < arenaLeft) { boss.x = arenaLeft; boss.driftX = Math.abs(boss.driftX); }
+      if (boss.x > arenaRight) { boss.x = arenaRight; boss.driftX = -Math.abs(boss.driftX); }
+      if (Math.random() < dt * 0.5) { boss.driftX += (Math.random() - 0.5) * 100; boss.driftX = Math.max(-120, Math.min(120, boss.driftX)); }
+      if (!boss.active) { if (player.x > boss.x - 700) { boss.active = true; sfxBoss(); showMsg('BOSS: Mafuyu 的终响', 1.4); shake(12); triggerLiberation(); } return; }
+      // Liberation channel
+      if (boss.pattern === 'liberate') {
+        boss.liberateT! -= dt;
+        if (boss.liberateT! <= 0) {
+          // Absorb alive minions & heal
+          let aliveCount = 0;
+          for (const e of enemies) { if (e.alive && e.summonTag === 'mfy') aliveCount++; }
+          if (aliveCount > 0) {
+            const heal = aliveCount * 10;
+            boss.hp = Math.min(boss.maxHp, boss.hp + heal);
+            showMsg(`吸收了${aliveCount}个仆从 +${heal}HP`, 1.2);
+            // Absorb effect: kill all tagged minions with burst
+            for (const e of enemies) { if (e.alive && e.summonTag === 'mfy') { e.alive = false; burst(e.x + e.w / 2, e.y + e.h / 2, '#bb66ee', 12); } }
+            screenFlash = 0.3; screenFlashColor = '#cc88ff'; shake(12);
+          } else {
+            showMsg('没有仆从可吸收', 0.8);
+          }
+          // Return to normal altitude
+          boss.homeY = 300;
+          boss.pattern = 'idle';
+          boss.attackTimer = 2.0 + (3 - boss.phase) * 0.4;
+        }
+        return; // Channelling — no other actions
+      }
+      boss.attackTimer -= dt;
+      if (boss.pattern === 'idle' && boss.attackTimer <= 0) chooseBossPattern();
+      boss.timer += dt;
+      if (boss.pattern === 'volley' && boss.timer > 0.28) {
+        boss.timer = 0; boss.burstCount++;
+        spawnAimedProjectile(boss.x + 18, boss.y + 56, 210 + boss.phase * 30, 'boss', '#bb66ee', 14);
+        if (boss.burstCount >= 2 + boss.phase) { boss.pattern = 'idle'; boss.attackTimer = 1.0 + Math.random() * 0.6; }
+      } else if (boss.pattern === 'rain' && boss.timer > 0.18) {
+        boss.timer = 0; boss.burstCount++;
+        const rx = player.x + player.w / 2 - 160 + Math.random() * 320;
+        projectiles.push({ x: rx, y: -30, w: 12, h: 22, vx: (Math.random() - 0.5) * 40, vy: 260 + boss.phase * 40, life: 2.4, damage: bossDmg(), kind: 'boss', color: '#9966ee' });
+        if (boss.burstCount >= 5 + boss.phase * 2) { boss.pattern = 'idle'; boss.attackTimer = 0.8 + Math.random() * 0.5; }
+      } else if (boss.pattern === 'summon' && boss.timer > 0.8) {
+        boss.timer = 0; boss.burstCount++;
+        const count = 1 + Math.floor(Math.random() * 2);
+        for (let i = 0; i < count; i++) {
+          enemies.push({
+            x: boss.x + 20 + Math.random() * 60, y: boss.y + boss.h - 32, w: 28, h: 28,
+            vx: (i === 0 ? 60 : -60), hp: 2, maxHp: 2, left: 0, right: worldW,
+            type: 'bat', alive: true, atkTimer: 1.0, xp: 15, popIn: 0.3, elite: false,
+          });
+        }
+        burst(boss.x + boss.w / 2, boss.y + boss.h, '#bb77dd', 14);
+        if (boss.burstCount >= 1) { boss.pattern = 'idle'; boss.attackTimer = 2.2; }
+      }
       if (overlaps(player, boss)) takeDamage();
     }
     // --- Update ---
@@ -2737,6 +2893,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     function drawBoss(t: number) {
       if (!boss) return;
       if (!boss.alive && bossDefeatCutscene > 0) return;
+      if (boss.isMfy) return drawBossMfy(t);
       const bx = Math.round(boss.x - cameraX), by = Math.round(boss.y);
       if (bx + boss.w < -120 || bx > VW + 140) return;
   if (boss.beamWarn > 0) {
@@ -2793,6 +2950,50 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.fillStyle = '#ff66dd'; ctx.fillRect(barX + 3, 51, (barW - 6) * (boss.hp / boss.maxHp), 12);
         ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.strokeRect(barX, 48, barW, 18);
         ctx.fillStyle = '#fff'; ctx.font = '900 12px Courier New, monospace'; ctx.textAlign = 'center'; ctx.fillText(`25 初音核心  第${boss.phase}阶段`, VW / 2, 43);
+        ctx.restore();
+      }
+    }
+    function drawBossMfy(t: number) {
+      if (!boss || !boss.isMfy) return;
+      if (!boss.alive && bossDefeatCutscene > 0) return;
+      const bx = Math.round(boss.x - cameraX), by = Math.round(boss.y);
+      if (bx + boss.w < -120 || bx > VW + 140) return;
+      // Liberation channel indicator
+      if (boss.pattern === 'liberate') {
+        ctx.save();
+        const pulse = 0.15 + Math.sin(t * 10) * 0.08;
+        ctx.fillStyle = `rgba(187,102,238,${pulse})`;
+        ctx.fillRect(0, 0, VW, VH);
+        // "血潮" text
+        ctx.textAlign = 'center';
+        ctx.font = '900 36px "Courier New", monospace';
+        ctx.fillStyle = `rgba(187,102,238,${0.3 + Math.sin(t * 6) * 0.15})`;
+        ctx.fillText('血  潮', VW / 2, VH / 2 - 40);
+        ctx.font = 'bold 14px "Courier New", monospace';
+        ctx.fillStyle = `rgba(255,255,255,${0.2 + Math.sin(t * 4) * 0.1})`;
+        ctx.fillText(`解放中... ${Math.max(0, Math.ceil(boss.liberateT!))}s`, VW / 2, VH / 2 + 10);
+        ctx.restore();
+      }
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.22)'; ctx.beginPath(); ctx.ellipse(bx + boss.w / 2, by + boss.h + 6, boss.w * 0.48, 8, 0, 0, Math.PI * 2); ctx.fill();
+      let img = mfyBossImages.idle;
+      if (boss.pattern === 'liberate') img = mfyBossImages.liberate;
+      else if (boss.pattern === 'volley') img = mfyBossImages.attack;
+      const drawW = 140, drawH = 176, bob = Math.sin(t * 3) * 4;
+      ctx.imageSmoothingEnabled = false;
+      if (img && img.complete && img.naturalWidth > 0) ctx.drawImage(img, bx + boss.w / 2 - drawW / 2, by + boss.h - drawH + bob, drawW, drawH);
+      else { ctx.fillStyle = '#bb66ee'; ctx.fillRect(bx, by, boss.w, boss.h); ctx.fillStyle = '#fff'; ctx.fillRect(bx + 20, by + 40, 10, 10); ctx.fillRect(bx + 60, by + 40, 10, 10); }
+      ctx.restore();
+      // HP Bar
+      if (boss.alive) {
+        ctx.save(); const barW = 360, barX = VW / 2 - barW / 2;
+        ctx.fillStyle = 'rgba(5,8,18,0.78)'; ctx.fillRect(barX, 48, barW, 18);
+        const hpPct = boss.hp / boss.maxHp;
+        const barColor = hpPct > 0.5 ? '#bb66ee' : hpPct > 0.25 ? '#ee8844' : '#ee3355';
+        ctx.fillStyle = barColor; ctx.fillRect(barX + 3, 51, (barW - 6) * hpPct, 12);
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.strokeRect(barX, 48, barW, 18);
+        ctx.fillStyle = '#fff'; ctx.font = '900 12px Courier New, monospace'; ctx.textAlign = 'center';
+        ctx.fillText(`Mafuyu  第${boss.phase}阶段`, VW / 2, 43);
         ctx.restore();
       }
     }
@@ -3092,6 +3293,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     document.getElementById('gameFullscreenBtn')!.addEventListener('click', toggleFullscreen);
     pauseBtn.addEventListener('click', () => setPaused(!paused));
     resumeBtn.addEventListener('click', () => setPaused(false));
+    document.getElementById('pauseMenuBtn')!.addEventListener('click', () => { sfxBack(); returnToMenu(); });
     abilityChoices.addEventListener('click', e => {
       const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ability-card');
       if (!btn) return;
