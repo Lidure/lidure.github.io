@@ -55,7 +55,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <canvas class="game-canvas" id="gameCanvas" width="960" height="540"></canvas>
       <div class="game-hud-top">
         <div class="hud-hp" id="hudHp"></div>
-        <div class="hud-lvl"><span>等级</span><strong id="hudLevel">1</strong><em id="hudXp">0/100</em></div>
+        <div class="hud-lvl"><span>等级</span><strong id="hudLevel">1</strong><em id="hudXp">0/100</em><span class="xp-track"><span class="xp-fill" id="xpFill"></span></span></div>
         <div class="hud-notes"><span>音符</span><strong id="hudNotes">0</strong></div>
         <div class="hud-score"><strong id="hudScore">0</strong></div>
       </div>
@@ -65,6 +65,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <button class="game-action-btn" id="menuBtn" type="button">菜单</button>
       </div>
       <div class="game-msg" id="gameMsg"></div>
+      <div class="dialogue-box hidden" id="dialogueBox">
+        <div class="dialogue-name" id="dialogueName"></div>
+        <div class="dialogue-text" id="dialogueText"></div>
+        <div class="dialogue-hint">点击继续</div>
+      </div>
       <div class="pause-overlay hidden" id="pauseOverlay">
         <div class="pause-panel">
           <div class="pause-title">已暂停</div>
@@ -120,7 +125,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <style>
+  <style is:global>
     :root { --dash-accent: #45d; --dash-accent-rgb: 68,85,221; }
 
     .dash-shell { min-height: calc(100vh - 190px); color: var(--text); user-select: none; -webkit-user-select: none; }
@@ -161,7 +166,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .game-screen { position: relative; height: calc(100vh - 140px); min-height: 460px; }
     .game-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
     .game-hud-top { position: absolute; top: 10px; left: 14px; right: 14px; display: flex; justify-content: space-between; pointer-events: none; z-index: 2; gap: 8px; }
-    .game-hud-top > div { min-height: 34px; padding: 7px 12px; border-radius: 10px; background: rgba(6,8,18,.8); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); font-family: 'Courier New', monospace; box-shadow: 0 6px 20px rgba(0,0,0,.16); }
+    .game-hud-top > div { min-height: 34px; padding: 7px 12px; border-radius: 10px; background: rgba(6,8,18,.8); border: 1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px); font-family: 'Courier New', monospace; box-shadow: 0 6px 20px rgba(0,0,0,.16); animation: hudPulse 3s ease-in-out infinite; }
+    @keyframes hudPulse { 0%, 100% { border-color: rgba(255,255,255,.08); } 50% { border-color: rgba(var(--dash-accent-rgb), .12); } }
     .hud-hp { display: flex; align-items: center; gap: 5px; font-size: .92rem; letter-spacing: 0; color: #fff; }
     .hp-label { margin-right: 3px; color: #ff8aa8; font-size: .82rem; font-weight: 900; }
     .hp-count { min-width: 30px; color: #fff; font-size: .92rem; font-weight: 900; text-align: right; }
@@ -173,11 +179,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .hud-lvl span { color: var(--dash-accent); font-size: .82rem; font-weight: 900; }
     .hud-lvl em { color: var(--muted); font-size: .72rem; font-style: normal; }
     .hud-notes strong, .hud-lvl strong, .hud-score strong { color: #fff; font-size: 1.1rem; font-weight: 900; }
+    .xp-track { display: inline-flex; width: 56px; height: 6px; border-radius: 3px; background: rgba(255,255,255,.08); overflow: hidden; vertical-align: middle; margin-left: 6px; }
+    .xp-fill { height: 100%; width: 0%; border-radius: 3px; background: linear-gradient(90deg, var(--dash-accent), #77aaff); transition: width .25s ease; }
     .hud-abilities { position: absolute; left: 14px; bottom: 14px; z-index: 2; display: flex; flex-wrap: wrap; gap: 6px; max-width: min(620px, calc(100% - 28px)); pointer-events: none; }
-    .ability-chip { min-height: 28px; padding: 6px 9px; border-radius: 8px; background: rgba(6,8,18,.74); border: 1px solid rgba(255,255,255,.1); color: #fff; font-family: 'Courier New', monospace; font-size: .72rem; font-weight: 900; box-shadow: 0 6px 18px rgba(0,0,0,.14); }
+    .ability-chip { min-height: 28px; padding: 6px 9px; border-radius: 8px; background: rgba(6,8,18,.74); border: 1px solid rgba(255,255,255,.1); color: #fff; font-family: 'Courier New', monospace; font-size: .72rem; font-weight: 900; box-shadow: 0 6px 18px rgba(0,0,0,.14); transition: border-color .3s, box-shadow .3s; }
     .ability-chip.super { color: #ffd66e; border-color: rgba(255,214,110,.5); box-shadow: 0 0 18px rgba(255,214,110,.18); }
-    .game-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Courier New', monospace; font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 20px rgba(0,0,0,.6); pointer-events: none; z-index: 3; opacity: 0; transition: opacity .3s ease; }
-    .game-msg.show { opacity: 1; }
+    .ability-chip.rare { border-color: rgba(221,85,136,.5); box-shadow: 0 0 12px rgba(221,85,136,.12); }
+    .ability-chip.epic { border-color: rgba(238,170,51,.5); box-shadow: 0 0 16px rgba(238,170,51,.15); }
+    .game-msg { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-family: 'Courier New', monospace; font-size: 2rem; font-weight: 900; color: #fff; text-shadow: 0 0 30px rgba(0,0,0,.8), 0 0 60px rgba(var(--dash-accent-rgb), .3); pointer-events: none; z-index: 3; opacity: 0; transition: opacity .25s ease, transform .3s cubic-bezier(.16,.84,.44,1); }
+    .game-msg.show { opacity: 1; transform: translate(-50%, -50%) scale(1.05); }
+    .dialogue-box { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(0); width: min(880px, calc(100% - 32px)); background: rgba(6,8,20,.88); border: 2px solid var(--accent, #4455dd); border-radius: 12px; padding: 14px 20px 10px; z-index: 8; cursor: pointer; box-shadow: 0 0 24px rgba(0,0,0,.5), inset 0 0 40px rgba(68,85,221,.06); transition: transform .3s cubic-bezier(.16,.84,.44,1), border-color .4s; }
+    .dialogue-box.hidden { display: none; }
+    .dialogue-box.enter { animation: dialogueIn .35s ease both; }
+    @keyframes dialogueIn { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+    .dialogue-name { font-family: 'Courier New', monospace; font-size: .88rem; font-weight: 900; margin-bottom: 6px; letter-spacing: .04em; }
+    .dialogue-text { font-family: 'Noto Sans SC', 'Courier New', sans-serif; font-size: 1rem; color: #dde; line-height: 1.6; min-height: 2.4em; }
+    .dialogue-hint { text-align: right; font-family: 'Courier New', monospace; font-size: .62rem; color: rgba(255,255,255,.35); margin-top: 4px; }
     .game-action-bar { position: absolute; top: 56px; right: 14px; z-index: 4; display: flex; gap: 8px; }
     .game-action-btn { min-width: 54px; padding: 7px 11px; border-radius: 10px; border: 1px solid rgba(255,255,255,.13); background: rgba(6,8,18,.78); color: #fff; font-family: inherit; font-size: .78rem; font-weight: 800; cursor: pointer; backdrop-filter: blur(6px); }
     .game-action-btn:hover { border-color: rgba(var(--dash-accent-rgb), .55); color: var(--dash-accent); }
@@ -187,22 +204,37 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .pause-actions { display: flex; gap: 10px; }
     .ability-overlay { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 18px; background: radial-gradient(circle at 50% 35%, rgba(var(--dash-accent-rgb), .34), transparent 36%), linear-gradient(180deg, rgba(4,6,16,.92), rgba(7,9,24,.86)); backdrop-filter: blur(12px); overflow: hidden; }
     .ability-overlay::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px); background-size: 36px 36px; mask-image: radial-gradient(circle at center, black, transparent 76%); pointer-events: none; }
-    .ability-panel { position: relative; width: min(760px, calc(100vw - 28px)); padding: 24px; border-radius: 18px; border: 1.5px solid rgba(var(--dash-accent-rgb), .46); background: linear-gradient(180deg, rgba(16,18,36,.94), rgba(8,10,22,.94)); box-shadow: 0 22px 70px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.08); overflow: hidden; }
-    .ability-panel::before { content: 'LEVEL UP'; position: absolute; top: 14px; left: 18px; color: rgba(255,255,255,.12); font-family: 'Courier New', monospace; font-size: .72rem; font-weight: 900; letter-spacing: .22em; }
-    .ability-title { font-family: 'Courier New', monospace; font-size: clamp(1.45rem, 4vw, 2.25rem); font-weight: 900; color: #fff; text-align: center; text-shadow: 0 0 20px rgba(var(--dash-accent-rgb), .55); }
-    .ability-subtitle { margin: 6px 0 20px; color: var(--muted); text-align: center; font-size: .88rem; font-weight: 700; }
+    .ability-panel { position: relative; width: min(760px, calc(100vw - 28px)); padding: 28px; border-radius: 20px; border: 1.5px solid rgba(var(--dash-accent-rgb), .5); background: linear-gradient(180deg, rgba(12,14,32,.98), rgba(6,8,18,.98)); box-shadow: 0 22px 70px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.08), 0 0 60px rgba(var(--dash-accent-rgb), .08); animation: panelIn .35s ease both; }
+    .ability-title { font-family: 'Courier New', monospace; font-size: clamp(1.5rem, 4.5vw, 2.4rem); font-weight: 900; color: #fff; text-align: center; text-shadow: 0 0 28px rgba(var(--dash-accent-rgb), .55); letter-spacing: .02em; padding-bottom: 4px; }
+    .ability-subtitle { margin: 0 0 20px; color: rgba(255,255,255,.4); text-align: center; font-size: .82rem; font-weight: 700; letter-spacing: .04em; border-bottom: 1px solid rgba(255,255,255,.06); padding-bottom: 14px; }
     .ability-choices { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .ability-card { --rarity: #88ddff; position: relative; min-height: 184px; padding: 14px; border-radius: 12px; border: 1.5px solid color-mix(in srgb, var(--rarity), transparent 42%); background: linear-gradient(180deg, color-mix(in srgb, var(--rarity), transparent 86%), rgba(255,255,255,.025)); color: #fff; font-family: inherit; text-align: left; cursor: pointer; overflow: hidden; transition: transform 140ms ease, border-color 140ms ease, box-shadow 140ms ease; }
-    .ability-card[data-rarity="RARE"] { --rarity: #ff99cc; }
-    .ability-card[data-rarity="EPIC"] { --rarity: #ffd66e; }
-    .ability-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 22% 18%, color-mix(in srgb, var(--rarity), transparent 54%), transparent 42%); opacity: .95; pointer-events: none; }
-    .ability-card::after { content: attr(data-index); position: absolute; right: 12px; bottom: 8px; color: rgba(255,255,255,.08); font-family: 'Courier New', monospace; font-size: 3rem; font-weight: 900; line-height: 1; }
-    .ability-card:hover { transform: translateY(-4px); border-color: var(--rarity); box-shadow: 0 14px 38px color-mix(in srgb, var(--rarity), transparent 78%); }
-    .ability-icon, .ability-card strong, .ability-card span, .ability-card em { position: relative; z-index: 1; display: block; }
-    .ability-icon { width: 42px; height: 42px; margin-bottom: 12px; border-radius: 10px; display: grid; place-items: center; background: color-mix(in srgb, var(--rarity), transparent 78%); border: 1px solid color-mix(in srgb, var(--rarity), transparent 32%); color: #fff; font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: 900; box-shadow: 0 0 18px color-mix(in srgb, var(--rarity), transparent 78%); }
-    .ability-card strong { margin-bottom: 7px; font-size: 1.02rem; font-weight: 900; }
-    .ability-card span { color: var(--text-soft); font-size: .8rem; line-height: 1.55; }
-    .ability-card em { margin-top: 13px; color: var(--rarity); font-family: 'Courier New', monospace; font-size: .68rem; font-style: normal; font-weight: 900; letter-spacing: .08em; }
+    .ability-card { position: relative; min-height: 190px; padding: 20px 16px 16px; border-radius: 16px; border: 1.5px solid rgba(68,136,204,.5); background: linear-gradient(165deg, rgba(68,136,204,.2) 0%, rgba(68,136,204,.06) 45%, rgba(0,0,0,.35) 85%); color: #fff; font-family: inherit; text-align: left; cursor: pointer; overflow: hidden; transition: transform .22s cubic-bezier(.16,.84,.44,1), border-color .22s, box-shadow .22s; animation: cardIn .45s ease both; box-shadow: 0 0 18px rgba(68,136,204,.12), inset 0 0 40px rgba(68,136,204,.04); backdrop-filter: blur(4px); }
+    .ability-card[data-rarity="RARE"] { border-color: rgba(221,85,136,.55); background: linear-gradient(165deg, rgba(221,85,136,.22) 0%, rgba(221,85,136,.07) 45%, rgba(0,0,0,.35) 85%); box-shadow: 0 0 22px rgba(221,85,136,.16), inset 0 0 44px rgba(221,85,136,.05); }
+    .ability-card[data-rarity="EPIC"] { border-color: rgba(238,170,51,.6); background: linear-gradient(165deg, rgba(238,170,51,.25) 0%, rgba(238,170,51,.09) 45%, rgba(0,0,0,.35) 85%); box-shadow: 0 0 30px rgba(238,170,51,.2), inset 0 0 50px rgba(238,170,51,.06); }
+    @keyframes cardIn { from { opacity: 0; transform: translateY(16px) scale(.93); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    .ability-card:nth-child(1) { animation-delay: .05s; }
+    .ability-card:nth-child(2) { animation-delay: .13s; }
+    .ability-card:nth-child(3) { animation-delay: .21s; }
+    .ability-card::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 30% 15%, rgba(255,255,255,.06), transparent 65%); pointer-events: none; }
+    .ability-card::after { content: attr(data-index); position: absolute; right: 10px; bottom: 4px; color: rgba(255,255,255,.035); font-family: 'Courier New', monospace; font-size: 2.8rem; font-weight: 900; line-height: 1; pointer-events: none; }
+    .ability-card:hover { transform: translateY(-6px) scale(1.025); border-color: #fff; box-shadow: 0 18px 48px rgba(0,0,0,.35); }
+    .ability-card[data-rarity="RARE"]:hover { border-color: #dd5588; }
+    .ability-card[data-rarity="EPIC"]:hover { border-color: #eeaa33; box-shadow: 0 18px 48px rgba(0,0,0,.4), 0 0 30px rgba(238,170,51,.15); }
+    .ability-card:active { transform: translateY(-2px) scale(.97); }
+    .ability-corner { position: absolute; top: 0; right: 0; width: 48px; height: 48px; pointer-events: none; }
+    .ability-corner svg { width: 100%; height: 100%; fill: none; stroke: rgba(255,255,255,.12); stroke-width: 1.5; }
+    .ability-card[data-rarity="RARE"] .ability-corner svg { stroke: rgba(221,85,136,.3); }
+    .ability-card[data-rarity="EPIC"] .ability-corner svg { stroke: rgba(238,170,51,.4); }
+    .ability-icon { width: 52px; height: 52px; margin-bottom: 14px; border-radius: 14px; display: flex; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,.2); font-size: 1.6rem; line-height: 1; position: relative; z-index: 1; background: linear-gradient(135deg, rgba(68,136,204,.55), rgba(68,136,204,.2)); box-shadow: 0 0 16px rgba(68,136,204,.25), inset 0 0 12px rgba(255,255,255,.12); }
+    .ability-card[data-rarity="RARE"] .ability-icon { background: linear-gradient(135deg, rgba(221,85,136,.55), rgba(221,85,136,.2)); box-shadow: 0 0 20px rgba(221,85,136,.3), inset 0 0 12px rgba(255,255,255,.12); }
+    .ability-card[data-rarity="EPIC"] .ability-icon { background: linear-gradient(135deg, rgba(238,170,51,.6), rgba(238,170,51,.2)); box-shadow: 0 0 26px rgba(238,170,51,.4), inset 0 0 14px rgba(255,255,255,.15); }
+    .ability-card strong { margin-bottom: 6px; font-size: 1.05rem; font-weight: 900; display: block; position: relative; z-index: 1; letter-spacing: .01em; color: #fff; }
+    .ability-card span:not(.ability-icon) { color: rgba(255,255,255,.6); font-size: .76rem; line-height: 1.5; display: block; position: relative; z-index: 1; }
+    .ability-rarity { margin-top: auto; padding-top: 10px; font-family: 'Courier New', monospace; font-size: .62rem; font-style: normal; font-weight: 900; letter-spacing: .14em; display: block; position: relative; z-index: 1; text-transform: uppercase; }
+    .ability-card[data-rarity="COMMON"] .ability-rarity { color: #66ccff; text-shadow: 0 0 12px rgba(68,136,204,.4); }
+    .ability-card[data-rarity="RARE"] .ability-rarity { color: #ff88bb; text-shadow: 0 0 12px rgba(221,85,136,.4); }
+    .ability-card[data-rarity="EPIC"] .ability-rarity { color: #ffcc44; text-shadow: 0 0 16px rgba(238,170,51,.45); }
+    .ability-desc { flex: 1; }
     .secret-toast { position: absolute; left: 50%; top: 18%; z-index: 8; transform: translate(-50%, -14px) scale(.96); padding: 13px 22px; border-radius: 14px; background: rgba(10,12,26,.92); border: 1.5px solid rgba(255,214,110,.72); color: #ffd66e; font-family: 'Courier New', monospace; font-size: .95rem; font-weight: 900; letter-spacing: .04em; box-shadow: 0 0 28px rgba(255,214,110,.25); opacity: 0; pointer-events: none; transition: opacity 180ms ease, transform 180ms ease; }
     .secret-toast.show { opacity: 1; transform: translate(-50%, 0) scale(1); }
     .boss-finisher { position: absolute; inset: 0; z-index: 7; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 48%, rgba(153,102,204,.32), rgba(5,5,14,.94) 64%); pointer-events: none; animation: finisherFade 3.8s ease both; }
@@ -249,7 +281,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .ability-chip { padding: 5px 7px; font-size: .65rem; }
       .ability-panel { padding: 16px; }
       .ability-choices { grid-template-columns: 1fr; }
-      .ability-card { min-height: 104px; }
+      .ability-card { min-height: 110px; padding: 14px 12px 12px; }
+      .ability-corner { display: none; }
+      .ability-icon { width: 40px; height: 40px; margin-bottom: 10px; font-size: 1.2rem; }
       .game-action-bar { top: 58px; right: 8px; }
       .game-action-btn { min-width: 46px; padding: 6px 8px; font-size: .72rem; }
       .hp-dot { width: 10px; height: 10px; }
@@ -264,70 +298,166 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   <script>
     // ===== SEKAI DASH — Action Platformer =====
-    const VW = 960, VH = 540, GRAVITY = 1800;
+    const VW = 960, VH = 540, GRAVITY = 1550;
 
     const CHARS = [
-      { name: 'Kanade', img: '/knd.png', speed: 280, jumpPow: 620, atkCd: 350, projSpd: 520, hp: 5, color: '#33ccbb', desc: '均衡' },
-      { name: 'Mafuyu', img: '/mfy/mfy1.png', speed: 250, jumpPow: 580, atkCd: 280, projSpd: 480, hp: 4, color: '#9966cc', desc: '力量' },
-      { name: 'Mizuki', img: '/mzk.png', speed: 360, jumpPow: 660, atkCd: 320, projSpd: 560, hp: 4, color: '#ff99aa', desc: '速度' },
-      { name: 'Ena', img: '/ena.png', speed: 300, jumpPow: 700, atkCd: 340, projSpd: 500, hp: 5, color: '#88cc44', desc: '灵活' },
-      { name: 'Miku', img: '/25miku.png', speed: 270, jumpPow: 600, atkCd: 260, projSpd: 640, hp: 4, color: '#ccddff', desc: '远程' },
+      { name: 'Kanade', img: '/knd.png', speed: 280, jumpPow: 580, atkCd: 350, projSpd: 520, hp: 5, color: '#33ccbb', desc: '均衡' },
+      { name: 'Mafuyu', img: '/mfy/mfy1.png', speed: 250, jumpPow: 540, atkCd: 280, projSpd: 480, hp: 4, color: '#9966cc', desc: '力量' },
+      { name: 'Mizuki', img: '/mzk.png', speed: 360, jumpPow: 620, atkCd: 320, projSpd: 560, hp: 4, color: '#ff99aa', desc: '速度' },
+      { name: 'Ena', img: '/ena.png', speed: 300, jumpPow: 660, atkCd: 340, projSpd: 500, hp: 5, color: '#88cc44', desc: '灵活' },
+      { name: 'Miku', img: '/25miku.png', speed: 270, jumpPow: 560, atkCd: 260, projSpd: 640, hp: 4, color: '#ccddff', desc: '远程' },
     ];
 
     const STAGES = [
-      { name: '第一幕 - 街头排练', bg1: '#0a1628', bg2: '#162040', platColor: '#1e3460', platTop: '#4488cc', accent: '#4455dd', starColor: '#77aaff', enemies: 10, worldW: 3300, boss: false,
+      { name: '第一幕 - 街头排练', bg1: '#0a1628', bg2: '#162040', platColor: '#1e3460', platTop: '#4488cc', accent: '#4455dd', starColor: '#77aaff', enemies: 8, worldW: 3200, boss: false,
+        // 教学关：宽→窄渐进，移动平台安全教学，最后一组平台引入尖刺（清晰可见）
         buildPlatforms: (P: Rect[]) => {
-          P.push({x:0,y:476,w:620,h:64});P.push({x:720,y:438,w:220,h:24});P.push({x:1040,y:392,w:190,h:24});
-          P.push({x:1330,y:440,w:340,h:24});P.push({x:1760,y:396,w:260,h:24});P.push({x:2110,y:348,w:210,h:24});
-          P.push({x:2410,y:420,w:300,h:24});P.push({x:2810,y:476,w:490,h:64});
-          P.push({x:520,y:338,w:120,h:20});P.push({x:1530,y:300,w:110,h:20});P.push({x:2660,y:308,w:130,h:20});
+          P.push({x:0,y:476,w:600,h:64});               // 出发大地台，安全起步+第一组战斗
+          P.push({x:720,y:460,w:140,h:24});              // 首跳，很矮很宽——零失误
+          P.push({x:960,y:420,w:140,h:24});              // 第二跳，缓坡上升
+          P.push({x:1200,y:380,w:160,h:24});             // 中段宽台，第一组2只敌人登场
+          P.push({x:1480,y:430,w:120,h:24});             // 移动平台登船点
+          P.push({x:1800,y:400,w:140,h:24});             // 移动平台下船点，第二组战斗
+          P.push({x:2080,y:440,w:140,h:24});             // 过渡宽台
+          P.push({x:2340,y:400,w:160,h:24});             // 尖刺前最后安全台
+          P.push({x:2580,y:476,w:80,h:28});              // 尖刺平台——表面有刺，必须跳过(落在石柱表面)
+          P.push({x:2740,y:476,w:460,h:64});             // 终点大地台，最后一批敌人
+        },
+        buildMovingPlatforms: (M: MovingPlatform[]) => {
+          // 水平移动平台，跨越一段无底坑（坑底无尖刺——安全教学）
+          M.push({x:1460,y:370,w:110,h:20,ox:1460,oy:370,dx:150,dy:0,speed:65,t:0});
+        },
+        buildHazards: (H: Hazard[]) => {
+          // 尖刺放在石柱表面(2580,476)，玩家必须跳过它——教学关唯一尖刺，醒目
+          H.push({x:2580,y:454,w:80,h:22,type:'spike'});
         }},
-      { name: '第二幕 - 破碎的 SEKAI', bg1: '#1a0a14', bg2: '#2a1020', platColor: '#4a1830', platTop: '#cc3366', accent: '#ee1166', starColor: '#ff6699', enemies: 15, worldW: 3900, boss: false,
+      { name: '第二幕 - 破碎的 SEKAI', bg1: '#1a0a14', bg2: '#2a1020', platColor: '#4a1830', platTop: '#cc3366', accent: '#ee1166', starColor: '#ff6699', enemies: 12, worldW: 3800, boss: false,
+        // 破碎世界：高差增大、双路径选择（高风险高回报）、三种移动平台
         buildPlatforms: (P: Rect[]) => {
-          P.push({x:0,y:476,w:430,h:64});P.push({x:540,y:420,w:190,h:24});P.push({x:830,y:370,w:170,h:24});
-          P.push({x:1100,y:422,w:210,h:24});P.push({x:1410,y:350,w:190,h:24});P.push({x:1700,y:404,w:210,h:24});
-          P.push({x:2010,y:340,w:170,h:24});P.push({x:2280,y:410,w:250,h:24});P.push({x:2630,y:358,w:190,h:24});
-          P.push({x:2920,y:420,w:210,h:24});P.push({x:3220,y:360,w:190,h:24});P.push({x:3510,y:476,w:390,h:64});
-          P.push({x:460,y:312,w:110,h:20});P.push({x:1220,y:270,w:120,h:20});P.push({x:2060,y:260,w:110,h:20});P.push({x:2760,y:282,w:130,h:20});
+          P.push({x:0,y:476,w:450,h:64});               // 起点
+          P.push({x:560,y:450,w:120,h:24});              // 缓坡
+          P.push({x:780,y:400,w:120,h:24});              // 上升
+          P.push({x:1020,y:350,w:140,h:24});             // 中高位，第一组战斗
+          P.push({x:1280,y:410,w:100,h:24});             // 低位着陆
+          // 分叉路口：上方窄路(安全但绕路) vs 下方宽路(快但有尖刺)
+          P.push({x:1500,y:340,w:90,h:20});              // 上方安全路线——窄台跳跃
+          P.push({x:1500,y:430,w:200,h:24});             // 下方快速路线——宽台但有尖刺
+          P.push({x:1740,y:360,w:120,h:24});             // 上方路线的衔接
+          P.push({x:1800,y:440,w:100,h:24});             // 下方路线出口
+          P.push({x:2000,y:390,w:140,h:24});             // 汇合点，第二组战斗
+          // 垂直移动平台区
+          P.push({x:2280,y:340,w:100,h:24});             // 移动平台1着陆
+          P.push({x:2540,y:410,w:100,h:24});             // 过渡
+          P.push({x:2780,y:360,w:120,h:24});             // 移动平台2衔接点
+          // 终段冲刺
+          P.push({x:3060,y:420,w:100,h:24});             // 过渡
+          P.push({x:3300,y:476,w:60,h:28});              // 尖刺台
+          P.push({x:3440,y:476,w:360,h:64});             // 终点
+        },
+        buildMovingPlatforms: (M: MovingPlatform[]) => {
+          // 垂直升降平台：把玩家从低位抬到高位
+          M.push({x:1360,y:400,w:100,h:20,ox:1360,oy:400,dx:0,dy:-90,speed:60,t:0});
+          // 水平快速移动平台：跨越裂隙
+          M.push({x:2680,y:380,w:100,h:20,ox:2680,oy:380,dx:160,dy:0,speed:85,t:0.4});
+        },
+        buildHazards: (H: Hazard[]) => {
+          // 下方快速路线的平台上放尖刺——走下面必须跳跃通过
+          H.push({x:1570,y:408,w:60,h:22,type:'spike'});
+          // 终点前最后一个安全台上有尖刺——提醒玩家永远保持警惕
+          H.push({x:3300,y:454,w:60,h:22,type:'spike'});
         }},
-      { name: '第三幕 - 回声回廊', bg1: '#120f20', bg2: '#241438', platColor: '#322050', platTop: '#aa77cc', accent: '#bb77dd', starColor: '#ddbbff', enemies: 18, worldW: 4300, boss: false,
+      { name: '第三幕 - 回声回廊', bg1: '#120f20', bg2: '#241438', platColor: '#322050', platTop: '#aa77cc', accent: '#bb77dd', starColor: '#ddbbff', enemies: 14, worldW: 4200, boss: false,
+        // 回声回廊：狭长高耸、连续移动平台接力、多段尖刺障碍
         buildPlatforms: (P: Rect[]) => {
-          P.push({x:0,y:476,w:500,h:64});P.push({x:620,y:408,w:210,h:24});P.push({x:930,y:350,w:190,h:24});
-          P.push({x:1220,y:424,w:240,h:24});P.push({x:1580,y:360,w:210,h:24});P.push({x:1900,y:430,w:250,h:24});
-          P.push({x:2240,y:350,w:190,h:24});P.push({x:2520,y:402,w:240,h:24});P.push({x:2860,y:326,w:180,h:24});
-          P.push({x:3140,y:420,w:220,h:24});P.push({x:3460,y:352,w:210,h:24});P.push({x:3790,y:476,w:510,h:64});
-          P.push({x:520,y:300,w:120,h:20});P.push({x:1450,y:276,w:130,h:20});P.push({x:2370,y:260,w:110,h:20});P.push({x:3320,y:282,w:140,h:20});
+          P.push({x:0,y:476,w:400,h:64});               // 起点
+          P.push({x:500,y:450,w:100,h:24});              // 首跳
+          P.push({x:700,y:400,w:120,h:24});              // 上升
+          P.push({x:960,y:440,w:120,h:24});              // 缓冲
+          P.push({x:1180,y:370,w:140,h:24});             // 第一组战斗——平台宽敞
+          P.push({x:1460,y:400,w:100,h:24});             // 移动平台1登船
+          P.push({x:1700,y:430,w:120,h:24});             // 过渡着陆
+          P.push({x:1940,y:360,w:100,h:24});             // 上升短台
+          P.push({x:2160,y:300,w:120,h:24});             // 高位窄台——双跳考验
+          P.push({x:2420,y:370,w:140,h:24});             // 下降后缓冲+战斗
+          P.push({x:2700,y:420,w:100,h:24});             // 过渡
+          P.push({x:2920,y:360,w:120,h:24});             // 移动平台2登船
+          P.push({x:3200,y:410,w:100,h:24});             // 着陆
+          P.push({x:3420,y:340,w:120,h:24});             // 上升至高位
+          P.push({x:3660,y:400,w:100,h:24});             // 移动平台3登船
+          P.push({x:3900,y:476,w:300,h:64});             // 终点
+        },
+        buildMovingPlatforms: (M: MovingPlatform[]) => {
+          // 水平快速移动——跨越裂隙到达上升区
+          M.push({x:1380,y:380,w:100,h:20,ox:1380,oy:380,dx:180,dy:0,speed:85,t:0});
+          // 直角斜升——把玩家从低位送到高位平台系
+          M.push({x:2840,y:380,w:90,h:20,ox:2840,oy:380,dx:100,dy:-80,speed:68,t:0.3});
+          // 斜向跨越——终段前的最后一个移动平台
+          M.push({x:3560,y:420,w:100,h:20,ox:3560,oy:420,dx:140,dy:-60,speed:75,t:0.5});
+        },
+        buildHazards: (H: Hazard[]) => {
+          // 高位窄台(2160,300)表面放尖刺——只有短平台可站，必须跳过去
+          H.push({x:2160,y:278,w:60,h:22,type:'spike'});
+          // 过渡平台(2700,420)表面放尖刺——跳跃通过
+          H.push({x:2700,y:398,w:60,h:22,type:'spike'});
+          // 登船平台表面也放刺——增加跳跃难度
+          H.push({x:3420,y:318,w:60,h:22,type:'spike'});
         }},
-      { name: '最终幕 - 空虚的舞台核心', bg1: '#120a1a', bg2: '#1a1030', platColor: '#2a1848', platTop: '#884499', accent: '#9966cc', starColor: '#bb88dd', enemies: 10, worldW: 3400, boss: true,
+      { name: '最终幕 - 空虚的舞台核心', bg1: '#120a1a', bg2: '#1a1030', platColor: '#2a1848', platTop: '#884499', accent: '#9966cc', starColor: '#bb88dd', enemies: 8, worldW: 3200, boss: true,
+        // Boss战舞台：开阔场地，多层平台提供弹幕掩护，移动平台辅助走位
         buildPlatforms: (P: Rect[]) => {
-          P.push({x:0,y:476,w:520,h:64});P.push({x:620,y:430,w:190,h:24});P.push({x:900,y:378,w:170,h:24});
-          P.push({x:1180,y:430,w:220,h:24});P.push({x:1500,y:370,w:190,h:24});P.push({x:1790,y:420,w:210,h:24});
-          P.push({x:2100,y:476,w:1300,h:64});
-          P.push({x:2260,y:360,w:180,h:22});P.push({x:2550,y:316,w:170,h:22});P.push({x:2840,y:360,w:180,h:22});
-        }},
+          P.push({x:0,y:476,w:800,h:64});               // 主战场——宽大，避免开局被Boss封锁
+          P.push({x:920,y:430,w:160,h:24});              // 低位侧台——躲避弹幕
+          P.push({x:1200,y:370,w:140,h:24});             // 中位台——狙击位
+          P.push({x:1480,y:430,w:120,h:24});             // 中位侧台
+          P.push({x:1720,y:360,w:140,h:24});             // 高位核心台
+          P.push({x:2000,y:450,w:140,h:24});             // 右侧低位——Boss近身躲避
+          P.push({x:2280,y:476,w:920,h:64});             // Boss区域——宽阔的正面对决台
+        },
+        buildMovingPlatforms: (M: MovingPlatform[]) => {
+          // 垂直升降——在中央区域提供上下机动
+          M.push({x:1400,y:400,w:100,h:20,ox:1400,oy:400,dx:0,dy:-90,speed:55,t:0});
+          // 横向移动——提供左右快速换位
+          M.push({x:1600,y:470,w:100,h:20,ox:1600,oy:470,dx:200,dy:0,speed:70,t:0.5});
+        },
+        },
     ];
     interface Rect { x: number; y: number; w: number; h: number; }
     interface Player extends Rect { vx: number; vy: number; grounded: boolean; facing: number; hp: number; maxHp: number; invuln: number; jumps: number; maxJumps: number; atkTimer: number; }
-    type EnemyType = 'slime' | 'bat' | 'ghost' | 'charger' | 'sniper';
-    interface Enemy extends Rect { vx: number; hp: number; maxHp: number; left: number; right: number; type: EnemyType; alive: boolean; atkTimer: number; xp: number; elite?: boolean; baseY?: number; dashTimer?: number; }
-    interface Note { x: number; y: number; taken: boolean; }
-    interface Pickup { x: number; y: number; type: 'health' | 'amp'; taken: boolean; }
+    type EnemyType = 'slime' | 'bat' | 'ghost' | 'charger' | 'sniper' | 'shielder' | 'orbiter';
+    interface Enemy extends Rect { vx: number; hp: number; maxHp: number; left: number; right: number; type: EnemyType; alive: boolean; atkTimer: number; xp: number; elite?: boolean; dashTimer?: number; deathTimer?: number; baseY?: number; popIn?: number; }
+    interface Note { x: number; y: number; taken: boolean; spawnT: number; }
+    interface Pickup { x: number; y: number; type: 'health' | 'amp'; taken: boolean; spawnT: number; }
     interface NpcEncounter extends Rect { id: string; name: string; text: string; color: string; reward: 'hp' | 'haste' | 'power' | 'jump'; met: boolean; seen?: boolean; char?: number; }
     type ProjectileShape = 'note' | 'slash' | 'fan' | 'paint' | 'beam' | 'orb';
     interface Projectile extends Rect { vx: number; vy: number; life: number; damage: number; kind: 'player' | 'enemy' | 'boss'; color: string; shape?: ProjectileShape; pierce?: number; homing?: number; accelY?: number; aoe?: number; spin?: number; }
     interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; }
+    interface FloatingText { x: number; y: number; text: string; color: string; life: number; vy: number; }
     interface Boss extends Rect { hp: number; maxHp: number; active: boolean; alive: boolean; phase: number; pattern: 'idle' | 'volley' | 'rain' | 'wave' | 'beam'; timer: number; attackTimer: number; burstCount: number; beamWarn: number; beamY: number; teleportTimer: number; homeY: number; }
     interface GameSave { runs: number; bestScore: number; clearedStages: number; unlockedChars: number[]; metNpcIds: string[]; totalKills: number; totalNotes: number; bossClears: number; }
     interface AbilityOption { id: string; name: string; desc: string; icon: string; rarity: 'COMMON' | 'RARE' | 'EPIC'; apply: () => void; }
+    interface MovingPlatform extends Rect { ox: number; oy: number; dx: number; dy: number; speed: number; t: number; }
+    interface Hazard extends Rect { type: 'spike'; }
+    interface ForegroundDecor { x: number; y: number; w: number; h: number; type: string; layer: 'back' | 'front'; parallax: number; }
+    interface AmbientParticle { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number; color: string; angle: number; }
 
     const NPCS_BY_STAGE: Omit<NpcEncounter, 'x' | 'y' | 'w' | 'h' | 'met'>[][] = [
-      [{ id: 'kanade-encounter', name: 'Kanade', text: '把节奏放慢，先活下来。', color: '#33ccbb', reward: 'hp', char: 0 }],
       [
-        { id: 'mizuki-encounter', name: 'Mizuki', text: '换一条路线试试看。', color: '#ff99aa', reward: 'haste', char: 2 },
-        { id: 'ena-encounter', name: 'Ena', text: '别只是逃，反击要更重。', color: '#88cc44', reward: 'power', char: 3 },
+        { id: 'kanade-encounter', name: 'Kanade', text: '把节奏放慢，先活下来……这首歌，还没有写完。', color: '#33ccbb', reward: 'hp', char: 0 },
+        { id: 'mafuyu-echo-1', name: 'Mafuyu 的回声', text: '……我在这里吗？我不确定。但旋律让我停了下来。', color: '#bb77dd', reward: 'jump', char: 1 },
       ],
-      [{ id: 'empty-sekai-echo', name: 'Mafuyu 的回声', text: '精英怪会守住出口，留一点血再推进。', color: '#bb77dd', reward: 'jump', char: 1 }],
-      [{ id: 'miku-warning', name: '25 Miku', text: '核心正在失控。准备好再靠近舞台。', color: '#ccddff', reward: 'power', char: 4 }],
+      [
+        { id: 'mizuki-encounter', name: 'Mizuki', text: '换一条路线试试看——Ena 总说我只会逃跑，但那又怎样？', color: '#ff99aa', reward: 'haste', char: 2 },
+        { id: 'ena-encounter', name: 'Ena', text: '别只是逃，反击要更重。Mizuki 要是也能这么果断就好了。', color: '#88cc44', reward: 'power', char: 3 },
+        { id: 'kanade-echo-2', name: 'Kanade 的回声', text: '如果 Mafuyu 能听到这段旋律就好了……她会明白的。', color: '#33ccbb', reward: 'hp', char: 0 },
+      ],
+      [
+        { id: 'empty-sekai-echo', name: 'Mafuyu', text: '精英怪会守住出口，留一点血再推进。……我好像想起了什么。', color: '#bb77dd', reward: 'jump', char: 1 },
+        { id: 'mizuki-echo-3', name: 'Mizuki 的回声', text: '这个回廊好安静，像是谁把声音都吞掉了。Ena，你在吗？', color: '#ff99aa', reward: 'haste', char: 2 },
+      ],
+      [
+        { id: 'miku-warning', name: '25 Miku', text: '核心正在失控。准备好再靠近舞台——你们的故事还没有结束。', color: '#ccddff', reward: 'power', char: 4 },
+        { id: 'ena-echo-final', name: 'Ena 的回声', text: '就算世界崩塌，也要把最后一段旋律画完。这是我们的约定。', color: '#88cc44', reward: 'power', char: 3 },
+      ],
     ];
 
     // --- State ---
@@ -339,7 +469,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     let npcs: NpcEncounter[] = [];
     let projectiles: Projectile[] = [];
     let particles: Particle[] = [];
+    let floatingTexts: FloatingText[] = [];
     let platforms: Rect[] = [];
+    let movingPlatforms: MovingPlatform[] = [];
+    let hazards: Hazard[] = [];
+    let decors: ForegroundDecor[] = [];
+    let ambientParticles: AmbientParticle[] = [];
     let boss: Boss | null = null;
     let cameraX = 0, score = 0, notesCollected = 0, enemiesKilled = 0;
     let heroLevel = 1, heroXp = 0, heroXpNext = 100;
@@ -353,6 +488,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     let resultRecorded = false;
     let running = false, finished = false, paused = false;
     let shakeX = 0, shakeY = 0, shakeT = 0;
+    let screenFlash = 0; let screenFlashColor = '#ff66dd';
+    let stageClearTimer = 0;
     let msgTimer = 0;
     let secretBuffer = '';
     let superMode = false;
@@ -364,6 +501,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     let animFrame = 0;
     let animTimer = 0;
     let runDustTimer = 0;
+    let coyoteTimer = 0, jumpBufferTimer = 0, wasAirborne = false, freezeTimer = 0;
+    let dialogueActive = false;
     const SAVE_KEY = 'sekaiQuestSaveV1';
     const DEFAULT_SAVE: GameSave = { runs: 0, bestScore: 0, clearedStages: 0, unlockedChars: [1], metNpcIds: [], totalKills: 0, totalNotes: 0, bossClears: 0 };
     let saveData: GameSave = { ...DEFAULT_SAVE, unlockedChars: [...DEFAULT_SAVE.unlockedChars], metNpcIds: [] };
@@ -423,6 +562,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const secretToast = document.getElementById('secretToast')!;
     const bossFinisher = document.getElementById('bossFinisher')!;
     const bossFinisherImg = document.getElementById('bossFinisherImg') as HTMLImageElement;
+    const dialogueBox = document.getElementById('dialogueBox')!;
+    const dialogueName = document.getElementById('dialogueName')!;
+    const dialogueText = document.getElementById('dialogueText')!;
     const bossFinisherLine = document.getElementById('bossFinisherLine')!;
     const saveSummary = document.getElementById('saveSummary')!;
     const hudHp = document.getElementById('hudHp')!;
@@ -431,6 +573,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const hudLevel = document.getElementById('hudLevel')!;
     const hudXp = document.getElementById('hudXp')!;
     const hudScore = document.getElementById('hudScore')!;
+    const xpFill = document.getElementById('xpFill')!;
 
     // Preload character images
     CHARS.forEach((c, i) => {
@@ -456,20 +599,144 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     // --- Audio ---
     let audioCtx: AudioContext | null = null;
-    function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)(); }
-    function playSfx(freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.12) {
-      if (!audioCtx) return;
-      const t = audioCtx.currentTime, g = audioCtx.createGain(), o = audioCtx.createOscillator();
-      o.type = type; o.frequency.setValueAtTime(freq, t); o.frequency.exponentialRampToValueAtTime(freq * 0.5, t + dur);
-      g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-      o.connect(g); g.connect(audioCtx.destination); o.start(t); o.stop(t + dur);
+    let masterGain: GainNode | null = null;
+    let bgmGain: GainNode | null = null;
+    let bgmPlaying = false;
+    let sfxVol = 0.35, musicVol = 0.15;
+
+    function initAudio() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      if (!masterGain && audioCtx) { masterGain = audioCtx.createGain(); masterGain.gain.value = 1; masterGain.connect(audioCtx.destination); }
     }
-    function sfxJump() { playSfx(440, 0.08, 'sine', 0.08); }
-    function sfxHit() { playSfx(880, 0.1, 'square', 0.1); }
-    function sfxNote() { playSfx(660, 0.12, 'sine', 0.1); playSfx(990, 0.12, 'sine', 0.06); }
-    function sfxHurt() { playSfx(180, 0.2, 'sawtooth', 0.12); }
-    function sfxKill() { playSfx(520, 0.15, 'square', 0.1); playSfx(780, 0.1, 'sine', 0.08); }
-    function sfxClear() { playSfx(523, 0.15, 'sine', 0.12); setTimeout(() => playSfx(659, 0.15, 'sine', 0.12), 120); setTimeout(() => playSfx(784, 0.25, 'sine', 0.14), 240); }
+
+    // Layered SFX with ADSR envelope, random pitch variation, noise layer support
+    function playSfx(freq: number, dur: number, type: OscillatorType = 'sine', vol = 0.12, opts?: { noise?: number; slide?: number; vibrato?: number; delay?: number }) {
+      if (!audioCtx || !masterGain) return;
+      const t = audioCtx.currentTime + (opts?.delay || 0);
+      const rv = 1 + (Math.random() - 0.5) * 0.12; // ±6% pitch variation
+      const g = audioCtx.createGain();
+      g.gain.setValueAtTime(0, t);
+      g.gain.linearRampToValueAtTime(vol * sfxVol, t + 0.006);
+      g.gain.exponentialRampToValueAtTime(vol * sfxVol * 0.5, t + dur * 0.3);
+      g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      const o = audioCtx.createOscillator();
+      o.type = type;
+      o.frequency.setValueAtTime(freq * rv, t);
+      if (opts?.slide) o.frequency.linearRampToValueAtTime(freq * rv * opts.slide, t + dur);
+      if (opts?.vibrato) {
+        const vibr = audioCtx.createOscillator(); vibr.frequency.value = opts.vibrato; vibr.type = 'sine';
+        const vGain = audioCtx.createGain(); vGain.gain.value = freq * 0.04;
+        vibr.connect(vGain); vGain.connect(o.frequency); vibr.start(t); vibr.stop(t + dur);
+      }
+      o.connect(g); g.connect(masterGain); o.start(t); o.stop(t + dur);
+      // Noise layer
+      if (opts?.noise) {
+        const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * dur, audioCtx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 2);
+        const ns = audioCtx.createBufferSource(); ns.buffer = buf;
+        const ng = audioCtx.createGain();
+        ng.gain.setValueAtTime(opts.noise * sfxVol, t);
+        ng.gain.exponentialRampToValueAtTime(0.001, t + dur * 0.8);
+        ns.connect(ng); ng.connect(masterGain); ns.start(t); ns.stop(t + dur);
+      }
+    }
+
+    // Short noise burst for impacts (no sustained tone)
+    function playNoise(dur: number, vol = 0.1, opts?: { highpass?: number; delay?: number }) {
+      if (!audioCtx || !masterGain) return;
+      const t = audioCtx.currentTime + (opts?.delay || 0);
+      const buf = audioCtx.createBuffer(1, audioCtx.sampleRate * dur, audioCtx.sampleRate);
+      const data = buf.getChannelData(0);
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / data.length, 0.5);
+      const ns = audioCtx.createBufferSource(); ns.buffer = buf;
+      const ng = audioCtx.createGain();
+      ng.gain.setValueAtTime(vol * sfxVol, t);
+      ng.gain.exponentialRampToValueAtTime(0.001, t + dur);
+      if (opts?.highpass) { const hp = audioCtx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = opts.highpass; ns.connect(hp); hp.connect(ng); }
+      else ns.connect(ng);
+      ng.connect(masterGain); ns.start(t); ns.stop(t + dur);
+    }
+
+    function sfxJump() {
+      playSfx(390, 0.07, 'sine', 0.1, { slide: 1.6 });
+      playSfx(560, 0.05, 'sine', 0.06, { delay: 0.03, slide: 1.3 });
+    }
+    function sfxHit() {
+      playNoise(0.06, 0.08, { highpass: 3000 });
+      playSfx(660, 0.08, 'square', 0.06, { slide: 0.7 });
+    }
+    function sfxNote() {
+      playSfx(660, 0.1, 'sine', 0.08, { slide: 1.05, vibrato: 8 });
+      playSfx(880, 0.08, 'sine', 0.04, { delay: 0.06, slide: 1.03 });
+    }
+    function sfxHurt() {
+      playNoise(0.12, 0.1, { highpass: 800 });
+      playSfx(160, 0.18, 'sawtooth', 0.08, { slide: 0.5 });
+    }
+    function sfxKill() {
+      playSfx(520, 0.08, 'sine', 0.07, { slide: 2.2 });
+      playSfx(780, 0.06, 'sine', 0.05, { delay: 0.06, slide: 1.8 });
+      playSfx(1040, 0.1, 'sine', 0.04, { delay: 0.12, slide: 1.4 });
+      playNoise(0.05, 0.06);
+    }
+    function sfxClear() {
+      const notes = [523, 587, 659, 784, 880, 1047];
+      notes.forEach((n, i) => playSfx(n, 0.18, 'sine', 0.08, { delay: i * 0.08, slide: 1.02 }));
+    }
+    function sfxSelect() { playSfx(880, 0.05, 'sine', 0.06); }
+    function sfxBack() { playSfx(440, 0.08, 'sawtooth', 0.05, { slide: 0.7 }); }
+    function sfxLevelUp() {
+      [660, 880, 1100, 1320].forEach((n, i) => playSfx(n, 0.14, 'sine', 0.07, { delay: i * 0.07, slide: 1.1 }));
+      playSfx(1760, 0.3, 'sine', 0.06, { delay: 0.28, slide: 1.02, vibrato: 6 });
+    }
+    function sfxShield() { playSfx(1100, 0.06, 'sine', 0.07, { slide: 0.6 }); playSfx(880, 0.04, 'square', 0.04, { delay: 0.02 }); }
+    function sfxCrit() {
+      playSfx(1200, 0.04, 'square', 0.09);
+      playSfx(1800, 0.12, 'sine', 0.08, { delay: 0.04, slide: 0.8, vibrato: 12 });
+      playNoise(0.03, 0.1);
+    }
+    function sfxBoss() {
+      playSfx(220, 0.5, 'sawtooth', 0.07, { slide: 0.3, vibrato: 4 });
+      playSfx(330, 0.4, 'sawtooth', 0.05, { delay: 0.15, slide: 0.4, vibrato: 3 });
+    }
+    function sfxStageStart() {
+      [440, 554, 659, 880].forEach((n, i) => playSfx(n, 0.2, 'square', 0.05, { delay: i * 0.1, slide: 1.15 }));
+      playSfx(1100, 0.35, 'sine', 0.06, { delay: 0.4, slide: 1.05, vibrato: 5 });
+    }
+
+    // Simple pentatonic BGM
+    const PENTATONIC = [262, 294, 330, 392, 440, 524, 588, 660, 784, 880];
+    function startBgm() {
+      if (!audioCtx || !masterGain || bgmPlaying) return;
+      bgmPlaying = true;
+      bgmGain = audioCtx.createGain(); bgmGain.gain.value = musicVol * 0.3; bgmGain.connect(masterGain);
+      tickBgm();
+    }
+    let bgmTimer = 0;
+    let bgmNoteIdx = 0;
+    function tickBgm(dt = 0) {
+      if (!bgmPlaying || !audioCtx || !masterGain) return;
+      bgmTimer -= dt;
+      if (bgmTimer <= 0) {
+        const note = PENTATONIC[bgmNoteIdx % PENTATONIC.length];
+        bgmNoteIdx = (bgmNoteIdx + 1 + Math.floor(Math.random() * 2)) % PENTATONIC.length;
+        bgmTimer = 0.45 + Math.random() * 0.25;
+        const t = audioCtx.currentTime;
+        const g = audioCtx.createGain(); g.gain.setValueAtTime(musicVol * 0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + bgmTimer * 0.9);
+        g.connect(bgmGain!);
+        const o = audioCtx.createOscillator(); o.type = 'triangle'; o.frequency.value = note;
+        o.connect(g); o.start(t); o.stop(t + bgmTimer * 0.9);
+        // Bass drone
+        if (bgmNoteIdx % 4 === 0) {
+          const bg = audioCtx.createGain(); bg.gain.setValueAtTime(musicVol * 0.06, t); bg.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+          bg.connect(bgmGain!);
+          const bo = audioCtx.createOscillator(); bo.type = 'sine'; bo.frequency.value = note * 0.5;
+          bo.connect(bg); bo.start(t); bo.stop(t + 1.2);
+        }
+      }
+    }
+    function stopBgm() { bgmPlaying = false; bgmTimer = 0; if (bgmGain) { bgmGain.disconnect(); bgmGain = null; } }
 
     // --- Helpers ---
     function overlaps(a: Rect, b: Rect) { return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y; }
@@ -598,9 +865,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
     }
 
-    function drawTinyNote(x: number, y: number, scale = 1) {
+    function drawTinyNote(x: number, y: number, scale = 1, rotation = 0) {
       ctx.save();
       ctx.translate(x, y);
+      ctx.rotate(rotation);
       ctx.scale(scale, scale);
       ctx.fillStyle = '#ffd66e';
       ctx.fillRect(-2, -12, 4, 17);
@@ -669,12 +937,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       pauseOverlay.classList.toggle('hidden', !paused);
       pauseBtn.textContent = paused ? '继续' : '暂停';
       Object.keys(keys).forEach(k => { keys[k] = false; });
+      if (paused) stopBgm(); else startBgm();
     }
     function returnToMenu() {
       running = false;
       finished = false;
       paused = false;
       choosingAbility = false;
+      stopBgm();
       gameScreen.classList.add('hidden');
       resultsScreen.classList.add('hidden');
       touchControls.classList.add('hidden');
@@ -688,6 +958,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       updateHud();
     }
 
+    const ABILITY_ICONS: Record<string,string> = { ATK:'⚔️', SPD:'⚡', RNG:'🎯', PEN:'💠', X2:'✦', CRIT:'💥', HP:'❤️‍🔥', JMP:'⬆️', DEF:'🛡️', RE:'♻️' };
     function abilityPool(): AbilityOption[] {
       return [
         { id: 'power', name: '暗色强音', desc: '攻击伤害 +1，所有角色的主要攻击都更重。', icon: 'ATK', rarity: 'COMMON', apply: () => { upgradePower++; addRunAbility('暗色强音'); } },
@@ -715,10 +986,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       abilitySubtitle.textContent = `等级 ${heroLevel} · 选择本局构筑方向`;
       abilityChoices.innerHTML = pendingAbilityChoices.map((a, i) => `
         <button class="ability-card" type="button" data-ability="${i}" data-rarity="${a.rarity}" data-index="0${i + 1}">
-          <span class="ability-icon">${a.icon}</span>
+          <span class="ability-corner"><svg viewBox="0 0 48 48"><path d="M48 0v8a40 40 0 0 1-40 40H0"/></svg></span>
+          <span class="ability-icon">${ABILITY_ICONS[a.icon] || '✦'}</span>
           <strong>${a.name}</strong>
-          <span>${a.desc}</span>
-          <em>${a.rarity}</em>
+          <span class="ability-desc">${a.desc}</span>
+          <span class="ability-rarity">${a.rarity}</span>
         </button>
       `).join('');
       abilityOverlay.classList.remove('hidden');
@@ -747,12 +1019,45 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         levelsGained++;
       }
       if (levelsGained > 0) {
-        sfxClear();
+        sfxLevelUp();
         burst(player.x + player.w / 2, player.y + player.h / 2, CHARS[selChar].color, 16);
         openAbilityChoice();
       }
       updateHud();
     }
+
+    let typeTimer: ReturnType<typeof setInterval> | null = null;
+    function showDialogue(name: string, text: string, color: string) {
+      dialogueActive = true;
+      paused = true;
+      dialogueName.textContent = name;
+      dialogueName.style.color = color;
+      dialogueText.textContent = '';
+      dialogueBox.classList.remove('hidden', 'enter'); void dialogueBox.offsetWidth; dialogueBox.classList.add('enter');
+      // Typewriter effect
+      let idx = 0;
+      if (typeTimer) clearInterval(typeTimer);
+      typeTimer = setInterval(() => {
+        if (idx < text.length) {
+          dialogueText.textContent += text[idx];
+          idx++;
+        } else {
+          if (typeTimer) clearInterval(typeTimer);
+          typeTimer = null;
+        }
+      }, 38);
+    }
+    function closeDialogue() {
+      if (!dialogueActive) return;
+      dialogueActive = false;
+      paused = false;
+      dialogueBox.classList.add('hidden');
+      if (typeTimer) { clearInterval(typeTimer); typeTimer = null; }
+    }
+    dialogueBox.addEventListener('click', closeDialogue);
+    document.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (dialogueActive && (e.key === 'Enter' || e.key === ' ' || e.key === 'Escape')) { e.preventDefault(); closeDialogue(); }
+    });
 
     function meetNpc(npc: NpcEncounter) {
       if (npc.met) return;
@@ -768,7 +1073,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       score += 180;
       gainXp(45);
       burst(npc.x + npc.w / 2, npc.y + npc.h / 2, npc.color, 18);
-      showMsg(`${npc.name}: ${npc.text}`, 2.4);
+      showDialogue(npc.name, npc.text, npc.color);
       updateHud();
     }
 
@@ -792,22 +1097,56 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     // --- Stage Building ---
     function buildStage(stageIdx: number) {
       const stage = STAGES[stageIdx];
-      platforms = []; enemies = []; collectNotes = []; pickups = []; npcs = []; projectiles = []; particles = []; boss = null;
+      platforms = []; enemies = []; collectNotes = []; pickups = []; npcs = []; projectiles = []; particles = []; floatingTexts = []; stageClearTimer = 0; boss = null;
+      movingPlatforms = []; hazards = []; decors = []; ambientParticles = [];
       worldW = stage.worldW;
       stage.buildPlatforms(platforms);
+      if ((stage as any).buildMovingPlatforms) (stage as any).buildMovingPlatforms(movingPlatforms);
+      if ((stage as any).buildHazards) (stage as any).buildHazards(hazards);
+
+      // Foreground decorations per stage
+      const decorTypes = [
+        // Stage 0: street scene - lamp posts, benches, vending machines
+        [{ type: 'lamp', w: 16, h: 80 }, { type: 'bench', w: 48, h: 24 }, { type: 'vending', w: 32, h: 56 }],
+        // Stage 1: broken SEKAI - floating notes, shards, twisted trees
+        [{ type: 'brokenNote', w: 20, h: 24 }, { type: 'shard', w: 14, h: 40 }, { type: 'twistedTree', w: 48, h: 64 }],
+        // Stage 2: echo corridor - pillars, lanterns
+        [{ type: 'pillar', w: 20, h: 100 }, { type: 'lantern', w: 16, h: 20 }],
+        // Stage 3: stage core - stage lights, curtains, speakers
+        [{ type: 'stageLight', w: 24, h: 32 }, { type: 'curtain', w: 40, h: 90 }, { type: 'speaker', w: 36, h: 48 }],
+      ];
+      const stageDecorTypes = decorTypes[stageIdx] || decorTypes[0];
+      for (let dx = 120; dx < worldW - 100; dx += 200 + Math.random() * 280) {
+        const dType = stageDecorTypes[Math.floor(Math.random() * stageDecorTypes.length)];
+        const layer = Math.random() < 0.3 ? 'front' : 'back';
+        const parallax = layer === 'front' ? 1.08 + Math.random() * 0.06 : 0.92 + Math.random() * 0.08;
+        // Place on ground platform if possible
+        const groundY = 476;
+        decors.push({ x: dx, y: groundY - dType.h, w: dType.w, h: dType.h, type: dType.type, layer, parallax });
+      }
 
       const groundPlats = platforms.filter(p => p.h <= 28 && p.w >= 140);
       for (let i = 0; i < stage.enemies && i < groundPlats.length; i++) {
         const p = groundPlats[i];
         const roll = Math.random();
-        const type: EnemyType = stageIdx >= 2 && roll < 0.18 ? 'sniper' : stageIdx >= 1 && roll < 0.38 ? 'charger' : roll < 0.58 ? 'bat' : roll < 0.78 ? 'ghost' : 'slime';
-        const elite = stageIdx > 0 && (i % 5 === 3 || (stageIdx >= 2 && Math.random() < 0.22));
-        const baseHp = type === 'sniper' ? 4 : type === 'charger' ? 3 : type === 'ghost' ? 3 : type === 'bat' ? 2 : 1;
+        let type: EnemyType;
+        if (stageIdx === 0) {
+          type = roll < 0.40 ? 'slime' : roll < 0.65 ? 'charger' : roll < 0.85 ? 'bat' : 'ghost';
+        } else if (stageIdx === 1) {
+          type = roll < 0.20 ? 'slime' : roll < 0.40 ? 'charger' : roll < 0.55 ? 'shielder' : roll < 0.75 ? 'bat' : 'ghost';
+        } else if (stageIdx === 2) {
+          type = roll < 0.18 ? 'charger' : roll < 0.32 ? 'shielder' : roll < 0.48 ? 'sniper' : roll < 0.60 ? 'ghost' : roll < 0.80 ? 'bat' : 'orbiter';
+        } else {
+          type = roll < 0.18 ? 'sniper' : roll < 0.36 ? 'charger' : roll < 0.52 ? 'shielder' : roll < 0.66 ? 'ghost' : roll < 0.84 ? 'bat' : 'orbiter';
+        }
+        const elite = stageIdx > 0 && (i % 5 === 3 || (stageIdx >= 2 && Math.random() < 0.28));
+        const baseHp = type === 'shielder' ? 4 : type === 'sniper' ? 4 : type === 'charger' ? 3 : type === 'ghost' ? 3 : type === 'orbiter' ? 2 : type === 'bat' ? 2 : 1;
         const hp = baseHp + (elite ? 3 + stageIdx : 0);
-        const xp = (type === 'sniper' ? 46 : type === 'charger' ? 38 : type === 'ghost' ? 35 : type === 'bat' ? 28 : 20) + (elite ? 45 : 0);
-        const size = elite ? 40 : 32;
-        const y = p.y - (type === 'bat' ? 68 : size);
-        enemies.push({ x: p.x + p.w / 2 - size / 2, y, w: size, h: size, vx: (type === 'sniper' ? 0 : 60 + Math.random() * 40 + (elite ? 18 : 0)) * (Math.random() < 0.5 ? 1 : -1), hp, maxHp: hp, left: p.x, right: p.x + p.w, type, alive: true, atkTimer: 0.8 + Math.random() * 1.6, xp, elite, baseY: y, dashTimer: 1.2 + Math.random() * 1.4 });
+        const xp = (type === 'shielder' ? 52 : type === 'orbiter' ? 48 : type === 'sniper' ? 46 : type === 'charger' ? 38 : type === 'ghost' ? 35 : type === 'bat' ? 28 : 20) + (elite ? 45 : 0);
+        const size = type === 'shielder' ? 36 : type === 'orbiter' ? 28 : (elite ? 40 : 32);
+        const y = p.y - size;
+        const vx = (type === 'sniper' ? 0 : (type === 'shielder' ? 40 : 60 + Math.random() * 40 + (elite ? 18 : 0))) * (Math.random() < 0.5 ? 1 : -1);
+        enemies.push({ x: p.x + p.w / 2 - size / 2, y, w: size, h: size, vx, hp, maxHp: hp, left: p.x, right: p.x + p.w, type, alive: true, atkTimer: 0.8 + Math.random() * 1.6, xp, elite, baseY: y, dashTimer: 1.2 + Math.random() * 1.4, popIn: 0.35 });
       }
 
       const npcTemplates = NPCS_BY_STAGE[stageIdx] || [];
@@ -818,15 +1157,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
       for (let i = 0; i < 12; i++) {
         const p = platforms[Math.floor(Math.random() * platforms.length)];
-        collectNotes.push({ x: p.x + 20 + Math.random() * Math.max(0, p.w - 40), y: p.y - 50 - Math.random() * 30, taken: false });
+        collectNotes.push({ x: p.x + 20 + Math.random() * Math.max(0, p.w - 40), y: p.y - 50 - Math.random() * 30, taken: false, spawnT: 0.5 });
       }
       for (let i = 0; i < 3; i++) {
         const p = platforms[2 + Math.floor(Math.random() * Math.max(1, platforms.length - 2))];
-        pickups.push({ x: p.x + p.w / 2, y: p.y - 40, type: 'health', taken: false });
+        pickups.push({ x: p.x + p.w / 2, y: p.y - 40, type: 'health', taken: false, spawnT: 0.4 });
       }
       for (let i = 0; i < 4; i++) {
         const p = platforms[1 + Math.floor(Math.random() * Math.max(1, platforms.length - 2))];
-        pickups.push({ x: p.x + 30 + Math.random() * Math.max(0, p.w - 60), y: p.y - 72, type: 'amp', taken: false });
+        pickups.push({ x: p.x + 30 + Math.random() * Math.max(0, p.w - 60), y: p.y - 72, type: 'amp', taken: false, spawnT: 0.5 });
       }
       if (stage.boss) {
         boss = { x: worldW - 430, y: 300, w: 96, h: 144, hp: 90, maxHp: 90, active: false, alive: true, phase: 1, pattern: 'idle', timer: 0, attackTimer: 1.4, burstCount: 0, beamWarn: 0, beamY: 0, teleportTimer: 3.2, homeY: 300 };
@@ -856,6 +1195,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       touchControls.classList.remove('hidden');
       updateHud();
       showMsg(stage.name, 1.8);
+      sfxStageStart(); startBgm();
     }
 
     function updateHud() {
@@ -864,22 +1204,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       hudNotes.textContent = String(notesCollected);
       hudLevel.textContent = String(heroLevel);
       hudXp.textContent = `${heroXp}/${heroXpNext}`;
+      xpFill.style.width = `${Math.min(100, (heroXp / heroXpNext) * 100)}%`;
       hudScore.textContent = String(score);
+      const abilityRarity: Record<string, string> = { '暗色强音':'COMMON','高速谱面':'COMMON','远响轨迹':'COMMON','残响护心':'COMMON','轻音踏步':'COMMON','穿透余音':'RARE','和弦分裂':'RARE','空白暴击':'RARE','夜色护盾':'EPIC','终幕回生':'EPIC','超能力':'EPIC' };
       const abilities = [
-        `${CHARS[selChar].name} · ${CHARS[selChar].desc}`,
-        upgradePower ? `攻击 +${upgradePower}` : '',
-        upgradeHaste ? `射速 +${upgradeHaste}` : '',
-        upgradeHp ? `生命 +${upgradeHp}` : '',
-        upgradeJump ? `机动 +${upgradeJump}` : '',
-        rogueRange ? `射程 +${rogueRange}` : '',
-        roguePierce ? `穿透 +${roguePierce}` : '',
-        rogueMulti ? `副弹 +${rogueMulti}` : '',
-        rogueCrit ? `暴击 ${Math.round(rogueCrit * 100)}%` : '',
-        shieldCharges ? `护盾 ${shieldCharges}` : '',
-        superMode ? '超能力' : '',
-        ...runAbilityNames.slice(-3),
-      ].filter(Boolean);
-      hudAbilities.innerHTML = abilities.map(text => `<span class="ability-chip${text === '超能力' ? ' super' : ''}">${text}</span>`).join('');
+        { text: `${CHARS[selChar].name} · ${CHARS[selChar].desc}`, cls: '' },
+        ...(upgradePower ? [{ text: `攻击 +${upgradePower}`, cls: '' }] : []),
+        ...(upgradeHaste ? [{ text: `射速 +${upgradeHaste}`, cls: '' }] : []),
+        ...(upgradeHp ? [{ text: `生命 +${upgradeHp}`, cls: '' }] : []),
+        ...(upgradeJump ? [{ text: `机动 +${upgradeJump}`, cls: '' }] : []),
+        ...(rogueRange ? [{ text: `射程 +${rogueRange}`, cls: '' }] : []),
+        ...(roguePierce ? [{ text: `穿透 +${roguePierce}`, cls: '' }] : []),
+        ...(rogueMulti ? [{ text: `副弹 +${rogueMulti}`, cls: '' }] : []),
+        ...(rogueCrit ? [{ text: `暴击 ${Math.round(rogueCrit * 100)}%`, cls: '' }] : []),
+        ...(shieldCharges ? [{ text: `护盾 ${shieldCharges}`, cls: 'epic' }] : []),
+        ...(superMode ? [{ text: '超能力', cls: 'super' }] : []),
+        ...(runAbilityNames.slice(-3).map(n => ({ text: n, cls: (abilityRarity[n] || '').toLowerCase() }))),
+      ];
+      hudAbilities.innerHTML = abilities.map(({ text, cls }) => `<span class="ability-chip${cls ? ' ' + cls : ''}">${text}</span>`).join('');
     }
     // --- Input ---
     document.addEventListener('keydown', e => {
@@ -891,7 +1233,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (k === 'j' || k === 'k') doAttack();
       if (k === 'enter' && !running && !titleScreen.classList.contains('hidden')) initGame(true);
     });
-    document.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+    document.addEventListener('keyup', e => {
+      const k = e.key.toLowerCase();
+      keys[k] = false;
+      // Variable jump height: cut upward velocity on key release
+      if ((k === 'arrowup' || k === 'w' || k === ' ') && player && player.vy < 0) {
+        player.vy *= 0.55;
+      }
+    });
 
     // Touch
     const touchBtns = touchControls.querySelectorAll<HTMLButtonElement>('.t-btn');
@@ -907,11 +1256,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     function doJump() {
       if (!running || finished || paused || choosingAbility) return;
-      if (player.grounded || player.jumps < player.maxJumps) {
+      const canGroundJump = player.grounded || coyoteTimer > 0;
+      if (canGroundJump) {
         player.vy = -jumpPower();
         player.grounded = false;
+        coyoteTimer = 0;
+        player.jumps = 1;
+        sfxJump();
+      } else if (player.jumps < player.maxJumps) {
+        player.vy = -jumpPower();
         player.jumps++;
         sfxJump();
+      } else {
+        // Buffer the jump for when we land
+        jumpBufferTimer = 0.12;
       }
     }
 
@@ -969,14 +1327,24 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
       }
       sfxHit();
-      burst(player.x + player.w / 2 + dir * 20, player.y + 20, c.color, 5 + rogueMulti);
+      shake(3);
+      freezeTimer = 0.015;
+      // Directional muzzle flash
+      const mx = player.x + player.w / 2 + dir * 24;
+      const my = player.y + 20;
+      burst(mx, my, c.color, 10 + rogueMulti * 2);
+      for (let i = 0; i < 6 + rogueMulti * 2; i++) {
+        particles.push({ x: mx + (Math.random() - 0.5) * 12, y: my + (Math.random() - 0.5) * 12, vx: dir * (80 + Math.random() * 140) + (Math.random() - 0.5) * 60, vy: (Math.random() - 0.5) * 120, life: 0.2 + Math.random() * 0.15, color: '#fff', size: 1.5 + Math.random() * 1.5 });
+      }
     }
 
     function killEnemy(enemy: Enemy, bonusScore: number) {
       if (!enemy.alive) return;
-      enemy.alive = false; enemiesKilled++; score += bonusScore; gainXp(enemy.xp);
+      enemy.alive = false; enemy.deathTimer = 0.3; enemiesKilled++; score += bonusScore; gainXp(enemy.xp);
       burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, STAGES[selStage].accent, 12);
+      freezeTimer = 0.03;
       sfxKill(); shake(8); updateHud();
+      floatingTexts.push({ x: enemy.x + enemy.w / 2, y: enemy.y - 4, text: '+' + bonusScore, color: STAGES[selStage].accent, life: 1.2, vy: -120 });
     }
     function spawnAimedProjectile(x: number, y: number, speed: number, kind: 'enemy' | 'boss', color: string, size = 14) {
       const tx = player.x + player.w / 2 - x, ty = player.y + player.h / 2 - y;
@@ -1025,7 +1393,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const ex = enemy.x + enemy.w / 2, ey = enemy.y + enemy.h / 2;
         if (Math.hypot(ex - cx, ey - cy) <= radius) {
           enemy.hp -= Math.max(1, Math.floor(proj.damage * 0.75));
-          if (enemy.hp <= 0) killEnemy(enemy, (enemy.type === 'ghost' ? 260 : 200) + (enemy.elite ? 240 : 0));
+          if (enemy.hp <= 0) killEnemy(enemy, 200 + (enemy.elite ? 240 : 0));
         }
       }
       if (boss && boss.alive && boss.active) {
@@ -1037,14 +1405,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     function damageBoss(amount: number) {
       if (!boss || !boss.alive) return;
       boss.hp = Math.max(0, boss.hp - amount);
-      burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ffffff', 5); shake(6);
+      freezeTimer = 0.04;
+      burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ffffff', 8); shake(8);
       if (boss.hp <= 0) {
         boss.alive = false; boss.active = false; score += 2500; finished = true; running = false; pendingNextStage = false; gainXp(220);
         burst(boss.x + boss.w / 2, boss.y + boss.h / 2, STAGES[selStage].accent, 36);
         sfxClear();
         startBossDefeatCutscene();
-      } else if (boss.phase === 1 && boss.hp <= boss.maxHp * 0.66) { boss.phase = 2; boss.attackTimer = 0.5; boss.teleportTimer = 1.2; showMsg('BOSS 第二阶段', 1.1); shake(12); }
-      else if (boss.phase === 2 && boss.hp <= boss.maxHp * 0.34) { boss.phase = 3; boss.attackTimer = 0.4; boss.teleportTimer = 0.8; showMsg('BOSS 第三阶段', 1.1); shake(14); }
+      } else if (boss.phase === 1 && boss.hp <= boss.maxHp * 0.66) { boss.phase = 2; boss.attackTimer = 0.5; boss.teleportTimer = 1.2; screenFlash = 0.5; screenFlashColor = '#ff66dd'; showMsg('BOSS 第二阶段', 1.1); shake(18); burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ff66dd', 36); }
+      else if (boss.phase === 2 && boss.hp <= boss.maxHp * 0.34) { boss.phase = 3; boss.attackTimer = 0.4; boss.teleportTimer = 0.8; screenFlash = 0.6; screenFlashColor = '#ff4488'; showMsg('BOSS 第三阶段', 1.1); shake(22); burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ff4488', 48); }
       updateHud();
     }
 
@@ -1103,7 +1472,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     function updateBoss(dt: number) {
       if (!boss || !boss.alive) return;
       boss.y = boss.homeY + Math.sin(performance.now() * 0.002) * 10;
-      if (!boss.active) { if (player.x > boss.x - 650) { boss.active = true; showMsg('BOSS: 25 初音核心', 1.4); shake(12); } return; }
+      if (!boss.active) { if (player.x > boss.x - 650) { boss.active = true; sfxBoss(); showMsg('BOSS: 25 初音核心', 1.4); shake(12); } return; }
       if (boss.phase >= 2) {
         boss.teleportTimer -= dt;
         if (boss.teleportTimer <= 0 && boss.beamWarn <= 0) teleportBoss();
@@ -1120,17 +1489,23 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     // --- Update ---
     function update(dt: number) {
       if (!running || finished) return;
+      tickBgm(dt);
       if (paused) return;
       if (choosingAbility) return;
+      if (freezeTimer > 0) { freezeTimer -= dt; return; }
       const c = CHARS[selChar];
       const stage = STAGES[selStage];
 
-      // Player movement
+      // Player movement (smooth acceleration)
       const moveL = keys['arrowleft'] || keys['a'] || keys['t_left'];
       const moveR = keys['arrowright'] || keys['d'] || keys['t_right'];
-      if (moveL) { player.vx = -c.speed; player.facing = -1; }
-      else if (moveR) { player.vx = c.speed; player.facing = 1; }
-      else { player.vx *= Math.pow(0.01, dt); }
+      let targetVx = 0;
+      if (moveL) { targetVx = -c.speed; player.facing = -1; }
+      else if (moveR) { targetVx = c.speed; player.facing = 1; }
+      const accelRate = player.grounded ? 14 : 9;
+      const friction = player.grounded ? 0.82 : 0.92;
+      if (targetVx !== 0) { player.vx += (targetVx - player.vx) * Math.min(1, dt * accelRate); }
+      else { player.vx *= Math.pow(friction, dt * 60); }
 
       player.vy += GRAVITY * dt;
       player.invuln = Math.max(0, player.invuln - dt);
@@ -1153,6 +1528,62 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         if (overlaps(player, p)) {
           if (player.vy > 0) { player.y = p.y - player.h; player.vy = 0; player.grounded = true; player.jumps = 0; }
           else if (player.vy < 0) { player.y = p.y + p.h; player.vy = 0; }
+        }
+      }
+
+      // Coyote time + landing detection + jump buffer
+      if (player.grounded) {
+        coyoteTimer = 0.1;
+        if (wasAirborne) {
+          // Landing impact
+          wasAirborne = false;
+          for (let i = 0; i < 6; i++) {
+            particles.push({ x: player.x + player.w / 2 + (Math.random() - 0.5) * 20, y: player.y + player.h, vx: (Math.random() - 0.5) * 80, vy: -(20 + Math.random() * 40), life: 0.3 + Math.random() * 0.15, color: 'rgba(200,200,200,0.5)', size: 2 + Math.random() * 2 });
+          }
+        }
+        // Auto-trigger buffered jump
+        if (jumpBufferTimer > 0) { doJump(); jumpBufferTimer = 0; }
+      } else {
+        coyoteTimer -= dt;
+        wasAirborne = true;
+      }
+      jumpBufferTimer -= dt;
+
+      // Moving platforms — linear ping-pong
+      for (const mp of movingPlatforms) {
+        const prevX = mp.x, prevY = mp.y;
+        const dist = Math.hypot(mp.dx, mp.dy) || 1;
+        const period = 2 * dist / mp.speed;
+        mp.t = ((mp.t + dt) % period + period) % period;
+        const phase = mp.t / period; // 0→1
+        const tri = phase < 0.5 ? phase * 2 : 2 - phase * 2; // 0→1→0
+        mp.x = mp.ox + tri * mp.dx;
+        mp.y = mp.oy + tri * mp.dy;
+        const deltaX = mp.x - prevX, deltaY = mp.y - prevY;
+        // Collision: player standing on moving platform
+        if (player.vy >= 0 && player.y + player.h >= mp.y - 4 && player.y + player.h <= mp.y + 10 && player.x + player.w > mp.x && player.x < mp.x + mp.w) {
+          player.y = mp.y - player.h;
+          player.vy = 0;
+          player.grounded = true;
+          player.jumps = 0;
+          player.x += deltaX;
+          player.y += deltaY;
+        }
+      }
+
+      // Hazard collision (spikes)
+      for (const hz of hazards) {
+        if (overlaps(player, hz) && player.invuln <= 0) {
+          player.hp--;
+          player.invuln = 1.2;
+          player.vy = -500;
+          player.vx = player.facing * -200;
+          freezeTimer = 0.08;
+          sfxHurt();
+          shake(12);
+          burst(player.x + player.w / 2, player.y + player.h, '#ff4444', 10);
+          updateHud();
+          if (player.hp <= 0) { finished = true; running = false; showMsg('游戏结束', 2); setTimeout(showResults, 1500); }
         }
       }
 
@@ -1185,9 +1616,28 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           for (const enemy of enemies) {
             if (!enemy.alive || proj.life <= 0) continue;
             if (overlaps(proj, enemy)) {
+              // Shielder blocks frontal projectiles
+              if (enemy.type === 'shielder') {
+                const shieldFacing = enemy.vx >= 0 ? 1 : -1;
+                const projDir = proj.vx > 0 ? 1 : -1;
+                if (projDir !== shieldFacing) {
+                  // Hit from front — deflect
+                  proj.vy = -200; proj.vx *= -0.3; proj.damage = 0; proj.color = '#aaa';
+                  burst(enemy.x + (shieldFacing > 0 ? 0 : enemy.w), enemy.y + enemy.h / 2, '#cccccc', 4);
+                  consumeProjectileHit(proj);
+                  continue;
+                }
+              }
+              const isCrit = proj.damage >= (attackDamage() * 1.8);
               enemy.hp -= proj.damage;
-              if (enemy.hp <= 0) killEnemy(enemy, (enemy.type === 'ghost' ? 260 : 200) + (enemy.elite ? 240 : 0));
-              else burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#fff', enemy.elite ? 8 : 4);
+              freezeTimer = 0.035;
+              if (enemy.hp <= 0) { 
+                killEnemy(enemy, (enemy.type === 'ghost' ? 260 : enemy.type === 'shielder' ? 320 : 200) + (enemy.elite ? 240 : 0));
+                if (isCrit) { sfxCrit(); burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#ffd66e', 18); shake(12); floatingTexts.push({ x: enemy.x + enemy.w / 2, y: enemy.y - 30, text: 'CRIT!', color: '#ffd66e', life: 0.8, vy: -100 }); }
+              } else {
+                burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, isCrit ? '#ffd66e' : '#fff', isCrit ? 14 : (enemy.elite ? 8 : 4));
+                if (isCrit) { sfxCrit(); shake(8); floatingTexts.push({ x: enemy.x + enemy.w / 2, y: enemy.y - 20, text: 'CRIT!', color: '#ffd66e', life: 0.6, vy: -80 }); }
+              }
               consumeProjectileHit(proj);
             }
           }
@@ -1197,22 +1647,36 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       projectiles = projectiles.filter(p => p.life > 0 && p.x > cameraX - 180 && p.x < cameraX + VW + 260 && p.y > -120 && p.y < VH + 140);
       // Enemies
       for (const enemy of enemies) {
+        // Pop-in timer
+        if (enemy.popIn) { enemy.popIn -= dt; if (enemy.popIn < 0) enemy.popIn = 0; }
+        // Death animation: fade + float up
+        if (!enemy.alive && (enemy.deathTimer || 0) > 0) {
+          enemy.deathTimer! -= dt;
+          enemy.y -= 80 * dt;
+          continue;
+        }
         if (!enemy.alive) continue;
         enemy.x += enemy.vx * dt;
         if (enemy.x <= enemy.left || enemy.x + enemy.w >= enemy.right) enemy.vx *= -1;
         if (enemy.type === 'bat') {
-          enemy.y = (enemy.baseY || enemy.y) + Math.sin(performance.now() * 0.006 + enemy.x) * (enemy.elite ? 18 : 12);
           enemy.atkTimer -= dt;
           const dist = Math.abs((player.x + player.w / 2) - (enemy.x + enemy.w / 2));
-          if (enemy.atkTimer <= 0 && dist < 420) {
-            projectiles.push({ x: enemy.x + enemy.w / 2, y: enemy.y + enemy.h, w: 12, h: 18, vx: (player.x > enemy.x ? 80 : -80), vy: 280, life: 1.8, damage: 1, kind: 'enemy', color: '#ff66aa', shape: 'paint' });
+          if (enemy.atkTimer <= 0 && dist < 400) {
+            const atkDir = player.x > enemy.x ? 1 : -1;
+            enemy.vx = atkDir * (enemy.elite ? 280 : 200);
+            projectiles.push({ x: enemy.x + enemy.w / 2, y: enemy.y + 4, w: 14, h: 14, vx: atkDir * (enemy.elite ? 160 : 120), vy: -50, life: 1.6, damage: 1, kind: 'enemy', color: '#ff66aa' });
             enemy.atkTimer = enemy.elite ? 1.3 : 2.0;
+            burst(enemy.x + enemy.w / 2, enemy.y + 4, '#ff6699', 3);
           }
         }
         if (enemy.type === 'ghost') {
+          enemy.y = (enemy.baseY || enemy.y) + Math.sin(performance.now() * 0.004 + enemy.x * 0.01) * 10;
           enemy.atkTimer -= dt;
-          const dist = Math.abs((player.x + player.w / 2) - (enemy.x + enemy.w / 2));
-          if (enemy.atkTimer <= 0 && dist < (enemy.elite ? 680 : 560)) { spawnAimedProjectile(enemy.x + enemy.w / 2, enemy.y + 14, enemy.elite ? 270 : 210, 'enemy', enemy.elite ? '#ffd66e' : '#88ddff', enemy.elite ? 16 : 12); enemy.atkTimer = (enemy.elite ? 1.05 : 1.6) + Math.random() * 0.8; }
+          const gDist = Math.abs((player.x + player.w / 2) - (enemy.x + enemy.w / 2));
+          if (enemy.atkTimer <= 0 && gDist < 560) {
+            spawnAimedProjectile(enemy.x + enemy.w / 2, enemy.y + 14, enemy.elite ? 250 : 190, 'enemy', enemy.elite ? '#ffd66e' : '#88ddff', enemy.elite ? 16 : 12);
+            enemy.atkTimer = (enemy.elite ? 1.2 : 1.8) + Math.random() * 0.6;
+          }
         }
         if (enemy.type === 'charger') {
           enemy.dashTimer = (enemy.dashTimer || 1) - dt;
@@ -1234,17 +1698,39 @@ import BaseLayout from '../layouts/BaseLayout.astro';
             shake(4);
           }
         }
+        if (enemy.type === 'shielder') {
+          // Slow patrol, face toward player when nearby
+          const dx = player.x + player.w / 2 - (enemy.x + enemy.w / 2);
+          const dist = Math.abs(dx);
+          if (dist < 400) { enemy.vx = Math.sign(dx) * 30; }
+          else { enemy.vx = enemy.vx || 40; }
+        }
+        if (enemy.type === 'orbiter') {
+          enemy.atkTimer -= dt;
+          const orbDist = Math.abs((player.x + player.w / 2) - (enemy.x + enemy.w / 2));
+          if (orbDist < 500) {
+            const dodgeDir = player.x > enemy.x ? -1 : 1;
+            enemy.vx += dodgeDir * 20 * dt;
+            enemy.vx = Math.max(-100, Math.min(100, enemy.vx));
+          }
+          if (enemy.atkTimer <= 0 && orbDist < 600) {
+            spawnAimedProjectile(enemy.x + enemy.w / 2, enemy.y + enemy.h / 4, enemy.elite ? 200 : 150, 'enemy', enemy.elite ? '#ff88cc' : '#aa66dd', 10);
+            enemy.atkTimer = enemy.elite ? 1.6 : 2.4;
+          }
+        }
         if (overlaps(player, enemy)) {
-          if (player.vy > 100 && player.y + player.h - enemy.y < 20) { enemy.hp -= 1; player.vy = -450; if (enemy.hp <= 0) killEnemy(enemy, 250 + (enemy.elite ? 240 : 0)); else { burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#fff', enemy.elite ? 8 : 4); updateHud(); } }
+          if (player.vy > 100 && player.y + player.h - enemy.y < 20) { enemy.hp -= (enemy.type === 'shielder' ? 2 : 1); player.vy = -450;           if (enemy.hp <= 0) killEnemy(enemy, (enemy.type === 'ghost' ? 260 : enemy.type === 'shielder' ? 320 : 250) + (enemy.elite ? 240 : 0)); else { burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, '#fff', enemy.elite ? 8 : 4); updateHud(); } }
           else takeDamage();
         }
       }
+      enemies = enemies.filter(e => e.alive || (e.deathTimer || 0) > 0);
       for (const npc of npcs) {
         if (!npc.met && overlaps(player, npc)) meetNpc(npc);
       }
       // Collectibles
       for (const note of collectNotes) {
         if (note.taken) continue;
+        if (note.spawnT > 0) note.spawnT -= dt;
         if (overlaps(player, { x: note.x - 14, y: note.y - 14, w: 28, h: 28 })) {
           note.taken = true; notesCollected++; score += 100; gainXp(10);
           burst(note.x, note.y, '#ffd66e', 8); sfxNote(); updateHud();
@@ -1252,6 +1738,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
       for (const pk of pickups) {
         if (pk.taken) continue;
+        if (pk.spawnT > 0) pk.spawnT -= dt;
         if (overlaps(player, { x: pk.x - 12, y: pk.y - 12, w: 24, h: 24 })) {
           pk.taken = true;
           if (pk.type === 'health' && player.hp < player.maxHp) { player.hp++; showMsg('+1 生命', 0.8); }
@@ -1264,12 +1751,46 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       // Particles
       for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.vy += 400 * dt; p.life -= dt; }
       particles = particles.filter(p => p.life > 0);
+      // Floating texts
+      for (const ft of floatingTexts) { ft.y += ft.vy * dt; ft.life -= dt; }
+      floatingTexts = floatingTexts.filter(ft => ft.life > 0);
+
+      // Ambient weather particles
+      if (ambientParticles.length < 60 && Math.random() < dt * 12) {
+        const stIdx = selStage;
+        let ap: AmbientParticle;
+        if (stIdx === 0) { // Rain
+          ap = { x: cameraX + Math.random() * VW, y: -10, vx: -40 - Math.random() * 30, vy: 280 + Math.random() * 120, life: 2 + Math.random(), maxLife: 3, size: 2 + Math.random() * 2, color: '#6688cc', angle: 0 };
+        } else if (stIdx === 1) { // Cherry blossoms
+          ap = { x: cameraX + Math.random() * VW, y: -10, vx: 20 + Math.random() * 40, vy: 40 + Math.random() * 30, life: 4 + Math.random() * 2, maxLife: 6, size: 3 + Math.random() * 3, color: '#ffaacc', angle: Math.random() * Math.PI * 2 };
+        } else if (stIdx === 2) { // Light particles rising
+          ap = { x: cameraX + Math.random() * VW, y: VH + 10, vx: (Math.random() - 0.5) * 20, vy: -(30 + Math.random() * 40), life: 3 + Math.random() * 2, maxLife: 5, size: 2 + Math.random() * 3, color: '#ccaaff', angle: 0 };
+        } else { // Dark energy converging
+          const cx = cameraX + VW / 2, cy = VH / 2;
+          ap = { x: cameraX + Math.random() * VW, y: Math.random() * VH, vx: 0, vy: 0, life: 3 + Math.random(), maxLife: 4, size: 2 + Math.random() * 4, color: '#6633aa', angle: 0 };
+          const dx = cx - ap.x, dy = cy - ap.y;
+          const len = Math.max(1, Math.hypot(dx, dy));
+          ap.vx = dx / len * (40 + Math.random() * 30);
+          ap.vy = dy / len * (40 + Math.random() * 30);
+        }
+        ambientParticles.push(ap);
+      }
+      for (const ap of ambientParticles) {
+        ap.x += ap.vx * dt;
+        ap.y += ap.vy * dt;
+        ap.life -= dt;
+        // Cherry blossom sway
+        if (selStage === 1) { ap.angle += dt * 2; ap.x += Math.sin(ap.angle) * 15 * dt; }
+      }
+      ambientParticles = ambientParticles.filter(ap => ap.life > 0);
 
       // Shake
       if (shakeT > 0) { shakeT -= dt; shakeX *= 0.8; shakeY *= 0.8; } else { shakeX = 0; shakeY = 0; }
 
       // Message
       if (msgTimer > 0) { msgTimer -= dt; if (msgTimer <= 0) gameMsg.classList.remove('show'); }
+      if (screenFlash > 0) screenFlash -= dt;
+      if (stageClearTimer > 0) stageClearTimer -= dt;
       if (secretToastTimer > 0) {
         secretToastTimer -= dt;
         if (secretToastTimer <= 0) {
@@ -1282,7 +1803,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (!stage.boss && player.x > worldW - 80) {
         finished = true; running = false; pendingNextStage = selStage < STAGES.length - 1;
         score += Math.max(0, player.hp * 500);
-        sfxClear(); updateHud(); setTimeout(showResults, 800);
+        sfxClear(); updateHud(); stageClearTimer = 1.2; setTimeout(showResults, 1200);
+        burst(player.x + player.w / 2, player.y + player.h / 2, stage.accent, 30);
       }
       // Animation state
       animTimer += dt;
@@ -1311,7 +1833,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (shieldCharges > 0) {
         shieldCharges--;
         player.invuln = 0.8;
-        sfxHit();
+        sfxShield();
         shake(8);
         burst(player.x + player.w / 2, player.y + player.h / 2, '#ffd66e', 14);
         showMsg('护盾抵消', 0.8);
@@ -1322,6 +1844,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       player.invuln = 1.2;
       player.vx = -player.facing * 280;
       player.vy = -400;
+      freezeTimer = 0.06;
       sfxHurt();
       shake(10);
       burst(player.x + player.w / 2, player.y + player.h / 2, '#e44', 8);
@@ -1346,22 +1869,30 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       setPaused(false);
       gameScreen.classList.add('hidden'); resultsScreen.classList.remove('hidden'); touchControls.classList.add('hidden');
     }
-    // --- Render ---
-    function render(time: number) {
+    let canvasW = 0, canvasH = 0, canvasScale = 1, canvasOx = 0, canvasOy = 0;
+    function resizeCanvas() {
       const rect = canvas.getBoundingClientRect();
       const dpr = Math.min(2, window.devicePixelRatio || 1);
-      canvas.width = Math.round(rect.width * dpr);
-      canvas.height = Math.round(rect.height * dpr);
-      ctx.setTransform(1, 0, 0, 1, 0, 0);
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (!player) return;
-
+      const w = Math.round(rect.width * dpr);
+      const h = Math.round(rect.height * dpr);
+      if (w === canvasW && h === canvasH) return;
+      canvasW = w; canvasH = h;
+      canvas.width = w; canvas.height = h;
       const sx = (rect.width * dpr) / VW;
       const sy = (rect.height * dpr) / VH;
-      const s = Math.min(sx, sy);
-      const ox = (canvas.width - VW * s) / 2;
-      const oy = (canvas.height - VH * s) / 2;
-      ctx.setTransform(s, 0, 0, s, ox + shakeX, oy + shakeY);
+      canvasScale = Math.min(sx, sy);
+      canvasOx = (canvasW - VW * canvasScale) / 2;
+      canvasOy = (canvasH - VH * canvasScale) / 2;
+    }
+
+    // --- Render ---
+    function render(time: number) {
+      resizeCanvas();
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      if (!player) { ctx.clearRect(0, 0, canvasW, canvasH); return; }
+      ctx.clearRect(0, 0, canvasW, canvasH);
+
+      ctx.setTransform(canvasScale, 0, 0, canvasScale, canvasOx + shakeX, canvasOy + shakeY);
 
       const stage = STAGES[selStage];
       const t = time / 1000;
@@ -1393,6 +1924,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
       }
 
+      // Back-layer decorations
+      for (const d of decors) {
+        if (d.layer !== 'back') continue;
+        const dx = Math.round(d.x - cameraX * d.parallax);
+        if (dx + d.w < -60 || dx > VW + 60) continue;
+        ctx.save();
+        ctx.globalAlpha = 0.35;
+        drawDecorShape(d.type, dx, d.y, d.w, d.h, stage.accent);
+        ctx.restore();
+      }
+
       // Platforms
       for (const p of platforms) {
         const px = Math.round(p.x - cameraX);
@@ -1408,6 +1950,54 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         ctx.fillStyle = hexRgba('#000000', 0.2);
         ctx.fillRect(px, p.y + p.h - 3, p.w, 3);
+      }
+
+      // Moving platforms
+      for (const mp of movingPlatforms) {
+        const mx = Math.round(mp.x - cameraX);
+        if (mx + mp.w < -40 || mx > VW + 40) continue;
+        ctx.fillStyle = stage.platColor;
+        ctx.fillRect(mx, mp.y, mp.w, mp.h);
+        ctx.fillStyle = stage.accent;
+        ctx.fillRect(mx, mp.y, mp.w, Math.min(4, mp.h));
+        // Glowing edge pulse
+        const glowAlpha = 0.25 + Math.sin(t * 4) * 0.12;
+        ctx.fillStyle = hexRgba(stage.accent, glowAlpha);
+        ctx.fillRect(mx - 2, mp.y - 2, mp.w + 4, mp.h + 4);
+        // Direction arrows
+        ctx.fillStyle = hexRgba(stage.accent, 0.4);
+        const midX = mx + mp.w / 2, midY = mp.y + mp.h / 2;
+        if (mp.dx !== 0) { ctx.fillRect(midX - 8, midY - 1, 5, 2); ctx.fillRect(midX + 3, midY - 1, 5, 2); }
+        if (mp.dy !== 0) { ctx.fillRect(midX - 1, midY - 6, 2, 4); ctx.fillRect(midX - 1, midY + 2, 2, 4); }
+      }
+
+      // Spike hazards
+      for (const hz of hazards) {
+        const hx = Math.round(hz.x - cameraX);
+        if (hx + hz.w < -20 || hx > VW + 20) continue;
+        const spikeCount = Math.floor(hz.w / 12);
+        const spikeW = hz.w / spikeCount;
+        for (let i = 0; i < spikeCount; i++) {
+          const sx = hx + i * spikeW;
+          ctx.fillStyle = '#cc3322';
+          ctx.beginPath();
+          ctx.moveTo(sx, hz.y + hz.h);
+          ctx.lineTo(sx + spikeW / 2, hz.y);
+          ctx.lineTo(sx + spikeW, hz.y + hz.h);
+          ctx.closePath();
+          ctx.fill();
+          // Highlight tip
+          ctx.fillStyle = '#ff6644';
+          ctx.beginPath();
+          ctx.moveTo(sx + spikeW / 2 - 2, hz.y + 6);
+          ctx.lineTo(sx + spikeW / 2, hz.y);
+          ctx.lineTo(sx + spikeW / 2 + 2, hz.y + 6);
+          ctx.closePath();
+          ctx.fill();
+        }
+        // Base
+        ctx.fillStyle = '#662211';
+        ctx.fillRect(hx, hz.y + hz.h - 3, hz.w, 3);
       }
 
       // Goal gate
@@ -1464,12 +2054,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.restore();
       }
       // Collectibles
+      // Notes
       for (const note of collectNotes) {
         if (note.taken) continue;
         const nx = Math.round(note.x - cameraX);
         const ny = Math.round(note.y + Math.sin(t * 3 + note.x * 0.01) * 4);
         if (nx < -30 || nx > VW + 30) continue;
+        const notePop = note.spawnT > 0 ? Math.min(1, (0.5 - note.spawnT) / 0.3) : 1;
         ctx.save();
+        if (notePop < 1) { ctx.translate(nx, ny); ctx.scale(notePop, notePop); ctx.translate(-nx, -ny); }
         ctx.shadowColor = '#ffd66e'; ctx.shadowBlur = 8;
         drawTinyNote(nx, ny, 1.15);
         ctx.restore();
@@ -1480,8 +2073,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         const px = Math.round(pk.x - cameraX);
         const py = Math.round(pk.y + Math.sin(t * 2.5 + pk.x) * 3);
         if (px < -30 || px > VW + 30) continue;
+        const pkPop = pk.spawnT > 0 ? Math.min(1, (0.4 - pk.spawnT) / 0.25) : 1;
         const isAmp = pk.type === 'amp';
         ctx.save();
+        if (pkPop < 1) { ctx.translate(px, py); ctx.scale(pkPop, pkPop); ctx.translate(-px, -py); }
         if (isAmp) {
           drawXpShard(px, py, 1.05);
         } else {
@@ -1491,10 +2086,30 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
       // Enemies
       for (const enemy of enemies) {
+        // Death animation: fading ghost
+        if (!enemy.alive && (enemy.deathTimer || 0) > 0) {
+          const ex = Math.round(enemy.x - cameraX);
+          const ey = Math.round(enemy.y);
+          ctx.save();
+          ctx.globalAlpha = Math.max(0, (enemy.deathTimer! / 0.3) * 0.6);
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(ex + 2, ey + 2, enemy.w - 4, enemy.h - 4);
+          // Flicker
+          if (Math.floor(t * 20) % 2 === 0) {
+            ctx.fillStyle = 'rgba(255,255,255,0.3)';
+            ctx.fillRect(ex, ey, enemy.w, enemy.h);
+          }
+          ctx.restore();
+          continue;
+        }
         if (!enemy.alive) continue;
         const ex = Math.round(enemy.x - cameraX);
         const ey = Math.round(enemy.y);
         if (ex + enemy.w < -20 || ex > VW + 20) continue;
+
+        const popScale = enemy.popIn ? Math.min(1, 1 - (enemy.popIn / 0.35)) : 1;
+        if (popScale < 1) ctx.save();
+        if (popScale < 1) { ctx.translate(ex + enemy.w / 2, ey + enemy.h / 2); ctx.scale(popScale, popScale); ctx.translate(-(ex + enemy.w / 2), -(ey + enemy.h / 2)); }
 
         if (enemy.elite) {
           ctx.save();
@@ -1509,54 +2124,124 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           ctx.restore();
         }
 
+        // === Redesigned enemy visuals ===
+        const eSize = enemy.w;
+        const hw = eSize / 2;
         if (enemy.type === 'slime') {
-          ctx.fillStyle = '#4a2060';
-          ctx.fillRect(ex + 4, ey + 12, 24, 20);
-          ctx.fillStyle = '#6a3088';
-          ctx.fillRect(ex + 2, ey + 6, 28, 14);
-          ctx.fillStyle = '#ff4488';
-          ctx.fillRect(ex + 8, ey + 12, 5, 5);
-          ctx.fillRect(ex + 19, ey + 12, 5, 5);
+          ctx.save();
+          const sq = Math.sin(t * 5 + enemy.x) * 1.5;
+          ctx.fillStyle = '#44bb88';
+          ctx.fillRect(ex + 4, ey + 8 + sq, eSize - 8, eSize - 8 - sq);
+          ctx.fillStyle = '#55dd99';
+          ctx.fillRect(ex + 3, ey + 6 + sq, eSize - 6, 8);
+          ctx.fillStyle = '#226644';
+          ctx.fillRect(ex + 8, ey + 12 + sq, 5, 4);
+          ctx.fillRect(ex + eSize - 13, ey + 12 + sq, 5, 4);
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(ex + 8, ey + 10 + sq, 4, 4);
+          ctx.fillRect(ex + eSize - 12, ey + 10 + sq, 4, 4);
+          ctx.restore();
         } else if (enemy.type === 'bat') {
-          const wingY = Math.sin(t * 12 + enemy.x) * 4;
-          ctx.fillStyle = '#3a1848';
-          ctx.fillRect(ex + 10, ey + 8, 12, 16);
-          ctx.fillStyle = '#5a2868';
-          ctx.fillRect(ex - 2, ey + 6 + wingY, 14, 8);
-          ctx.fillRect(ex + 20, ey + 6 - wingY, 14, 8);
+          ctx.save();
+          const bw = Math.sin(t * 10 + enemy.x) * 3;
+          ctx.fillStyle = '#3a1a48';
+          ctx.fillRect(ex + 10, ey + 6, eSize - 20, eSize - 8);
+          ctx.fillStyle = '#5a2870';
+          ctx.fillRect(ex + 3, ey + 4 + bw, 10, 7);
+          ctx.fillRect(ex + eSize - 13, ey + 4 - bw, 10, 7);
           ctx.fillStyle = '#ff3366';
-          ctx.fillRect(ex + 12, ey + 12, 3, 3);
-          ctx.fillRect(ex + 18, ey + 12, 3, 3);
-        } else if (enemy.type === 'charger') {
-          ctx.fillStyle = '#44182a';
-          ctx.fillRect(ex + 3, ey + 8, 28, 24);
+          ctx.fillRect(ex + 11, ey + 10, 3, 3);
+          ctx.fillRect(ex + eSize - 14, ey + 10, 3, 3);
           ctx.fillStyle = '#ff6699';
-          ctx.fillRect(ex + 8, ey + 2, 16, 10);
-          ctx.fillRect(ex + 2, ey + 20, 8, 8);
-          ctx.fillRect(ex + 22, ey + 20, 8, 8);
+          ctx.fillRect(ex + 12, ey + 16, eSize - 24, 3);
+          ctx.restore();
+        } else if (enemy.type === 'ghost') {
+          ctx.save();
+          const wb = Math.sin(t * 4 + enemy.x) * 2;
+          ctx.fillStyle = 'rgba(180,200,255,0.65)';
+          ctx.fillRect(ex + 5, ey + 2, eSize - 10, eSize - 8);
+          ctx.fillRect(ex + 3, ey + eSize - 8, 5, 4 + wb);
+          ctx.fillRect(ex + 10, ey + eSize - 6, 5, 4 - wb);
+          ctx.fillRect(ex + 17, ey + eSize - 8, 5, 4 + wb);
+          ctx.fillRect(ex + 24, ey + eSize - 6, 5, 4 - wb);
+          ctx.fillStyle = 'rgba(100,130,255,0.2)';
+          ctx.fillRect(ex + 2, ey + eSize - 8, eSize - 4, 6);
+          ctx.fillStyle = '#334';
+          ctx.fillRect(ex + 9, ey + 10, 4, 5);
+          ctx.fillRect(ex + eSize - 13, ey + 10, 4, 5);
           ctx.fillStyle = '#fff';
-          ctx.fillRect(ex + (enemy.vx > 0 ? 20 : 8), ey + 13, 5, 5);
+          ctx.fillRect(ex + 10, ey + 10, 2, 3);
+          ctx.fillRect(ex + eSize - 12, ey + 10, 2, 3);
+          ctx.restore();
+        } else if (enemy.type === 'charger') {
+          ctx.save();
+          const chargeDir = enemy.vx >= 0 ? 1 : -1;
+          ctx.fillStyle = '#881a2a';
+          ctx.fillRect(ex + 4, ey + 8, eSize - 8, eSize - 12);
+          ctx.fillStyle = '#cc3355';
+          ctx.fillRect(ex + 5, ey + 4, eSize - 10, 8);
+          ctx.fillStyle = '#ff4477';
+          ctx.fillRect(ex + (chargeDir > 0 ? eSize - 8 : 0), ey + 6, 8, 4);
+          ctx.fillStyle = '#442';
+          ctx.fillRect(ex + 7, ey + 14, 5, 4);
+          ctx.fillRect(ex + eSize - 12, ey + 14, 5, 4);
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(ex + (chargeDir > 0 ? eSize - 10 : 6), ey + 9, 3, 3);
+          ctx.fillRect(ex + (chargeDir > 0 ? eSize - 10 : 6), ey + 9, 3, 3);
+          ctx.restore();
         } else if (enemy.type === 'sniper') {
-          ctx.fillStyle = '#1c1838';
-          ctx.fillRect(ex + 5, ey + 6, 22, 26);
-          ctx.fillStyle = '#7a66cc';
-          ctx.fillRect(ex + 8, ey + 2, 16, 8);
-          ctx.fillStyle = '#cc88ff';
-          ctx.fillRect(ex + (player.x > enemy.x ? 20 : -2), ey + 15, 14, 5);
+          ctx.save();
+          ctx.fillStyle = '#2a2848';
+          ctx.fillRect(ex + 6, ey + 6, eSize - 12, eSize - 6);
+          ctx.fillStyle = '#6a5aaa';
+          ctx.fillRect(ex + 8, ey + 2, eSize - 16, 6);
+          ctx.fillStyle = '#8877cc';
+          ctx.fillRect(ex + (player.x > enemy.x ? eSize - 4 : 0), ey + 10, 8, 5);
           ctx.fillStyle = '#fff';
-          ctx.fillRect(ex + 12, ey + 11, 4, 4);
+          ctx.fillRect(ex + (player.x > enemy.x ? eSize - 3 : 1), ey + 11, 5, 3);
+          ctx.fillStyle = '#ff4488';
+          ctx.fillRect(ex + 11, ey + 12, 3, 3);
+          ctx.fillRect(ex + eSize - 14, ey + 12, 3, 3);
+          ctx.restore();
+        } else if (enemy.type === 'shielder') {
+          ctx.save();
+          const sf = enemy.vx >= 0 ? 1 : -1;
+          ctx.fillStyle = '#3a4050';
+          ctx.fillRect(ex + 5, ey + 4, eSize - 14, eSize - 4);
+          ctx.fillStyle = '#556678';
+          ctx.fillRect(ex + 6, ey + 2, eSize - 16, 6);
+          ctx.fillStyle = '#ff8844';
+          ctx.fillRect(ex + 10, ey + 10, 4, 4);
+          ctx.fillRect(ex + eSize - 16, ey + 10, 4, 4);
+          ctx.fillStyle = '#7788aa';
+          ctx.fillRect(sf > 0 ? ex + eSize - 6 : ex - 2, ey + 2, 8, eSize - 2);
+          ctx.fillStyle = '#99aabb';
+          ctx.fillRect(sf > 0 ? ex + eSize - 5 : ex - 1, ey + 5, 6, 3);
+          ctx.fillRect(sf > 0 ? ex + eSize - 5 : ex - 1, ey + 11, 6, 3);
+          ctx.fillRect(sf > 0 ? ex + eSize - 5 : ex - 1, ey + 17, 6, 3);
+          ctx.restore();
+        } else if (enemy.type === 'orbiter') {
+          ctx.save();
+          ctx.shadowColor = enemy.elite ? '#ff88cc' : '#aa66dd';
+          ctx.shadowBlur = 16;
+          ctx.fillStyle = enemy.elite ? '#ff66aa' : '#9955cc';
+          ctx.beginPath();
+          ctx.arc(ex + hw, ey + hw, hw - 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = enemy.elite ? '#ffccee' : '#ddaaff';
+          ctx.beginPath();
+          ctx.arc(ex + hw, ey + hw, hw / 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#fff';
+          ctx.fillRect(ex + hw - 2, ey + hw - 6, 4, 4);
+          ctx.fillRect(ex + hw - 5, ey + hw + 2, 3, 3);
+          ctx.restore();
         } else {
-          ctx.fillStyle = '#2a1838';
-          ctx.fillRect(ex + 4, ey + 4, 24, 28);
-          ctx.fillStyle = '#4a2858';
-          ctx.fillRect(ex + 6, ey, 20, 12);
+          ctx.fillStyle = '#4a3a5a';
+          ctx.fillRect(ex + 4, ey + 4, eSize - 8, eSize - 8);
           ctx.fillStyle = '#88ddff';
-          ctx.fillRect(ex + 10, ey + 8, 4, 4);
-          ctx.fillRect(ex + 18, ey + 8, 4, 4);
-          if (enemy.hp < enemy.maxHp) {
-            ctx.fillStyle = 'rgba(255,255,255,0.3)';
-            ctx.fillRect(ex, ey - 6, enemy.w * (enemy.hp / enemy.maxHp), 3);
-          }
+          ctx.fillRect(ex + 9, ey + 9, 4, 4);
+          ctx.fillRect(ex + eSize - 13, ey + 9, 4, 4);
         }
         if (enemy.elite || enemy.hp < enemy.maxHp) {
           ctx.save();
@@ -1566,6 +2251,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           ctx.fillRect(ex, ey - 7, enemy.w * Math.max(0, enemy.hp / enemy.maxHp), 4);
           ctx.restore();
         }
+        if (popScale < 1) ctx.restore();
       }
 
       drawBoss(t);
@@ -1573,31 +2259,56 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       // Projectiles
       for (const proj of projectiles) {
         const px = Math.round(proj.x - cameraX);
+        const dtDraw = 1/60;
+        // Retrojected trail (2 ghost copies)
+        for (let t = 1; t <= 2; t++) {
+          ctx.save();
+          ctx.globalAlpha = 0.12 / t;
+          ctx.fillStyle = proj.color;
+          ctx.shadowBlur = 0;
+          const tx = Math.round(proj.x - proj.vx * dtDraw * t * 0.4 - cameraX);
+          const ty = proj.y - proj.vy * dtDraw * t * 0.4;
+          if (proj.shape === 'note') drawTinyNote(tx + proj.w / 2, ty + proj.h / 2, 0.7);
+          else if (proj.shape === 'slash') ctx.fillRect(tx, ty, proj.w * 0.8, proj.h * 0.8);
+          else if (proj.shape === 'fan') { ctx.beginPath(); ctx.moveTo(tx, ty + proj.h / 2); ctx.lineTo(tx + proj.w * 0.7, ty); ctx.lineTo(tx + proj.w * 0.7, ty + proj.h); ctx.closePath(); ctx.fill(); }
+          else ctx.fillRect(tx, ty, proj.w * 0.6, proj.h * 0.6);
+          ctx.restore();
+        }
+        // Main projectile
         ctx.save();
-        ctx.fillStyle = proj.color; ctx.shadowColor = proj.color; ctx.shadowBlur = 6;
+        ctx.fillStyle = proj.color; ctx.shadowColor = proj.color; ctx.shadowBlur = 8;
         if (proj.shape === 'note') {
-          drawTinyNote(px + proj.w / 2, proj.y + proj.h / 2, 0.82);
+          const rot = performance.now() * 0.006 + proj.x * 0.002;
+          drawTinyNote(px + proj.w / 2, proj.y + proj.h / 2, 0.82, rot);
         } else if (proj.shape === 'slash') {
+          ctx.shadowBlur = 12;
           ctx.fillRect(px, proj.y, proj.w, proj.h);
           ctx.fillStyle = 'rgba(255,255,255,.72)';
           ctx.fillRect(px + 6, proj.y + 3, Math.max(10, proj.w * 0.42), 3);
         } else if (proj.shape === 'fan') {
+          const spin = performance.now() * 0.01;
+          ctx.translate(px + proj.w / 2, proj.y + proj.h / 2);
+          ctx.rotate(spin);
           ctx.beginPath();
-          ctx.moveTo(px, proj.y + proj.h / 2);
-          ctx.lineTo(px + proj.w, proj.y);
-          ctx.lineTo(px + proj.w, proj.y + proj.h);
+          ctx.moveTo(-proj.w / 2, 0);
+          ctx.lineTo(proj.w / 2, -proj.h / 2);
+          ctx.lineTo(proj.w / 2, proj.h / 2);
           ctx.closePath();
           ctx.fill();
         } else if (proj.shape === 'paint') {
+          ctx.shadowBlur = 14;
           ctx.beginPath();
           ctx.ellipse(px + proj.w / 2, proj.y + proj.h / 2, proj.w / 2, proj.h / 2, 0, 0, Math.PI * 2);
           ctx.fill();
-          ctx.fillStyle = '#fff';
-          ctx.fillRect(px + 6, proj.y + 6, 5, 5);
+          ctx.fillStyle = 'rgba(255,255,255,.6)';
+          ctx.beginPath();
+          ctx.arc(px + proj.w / 2 - 3, proj.y + proj.h / 2 - 3, proj.w * 0.15, 0, Math.PI * 2);
+          ctx.fill();
         } else if (proj.shape === 'beam') {
+          ctx.shadowBlur = 16;
           ctx.fillRect(px, proj.y, proj.w, proj.h);
           ctx.fillStyle = '#ffffff';
-          ctx.fillRect(px + 5, proj.y + 3, Math.max(8, proj.w - 14), Math.max(2, proj.h - 6));
+          ctx.fillRect(px + 4, proj.y + 2, Math.max(6, proj.w - 12), Math.max(2, proj.h - 4));
         } else {
           ctx.fillRect(px, proj.y, proj.w, proj.h);
           ctx.fillStyle = '#fff';
@@ -1617,6 +2328,196 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.fillRect(Math.round(p.x - cameraX), Math.round(p.y), sz, sz);
       }
       ctx.restore();
+
+      // Floating texts (score popups)
+      ctx.save();
+      for (const ft of floatingTexts) {
+        ctx.globalAlpha = Math.min(1, ft.life * 3);
+        ctx.fillStyle = ft.color;
+        ctx.font = 'bold 14px "Courier New", monospace';
+        ctx.textAlign = 'center';
+        ctx.shadowColor = 'rgba(0,0,0,.6)';
+        ctx.shadowBlur = 4;
+        ctx.fillText(ft.text, Math.round(ft.x - cameraX), Math.round(ft.y));
+      }
+      ctx.restore();
+
+      // Front-layer decorations
+      for (const d of decors) {
+        if (d.layer !== 'front') continue;
+        const dx = Math.round(d.x - cameraX * d.parallax);
+        if (dx + d.w < -60 || dx > VW + 60) continue;
+        ctx.save();
+        ctx.globalAlpha = 0.18;
+        drawDecorShape(d.type, dx, d.y, d.w, d.h, stage.accent);
+        ctx.restore();
+      }
+
+      // Ambient weather particles
+      ctx.save();
+      for (const ap of ambientParticles) {
+        ctx.globalAlpha = Math.min(1, ap.life / ap.maxLife) * 0.6;
+        ctx.fillStyle = ap.color;
+        if (selStage === 0) {
+          // Rain: thin line
+          ctx.fillRect(Math.round(ap.x - cameraX), Math.round(ap.y), 1, ap.size * 3);
+        } else if (selStage === 1) {
+          // Cherry blossom: small diamond
+          const sx = Math.round(ap.x - cameraX), sy = Math.round(ap.y);
+          ctx.beginPath();
+          ctx.moveTo(sx, sy - ap.size);
+          ctx.lineTo(sx + ap.size * 0.7, sy);
+          ctx.lineTo(sx, sy + ap.size);
+          ctx.lineTo(sx - ap.size * 0.7, sy);
+          ctx.closePath();
+          ctx.fill();
+        } else if (selStage === 2) {
+          // Light particles: circle
+          ctx.beginPath();
+          ctx.arc(Math.round(ap.x - cameraX), Math.round(ap.y), ap.size, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Dark energy: glowing square
+          ctx.shadowColor = ap.color;
+          ctx.shadowBlur = 6;
+          ctx.fillRect(Math.round(ap.x - cameraX), Math.round(ap.y), ap.size, ap.size);
+        }
+      }
+      ctx.restore();
+
+      // Stage clear overlay
+      if (stageClearTimer > 0) {
+        ctx.save();
+        ctx.globalAlpha = Math.min(1, stageClearTimer * 2);
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, VW, VH);
+        ctx.globalAlpha = Math.min(1, stageClearTimer * 1.5);
+        ctx.fillStyle = '#fff';
+        ctx.font = '900 42px "Courier New", monospace'; ctx.textAlign = 'center';
+        ctx.shadowColor = STAGES[selStage].accent; ctx.shadowBlur = 30;
+        ctx.fillText('STAGE CLEAR', VW / 2, VH / 2 - 16);
+        ctx.shadowBlur = 0;
+        ctx.font = '700 18px "Noto Sans SC", sans-serif';
+        ctx.fillStyle = STAGES[selStage].accent;
+        ctx.fillText(STAGES[selStage].name, VW / 2, VH / 2 + 30);
+        ctx.restore();
+      }
+
+      // Vignette overlay
+      const vig = ctx.createRadialGradient(VW / 2, VH / 2, VH * 0.25, VW / 2, VH / 2, VH * 0.8);
+      vig.addColorStop(0, 'rgba(0,0,0,0)');
+      vig.addColorStop(1, 'rgba(0,0,0,.45)');
+      ctx.fillStyle = vig;
+      ctx.fillRect(-10, -10, VW + 20, VH + 20);
+
+      // Hit flash overlay
+      if (player && player.invuln > 0.8) {
+        ctx.fillStyle = `rgba(255,50,50,${(player.invuln - 0.8) * 0.12})`;
+        ctx.fillRect(0, 0, VW, VH);
+      }
+      // Screen flash (boss phase transition)
+      if (screenFlash > 0) {
+        ctx.save();
+        ctx.globalAlpha = Math.min(0.5, screenFlash * 1.2);
+        ctx.fillStyle = screenFlashColor;
+        ctx.fillRect(0, 0, VW, VH);
+        ctx.restore();
+      }
+    }
+
+    function drawDecorShape(type: string, x: number, y: number, w: number, h: number, accent: string) {
+      if (type === 'lamp') {
+        ctx.fillStyle = '#445566';
+        ctx.fillRect(x + w / 2 - 2, y, 4, h);
+        ctx.fillStyle = accent;
+        ctx.fillRect(x + w / 2 - 6, y, 12, 8);
+        ctx.fillStyle = hexRgba(accent, 0.3);
+        ctx.fillRect(x + w / 2 - 10, y + 8, 20, 4);
+      } else if (type === 'bench') {
+        ctx.fillStyle = '#554433';
+        ctx.fillRect(x, y + h - 6, w, 6);
+        ctx.fillRect(x + 4, y + h - 16, 4, 16);
+        ctx.fillRect(x + w - 8, y + h - 16, 4, 16);
+        ctx.fillStyle = '#665544';
+        ctx.fillRect(x, y + h - 12, w, 4);
+      } else if (type === 'vending') {
+        ctx.fillStyle = '#2a3040';
+        ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#446688';
+        ctx.fillRect(x + 3, y + 4, w - 6, h * 0.55);
+        ctx.fillStyle = accent;
+        ctx.fillRect(x + 4, y + h * 0.6 + 4, 8, 4);
+        ctx.fillRect(x + w - 12, y + h * 0.6 + 4, 8, 4);
+      } else if (type === 'brokenNote') {
+        ctx.fillStyle = accent;
+        ctx.fillRect(x + 2, y, 4, h);
+        ctx.fillRect(x, y + 2, 8, 6);
+        ctx.fillStyle = hexRgba(accent, 0.5);
+        ctx.fillRect(x + 6, y + h * 0.3, 10, 4);
+      } else if (type === 'shard') {
+        ctx.fillStyle = hexRgba(accent, 0.7);
+        ctx.beginPath();
+        ctx.moveTo(x + w / 2, y);
+        ctx.lineTo(x + w, y + h * 0.7);
+        ctx.lineTo(x + w * 0.3, y + h);
+        ctx.lineTo(x, y + h * 0.4);
+        ctx.closePath();
+        ctx.fill();
+      } else if (type === 'twistedTree') {
+        ctx.fillStyle = '#3a2838';
+        ctx.fillRect(x + w / 2 - 4, y + h * 0.4, 8, h * 0.6);
+        ctx.fillStyle = '#4a3848';
+        ctx.fillRect(x + w / 2 - 3, y + h * 0.3, 6, h * 0.15);
+        ctx.fillStyle = hexRgba(accent, 0.4);
+        ctx.beginPath();
+        ctx.arc(x + w / 2, y + h * 0.25, w * 0.45, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (type === 'pillar') {
+        ctx.fillStyle = '#38304a';
+        ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#4a405a';
+        ctx.fillRect(x - 2, y, w + 4, 8);
+        ctx.fillRect(x - 2, y + h - 8, w + 4, 8);
+      } else if (type === 'lantern') {
+        ctx.fillStyle = accent;
+        ctx.fillRect(x + w / 2 - 1, y, 2, h * 0.3);
+        ctx.fillStyle = hexRgba(accent, 0.8);
+        ctx.fillRect(x, y + h * 0.3, w, h * 0.7);
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(x + w / 2 - 2, y + h * 0.4, 4, 4);
+      } else if (type === 'stageLight') {
+        ctx.fillStyle = '#333344';
+        ctx.fillRect(x, y, w, h * 0.3);
+        ctx.fillStyle = accent;
+        ctx.fillRect(x + 2, y + h * 0.3, w - 4, h * 0.7);
+        ctx.fillStyle = hexRgba(accent, 0.2);
+        ctx.beginPath();
+        ctx.moveTo(x + w / 2, y + h);
+        ctx.lineTo(x - 20, y + h + 60);
+        ctx.lineTo(x + w + 20, y + h + 60);
+        ctx.closePath();
+        ctx.fill();
+      } else if (type === 'curtain') {
+        ctx.fillStyle = hexRgba('#cc2244', 0.6);
+        ctx.fillRect(x, y, w, h);
+        for (let cy = 0; cy < h; cy += 12) {
+          ctx.fillStyle = hexRgba('#aa1133', 0.3);
+          ctx.fillRect(x, y + cy, w, 3);
+        }
+      } else if (type === 'speaker') {
+        ctx.fillStyle = '#222233';
+        ctx.fillRect(x, y, w, h);
+        ctx.fillStyle = '#333344';
+        ctx.fillRect(x + 4, y + 4, w - 8, h - 8);
+        ctx.fillStyle = accent;
+        ctx.beginPath();
+        ctx.arc(x + w / 2, y + h / 2, w * 0.3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#222233';
+        ctx.beginPath();
+        ctx.arc(x + w / 2, y + h / 2, w * 0.12, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
 
     function drawBoss(t: number) {
@@ -1626,10 +2527,34 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (bx + boss.w < -120 || bx > VW + 140) return;
       if (boss.beamWarn > 0) {
         ctx.save();
-        const alpha = 0.18 + Math.sin(t * 36) * 0.08;
-        ctx.fillStyle = `rgba(255,102,221,${alpha})`;
-        ctx.fillRect(0, boss.beamY - 11, VW, 22);
-        ctx.fillStyle = 'rgba(255,255,255,0.45)'; ctx.fillRect(0, boss.beamY - 1, VW, 2);
+        const alpha = 0.2 + Math.sin(t * 36) * 0.12;
+        ctx.fillStyle = `rgba(255,50,200,${alpha})`;
+        ctx.fillRect(0, boss.beamY - 14, VW, 28);
+        ctx.fillStyle = `rgba(255,255,255,${0.5 + Math.sin(t * 30) * 0.2})`;
+        ctx.fillRect(0, boss.beamY - 1, VW, 2);
+        ctx.font = 'bold 18px "Courier New", monospace'; ctx.textAlign = 'center';
+        ctx.fillStyle = `rgba(255,255,255,${0.3 + Math.sin(t * 24) * 0.15})`;
+        ctx.fillText('⚡ 警告：光束 ⚡', VW / 2, boss.beamY - 24);
+        ctx.restore();
+      }
+      // Rain warning zone
+      if (boss.alive && boss.pattern === 'rain' && boss.burstCount === 0) {
+        ctx.save();
+        ctx.fillStyle = `rgba(200,100,255,${0.06 + Math.sin(t * 8) * 0.03})`;
+        ctx.fillRect(VW / 2 - 200, VH - 80, 400, 60);
+        ctx.strokeStyle = `rgba(200,100,255,${0.15 + Math.sin(t * 8) * 0.08})`;
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(VW / 2 - 200, VH - 80, 400, 60);
+        ctx.restore();
+      }
+      // Wave direction warning
+      if (boss.alive && boss.pattern === 'wave' && boss.burstCount === 0) {
+        ctx.save();
+        ctx.fillStyle = `rgba(255,150,200,${0.08 + Math.sin(t * 10) * 0.04})`;
+        ctx.fillRect(0, VH - 70, 80, 50);
+        ctx.globalAlpha = 0.3 + Math.sin(t * 10) * 0.15;
+        ctx.fillStyle = '#ff99cc'; ctx.font = '24px "Courier New", monospace'; ctx.textAlign = 'center';
+        ctx.fillText('◀', 40, VH - 40);
         ctx.restore();
       }
       ctx.save();
@@ -1897,10 +2822,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         ctx.restore();
       }
 
-      // --- Landing impact ---
-      if (player.grounded && animState !== 'run' && animState !== 'attack' && player.vy === 0) {
-        // Small dust puffs at feet on landing
-      }
     }
 
     // --- Game Loop ---
@@ -1922,6 +2843,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           return;
         }
         selStage = nextStage;
+        sfxSelect();
         updateStageLocks();
         setAccent(STAGES[selStage].accent);
       });
@@ -1936,6 +2858,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           return;
         }
         selChar = nextChar;
+        sfxSelect();
         updateCharacterLocks();
       });
     });
@@ -1943,14 +2866,15 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     document.getElementById('goBtn')!.addEventListener('click', () => {
       if (!isStageUnlocked(selStage)) { showTitleHint('先通关前一幕，才能进入后续关卡。'); refreshProgressUi(); return; }
       if (!isCharUnlocked(selChar)) { selChar = 1; refreshProgressUi(); }
+      sfxSelect();
       initGame(true);
     });
-    document.getElementById('retryBtn')!.addEventListener('click', () => { if (pendingNextStage) { selStage++; activateStageButton(); setAccent(STAGES[selStage].accent); initGame(false); } else initGame(true); });
-    document.getElementById('backBtn')!.addEventListener('click', returnToMenu);
+    document.getElementById('retryBtn')!.addEventListener('click', () => { sfxSelect(); if (pendingNextStage) { selStage++; activateStageButton(); setAccent(STAGES[selStage].accent); initGame(false); } else initGame(true); });
+    document.getElementById('backBtn')!.addEventListener('click', () => { sfxBack(); returnToMenu(); });
     pauseBtn.addEventListener('click', () => setPaused(!paused));
     menuBtn.addEventListener('click', returnToMenu);
     resumeBtn.addEventListener('click', () => setPaused(false));
-    pauseMenuBtn.addEventListener('click', returnToMenu);
+    pauseMenuBtn.addEventListener('click', () => { sfxBack(); returnToMenu(); });
     abilityChoices.addEventListener('click', e => {
       const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ability-card');
       if (!btn) return;
@@ -1964,7 +2888,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       }
     }) as EventListener);
 
+    window.addEventListener('resize', resizeCanvas);
+
     document.addEventListener('astro:before-swap', () => cancelAnimationFrame(raf), { once: true });
+
+    // Initial canvas sizing
+    resizeCanvas();
 
     // Start render loop
     loadSave();
