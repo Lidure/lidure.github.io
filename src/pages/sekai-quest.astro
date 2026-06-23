@@ -81,15 +81,28 @@ const VERSION = 'v0.0.1';
           <div class="pause-title">已暂停</div>
           <div class="pause-actions">
             <button class="resume-btn" id="resumeBtn" type="button">继续游戏</button>
+            <button class="bestiary-btn" id="pauseBestiaryBtn" type="button">怪物图鉴</button>
             <button class="menu-btn" id="pauseMenuBtn" type="button">返回菜单</button>
           </div>
         </div>
       </div>
-      <div class="ability-overlay hidden" id="abilityOverlay">
-        <div class="ability-panel">
-          <div class="ability-title">选择一项能力</div>
-          <div class="ability-subtitle" id="abilitySubtitle">SEKAI 的回声正在重组</div>
-          <div class="ability-choices" id="abilityChoices"></div>
+      <!-- Bestiary overlay -->
+      <div class="bestiary-overlay hidden" id="bestiaryOverlay">
+        <div class="bestiary-panel">
+          <div class="bestiary-header">
+            <div class="bestiary-title">怪物图鉴</div>
+            <button class="bestiary-close" id="bestiaryClose" type="button">✕</button>
+          </div>
+          <div class="bestiary-body" id="bestiaryBody"></div>
+        </div>
+      </div>
+      <!-- Talent overlay -->
+      <div class="talent-overlay hidden" id="talentOverlay">
+        <div class="talent-panel">
+          <div class="talent-title">天赋构筑</div>
+          <div class="talent-pts" id="talentPointsDisplay">可用点数: 0</div>
+          <div class="talent-grid" id="talentGrid"></div>
+          <button class="talent-close-btn" id="talentCloseBtn" type="button">关闭</button>
         </div>
       </div>
       <div class="secret-toast hidden" id="secretToast">超能力已解锁</div>
@@ -114,6 +127,8 @@ const VERSION = 'v0.0.1';
       </div>
 
       <!-- Results (inside game-screen for fullscreen support) -->
+      <!-- Map overlay -->
+      <div class="map-overlay hidden" id="mapOverlay"></div>
       <div class="results-screen hidden" id="resultsScreen">
         <div class="results-card">
           <div class="res-title" id="resTitle">通关！</div>
@@ -237,7 +252,7 @@ const VERSION = 'v0.0.1';
     .pause-panel { width: min(280px, calc(100vw - 36px)); padding: 28px 24px 22px; border-radius: 18px; border: 1.5px solid rgba(var(--dash-accent-rgb), .2); background: linear-gradient(180deg, rgba(10,12,28,.96), rgba(6,8,18,.96)); box-shadow: 0 16px 48px rgba(0,0,0,.3), 0 0 40px rgba(var(--dash-accent-rgb), .04); text-align: center; animation: panelIn .3s ease both; }
     .pause-title { margin-bottom: 18px; font-family: 'Courier New', monospace; font-size: 1.4rem; font-weight: 900; color: var(--dash-accent); text-shadow: 0 0 20px rgba(var(--dash-accent-rgb), .3); letter-spacing: .04em; }
     .pause-actions { display: flex; gap: 10px; }
-    .resume-btn, .menu-btn { flex: 1; padding: 12px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: .9rem; font-weight: 900; cursor: pointer; transition: all 140ms ease; }
+    .resume-btn, .menu-btn, .bestiary-btn { flex: 1; padding: 12px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: .9rem; font-weight: 900; cursor: pointer; transition: all 140ms ease; }
     .resume-btn { border: none; background: linear-gradient(135deg, var(--dash-accent), rgba(var(--dash-accent-rgb), .55)); color: #0a0e18; box-shadow: 0 4px 20px rgba(var(--dash-accent-rgb), .25); }
     .resume-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(var(--dash-accent-rgb), .34); }
     .menu-btn { border: 1.5px solid var(--panel-border); background: rgba(6,8,18,.6); color: var(--text-soft); }
@@ -291,6 +306,56 @@ const VERSION = 'v0.0.1';
     @keyframes finisherStreak { 0% { opacity: 0; transform: translateX(-28%); } 14%, 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(24%); } }
     @keyframes finisherLine { 0%, 20% { opacity: 0; transform: translate(-50%, 8px); } 32%, 78% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -6px); } }
 
+    /* ===== Map overlay ===== */
+    .map-overlay { position: absolute; right: 14px; top: 56px; z-index: 80; background: rgba(4,6,14,.92); border: 1px solid rgba(var(--dash-accent-rgb), .2); border-radius: 12px; padding: 12px; min-width: 180px; box-shadow: 0 8px 32px rgba(0,0,0,.4); animation: fadeIn .15s ease; pointer-events: none; }
+    .map-container { display: flex; flex-direction: column; gap: 2px; }
+    .map-row { display: flex; align-items: center; gap: 6px; padding: 3px 6px; border-radius: 4px; font-size: .65rem; font-weight: 700; color: rgba(255,255,255,.55); transition: none; }
+    .map-row.active { color: #fff; background: rgba(var(--dash-accent-rgb), .15); }
+    .map-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .map-player-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px rgba(255,255,255,.7); margin-left: auto; flex-shrink: 0; }
+
+    /* ===== Bestiary overlay ===== */
+    .bestiary-overlay { position: absolute; inset: 0; z-index: 85; display: grid; place-content: center; background: rgba(4,6,14,.88); backdrop-filter: blur(10px); padding: 16px; animation: fadeIn .15s ease; }
+    .bestiary-panel { display: grid; gap: 6px; max-width: 500px; width: min(90vw, 500px); max-height: 80vh; background: linear-gradient(180deg, rgba(10,12,28,.98), rgba(6,8,18,.98)); border: 1.5px solid rgba(var(--dash-accent-rgb), .15); border-radius: 16px; box-shadow: 0 18px 56px rgba(0,0,0,.3); overflow: hidden; animation: panelIn .2s ease both; }
+    .bestiary-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px 8px; }
+    .bestiary-title { font-family: 'Courier New', monospace; font-size: 1.1rem; font-weight: 900; color: var(--dash-accent); letter-spacing: .04em; }
+    .bestiary-close { background: none; border: none; color: rgba(255,255,255,.3); font-size: 1.2rem; cursor: pointer; padding: 2px 6px; border-radius: 6px; transition: all 120ms; }
+    .bestiary-close:hover { color: #fff; background: rgba(255,255,255,.08); }
+    .bestiary-body { padding: 4px 18px 18px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+    .bestiary-entry { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05); }
+    .bestiary-entry.unseen { opacity: .3; filter: grayscale(.8); }
+    .bestiary-icon { width: 28px; height: 28px; border-radius: 6px; display: grid; place-items: center; font-size: .75rem; font-weight: 900; color: #fff; flex-shrink: 0; }
+    .bestiary-info { flex: 1; min-width: 0; }
+    .bestiary-name { font-size: .82rem; font-weight: 800; color: #fff; }
+    .bestiary-stats { font-size: .6rem; color: rgba(255,255,255,.5); margin-top: 1px; }
+    .bestiary-drops { display: flex; gap: 4px; margin-top: 3px; flex-wrap: wrap; }
+    .bestiary-drop { padding: 1px 6px; border-radius: 4px; font-size: .58rem; font-weight: 700; background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); }
+    .bestiary-drop.owned { background: rgba(var(--dash-accent-rgb), .15); color: var(--dash-accent); }
+
+    /* ===== Talent overlay ===== */
+    .talent-overlay { position: absolute; inset: 0; z-index: 85; display: grid; place-content: center; background: rgba(4,6,14,.85); backdrop-filter: blur(8px); padding: 16px; animation: fadeIn .15s ease; }
+    .talent-panel { display: grid; gap: 10px; max-width: 600px; width: min(92vw, 600px); max-height: 82vh; background: linear-gradient(180deg, rgba(10,12,28,.98), rgba(6,8,18,.98)); border: 1.5px solid rgba(var(--dash-accent-rgb), .18); border-radius: 18px; padding: 20px; box-shadow: 0 18px 56px rgba(0,0,0,.3); overflow-y: auto; animation: panelIn .2s ease both; }
+    .talent-title { text-align: center; font-family: 'Courier New', monospace; font-size: 1.2rem; font-weight: 900; color: var(--dash-accent); letter-spacing: .04em; }
+    .talent-pts { text-align: center; font-size: .78rem; font-weight: 700; color: rgba(255,255,255,.6); margin-bottom: 2px; }
+    .talent-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+    .talent-card { display: flex; flex-direction: column; gap: 3px; padding: 10px 12px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.06); background: rgba(255,255,255,.02); transition: all 120ms; }
+    .talent-card:hover { border-color: rgba(var(--dash-accent-rgb), .2); }
+    .talent-card.maxed { border-color: rgba(255,214,110,.2); background: rgba(255,214,110,.04); }
+    .talent-card-top { display: flex; align-items: center; gap: 8px; }
+    .talent-card-icon { font-size: 1.2rem; width: 28px; text-align: center; }
+    .talent-card-info { flex: 1; min-width: 0; }
+    .talent-card-name { font-size: .8rem; font-weight: 800; color: #fff; }
+    .talent-card-desc { font-size: .62rem; color: rgba(255,255,255,.45); }
+    .talent-card-level { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+    .talent-lvl-dots { display: flex; gap: 3px; }
+    .talent-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.08); transition: all 120ms; }
+    .talent-dot.filled { background: var(--dash-accent); border-color: var(--dash-accent); box-shadow: 0 0 6px rgba(var(--dash-accent-rgb), .3); }
+    .talent-btn { margin-left: auto; padding: 4px 12px; border-radius: 8px; border: none; font-family: inherit; font-size: .7rem; font-weight: 800; cursor: pointer; transition: all 120ms; background: rgba(var(--dash-accent-rgb), .15); color: var(--dash-accent); }
+    .talent-btn:hover { background: rgba(var(--dash-accent-rgb), .25); }
+    .talent-btn:disabled { opacity: .3; cursor: default; }
+    .talent-close-btn { justify-self: center; padding: 8px 28px; margin-top: 4px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); color: rgba(255,255,255,.5); font-family: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; transition: all 120ms; }
+    .talent-close-btn:hover { border-color: rgba(var(--dash-accent-rgb), .3); color: var(--dash-accent); }
+
     /* ===== Results ===== */
     .results-screen { position: absolute; inset: 0; z-index: 90; display: grid; place-content: center; background: rgba(4,6,14,.88); backdrop-filter: blur(12px); padding: 16px; animation: fadeIn .25s ease; }
     .results-card { display: grid; gap: 18px; max-width: 380px; width: 100%; padding: 32px 28px 24px; border-radius: 22px; background: linear-gradient(180deg, rgba(10,12,28,.98), rgba(6,8,18,.98)); border: 1.5px solid rgba(var(--dash-accent-rgb), .15); box-shadow: 0 18px 56px rgba(0,0,0,.28), 0 0 40px rgba(var(--dash-accent-rgb), .04); animation: panelIn .35s ease both; }
@@ -305,6 +370,8 @@ const VERSION = 'v0.0.1';
     .retry-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(var(--dash-accent-rgb), .34); }
     .back-btn { border: 1.5px solid var(--panel-border); background: rgba(6,8,18,.6); color: var(--text-soft); }
     .back-btn:hover { border-color: rgba(var(--dash-accent-rgb), .4); color: var(--dash-accent); transform: translateY(-1px); }
+    .bestiary-btn { border: 1.5px solid rgba(var(--dash-accent-rgb), .15); background: rgba(var(--dash-accent-rgb), .04); color: rgba(255,255,255,.6); }
+    .bestiary-btn:hover { border-color: rgba(var(--dash-accent-rgb), .35); color: var(--dash-accent); }
 
     /* ===== Touch ===== */
     .touch-controls { position: fixed; bottom: 8px; left: 0; right: 0; z-index: 50; display: flex; justify-content: space-between; padding: 0 16px; pointer-events: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
@@ -375,6 +442,40 @@ const VERSION = 'v0.0.1';
       { name: 'Ena', img: '/ena.png', speed: 300, jumpPow: 660, atkCd: 340, projSpd: 500, hp: 5, color: '#88cc44', desc: '灵活' },
       { name: 'Miku', img: '/25miku.png', speed: 270, jumpPow: 560, atkCd: 260, projSpd: 640, hp: 4, color: '#ccddff', desc: '远程' },
     ];
+
+    // --- Monster Drops & Bestiary ---
+    const ENEMY_DROPS: Record<string, { name: string; desc: string; chance: number; color: string }> = {
+      slime:    { name: '粘液核心',    desc: '史莱姆的粘液核心',     chance: 0.50, color: '#88cc44' },
+      bat:      { name: '夜光粉末',    desc: '蝙蝠翅膀上的发光粉末',  chance: 0.40, color: '#9966cc' },
+      ghost:    { name: '灵魂残响',    desc: '幽灵消散后的灵魂碎片',  chance: 0.45, color: '#6699ff' },
+      charger:  { name: '突击核心',    desc: '冲刺者的能量核心',     chance: 0.35, color: '#ff6644' },
+      sniper:   { name: '瞄准镜碎片',  desc: '狙击精英的瞄准镜',    chance: 0.30, color: '#ff88cc' },
+      shielder: { name: '防御残片',    desc: '重装者的护盾碎片',     chance: 0.30, color: '#44aaff' },
+      orbiter:  { name: '星轨碎片',    desc: '轨道者的暗物质残迹',   chance: 0.35, color: '#ff66dd' },
+      bomber:   { name: '爆破引信',    desc: '轰炸者的未爆引信',     chance: 0.30, color: '#ff8800' },
+    };
+    const ELITE_DROP = { name: '精英核心', desc: '精英敌人掉落的强化核心', chance: 0.30, color: '#ffd66e' };
+    const BESTIARY_ORDER = ['slime','bat','ghost','charger','sniper','shielder','orbiter','bomber'];
+
+    const TALENT_DEFS = [
+      { id: 'power',  name: '暗色强音',   desc: '攻击伤害 +1',          icon: 'ATK', maxLvl: 5, getStat: (lvl: number) => { upgradePower = lvl; } },
+      { id: 'haste',  name: '高速谱面',   desc: '攻击冷却 -6%',        icon: 'SPD', maxLvl: 5, getStat: (lvl: number) => { upgradeHaste = lvl; } },
+      { id: 'range',  name: '远响轨迹',   desc: '投射物射程 +0.18s',   icon: 'RNG', maxLvl: 5, getStat: (lvl: number) => { rogueRange = lvl; } },
+      { id: 'damage', name: '狂音共鸣',   desc: '额外伤害 +1',          icon: 'DMG', maxLvl: 5, getStat: (lvl: number) => { rogueDamage = lvl; } },
+      { id: 'hp',     name: '残响护心',   desc: '最大生命 +1',          icon: 'HP',  maxLvl: 5, getStat: (lvl: number) => { upgradeHp = lvl; } },
+      { id: 'jump',   name: '轻音踏步',   desc: '跳跃高度 +35',         icon: 'JMP', maxLvl: 3, getStat: (lvl: number) => { upgradeJump = lvl; } },
+      { id: 'crit',   name: '空白暴击',   desc: '暴击率 +10%',          icon: 'CRIT',maxLvl: 5, getStat: (lvl: number) => { rogueCrit = lvl * 0.1; } },
+      { id: 'multi',  name: '和弦分裂',   desc: '副弹 +1',             icon: 'X2',  maxLvl: 3, getStat: (lvl: number) => { rogueMulti = lvl; } },
+      { id: 'pierce', name: '穿透余音',   desc: '穿透 +1',             icon: 'PEN', maxLvl: 3, getStat: (lvl: number) => { roguePierce = lvl; } },
+      { id: 'shield', name: '夜色护盾',   desc: '护盾 +1',             icon: 'DEF', maxLvl: 3, getStat: (lvl: number) => { rogueShield = lvl; shieldCharges = Math.max(shieldCharges, rogueShield); } },
+      { id: 'regen',  name: '终幕回生',   desc: '回生 +1',             icon: 'RE',  maxLvl: 3, getStat: (lvl: number) => { rogueRegen = lvl; } },
+      { id: 'explode',name: '爆裂崩音',   desc: '击杀爆炸 +1',          icon: 'BOOM',maxLvl: 3, getStat: (lvl: number) => { rogueExplode = lvl; } },
+    ];
+
+    const TALENT_ICONS: Record<string, string> = {
+      ATK:'⚔️', SPD:'⚡', RNG:'🎯', DMG:'🔊', HP:'❤️', JMP:'⬆️',
+      CRIT:'💥', X2:'✦', PEN:'💠', DEF:'🛡️', RE:'♻️', BOOM:'💣'
+    };
 
     const STAGES = [
       { name: '第一幕 - 街头排练', bg1: '#0a1628', bg2: '#162040', platColor: '#1e3460', platTop: '#4488cc', accent: '#4455dd', starColor: '#77aaff', enemies: 8, worldW: 3200, boss: false,
@@ -551,7 +652,7 @@ const VERSION = 'v0.0.1';
     interface Rect { x: number; y: number; w: number; h: number; }
     interface Player extends Rect { vx: number; vy: number; grounded: boolean; facing: number; hp: number; maxHp: number; invuln: number; jumps: number; maxJumps: number; atkTimer: number; }
     type EnemyType = 'slime' | 'bat' | 'ghost' | 'charger' | 'sniper' | 'shielder' | 'orbiter' | 'bomber';
-    interface Enemy extends Rect { vx: number; hp: number; maxHp: number; left: number; right: number; type: EnemyType; alive: boolean; atkTimer: number; xp: number; elite?: boolean; dashTimer?: number; deathTimer?: number; baseY?: number; popIn?: number; summonTag?: string; }
+    interface Enemy extends Rect { vx: number; vy: number; hp: number; maxHp: number; left: number; right: number; type: EnemyType; alive: boolean; atkTimer: number; xp: number; elite?: boolean; dashTimer?: number; deathTimer?: number; baseY?: number; popIn?: number; summonTag?: string; }
     interface Note { x: number; y: number; taken: boolean; spawnT: number; }
     interface Pickup { x: number; y: number; type: 'health' | 'amp'; taken: boolean; spawnT: number; }
     interface NpcEncounter extends Rect { id: string; name: string; text: string; color: string; reward: 'hp' | 'haste' | 'power' | 'jump'; met: boolean; seen?: boolean; char?: number; }
@@ -560,8 +661,7 @@ const VERSION = 'v0.0.1';
     interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; }
     interface FloatingText { x: number; y: number; text: string; color: string; life: number; vy: number; }
     interface Boss extends Rect { hp: number; maxHp: number; active: boolean; alive: boolean; phase: number; pattern: 'idle' | 'volley' | 'rain' | 'wave' | 'beam' | 'summon' | 'liberate'; timer: number; attackTimer: number; burstCount: number; beamWarn: number; beamY: number; beamX: number; teleportTimer: number; homeY: number; driftX: number; isMfy?: boolean; liberateT?: number; minionIds?: number[]; }
-    interface GameSave { runs: number; bestScore: number; clearedStages: number; unlockedChars: number[]; metNpcIds: string[]; totalKills: number; totalNotes: number; bossClears: number; }
-    interface AbilityOption { id: string; name: string; desc: string; icon: string; rarity: 'COMMON' | 'RARE' | 'EPIC'; apply: () => void; }
+    interface GameSave { runs: number; bestScore: number; clearedStages: number; unlockedChars: number[]; metNpcIds: string[]; totalKills: number; totalNotes: number; bossClears: number; bestiaryKills: Record<string, number>; inventory: Record<string, number>; }
     interface MovingPlatform extends Rect { ox: number; oy: number; dx: number; dy: number; speed: number; t: number; }
     interface Hazard extends Rect { type: 'spike'; }
     interface ForegroundDecor { x: number; y: number; w: number; h: number; type: string; layer: 'back' | 'front'; parallax: number; }
@@ -617,15 +717,17 @@ const VERSION = 'v0.0.1';
     let upgradeHp = 0, upgradePower = 0, upgradeHaste = 0, upgradeJump = 0;
     let rogueDamage = 0, rogueRange = 0, rogueMulti = 0, roguePierce = 0, rogueCrit = 0, rogueRegen = 0, rogueShield = 0, rogueExplode = 0;
     let shieldCharges = 0;
-    let runAbilityNames: string[] = [];
-    let choosingAbility = false;
-    let pendingAbilityChoices: AbilityOption[] = [];
-    let pendingNextStage = false;
+    let talentLevels: Record<string, number> = {};
+    let talentPoints = 0;
+    let bestiarySeen: string[] = [];
+    let bestiaryKills: Record<string, number> = {};
+    let inventory: Record<string, number> = {};
     let resultRecorded = false;
     let running = false, finished = false, paused = false;
     let shakeX = 0, shakeY = 0, shakeT = 0;
     let screenFlash = 0; let screenFlashColor = '#ff66dd';
     let stageClearTimer = 0;
+    let mapVisible = false;
     let msgTimer = 0;
     let secretBuffer = '';
     let superMode = false;
@@ -641,7 +743,7 @@ const VERSION = 'v0.0.1';
     let dialogueActive = false;
     let joyX = 0;
     const SAVE_KEY = 'sekaiQuestSaveV1';
-    const DEFAULT_SAVE: GameSave = { runs: 0, bestScore: 0, clearedStages: 0, unlockedChars: [1], metNpcIds: [], totalKills: 0, totalNotes: 0, bossClears: 0 };
+    const DEFAULT_SAVE: GameSave = { runs: 0, bestScore: 0, clearedStages: 0, unlockedChars: [1], metNpcIds: [], totalKills: 0, totalNotes: 0, bossClears: 0, bestiaryKills: {}, inventory: {} };
     let saveData: GameSave = { ...DEFAULT_SAVE, unlockedChars: [...DEFAULT_SAVE.unlockedChars], metNpcIds: [] };
     const keys: Record<string, boolean> = {};
     const charImages: HTMLImageElement[] = [];
@@ -683,7 +785,8 @@ const VERSION = 'v0.0.1';
       idle: '/mfy/boss_mfy.png',
       liberate: '/mfy/boss_mfy_解放攻击.png',
       charge: '/mfy/boss_mfy_飞行冲撞.png',
-      attack: '/mfy/mfy_att1.png',
+      attack: '/mfy/boss_mfy_攻击.png',
+      cower: '/mfy/boss_mfy_蜷缩.png',
     } as const;
     const mfyBossImages: Record<keyof typeof MFY_BOSS_SPRITES, HTMLImageElement> = {} as Record<keyof typeof MFY_BOSS_SPRITES, HTMLImageElement>;
 
@@ -697,9 +800,8 @@ const VERSION = 'v0.0.1';
     const gameMsg = document.getElementById('gameMsg')!;
     const pauseBtn = document.getElementById('pauseBtn')!;
     const pauseOverlay = document.getElementById('pauseOverlay')!;
-    const abilityOverlay = document.getElementById('abilityOverlay')!;
-    const abilitySubtitle = document.getElementById('abilitySubtitle')!;
-    const abilityChoices = document.getElementById('abilityChoices')!;
+    const talentOverlay = document.getElementById('talentOverlay')!;
+    const bestiaryOverlay = document.getElementById('bestiaryOverlay')!;
     const resumeBtn = document.getElementById('resumeBtn')!;
     const secretToast = document.getElementById('secretToast')!;
     const bossFinisher = document.getElementById('bossFinisher')!;
@@ -921,9 +1023,11 @@ const VERSION = 'v0.0.1';
           totalKills: Number(parsed.totalKills || 0),
           totalNotes: Number(parsed.totalNotes || 0),
           bossClears: Number(parsed.bossClears || 0),
+          bestiaryKills: (parsed.bestiaryKills || {}) as Record<string, number>,
+          inventory: (parsed.inventory || {}) as Record<string, number>,
         };
       } catch {
-        saveData = { ...DEFAULT_SAVE, unlockedChars: [...DEFAULT_SAVE.unlockedChars], metNpcIds: [] };
+        saveData = { ...DEFAULT_SAVE, unlockedChars: [...DEFAULT_SAVE.unlockedChars], metNpcIds: [], bestiaryKills: {}, inventory: {} };
       }
     }
 
@@ -961,7 +1065,9 @@ const VERSION = 'v0.0.1';
 
     function updateTitleProgress() {
       const unlocked = saveData.unlockedChars.map(i => CHARS[i]?.name).filter(Boolean).join(' / ');
-      saveSummary.textContent = `游玩 ${saveData.runs} 次 · 最佳 ${saveData.bestScore} · 已解锁：${unlocked}`;
+      const bestiaryCount = Object.keys(saveData.bestiaryKills).length;
+      const bestiaryStr = bestiaryCount > 0 ? ` · 图鉴 ${bestiaryCount}/${BESTIARY_ORDER.length}` : '';
+      saveSummary.textContent = `游玩 ${saveData.runs} 次 · 最佳 ${saveData.bestScore}${bestiaryStr} · 已解锁：${unlocked}`;
     }
 
     function updateCharacterLocks() {
@@ -1065,25 +1171,30 @@ const VERSION = 'v0.0.1';
       ctx.restore();
     }
 
-    function resetCampaign() {
-      heroLevel = 1; heroXp = 0; heroXpNext = 100;
+    function applyTalents() {
       upgradeHp = 0; upgradePower = 0; upgradeHaste = 0; upgradeJump = 0;
       rogueDamage = 0; rogueRange = 0; rogueMulti = 0; roguePierce = 0; rogueCrit = 0; rogueRegen = 0; rogueShield = 0; rogueExplode = 0; shieldCharges = 0;
-      runAbilityNames = []; choosingAbility = false; pendingAbilityChoices = [];
-      score = 0; notesCollected = 0; enemiesKilled = 0; pendingNextStage = false;
+      for (const t of TALENT_DEFS) {
+        const lvl = talentLevels[t.id] || 0;
+        if (lvl > 0) t.getStat(lvl);
+      }
+    }
+    function resetCampaign() {
+      heroLevel = 1; heroXp = 0; heroXpNext = 100;
+      talentLevels = {}; talentPoints = 0;
+      bestiarySeen = []; bestiaryKills = {}; inventory = {};
+      score = 0; notesCollected = 0; enemiesKilled = 0;
       bossDefeatCutscene = 0; resultRecorded = false;
-      abilityOverlay.classList.add('hidden');
+      applyTalents();
+      talentOverlay.classList.add('hidden');
     }
     function maxHpForChar() { return CHARS[selChar].hp + upgradeHp; }
-    function attackDamage() { return (superMode ? 8 : 1) + upgradePower + rogueDamage; }
+    function attackDamage() { return (superMode ? 4 : 1) + Math.floor((upgradePower + rogueDamage) * 0.4); }
     function rollAttackDamage() { return attackDamage() * (Math.random() < rogueCrit ? 2 : 1); }
     function attackCooldown() { return Math.max(95, CHARS[selChar].atkCd * (1 - upgradeHaste * 0.08)); }
     function jumpPower() { return CHARS[selChar].jumpPow + upgradeJump * 35; }
     function projectileLife() { return (superMode ? 2.4 : 0.75) + rogueRange * 0.18; }
     function projectileSpeed() { return CHARS[selChar].projSpd * (superMode ? 1.35 : 1); }
-    function activateStageButton() {
-      updateStageLocks();
-    }
     function toggleFullscreen() {
       const gs = document.getElementById('gameScreen')!;
       if (document.fullscreenElement) {
@@ -1109,72 +1220,117 @@ const VERSION = 'v0.0.1';
       running = false;
       finished = false;
       paused = false;
-      choosingAbility = false;
       joyX = 0;
+      selStage = 0;
       stopBgm();
       gameScreen.classList.add('hidden');
       resultsScreen.classList.add('hidden');
       touchControls.classList.add('hidden');
       pauseOverlay.classList.add('hidden');
-      abilityOverlay.classList.add('hidden');
+      talentOverlay.classList.add('hidden');
+      bestiaryOverlay.classList.add('hidden');
+      document.getElementById('talentOverlay')?.classList.add('hidden');
       titleScreen.classList.remove('hidden');
+      setAccent(STAGES[0].accent);
+      updateStageLocks();
     }
 
-    function addRunAbility(name: string) {
-      runAbilityNames.push(name);
-      updateHud();
+    // --- Talent functions ---
+    function openTalentOverlay() {
+      if (finished) return;
+      renderTalentGrid();
+      document.getElementById('talentOverlay')!.classList.remove('hidden');
+      paused = true;
+    }
+    function renderTalentGrid() {
+      const ptsEl = document.getElementById('talentPointsDisplay')!;
+      ptsEl.textContent = `可用天赋点: ${talentPoints}`;
+      const grid = document.getElementById('talentGrid')!;
+      grid.innerHTML = TALENT_DEFS.map((t, idx) => {
+        const lvl = talentLevels[t.id] || 0;
+        const maxed = lvl >= t.maxLvl;
+        const dots = Array.from({ length: t.maxLvl }, (_, i) => `<span class="talent-dot${i < lvl ? ' filled' : ''}"></span>`).join('');
+        const btnHtml = maxed ? '<button class="talent-btn" disabled>MAX</button>'
+          : talentPoints <= 0 ? `<button class="talent-btn" disabled>+</button>`
+          : `<button class="talent-btn" data-talent-idx="${idx}" data-talent-id="${t.id}">+</button>`;
+        return `<div class="talent-card${maxed ? ' maxed' : ''}">
+          <div class="talent-card-top">
+            <span class="talent-card-icon">${TALENT_ICONS[t.icon] || '✦'}</span>
+            <div class="talent-card-info">
+              <div class="talent-card-name">${t.name}</div>
+              <div class="talent-card-desc">${t.desc}</div>
+            </div>
+          </div>
+          <div class="talent-card-level">
+            <div class="talent-lvl-dots">${dots}</div>
+            ${btnHtml}
+          </div>
+        </div>`;
+      }).join('');
+      // Bind click events
+      grid.querySelectorAll('.talent-btn[data-talent-idx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt((btn as HTMLElement).dataset.talentIdx || '0');
+          if (talentPoints <= 0) return;
+          const def = TALENT_DEFS[idx];
+          if (!def) return;
+          const lvl = talentLevels[def.id] || 0;
+          if (lvl >= def.maxLvl) return;
+          talentLevels[def.id] = lvl + 1;
+          talentPoints--;
+          applyTalents();
+          // Apply HP changes immediately
+          if (def.id === 'hp' && player) {
+            const mhp = maxHpForChar();
+            if (mhp > player.maxHp) { player.maxHp = mhp; player.hp = Math.min(mhp, player.hp + 1); }
+            else player.maxHp = mhp;
+          }
+          if (def.id === 'jump' && player) player.maxJumps = superMode ? 3 : Math.max(player.maxJumps, upgradeJump > 0 ? 2 : 1);
+          if (def.id === 'shield' && player) shieldCharges = Math.max(shieldCharges, rogueShield);
+          sfxClear();
+          updateHud();
+          renderTalentGrid();
+        });
+      });
+    }
+    function closeTalentOverlay() {
+      document.getElementById('talentOverlay')!.classList.add('hidden');
+      paused = false;
     }
 
-    const ABILITY_ICONS: Record<string,string> = { ATK:'⚔️', SPD:'⚡', RNG:'🎯', PEN:'💠', X2:'✦', CRIT:'💥', HP:'❤️‍🔥', JMP:'⬆️', DEF:'🛡️', RE:'♻️', BOOM:'💥' };
-    function abilityPool(): AbilityOption[] {
-      return [
-        { id: 'power', name: '暗色强音', desc: '攻击伤害 +1，所有角色的主要攻击都更重。', icon: 'ATK', rarity: 'COMMON', apply: () => { upgradePower++; addRunAbility('暗色强音'); } },
-        { id: 'haste', name: '高速谱面', desc: '攻击冷却缩短，弹幕衔接更快。', icon: 'SPD', rarity: 'COMMON', apply: () => { upgradeHaste++; addRunAbility('高速谱面'); } },
-        { id: 'range', name: '远响轨迹', desc: '投射物存在时间更久，能打到更远的敌人。', icon: 'RNG', rarity: 'COMMON', apply: () => { rogueRange++; addRunAbility('远响轨迹'); } },
-        { id: 'pierce', name: '穿透余音', desc: '玩家弹幕额外穿透 1 个目标，适合清精英怪群。', icon: 'PEN', rarity: 'RARE', apply: () => { roguePierce++; addRunAbility('穿透余音'); } },
-        { id: 'multi', name: '和弦分裂', desc: '追加副弹，Mizuki 与 Kanade 的弹幕会更密。', icon: 'X2', rarity: 'RARE', apply: () => { rogueMulti++; addRunAbility('和弦分裂'); } },
-        { id: 'crit', name: '空白暴击', desc: '暴击率 +15%，触发时造成双倍伤害。', icon: 'CRIT', rarity: 'RARE', apply: () => { rogueCrit = Math.min(0.6, rogueCrit + 0.15); addRunAbility('空白暴击'); } },
-        { id: 'heart', name: '残响护心', desc: '最大生命 +1，并立刻回复 1 点生命。', icon: 'HP', rarity: 'COMMON', apply: () => { upgradeHp++; player.maxHp = maxHpForChar(); player.hp = Math.min(player.maxHp, player.hp + 1); addRunAbility('残响护心'); } },
-        { id: 'jump', name: '轻音踏步', desc: '机动 +1，解锁或强化二段跳。', icon: 'JMP', rarity: 'COMMON', apply: () => { upgradeJump++; player.maxJumps = Math.max(player.maxJumps, superMode ? 3 : 2); addRunAbility('轻音踏步'); } },
-        { id: 'shield', name: '夜色护盾', desc: '每关获得一次免伤护盾。', icon: 'DEF', rarity: 'EPIC', apply: () => { rogueShield++; shieldCharges = Math.max(shieldCharges, rogueShield); addRunAbility('夜色护盾'); } },
-        { id: 'regen', name: '终幕回生', desc: '进入下一幕时额外回复生命。', icon: 'RE', rarity: 'EPIC', apply: () => { rogueRegen++; addRunAbility('终幕回生'); } },
-        { id: 'explode', name: '爆裂崩音', desc: '击杀敌人时触发爆炸，对周围敌人造成伤害。', icon: 'BOOM', rarity: 'EPIC', apply: () => { rogueExplode++; addRunAbility('爆裂崩音'); } },
-      ];
+    // --- Bestiary functions ---
+    let bestiaryFromPause = false;
+    function openBestiary(fromPause = false) {
+      bestiaryFromPause = fromPause;
+      if (!fromPause) { paused = true; pauseOverlay.classList.add('hidden'); }
+      const body = document.getElementById('bestiaryBody')!;
+      body.innerHTML = BESTIARY_ORDER.map(type => {
+        const seen = bestiarySeen.includes(type);
+        const kills = bestiaryKills[type] || 0;
+        const drop = ENEMY_DROPS[type];
+        const owned = drop ? (inventory[drop.name] || 0) : 0;
+        const eliteOwned = inventory[ELITE_DROP.name] || 0;
+        const baseHp = type === 'shielder' ? 4 : type === 'sniper' ? 4 : type === 'charger' ? 3 : type === 'ghost' ? 3 : type === 'bomber' ? 3 : type === 'orbiter' ? 2 : type === 'bat' ? 2 : 1;
+        const xp = type === 'shielder' ? 52 : type === 'orbiter' ? 48 : type === 'sniper' ? 46 : type === 'charger' ? 38 : type === 'ghost' ? 35 : type === 'bomber' ? 36 : type === 'bat' ? 28 : 20;
+        const iconColor = drop?.color || '#888';
+        return `<div class="bestiary-entry${seen ? '' : ' unseen'}">
+          <div class="bestiary-icon" style="background:${seen ? iconColor : 'rgba(255,255,255,.05)'}">${seen ? (type === 'slime' ? 'S' : type === 'bat' ? 'B' : type === 'ghost' ? 'G' : type === 'charger' ? 'C' : type === 'sniper' ? 'N' : type === 'shielder' ? 'H' : type === 'orbiter' ? 'O' : type === 'bomber' ? 'M' : '?') : '?'}</div>
+          <div class="bestiary-info">
+            <div class="bestiary-name">${seen ? (type.charAt(0).toUpperCase() + type.slice(1)) : '???'}</div>
+            <div class="bestiary-stats">${seen ? `HP ${baseHp} · XP ${xp} · 击杀 ${kills}` : '尚未遇见'}</div>
+            <div class="bestiary-drops">
+              ${drop ? `<span class="bestiary-drop${owned > 0 ? ' owned' : ''}">${drop.name} x${owned} (${Math.round(drop.chance * 100)}%)</span>` : ''}
+              ${`<span class="bestiary-drop${eliteOwned > 0 ? ' owned' : ''}">精英核心 x${eliteOwned} (30%)</span>`}
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+      document.getElementById('bestiaryOverlay')!.classList.remove('hidden');
     }
-
-    function openAbilityChoice() {
-      if (finished || choosingAbility) return;
-      const pool = abilityPool();
-      pendingAbilityChoices = [];
-      while (pendingAbilityChoices.length < 3 && pool.length) {
-        const idx = Math.floor(Math.random() * pool.length);
-        pendingAbilityChoices.push(pool.splice(idx, 1)[0]);
-      }
-      choosingAbility = true;
-      abilitySubtitle.textContent = `等级 ${heroLevel} · 选择本局构筑方向`;
-      abilityChoices.innerHTML = pendingAbilityChoices.map((a, i) => `
-        <button class="ability-card" type="button" data-ability="${i}" data-rarity="${a.rarity}" data-index="0${i + 1}">
-          <span class="ability-corner"><svg viewBox="0 0 48 48"><path d="M48 0v8a40 40 0 0 1-40 40H0"/></svg></span>
-          <span class="ability-icon">${ABILITY_ICONS[a.icon] || '✦'}</span>
-          <strong>${a.name}</strong>
-          <span class="ability-desc">${a.desc}</span>
-          <span class="ability-rarity">${a.rarity}</span>
-        </button>
-      `).join('');
-      abilityOverlay.classList.remove('hidden');
-    }
-
-    function chooseAbility(index: number) {
-      const choice = pendingAbilityChoices[index];
-      if (!choice) return;
-      choice.apply();
-      pendingAbilityChoices = [];
-      choosingAbility = false;
-      abilityOverlay.classList.add('hidden');
-      sfxClear();
-      burst(player.x + player.w / 2, player.y + player.h / 2, CHARS[selChar].color, 20);
-      showMsg(`获得能力：${choice.name}`, 1.2);
-      updateHud();
+    function closeBestiary() {
+      document.getElementById('bestiaryOverlay')!.classList.add('hidden');
+      if (bestiaryFromPause) { pauseOverlay.classList.remove('hidden'); }
+      else { paused = false; }
     }
 
     function gainXp(amount: number) {
@@ -1189,7 +1345,16 @@ const VERSION = 'v0.0.1';
       if (levelsGained > 0) {
         sfxLevelUp();
         burst(player.x + player.w / 2, player.y + player.h / 2, CHARS[selChar].color, 16);
-        openAbilityChoice();
+        // Talent point every 5 levels
+        const prevLevels = heroLevel - levelsGained;
+        const prevPoints = Math.floor(prevLevels / 5);
+        const newPoints = Math.floor(heroLevel / 5);
+        const gained = newPoints - prevPoints;
+        if (gained > 0) {
+          talentPoints += gained;
+          showMsg(`天赋 +${gained}！剩余点数 ${talentPoints}`, 1.5);
+          openTalentOverlay();
+        }
       }
       updateHud();
     }
@@ -1252,6 +1417,13 @@ const VERSION = 'v0.0.1';
       saveData.bestScore = Math.max(saveData.bestScore, score);
       saveData.totalKills += enemiesKilled;
       saveData.totalNotes += notesCollected;
+      // Merge bestiary + inventory
+      for (const [type, count] of Object.entries(bestiaryKills)) {
+        saveData.bestiaryKills[type] = (saveData.bestiaryKills[type] || 0) + count;
+      }
+      for (const [item, count] of Object.entries(inventory)) {
+        saveData.inventory[item] = (saveData.inventory[item] || 0) + count;
+      }
       if (clear) {
         saveData.clearedStages = Math.max(saveData.clearedStages, selStage + 1);
         if (STAGES[selStage].boss) saveData.bossClears++;
@@ -1323,7 +1495,7 @@ const VERSION = 'v0.0.1';
         const size = type === 'shielder' ? 36 : type === 'orbiter' ? 28 : type === 'bomber' ? 30 : (elite ? 40 : 32);
         const y = p.y - size;
         const vx = (type === 'sniper' ? 0 : (type === 'shielder' ? 40 : type === 'bomber' ? 50 : 60 + Math.random() * 40 + (elite ? 18 : 0))) * (Math.random() < 0.5 ? 1 : -1);
-        enemies.push({ x: p.x + p.w / 2 - size / 2, y, w: size, h: size, vx, hp, maxHp: hp, left: p.x, right: p.x + p.w, type, alive: true, atkTimer: 0.8 + Math.random() * 1.6, xp, elite, baseY: y, dashTimer: 1.2 + Math.random() * 1.4, popIn: 0.35 });
+        enemies.push({ x: p.x + p.w / 2 - size / 2, y, w: size, h: size, vx, vy: 0, hp, maxHp: hp, left: p.x, right: p.x + p.w, type, alive: true, atkTimer: 0.8 + Math.random() * 1.6, xp, elite, baseY: y, dashTimer: 1.2 + Math.random() * 1.4, popIn: 0.35 });
       }
 
       const npcTemplates = NPCS_BY_STAGE[stageIdx] || [];
@@ -1366,17 +1538,18 @@ const VERSION = 'v0.0.1';
     function initGame(resetRun = true) {
       initAudio();
       if (resetRun) resetCampaign();
+      applyTalents();
       const stage = STAGES[selStage];
       const prevHp = player ? player.hp : 0;
       setAccent(stage.accent);
       buildStage(selStage);
 
       const maxHp = maxHpForChar();
-      const startHp = resetRun ? maxHp : Math.min(maxHp, Math.max(1, prevHp) + 1);
+      const startHp = resetRun ? maxHp : Math.min(maxHp, Math.max(1, prevHp));
       player = { x: 60, y: 400, w: 36, h: 48, vx: 0, vy: 0, grounded: false, facing: 1, hp: startHp, maxHp, invuln: 0, jumps: 0, maxJumps: superMode ? 3 : (selChar === 2 || selChar === 3 || upgradeJump > 0) ? 2 : 1, atkTimer: 0 };
       if (!resetRun && rogueRegen > 0) player.hp = Math.min(player.maxHp, player.hp + rogueRegen);
       shieldCharges = rogueShield;
-      cameraX = 0; running = true; finished = false; paused = false; pendingNextStage = false; resultRecorded = false;
+      cameraX = 0; running = true; finished = false; paused = false; resultRecorded = false;
       pauseOverlay.classList.add('hidden');
       pauseBtn.textContent = '暂停';
 
@@ -1398,13 +1571,14 @@ const VERSION = 'v0.0.1';
       const maxHp = player.maxHp;
       hudHp.innerHTML = `<span class="hp-label">生命</span><span class="hp-count">${Math.max(0, player.hp)}/${maxHp}</span><span class="hp-hearts">${Array.from({ length: maxHp }, (_, i) => `<span class="hp-dot${i < player.hp ? ' filled' : ''}"></span>`).join('')}</span>`;
       hudNotes.textContent = String(notesCollected);
-      hudLevel.textContent = String(heroLevel);
+      hudLevel.textContent = `Lv.${heroLevel}`;
       hudXp.textContent = `${heroXp}/${heroXpNext}`;
       xpFill.style.width = `${Math.min(100, (heroXp / heroXpNext) * 100)}%`;
       hudScore.textContent = String(score);
-      const abilityRarity: Record<string, string> = { '暗色强音':'COMMON','高速谱面':'COMMON','远响轨迹':'COMMON','残响护心':'COMMON','轻音踏步':'COMMON','穿透余音':'RARE','和弦分裂':'RARE','空白暴击':'RARE','夜色护盾':'EPIC','终幕回生':'EPIC','超能力':'EPIC' };
+      const totalTalentLvl = Object.values(talentLevels).reduce((a, b) => a + b, 0);
       const abilities = [
         { text: `${CHARS[selChar].name} · ${CHARS[selChar].desc}`, cls: '' },
+        ...(talentPoints > 0 ? [{ text: `天赋 x${talentPoints}`, cls: 'rare' }] : totalTalentLvl > 0 ? [{ text: `天赋 ${totalTalentLvl}级`, cls: '' }] : []),
         ...(upgradePower ? [{ text: `攻击 +${upgradePower}`, cls: '' }] : []),
         ...(upgradeHaste ? [{ text: `射速 +${upgradeHaste}`, cls: '' }] : []),
         ...(upgradeHp ? [{ text: `生命 +${upgradeHp}`, cls: '' }] : []),
@@ -1413,9 +1587,9 @@ const VERSION = 'v0.0.1';
         ...(roguePierce ? [{ text: `穿透 +${roguePierce}`, cls: '' }] : []),
         ...(rogueMulti ? [{ text: `副弹 +${rogueMulti}`, cls: '' }] : []),
         ...(rogueCrit ? [{ text: `暴击 ${Math.round(rogueCrit * 100)}%`, cls: '' }] : []),
+        ...(rogueDamage ? [{ text: `狂音 +${rogueDamage}`, cls: '' }] : []),
         ...(shieldCharges ? [{ text: `护盾 ${shieldCharges}`, cls: 'epic' }] : []),
         ...(superMode ? [{ text: '超能力', cls: 'super' }] : []),
-        ...(runAbilityNames.slice(-3).map(n => ({ text: n, cls: (abilityRarity[n] || '').toLowerCase() }))),
       ];
       hudAbilities.innerHTML = abilities.map(({ text, cls }) => `<span class="ability-chip${cls ? ' ' + cls : ''}">${text}</span>`).join('');
     }
@@ -1425,6 +1599,8 @@ const VERSION = 'v0.0.1';
       keys[k] = true;
       handleSecretInput(k);
       if ((k === 'escape' || k === 'p') && !gameScreen.classList.contains('hidden')) { e.preventDefault(); setPaused(!paused); return; }
+      if ((k === 'tab' || k === 'm') && !gameScreen.classList.contains('hidden')) { e.preventDefault(); mapVisible = !mapVisible; updateMap(); }
+      if (k === 'b' && !gameScreen.classList.contains('hidden') && running && !paused) { e.preventDefault(); openBestiary(); }
       if (k === 'arrowup' || k === 'w' || k === ' ') { e.preventDefault(); doJump(); }
       if (k === 'j' || k === 'k') doAttack();
       if (k === 'enter' && !running && !titleScreen.classList.contains('hidden')) initGame(true);
@@ -1491,7 +1667,7 @@ const VERSION = 'v0.0.1';
     touchControls.addEventListener('contextmenu', e => e.preventDefault());
 
     function doJump() {
-      if (!running || finished || paused || choosingAbility) return;
+      if (!running || finished || paused) return;
       const canGroundJump = player.grounded || coyoteTimer > 0;
       if (canGroundJump) {
         player.vy = -jumpPower();
@@ -1529,7 +1705,7 @@ const VERSION = 'v0.0.1';
     }
 
     function doAttack() {
-      if (!running || finished || paused || choosingAbility || player.atkTimer > 0) return;
+      if (!running || finished || paused || player.atkTimer > 0) return;
       const c = CHARS[selChar];
       const dir = player.facing;
       const spd = projectileSpeed();
@@ -1577,6 +1753,19 @@ const VERSION = 'v0.0.1';
     function killEnemy(enemy: Enemy, bonusScore: number) {
       if (!enemy.alive) return;
       enemy.alive = false; enemy.deathTimer = 0.3; enemiesKilled++; score += bonusScore; gainXp(enemy.xp);
+      // Bestiary tracking
+      if (!bestiarySeen.includes(enemy.type)) bestiarySeen.push(enemy.type);
+      bestiaryKills[enemy.type] = (bestiaryKills[enemy.type] || 0) + 1;
+      // Drop roll
+      const dropData = ENEMY_DROPS[enemy.type];
+      if (dropData && Math.random() < dropData.chance) {
+        inventory[dropData.name] = (inventory[dropData.name] || 0) + 1;
+        floatingTexts.push({ x: enemy.x + enemy.w / 2, y: enemy.y - 12, text: '获得 ' + dropData.name, color: dropData.color, life: 1.5, vy: -80 });
+      }
+      if (enemy.elite && Math.random() < ELITE_DROP.chance) {
+        inventory[ELITE_DROP.name] = (inventory[ELITE_DROP.name] || 0) + 1;
+        floatingTexts.push({ x: enemy.x + enemy.w / 2, y: enemy.y - 24, text: '获得 ' + ELITE_DROP.name, color: ELITE_DROP.color, life: 1.5, vy: -80 });
+      }
       const cx = enemy.x + enemy.w / 2, cy = enemy.y + enemy.h / 2;
       burst(cx, cy, STAGES[selStage].accent, 12);
       freezeTimer = 0.03;
@@ -1660,7 +1849,7 @@ const VERSION = 'v0.0.1';
       freezeTimer = 0.04;
       burst(boss.x + boss.w / 2, boss.y + boss.h / 2, '#ffffff', 8); shake(8);
       if (boss.hp <= 0) {
-        boss.alive = false; boss.active = false; score += 2500; finished = true; running = false; pendingNextStage = selStage < STAGES.length - 1; gainXp(220);
+        boss.alive = false; boss.active = false; score += 2500; finished = true; running = false; gainXp(220);
         burst(boss.x + boss.w / 2, boss.y + boss.h / 2, STAGES[selStage].accent, 36);
         sfxClear();
         startBossDefeatCutscene();
@@ -1690,7 +1879,7 @@ const VERSION = 'v0.0.1';
       bossFinisher.classList.add('slowmo');
       if (isMfy) {
         bossFinisherLine.textContent = '终于理解了……你也一直在寻找自己的世界吗？';
-        bossFinisherImg.src = MFY_BOSS_SPRITES.idle;
+        bossFinisherImg.src = MFY_BOSS_SPRITES.cower;
       } else {
         bossFinisherLine.textContent = '破碎的世界....还值得拯救吗...';
         bossFinisherImg.src = BOSS_SPRITES.defeat1;
@@ -1702,7 +1891,11 @@ const VERSION = 'v0.0.1';
       setTimeout(() => {
         bossFinisher.classList.remove('slowmo');
         bossFinisher.classList.add('hidden');
-        showResults();
+        if (selStage >= STAGES.length - 1) {
+          showResults();
+        } else {
+          transitionToNextZone();
+        }
       }, 3800);
     }
 
@@ -1755,7 +1948,7 @@ const VERSION = 'v0.0.1';
         const ey = boss.y + boss.h - 32;
         const e: Enemy = {
           x: ex, y: ey, w: 28, h: 28,
-          vx: (i < 3 ? 50 : 0) * (Math.random() < 0.5 ? 1 : -1),
+          vx: (i < 3 ? 50 : 0) * (Math.random() < 0.5 ? 1 : -1), vy: 0,
           hp: elites[i] ? 6 : 2, maxHp: elites[i] ? 6 : 2,
           left: 0, right: worldW,
           type: types[i], alive: true, atkTimer: 1.0, xp: elites[i] ? 60 : 20,
@@ -1804,7 +1997,7 @@ const VERSION = 'v0.0.1';
       if (boss.pattern === 'volley' && boss.timer > 0.26) { boss.timer = 0; boss.burstCount++; spawnAimedProjectile(boss.x + 18, boss.y + 56, 230 + boss.phase * 45, 'boss', '#cc88ff', 16); if (boss.burstCount >= 3 + boss.phase * 2) { boss.pattern = 'idle'; boss.attackTimer = 1.1; } }
       else if (boss.pattern === 'rain' && boss.timer > 0.16) { boss.timer = 0; boss.burstCount++; const rx = player.x + player.w / 2 - 180 + Math.random() * 360; projectiles.push({ x: rx, y: -30, w: 14, h: 24, vx: (Math.random() - 0.5) * 50, vy: 300 + boss.phase * 45, life: 2.2, damage: bossDmg(), kind: 'boss', color: '#aa66ff' }); if (boss.burstCount >= 7 + boss.phase * 3) { boss.pattern = 'idle'; boss.attackTimer = 1.0; } }
       else if (boss.pattern === 'wave' && boss.timer > 0.42) { boss.timer = 0; boss.burstCount++; projectiles.push({ x: boss.x - 24, y: 452, w: 42, h: 20, vx: -(230 + boss.phase * 55), vy: 0, life: 4, damage: bossDmg(), kind: 'boss', color: '#ff99cc' }); if (boss.burstCount >= 2 + boss.phase) { boss.pattern = 'idle'; boss.attackTimer = 1.2; } }
-      else if (boss.pattern === 'summon' && boss.timer > 1.0) { boss.timer = 0; boss.burstCount++; const count = 2 + Math.floor(Math.random() * 2); for (let i = 0; i < count; i++) { enemies.push({ x: boss.x + 20 + Math.random() * 60, y: boss.y + boss.h - 32, w: 28, h: 28, vx: (i === 0 ? 70 : -70), hp: 2, maxHp: 2, left: 0, right: worldW, type: 'bat', alive: true, atkTimer: 1.2, xp: 15, popIn: 0.35, elite: false }); } burst(boss.x + boss.w / 2, boss.y + boss.h, '#ff88cc', 16); if (boss.burstCount >= 1) { boss.pattern = 'idle'; boss.attackTimer = 2.4; } }
+      else if (boss.pattern === 'summon' && boss.timer > 1.0) { boss.timer = 0; boss.burstCount++; const count = 2 + Math.floor(Math.random() * 2); for (let i = 0; i < count; i++) { enemies.push({ x: boss.x + 20 + Math.random() * 60, y: boss.y + boss.h - 32, w: 28, h: 28, vx: (i === 0 ? 70 : -70), vy: 0, hp: 2, maxHp: 2, left: 0, right: worldW, type: 'bat', alive: true, atkTimer: 1.2, xp: 15, popIn: 0.35, elite: false }); } burst(boss.x + boss.w / 2, boss.y + boss.h, '#ff88cc', 16); if (boss.burstCount >= 1) { boss.pattern = 'idle'; boss.attackTimer = 2.4; } }
       if (overlaps(player, boss)) takeDamage();
     }
     function updateBossMfy(dt: number) {
@@ -1859,7 +2052,7 @@ const VERSION = 'v0.0.1';
         for (let i = 0; i < count; i++) {
           enemies.push({
             x: boss.x + 20 + Math.random() * 60, y: boss.y + boss.h - 32, w: 28, h: 28,
-            vx: (i === 0 ? 60 : -60), hp: 2, maxHp: 2, left: 0, right: worldW,
+            vx: (i === 0 ? 60 : -60), vy: 0, hp: 2, maxHp: 2, left: 0, right: worldW,
             type: 'bat', alive: true, atkTimer: 1.0, xp: 15, popIn: 0.3, elite: false,
           });
         }
@@ -1873,7 +2066,6 @@ const VERSION = 'v0.0.1';
       if (!running || finished) return;
       tickBgm(dt);
       if (paused) return;
-      if (choosingAbility) return;
       if (freezeTimer > 0) { freezeTimer -= dt; return; }
       const c = CHARS[selChar];
       const stage = STAGES[selStage];
@@ -1973,12 +2165,41 @@ const VERSION = 'v0.0.1';
         }
       }
 
-      // Fall off world
+      // Fall off world → respawn on nearest safe platform
       if (player.y > VH + 100) {
-        player.x = Math.max(60, cameraX + 80);
-        player.y = 60;
+        player.hp--;
+        player.invuln = 1.0;
         player.vy = 0;
-        takeDamage();
+        updateHud();
+        burst(player.x + player.w / 2, player.y + player.h / 2, '#e44', 8);
+        if (player.hp <= 0) {
+          finished = true; running = false;
+          showMsg('游戏结束', 2);
+          setTimeout(showResults, 1500);
+        } else {
+          sfxHurt();
+          // Find nearest platform without spikes
+          let best: Rect | null = null;
+          let bestDist = Infinity;
+          const cx = player.x + player.w / 2;
+          for (const p of platforms) {
+            let hasSpike = false;
+            for (const hz of hazards) {
+              if (hz.x < p.x + p.w && hz.x + hz.w > p.x && Math.abs(hz.y - p.y) < 8) { hasSpike = true; break; }
+            }
+            if (hasSpike) continue;
+            const dist = Math.abs(p.x + p.w / 2 - cx);
+            if (dist < bestDist) { bestDist = dist; best = p; }
+          }
+          if (!best) best = { x: 0, y: 476, w: 200, h: 64 };
+          player.x = best.x + best.w / 2 - player.w / 2;
+          player.y = best.y - player.h;
+          player.vy = 0;
+          player.grounded = true;
+          player.jumps = 0;
+          cameraX = Math.max(0, Math.min(worldW - VW, player.x - VW * 0.3));
+          showMsg('坠落', 0.6);
+        }
       }
 
       player.x = Math.max(0, Math.min(worldW - player.w, player.x));
@@ -2042,8 +2263,25 @@ const VERSION = 'v0.0.1';
           continue;
         }
         if (!enemy.alive) continue;
+        // Gravity (skip if already standing on a platform)
         enemy.x += enemy.vx * dt;
+        let onPlat = false;
+        for (const p of platforms) {
+          if (Math.abs(enemy.y + enemy.h - p.y) < 1 && enemy.x < p.x + p.w && enemy.x + enemy.w > p.x) {
+            enemy.y = p.y - enemy.h; onPlat = true; break;
+          }
+        }
+        if (!onPlat) { enemy.vy += GRAVITY * dt; }
+        enemy.y += enemy.vy * dt;
         if (enemy.x <= enemy.left || enemy.x + enemy.w >= enemy.right) enemy.vx *= -1;
+        // Landing on platform
+        if (enemy.vy > 0) {
+          for (const p of platforms) {
+            if (enemy.x < p.x + p.w && enemy.x + enemy.w > p.x && enemy.y + enemy.h >= p.y && enemy.y + enemy.h <= p.y + 12) {
+              enemy.y = p.y - enemy.h; enemy.vy = 0; break;
+            }
+          }
+        }
         if (enemy.type === 'bat') {
           enemy.atkTimer -= dt;
           const dist = Math.abs((player.x + player.w / 2) - (enemy.x + enemy.w / 2));
@@ -2056,7 +2294,6 @@ const VERSION = 'v0.0.1';
           }
         }
         if (enemy.type === 'ghost') {
-          enemy.y = (enemy.baseY || enemy.y) + Math.sin(performance.now() * 0.004 + enemy.x * 0.01) * 10;
           enemy.atkTimer -= dt;
           const gDist = Math.abs((player.x + player.w / 2) - (enemy.x + enemy.w / 2));
           if (enemy.atkTimer <= 0 && gDist < 560) {
@@ -2094,7 +2331,6 @@ const VERSION = 'v0.0.1';
         if (enemy.type === 'bomber') {
           enemy.atkTimer -= dt;
           const bDist = Math.abs((player.x + player.w / 2) - (enemy.x + enemy.w / 2));
-          enemy.y = (enemy.baseY || enemy.y) + Math.sin(performance.now() * 0.003 + enemy.x * 0.01) * 6;
           if (enemy.atkTimer <= 0 && bDist < 500) {
             const bombX = enemy.x + enemy.w / 2 - 6;
             projectiles.push({ x: bombX, y: enemy.y + enemy.h, w: 12, h: 16, vx: 0, vy: enemy.elite ? 340 : 260, life: 2.5, damage: 1, kind: 'enemy', color: enemy.elite ? '#ff6644' : '#ff8833', shape: 'bomb' });
@@ -2130,6 +2366,8 @@ const VERSION = 'v0.0.1';
         if (note.spawnT > 0) note.spawnT -= dt;
         if (overlaps(player, { x: note.x - 14, y: note.y - 14, w: 28, h: 28 })) {
           note.taken = true; notesCollected++; score += 100; gainXp(10);
+          // Every 10 notes = 1 talent point
+          if (notesCollected % 10 === 0) { talentPoints++; showMsg('天赋 +1（音符收集）', 1.2); sfxClear(); updateHud(); }
           burst(note.x, note.y, '#ffd66e', 8); sfxNote(); updateHud();
         }
       }
@@ -2196,12 +2434,19 @@ const VERSION = 'v0.0.1';
         }
       }
 
-      // Check win
+      // Check win → portal transition
       if (!stage.boss && player.x > worldW - 80) {
-        finished = true; running = false; pendingNextStage = selStage < STAGES.length - 1;
         score += Math.max(0, player.hp * 500);
-        sfxClear(); updateHud(); stageClearTimer = 1.2; setTimeout(showResults, 1200);
+        sfxClear(); updateHud();
         burst(player.x + player.w / 2, player.y + player.h / 2, stage.accent, 30);
+        if (selStage >= STAGES.length - 1) {
+          finished = true; running = false;
+          stageClearTimer = 1.2; setTimeout(showResults, 1200);
+        } else {
+          finished = true; running = false;
+          stageClearTimer = 0.8;
+          setTimeout(transitionToNextZone, 800);
+        }
       }
       // Animation state
       animTimer += dt;
@@ -2253,16 +2498,72 @@ const VERSION = 'v0.0.1';
       }
     }
 
+    function transitionToNextZone() {
+      const nextIdx = selStage + 1;
+      stageClearTimer = 0;
+      if (nextIdx >= STAGES.length) {
+        finished = true; running = false;
+        setTimeout(showResults, 500);
+        return;
+      }
+      selStage = nextIdx;
+      sfxClear();
+      showMsg('进入 ' + STAGES[selStage].name, 2.2);
+      setAccent(STAGES[selStage].accent);
+      setTimeout(() => { initGame(false); }, 400);
+    }
+
+    function updateMap() {
+      const el = document.getElementById('mapOverlay');
+      if (!el) return;
+      if (!mapVisible || !running && !finished) { el.classList.add('hidden'); return; }
+      el.classList.remove('hidden');
+      let html = '<div class="map-container">';
+      let cumulW = 0;
+      for (let i = 0; i < STAGES.length; i++) {
+        const s = STAGES[i];
+        const unlocked = isStageUnlocked(i);
+        const active = i === selStage;
+        const hue = hexToHue(s.accent);
+        html += `<div class="map-row${active ? ' active' : ''}" style="opacity:${unlocked ? 1 : 0.3}">`;
+        html += `<span class="map-dot" style="background:hsl(${hue},70%,60%);box-shadow:0 0 4px hsl(${hue},70%,60%)"></span>`;
+        html += `<span style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.name}</span>`;
+        if (active && player) {
+          const pct = Math.round((player.x / Math.max(worldW, 1)) * 100);
+          html += `<span class="map-player-dot"></span><span style="font-size:.55rem;opacity:.5;margin-left:2px">${pct}%</span>`;
+        } else if (saveData.clearedStages > i) {
+          html += `<span style="font-size:.55rem;opacity:.4">✓</span>`;
+        }
+        html += '</div>';
+        cumulW += s.worldW || 3200;
+      }
+      html += '</div>';
+      el.innerHTML = html;
+    }
+
+    function hexToHue(hex: string): number {
+      const r = parseInt(hex.slice(1, 3), 16);
+      const g = parseInt(hex.slice(3, 5), 16);
+      const b = parseInt(hex.slice(5, 7), 16);
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      if (max === min) return 0;
+      let h = 0;
+      if (max === r) h = (g - b) / (max - min) + (g < b ? 6 : 0);
+      else if (max === g) h = (b - r) / (max - min) + 2;
+      else h = (r - g) / (max - min) + 4;
+      return Math.round(h * 60);
+    }
+
     function showResults() {
       const clear = player.hp > 0;
       recordStageResult(clear);
-      document.getElementById('resTitle')!.textContent = clear ? (pendingNextStage ? '本幕通关！' : 'SEKAI 已拯救！') : '游戏结束';
+      document.getElementById('resTitle')!.textContent = clear ? 'SEKAI 已拯救！' : '游戏结束';
       document.getElementById('resNotes')!.textContent = String(notesCollected);
       document.getElementById('resEnemies')!.textContent = String(enemiesKilled);
       document.getElementById('resLevel')!.textContent = String(heroLevel);
       document.getElementById('resScore')!.textContent = String(score);
       const retry = document.getElementById('retryBtn')!;
-      retry.textContent = clear && pendingNextStage ? '下一幕' : '重试';
+      retry.textContent = '重试';
       setPaused(false);
       resultsScreen.classList.remove('hidden'); touchControls.classList.add('hidden');
     }
@@ -2397,19 +2698,24 @@ const VERSION = 'v0.0.1';
         ctx.fillRect(hx, hz.y + hz.h - 3, hz.w, 3);
       }
 
-      // Goal gate
+      // Portal (zone transition gate)
       if (!stage.boss) {
         const gateX = worldW - 60 - cameraX;
         ctx.save();
-        ctx.fillStyle = hexRgba(stage.accent, 0.15);
-        ctx.fillRect(gateX - 24, 380, 48, 96);
-        ctx.strokeStyle = stage.accent;
+        const portalPulse = 0.2 + Math.sin(t * 4) * 0.1;
+        const grad = ctx.createRadialGradient(gateX, 428, 10, gateX, 428, 50);
+        grad.addColorStop(0, hexRgba(stage.accent, portalPulse + 0.3));
+        grad.addColorStop(0.5, hexRgba(stage.accent, portalPulse));
+        grad.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grad;
+        ctx.fillRect(gateX - 50, 378, 100, 100);
+        ctx.strokeStyle = hexRgba(stage.accent, 0.25 + Math.sin(t * 3) * 0.12);
         ctx.lineWidth = 2;
         ctx.strokeRect(gateX - 24, 380, 48, 96);
-        ctx.fillStyle = '#fff';
-        ctx.font = '900 14px Courier New, monospace';
+        ctx.fillStyle = hexRgba(stage.accent, 0.5 + Math.sin(t * 3) * 0.2);
+        ctx.font = '900 13px Courier New, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('终点', gateX, 430 + Math.sin(t * 3) * 3);
+        ctx.fillText('▶ 传送', gateX, 430 + Math.sin(t * 2) * 3);
         ctx.restore();
       }
       // NPC encounters
@@ -3309,6 +3615,7 @@ const VERSION = 'v0.0.1';
       lastTime = time;
       update(dt);
       render(time);
+      updateMap();
       raf = requestAnimationFrame(loop);
     }
 
@@ -3317,14 +3624,12 @@ const VERSION = 'v0.0.1';
       btn.addEventListener('click', () => {
         const nextStage = parseInt(btn.dataset.stage || '0');
         if (!isStageUnlocked(nextStage)) {
-          showTitleHint('先通关前一幕，才能进入后续关卡。');
-          updateStageLocks();
-          return;
+          showTitleHint('先通关前一幕，才能解锁下一区。');
+        } else {
+          setAccent(STAGES[nextStage].accent);
+          sfxSelect();
         }
-        selStage = nextStage;
-        sfxSelect();
         updateStageLocks();
-        setAccent(STAGES[selStage].accent);
       });
     });
 
@@ -3343,22 +3648,20 @@ const VERSION = 'v0.0.1';
     });
 
     document.getElementById('goBtn')!.addEventListener('click', () => {
-      if (!isStageUnlocked(selStage)) { showTitleHint('先通关前一幕，才能进入后续关卡。'); refreshProgressUi(); return; }
       if (!isCharUnlocked(selChar)) { selChar = 1; refreshProgressUi(); }
+      selStage = 0;
       sfxSelect();
       initGame(true);
     });
-    document.getElementById('retryBtn')!.addEventListener('click', () => { sfxSelect(); if (pendingNextStage) { selStage++; activateStageButton(); setAccent(STAGES[selStage].accent); initGame(false); } else initGame(true); });
+    document.getElementById('retryBtn')!.addEventListener('click', () => { sfxSelect(); initGame(true); });
     document.getElementById('backBtn')!.addEventListener('click', () => { sfxBack(); returnToMenu(); });
     document.getElementById('gameFullscreenBtn')!.addEventListener('click', toggleFullscreen);
     pauseBtn.addEventListener('click', () => setPaused(!paused));
     resumeBtn.addEventListener('click', () => setPaused(false));
     document.getElementById('pauseMenuBtn')!.addEventListener('click', () => { sfxBack(); returnToMenu(); });
-    abilityChoices.addEventListener('click', e => {
-      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ability-card');
-      if (!btn) return;
-      chooseAbility(parseInt(btn.dataset.ability || '0'));
-    });
+    document.getElementById('pauseBestiaryBtn')!.addEventListener('click', () => { openBestiary(true); });
+    document.getElementById('bestiaryClose')!.addEventListener('click', () => { closeBestiary(); });
+    document.getElementById('talentCloseBtn')!.addEventListener('click', () => { closeTalentOverlay(); });
 
     // Easter egg: play "旅に帰る" in shuffle mode on SekaiPlayer to unlock super mode
     window.addEventListener('sekai-song-change', ((e: CustomEvent) => {
