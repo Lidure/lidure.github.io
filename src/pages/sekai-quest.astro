@@ -320,8 +320,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           P.push({x:1800,y:400,w:140,h:24});             // 移动平台下船点，第二组战斗
           P.push({x:2080,y:440,w:140,h:24});             // 过渡宽台
           P.push({x:2340,y:400,w:160,h:24});             // 尖刺前最后安全台
-          P.push({x:2580,y:476,w:80,h:28});              // 尖刺平台——表面有刺，必须跳过(落在石柱表面)
-          P.push({x:2740,y:476,w:460,h:64});             // 终点大地台，最后一批敌人
+          P.push({x:2580,y:476,w:160,h:24});             // 尖刺平台——左半安全，右半有刺
+          P.push({x:2780,y:476,w:420,h:64});             // 终点大地台，最后一批敌人
         },
         buildMovingPlatforms: (M: MovingPlatform[]) => {
           // 水平移动平台，跨越一段无底坑（坑底无尖刺——安全教学）
@@ -329,7 +329,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         },
         buildHazards: (H: Hazard[]) => {
           // 尖刺放在石柱表面(2580,476)，玩家必须跳过它——教学关唯一尖刺，醒目
-          H.push({x:2580,y:454,w:80,h:22,type:'spike'});
+          H.push({x:2680,y:454,w:60,h:22,type:'spike'});
         }},
       { name: '第二幕 - 破碎的 SEKAI', bg1: '#1a0a14', bg2: '#2a1020', platColor: '#4a1830', platTop: '#cc3366', accent: '#ee1166', starColor: '#ff6699', enemies: 12, worldW: 3800, boss: false,
         // 破碎世界：高差增大、双路径选择（高风险高回报）、三种移动平台
@@ -351,8 +351,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           P.push({x:2780,y:360,w:120,h:24});             // 移动平台2衔接点
           // 终段冲刺
           P.push({x:3060,y:420,w:100,h:24});             // 过渡
-          P.push({x:3300,y:476,w:60,h:28});              // 尖刺台
-          P.push({x:3440,y:476,w:360,h:64});             // 终点
+          P.push({x:3300,y:476,w:160,h:24});             // 尖刺台——左半安全，右半有刺
+          P.push({x:3500,y:476,w:300,h:64});             // 终点
         },
         buildMovingPlatforms: (M: MovingPlatform[]) => {
           // 垂直升降平台：把玩家从低位抬到高位
@@ -364,7 +364,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           // 下方快速路线的平台上放尖刺——走下面必须跳跃通过
           H.push({x:1570,y:408,w:60,h:22,type:'spike'});
           // 终点前最后一个安全台上有尖刺——提醒玩家永远保持警惕
-          H.push({x:3300,y:454,w:60,h:22,type:'spike'});
+          H.push({x:3400,y:454,w:60,h:22,type:'spike'});
         }},
       { name: '第三幕 - 回声回廊', bg1: '#120f20', bg2: '#241438', platColor: '#322050', platTop: '#aa77cc', accent: '#bb77dd', starColor: '#ddbbff', enemies: 14, worldW: 4200, boss: false,
         // 回声回廊：狭长高耸、连续移动平台接力、多段尖刺障碍
@@ -379,10 +379,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           P.push({x:1940,y:360,w:100,h:24});             // 上升短台
           P.push({x:2160,y:300,w:120,h:24});             // 高位窄台——双跳考验
           P.push({x:2420,y:370,w:140,h:24});             // 下降后缓冲+战斗
-          P.push({x:2700,y:420,w:100,h:24});             // 过渡
+          P.push({x:2700,y:420,w:140,h:24});             // 过渡——右半有刺
           P.push({x:2920,y:360,w:120,h:24});             // 移动平台2登船
           P.push({x:3200,y:410,w:100,h:24});             // 着陆
-          P.push({x:3420,y:340,w:120,h:24});             // 上升至高位
+          P.push({x:3420,y:340,w:140,h:24});             // 上升至高位——右半有刺
           P.push({x:3660,y:400,w:100,h:24});             // 移动平台3登船
           P.push({x:3900,y:476,w:300,h:64});             // 终点
         },
@@ -398,11 +398,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           // 高位窄台(2160,300)表面放尖刺——只有短平台可站，必须跳过去
           H.push({x:2160,y:278,w:60,h:22,type:'spike'});
           // 过渡平台(2700,420)表面放尖刺——跳跃通过
-          H.push({x:2700,y:398,w:60,h:22,type:'spike'});
+          H.push({x:2800,y:398,w:40,h:22,type:'spike'});
           // 登船平台表面也放刺——增加跳跃难度
-          H.push({x:3420,y:318,w:60,h:22,type:'spike'});
+          H.push({x:3500,y:318,w:60,h:22,type:'spike'});
         }},
-      { name: '最终幕 - 空虚的舞台核心', bg1: '#120a1a', bg2: '#1a1030', platColor: '#2a1848', platTop: '#884499', accent: '#9966cc', starColor: '#bb88dd', enemies: 8, worldW: 3200, boss: true,
+      { name: '最终幕 - 空虚的舞台核心', bg1: '#120a1a', bg2: '#1a1030', platColor: '#2a1848', platTop: '#884499', accent: '#9966cc', starColor: '#bb88dd', enemies: 12, worldW: 3200, boss: true,
         // Boss战舞台：开阔场地，多层平台提供弹幕掩护，移动平台辅助走位
         buildPlatforms: (P: Rect[]) => {
           P.push({x:0,y:476,w:800,h:64});               // 主战场——宽大，避免开局被Boss封锁
@@ -432,7 +432,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     interface Projectile extends Rect { vx: number; vy: number; life: number; damage: number; kind: 'player' | 'enemy' | 'boss'; color: string; shape?: ProjectileShape; pierce?: number; homing?: number; accelY?: number; aoe?: number; spin?: number; }
     interface Particle { x: number; y: number; vx: number; vy: number; life: number; color: string; size: number; }
     interface FloatingText { x: number; y: number; text: string; color: string; life: number; vy: number; }
-    interface Boss extends Rect { hp: number; maxHp: number; active: boolean; alive: boolean; phase: number; pattern: 'idle' | 'volley' | 'rain' | 'wave' | 'beam'; timer: number; attackTimer: number; burstCount: number; beamWarn: number; beamY: number; teleportTimer: number; homeY: number; }
+    interface Boss extends Rect { hp: number; maxHp: number; active: boolean; alive: boolean; phase: number; pattern: 'idle' | 'volley' | 'rain' | 'wave' | 'beam' | 'summon'; timer: number; attackTimer: number; burstCount: number; beamWarn: number; beamY: number; beamX: number; teleportTimer: number; homeY: number; driftX: number; }
     interface GameSave { runs: number; bestScore: number; clearedStages: number; unlockedChars: number[]; metNpcIds: string[]; totalKills: number; totalNotes: number; bossClears: number; }
     interface AbilityOption { id: string; name: string; desc: string; icon: string; rarity: 'COMMON' | 'RARE' | 'EPIC'; apply: () => void; }
     interface MovingPlatform extends Rect { ox: number; oy: number; dx: number; dy: number; speed: number; t: number; }
@@ -479,7 +479,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     let cameraX = 0, score = 0, notesCollected = 0, enemiesKilled = 0;
     let heroLevel = 1, heroXp = 0, heroXpNext = 100;
     let upgradeHp = 0, upgradePower = 0, upgradeHaste = 0, upgradeJump = 0;
-    let rogueDamage = 0, rogueRange = 0, rogueMulti = 0, roguePierce = 0, rogueCrit = 0, rogueRegen = 0, rogueShield = 0;
+    let rogueDamage = 0, rogueRange = 0, rogueMulti = 0, roguePierce = 0, rogueCrit = 0, rogueRegen = 0, rogueShield = 0, rogueExplode = 0;
     let shieldCharges = 0;
     let runAbilityNames: string[] = [];
     let choosingAbility = false;
@@ -915,7 +915,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     function resetCampaign() {
       heroLevel = 1; heroXp = 0; heroXpNext = 100;
       upgradeHp = 0; upgradePower = 0; upgradeHaste = 0; upgradeJump = 0;
-      rogueDamage = 0; rogueRange = 0; rogueMulti = 0; roguePierce = 0; rogueCrit = 0; rogueRegen = 0; rogueShield = 0; shieldCharges = 0;
+      rogueDamage = 0; rogueRange = 0; rogueMulti = 0; roguePierce = 0; rogueCrit = 0; rogueRegen = 0; rogueShield = 0; rogueExplode = 0; shieldCharges = 0;
       runAbilityNames = []; choosingAbility = false; pendingAbilityChoices = [];
       score = 0; notesCollected = 0; enemiesKilled = 0; pendingNextStage = false;
       bossDefeatCutscene = 0; resultRecorded = false;
@@ -958,7 +958,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       updateHud();
     }
 
-    const ABILITY_ICONS: Record<string,string> = { ATK:'⚔️', SPD:'⚡', RNG:'🎯', PEN:'💠', X2:'✦', CRIT:'💥', HP:'❤️‍🔥', JMP:'⬆️', DEF:'🛡️', RE:'♻️' };
+    const ABILITY_ICONS: Record<string,string> = { ATK:'⚔️', SPD:'⚡', RNG:'🎯', PEN:'💠', X2:'✦', CRIT:'💥', HP:'❤️‍🔥', JMP:'⬆️', DEF:'🛡️', RE:'♻️', BOOM:'💥' };
     function abilityPool(): AbilityOption[] {
       return [
         { id: 'power', name: '暗色强音', desc: '攻击伤害 +1，所有角色的主要攻击都更重。', icon: 'ATK', rarity: 'COMMON', apply: () => { upgradePower++; addRunAbility('暗色强音'); } },
@@ -971,6 +971,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         { id: 'jump', name: '轻音踏步', desc: '机动 +1，解锁或强化二段跳。', icon: 'JMP', rarity: 'COMMON', apply: () => { upgradeJump++; player.maxJumps = Math.max(player.maxJumps, superMode ? 3 : 2); addRunAbility('轻音踏步'); } },
         { id: 'shield', name: '夜色护盾', desc: '每关获得一次免伤护盾。', icon: 'DEF', rarity: 'EPIC', apply: () => { rogueShield++; shieldCharges = Math.max(shieldCharges, rogueShield); addRunAbility('夜色护盾'); } },
         { id: 'regen', name: '终幕回生', desc: '进入下一幕时额外回复生命。', icon: 'RE', rarity: 'EPIC', apply: () => { rogueRegen++; addRunAbility('终幕回生'); } },
+        { id: 'explode', name: '爆裂崩音', desc: '击杀敌人时触发爆炸，对周围敌人造成伤害。', icon: 'BOOM', rarity: 'EPIC', apply: () => { rogueExplode++; addRunAbility('爆裂崩音'); } },
       ];
     }
 
@@ -1125,7 +1126,14 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         decors.push({ x: dx, y: groundY - dType.h, w: dType.w, h: dType.h, type: dType.type, layer, parallax });
       }
 
-      const groundPlats = platforms.filter(p => p.h <= 28 && p.w >= 140);
+      const groundPlats = platforms.filter(p => {
+        if (p.w < 90) return false;
+        // Exclude platforms that have spikes on their surface
+        for (const hz of hazards) {
+          if (hz.x < p.x + p.w && hz.x + hz.w > p.x && Math.abs(hz.y - p.y) < 8) return false;
+        }
+        return true;
+      });
       for (let i = 0; i < stage.enemies && i < groundPlats.length; i++) {
         const p = groundPlats[i];
         const roll = Math.random();
@@ -1155,20 +1163,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         npcs.push({ ...npc, x: p.x + Math.min(p.w - 42, 42 + index * 34), y: p.y - 48, w: 34, h: 48, met: false, seen: saveData.metNpcIds.includes(npc.id) });
       });
 
+      const safePlats = platforms.filter(p => {
+        for (const hz of hazards) {
+          if (hz.x < p.x + p.w && hz.x + hz.w > p.x && Math.abs(hz.y - p.y) < 8) return false;
+        }
+        return true;
+      });
       for (let i = 0; i < 12; i++) {
-        const p = platforms[Math.floor(Math.random() * platforms.length)];
+        const p = safePlats.length > 0 ? safePlats[Math.floor(Math.random() * safePlats.length)] : platforms[0];
         collectNotes.push({ x: p.x + 20 + Math.random() * Math.max(0, p.w - 40), y: p.y - 50 - Math.random() * 30, taken: false, spawnT: 0.5 });
       }
       for (let i = 0; i < 3; i++) {
-        const p = platforms[2 + Math.floor(Math.random() * Math.max(1, platforms.length - 2))];
+        const p = safePlats.length > 1 ? safePlats[1 + Math.floor(Math.random() * (safePlats.length - 1))] : platforms[2];
         pickups.push({ x: p.x + p.w / 2, y: p.y - 40, type: 'health', taken: false, spawnT: 0.4 });
       }
       for (let i = 0; i < 4; i++) {
-        const p = platforms[1 + Math.floor(Math.random() * Math.max(1, platforms.length - 2))];
+        const p = safePlats.length > 1 ? safePlats[1 + Math.floor(Math.random() * (safePlats.length - 1))] : platforms[1];
         pickups.push({ x: p.x + 30 + Math.random() * Math.max(0, p.w - 60), y: p.y - 72, type: 'amp', taken: false, spawnT: 0.5 });
       }
       if (stage.boss) {
-        boss = { x: worldW - 430, y: 300, w: 96, h: 144, hp: 90, maxHp: 90, active: false, alive: true, phase: 1, pattern: 'idle', timer: 0, attackTimer: 1.4, burstCount: 0, beamWarn: 0, beamY: 0, teleportTimer: 3.2, homeY: 300 };
+        boss = { x: worldW - 430, y: 300, w: 96, h: 144, hp: 120, maxHp: 120, active: false, alive: true, phase: 1, pattern: 'idle', timer: 0, attackTimer: 1.4, burstCount: 0, beamWarn: 0, beamY: 0, beamX: 0, teleportTimer: 3.2, homeY: 300, driftX: 0 };
       }
     }
     // --- Init Game ---
@@ -1247,7 +1261,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     touchBtns.forEach(btn => {
       const dir = btn.dataset.dir || '';
       const down = (e: PointerEvent) => { e.preventDefault(); btn.setPointerCapture(e.pointerId); btn.classList.add('active'); keys['t_' + dir] = true; if (dir === 'jump') doJump(); if (dir === 'attack') doAttack(); };
-      const up = () => { btn.classList.remove('active'); keys['t_' + dir] = false; };
+      const up = () => { btn.classList.remove('active'); keys['t_' + dir] = false; if (dir === 'jump' && player && player.vy < 0) player.vy *= 0.55; };
       btn.addEventListener('pointerdown', down);
       btn.addEventListener('pointerup', up);
       btn.addEventListener('pointercancel', up);
@@ -1341,10 +1355,25 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     function killEnemy(enemy: Enemy, bonusScore: number) {
       if (!enemy.alive) return;
       enemy.alive = false; enemy.deathTimer = 0.3; enemiesKilled++; score += bonusScore; gainXp(enemy.xp);
-      burst(enemy.x + enemy.w / 2, enemy.y + enemy.h / 2, STAGES[selStage].accent, 12);
+      const cx = enemy.x + enemy.w / 2, cy = enemy.y + enemy.h / 2;
+      burst(cx, cy, STAGES[selStage].accent, 12);
       freezeTimer = 0.03;
       sfxKill(); shake(8); updateHud();
-      floatingTexts.push({ x: enemy.x + enemy.w / 2, y: enemy.y - 4, text: '+' + bonusScore, color: STAGES[selStage].accent, life: 1.2, vy: -120 });
+      floatingTexts.push({ x: cx, y: enemy.y - 4, text: '+' + bonusScore, color: STAGES[selStage].accent, life: 1.2, vy: -120 });
+      if (rogueExplode > 0) {
+        const radius = 120 + rogueExplode * 20;
+        burst(cx, cy, '#ff8800', 24);
+        for (const other of enemies) {
+          if (other === enemy || !other.alive) continue;
+          if (Math.hypot(other.x + other.w / 2 - cx, other.y + other.h / 2 - cy) < radius) {
+            other.hp -= rogueExplode;
+            if (other.hp <= 0) killEnemy(other, 0);
+          }
+        }
+        if (boss && boss.alive && Math.hypot(boss.x + boss.w / 2 - cx, boss.y + boss.h / 2 - cy) < radius) {
+          damageBoss(rogueExplode);
+        }
+      }
     }
     function spawnAimedProjectile(x: number, y: number, speed: number, kind: 'enemy' | 'boss', color: string, size = 14) {
       const tx = player.x + player.w / 2 - x, ty = player.y + player.h / 2 - y;
@@ -1463,27 +1492,36 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       shake(12);
     }
 
+    function bossDmg() { return boss!.phase >= 3 ? 2 : 1; }
     function chooseBossPattern() {
       if (!boss) return;
-      const order: Boss['pattern'][] = boss.phase === 1 ? ['volley', 'wave', 'rain'] : boss.phase === 2 ? ['rain', 'volley', 'beam', 'wave'] : ['beam', 'rain', 'volley', 'wave'];
+      let order: Boss['pattern'][] = ['volley', 'wave', 'rain'];
+      if (boss.phase >= 2) order.push('beam');
+      if (boss.phase >= 3) { order = ['beam', 'rain', 'volley', 'wave', 'summon']; }
       boss.pattern = order[Math.floor(Math.random() * order.length)]; boss.timer = 0; boss.burstCount = 0;
-      if (boss.pattern === 'beam') { boss.beamWarn = 0.75; boss.beamY = Math.max(90, Math.min(430, player.y + player.h / 2)); boss.pattern = 'idle'; boss.attackTimer = 1.6; }
+      if (boss.pattern === 'beam') { boss.beamWarn = 0.5; boss.beamY = Math.max(90, Math.min(430, player.y + player.h / 2)); boss.beamX = player.x + player.w / 2; boss.pattern = 'idle'; boss.attackTimer = 1.6; }
     }
     function updateBoss(dt: number) {
       if (!boss || !boss.alive) return;
       boss.y = boss.homeY + Math.sin(performance.now() * 0.002) * 10;
-      if (!boss.active) { if (player.x > boss.x - 650) { boss.active = true; sfxBoss(); showMsg('BOSS: 25 初音核心', 1.4); shake(12); } return; }
+      boss.x += boss.driftX * dt;
+      const arenaLeft = Math.max(2120, worldW - 1180), arenaRight = worldW - 260;
+      if (boss.x < arenaLeft) { boss.x = arenaLeft; boss.driftX = Math.abs(boss.driftX); }
+      if (boss.x > arenaRight) { boss.x = arenaRight; boss.driftX = -Math.abs(boss.driftX); }
       if (boss.phase >= 2) {
         boss.teleportTimer -= dt;
         if (boss.teleportTimer <= 0 && boss.beamWarn <= 0) teleportBoss();
       }
-      if (boss.beamWarn > 0) { boss.beamWarn -= dt; if (boss.beamWarn <= 0) { projectiles.push({ x: Math.max(0, player.x - 320), y: boss.beamY - 9, w: 640, h: 18, vx: 0, vy: 0, life: 0.42, damage: 1, kind: 'boss', color: '#ff66dd' }); sfxHurt(); shake(16); } }
+      if (boss.phase >= 2 && Math.random() < dt * 0.6) { boss.driftX += (Math.random() - 0.5) * 120; boss.driftX = Math.max(-150, Math.min(150, boss.driftX)); }
+      if (!boss.active) { if (player.x > boss.x - 650) { boss.active = true; sfxBoss(); showMsg('BOSS: 25 初音核心', 1.4); shake(12); } return; }
+      if (boss.beamWarn > 0) { boss.beamWarn -= dt; if (boss.beamWarn <= 0) { projectiles.push({ x: boss.beamX - 100, y: boss.beamY - 9, w: 200, h: 18, vx: 0, vy: 0, life: 0.3, damage: bossDmg(), kind: 'boss', color: '#ff66dd' }); sfxHurt(); shake(16); } }
       boss.attackTimer -= dt;
       if (boss.pattern === 'idle' && boss.attackTimer <= 0 && boss.beamWarn <= 0) chooseBossPattern();
       boss.timer += dt;
       if (boss.pattern === 'volley' && boss.timer > 0.26) { boss.timer = 0; boss.burstCount++; spawnAimedProjectile(boss.x + 18, boss.y + 56, 230 + boss.phase * 45, 'boss', '#cc88ff', 16); if (boss.burstCount >= 3 + boss.phase * 2) { boss.pattern = 'idle'; boss.attackTimer = 1.1; } }
-      else if (boss.pattern === 'rain' && boss.timer > 0.16) { boss.timer = 0; boss.burstCount++; const rx = player.x + player.w / 2 - 180 + Math.random() * 360; projectiles.push({ x: rx, y: -30, w: 14, h: 24, vx: (Math.random() - 0.5) * 50, vy: 300 + boss.phase * 45, life: 2.2, damage: 1, kind: 'boss', color: '#aa66ff' }); if (boss.burstCount >= 7 + boss.phase * 3) { boss.pattern = 'idle'; boss.attackTimer = 1.0; } }
-      else if (boss.pattern === 'wave' && boss.timer > 0.42) { boss.timer = 0; boss.burstCount++; projectiles.push({ x: boss.x - 24, y: 452, w: 42, h: 20, vx: -(230 + boss.phase * 55), vy: 0, life: 4, damage: 1, kind: 'boss', color: '#ff99cc' }); if (boss.burstCount >= 2 + boss.phase) { boss.pattern = 'idle'; boss.attackTimer = 1.2; } }
+      else if (boss.pattern === 'rain' && boss.timer > 0.16) { boss.timer = 0; boss.burstCount++; const rx = player.x + player.w / 2 - 180 + Math.random() * 360; projectiles.push({ x: rx, y: -30, w: 14, h: 24, vx: (Math.random() - 0.5) * 50, vy: 300 + boss.phase * 45, life: 2.2, damage: bossDmg(), kind: 'boss', color: '#aa66ff' }); if (boss.burstCount >= 7 + boss.phase * 3) { boss.pattern = 'idle'; boss.attackTimer = 1.0; } }
+      else if (boss.pattern === 'wave' && boss.timer > 0.42) { boss.timer = 0; boss.burstCount++; projectiles.push({ x: boss.x - 24, y: 452, w: 42, h: 20, vx: -(230 + boss.phase * 55), vy: 0, life: 4, damage: bossDmg(), kind: 'boss', color: '#ff99cc' }); if (boss.burstCount >= 2 + boss.phase) { boss.pattern = 'idle'; boss.attackTimer = 1.2; } }
+      else if (boss.pattern === 'summon' && boss.timer > 1.0) { boss.timer = 0; boss.burstCount++; const count = 2 + Math.floor(Math.random() * 2); for (let i = 0; i < count; i++) { enemies.push({ x: boss.x + 20 + Math.random() * 60, y: boss.y + boss.h - 32, w: 28, h: 28, vx: (i === 0 ? 70 : -70), hp: 2, maxHp: 2, left: 0, right: worldW, type: 'bat', alive: true, atkTimer: 1.2, xp: 15, popIn: 0.35, elite: false }); } burst(boss.x + boss.w / 2, boss.y + boss.h, '#ff88cc', 16); if (boss.burstCount >= 1) { boss.pattern = 'idle'; boss.attackTimer = 2.4; } }
       if (overlaps(player, boss)) takeDamage();
     }
     // --- Update ---
@@ -2525,18 +2563,22 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       if (!boss.alive && bossDefeatCutscene > 0) return;
       const bx = Math.round(boss.x - cameraX), by = Math.round(boss.y);
       if (bx + boss.w < -120 || bx > VW + 140) return;
-      if (boss.beamWarn > 0) {
-        ctx.save();
-        const alpha = 0.2 + Math.sin(t * 36) * 0.12;
-        ctx.fillStyle = `rgba(255,50,200,${alpha})`;
-        ctx.fillRect(0, boss.beamY - 14, VW, 28);
-        ctx.fillStyle = `rgba(255,255,255,${0.5 + Math.sin(t * 30) * 0.2})`;
-        ctx.fillRect(0, boss.beamY - 1, VW, 2);
-        ctx.font = 'bold 18px "Courier New", monospace'; ctx.textAlign = 'center';
-        ctx.fillStyle = `rgba(255,255,255,${0.3 + Math.sin(t * 24) * 0.15})`;
-        ctx.fillText('⚡ 警告：光束 ⚡', VW / 2, boss.beamY - 24);
-        ctx.restore();
-      }
+  if (boss.beamWarn > 0) {
+    ctx.save();
+    const bCx = boss.beamX - cameraX;
+    const alpha = 0.2 + Math.sin(t * 36) * 0.12;
+    ctx.fillStyle = `rgba(255,50,200,${alpha})`;
+    ctx.fillRect(bCx - 100, boss.beamY - 14, 200, 28);
+    ctx.strokeStyle = `rgba(255,100,220,${0.3 + Math.sin(t * 24) * 0.15})`;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bCx - 100, boss.beamY - 14, 200, 28);
+    ctx.fillStyle = `rgba(255,255,255,${0.5 + Math.sin(t * 30) * 0.2})`;
+    ctx.fillRect(bCx - 100, boss.beamY - 1, 200, 2);
+    ctx.font = 'bold 16px "Courier New", monospace'; ctx.textAlign = 'center';
+    ctx.fillStyle = `rgba(255,255,255,${0.3 + Math.sin(t * 24) * 0.15})`;
+    ctx.fillText('⚡ 光束范围 ⚡', bCx, boss.beamY - 24);
+    ctx.restore();
+  }
       // Rain warning zone
       if (boss.alive && boss.pattern === 'rain' && boss.burstCount === 0) {
         ctx.save();
