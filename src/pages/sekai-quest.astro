@@ -102,29 +102,31 @@ const VERSION = 'v0.0.1';
       <!-- Touch Controls (inside game-screen for fullscreen support) -->
       <div class="touch-controls hidden" id="touchControls">
         <div class="touch-left">
-          <button class="t-btn" data-dir="left">◀</button>
-          <button class="t-btn" data-dir="right">▶</button>
+          <div class="joystick" id="joystick">
+            <div class="joy-ring"></div>
+            <div class="joy-thumb" id="joyThumb"></div>
+          </div>
         </div>
         <div class="touch-right">
           <button class="t-btn t-jump" data-dir="jump">↑</button>
           <button class="t-btn t-atk" data-dir="attack">♪</button>
         </div>
       </div>
-    </div>
 
-    <!-- Results -->
-    <div class="results-screen hidden" id="resultsScreen">
-      <div class="results-card">
-        <div class="res-title" id="resTitle">通关！</div>
-        <div class="res-stats">
-          <div class="res-row"><span>音符</span><strong id="resNotes">0</strong></div>
-          <div class="res-row"><span>敌人</span><strong id="resEnemies">0</strong></div>
-          <div class="res-row"><span>等级</span><strong id="resLevel">1</strong></div>
-          <div class="res-row"><span>得分</span><strong id="resScore">0</strong></div>
-        </div>
-        <div class="res-actions">
-          <button class="retry-btn" id="retryBtn">重试</button>
-          <button class="back-btn" id="backBtn">返回</button>
+      <!-- Results (inside game-screen for fullscreen support) -->
+      <div class="results-screen hidden" id="resultsScreen">
+        <div class="results-card">
+          <div class="res-title" id="resTitle">通关！</div>
+          <div class="res-stats">
+            <div class="res-row"><span>音符</span><strong id="resNotes">0</strong></div>
+            <div class="res-row"><span>敌人</span><strong id="resEnemies">0</strong></div>
+            <div class="res-row"><span>等级</span><strong id="resLevel">1</strong></div>
+            <div class="res-row"><span>得分</span><strong id="resScore">0</strong></div>
+          </div>
+          <div class="res-actions">
+            <button class="retry-btn" id="retryBtn">重试</button>
+            <button class="back-btn" id="backBtn">返回</button>
+          </div>
         </div>
       </div>
     </div>
@@ -133,7 +135,7 @@ const VERSION = 'v0.0.1';
   <style is:global>
     :root { --dash-accent: #45d; --dash-accent-rgb: 68,85,221; }
 
-    .dash-shell { min-height: calc(100vh - 190px); color: var(--text); user-select: none; -webkit-user-select: none; }
+    .dash-shell { min-height: calc(100vh - 190px); color: var(--text); user-select: none; -webkit-user-select: none; overscroll-behavior: none; }
 
     .hidden { display: none !important; }
 
@@ -147,11 +149,15 @@ const VERSION = 'v0.0.1';
     .game-screen:fullscreen .t-btn { width: 66px; height: 66px; font-size: 1.6rem; border-width: 2.5px; box-shadow: 0 4px 16px rgba(0,0,0,.3); }
     .game-screen:fullscreen .t-jump, .game-screen:fullscreen .t-atk { width: 78px; height: 78px; font-size: 1.9rem; }
     .game-screen:fullscreen .t-btn:active { transform: scale(.85); }
+    .game-screen:fullscreen .joystick { width: 140px; height: 140px; }
+    .game-screen:fullscreen .joy-thumb { width: 52px; height: 52px; }
     @media (orientation: landscape) {
       .game-screen:fullscreen .touch-controls { bottom: 8px; padding: 0 14px; }
       .game-screen:fullscreen .touch-left, .game-screen:fullscreen .touch-right { gap: 12px; }
       .game-screen:fullscreen .t-btn { width: 60px; height: 60px; font-size: 1.4rem; }
       .game-screen:fullscreen .t-jump, .game-screen:fullscreen .t-atk { width: 70px; height: 70px; font-size: 1.6rem; }
+      .game-screen:fullscreen .joystick { width: 120px; height: 120px; }
+      .game-screen:fullscreen .joy-thumb { width: 46px; height: 46px; }
     }
 
     /* ===== Title ===== */
@@ -191,9 +197,9 @@ const VERSION = 'v0.0.1';
     .go-keys { font-size: .64rem; font-weight: 700; letter-spacing: .16em; opacity: .45; }
 
     /* ===== Game ===== */
-    .game-screen { position: relative; height: calc(100vh - 140px); min-height: 420px; }
+    .game-screen { position: relative; height: calc(100vh - 140px); min-height: 420px; -webkit-touch-callout: none; }
     @media (max-width: 600px) { .game-screen:not(:fullscreen) { height: calc(100vh - 100px); min-height: 340px; } }
-    .game-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
+    .game-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; touch-action: none; -webkit-touch-callout: none; }
     .game-hud-top { position: absolute; top: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; pointer-events: none; z-index: 2; gap: 6px; flex-wrap: wrap; }
     .game-hud-top > div { min-height: 30px; padding: 5px 10px; border-radius: 8px; background: rgba(4,6,14,.78); border: 1px solid rgba(255,255,255,.07); backdrop-filter: blur(4px); font-family: 'Courier New', monospace; box-shadow: 0 4px 14px rgba(0,0,0,.14); }
     .hud-hp { display: flex; align-items: center; gap: 4px; font-size: .85rem; color: #fff; }
@@ -286,7 +292,7 @@ const VERSION = 'v0.0.1';
     @keyframes finisherLine { 0%, 20% { opacity: 0; transform: translate(-50%, 8px); } 32%, 78% { opacity: 1; transform: translate(-50%, 0); } 100% { opacity: 0; transform: translate(-50%, -6px); } }
 
     /* ===== Results ===== */
-    .results-screen { position: fixed; inset: 0; z-index: 90; display: grid; place-content: center; background: rgba(4,6,14,.88); backdrop-filter: blur(12px); padding: 16px; animation: fadeIn .25s ease; }
+    .results-screen { position: absolute; inset: 0; z-index: 90; display: grid; place-content: center; background: rgba(4,6,14,.88); backdrop-filter: blur(12px); padding: 16px; animation: fadeIn .25s ease; }
     .results-card { display: grid; gap: 18px; max-width: 380px; width: 100%; padding: 32px 28px 24px; border-radius: 22px; background: linear-gradient(180deg, rgba(10,12,28,.98), rgba(6,8,18,.98)); border: 1.5px solid rgba(var(--dash-accent-rgb), .15); box-shadow: 0 18px 56px rgba(0,0,0,.28), 0 0 40px rgba(var(--dash-accent-rgb), .04); animation: panelIn .35s ease both; }
     .res-title { text-align: center; font-family: 'Courier New', monospace; font-size: 1.8rem; font-weight: 900; color: var(--dash-accent); text-shadow: 0 0 24px rgba(var(--dash-accent-rgb), .3); letter-spacing: .02em; }
     .res-stats { display: grid; gap: 8px; }
@@ -301,13 +307,17 @@ const VERSION = 'v0.0.1';
     .back-btn:hover { border-color: rgba(var(--dash-accent-rgb), .4); color: var(--dash-accent); transform: translateY(-1px); }
 
     /* ===== Touch ===== */
-    .touch-controls { position: fixed; bottom: 8px; left: 0; right: 0; z-index: 50; display: flex; justify-content: space-between; padding: 0 10px; pointer-events: none; }
-    .touch-left, .touch-right { display: flex; gap: 6px; pointer-events: auto; }
-    .t-btn { width: 56px; height: 56px; border-radius: 50%; border: 2px solid rgba(var(--dash-accent-rgb), .22); background: rgba(6,10,20,.7); color: rgba(var(--dash-accent-rgb), .7); font-size: 1.3rem; font-weight: 900; cursor: pointer; touch-action: manipulation; transition: all 70ms ease; backdrop-filter: blur(2px); }
-    .t-btn:active { background: rgba(var(--dash-accent-rgb), .12); border-color: var(--dash-accent); transform: scale(.9); }
-    .t-jump { width: 64px; height: 64px; }
-    .t-atk { width: 64px; height: 64px; color: #ffd66e; border-color: rgba(255,214,110,.2); }
-    .t-atk:active { border-color: #ffd66e; background: rgba(255,214,110,.1); }
+    .touch-controls { position: fixed; bottom: 8px; left: 0; right: 0; z-index: 50; display: flex; justify-content: space-between; padding: 0 16px; pointer-events: none; -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+    .touch-left, .touch-right { display: flex; align-items: end; gap: 14px; pointer-events: auto; }
+    .t-btn { width: 64px; height: 64px; border-radius: 50%; border: 2.5px solid rgba(var(--dash-accent-rgb), .22); background: rgba(6,10,20,.7); color: rgba(var(--dash-accent-rgb), .7); font-size: 1.4rem; font-weight: 900; cursor: pointer; touch-action: manipulation; transition: all 80ms ease; backdrop-filter: blur(2px); box-shadow: 0 0 0 rgba(var(--dash-accent-rgb), 0); -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+    .t-btn:active { background: rgba(var(--dash-accent-rgb), .16); border-color: var(--dash-accent); transform: scale(.88); box-shadow: 0 0 24px rgba(var(--dash-accent-rgb), .25); }
+    .t-jump { width: 74px; height: 74px; }
+    .t-atk { width: 74px; height: 74px; color: #ffd66e; border-color: rgba(255,214,110,.2); }
+    .t-atk:active { border-color: #ffd66e; background: rgba(255,214,110,.12); box-shadow: 0 0 24px rgba(255,214,110,.2); }
+    /* Joystick */
+    .joystick { position: relative; width: 120px; height: 120px; border-radius: 50%; background: rgba(6,10,20,.45); border: 2.5px solid rgba(var(--dash-accent-rgb), .15); touch-action: none; cursor: pointer; box-sizing: border-box; }
+    .joy-ring { position: absolute; inset: 10px; border-radius: 50%; border: 1.5px solid rgba(var(--dash-accent-rgb), .1); }
+    .joy-thumb { position: absolute; width: 44px; height: 44px; border-radius: 50%; background: rgba(var(--dash-accent-rgb), .18); border: 2.5px solid rgba(var(--dash-accent-rgb), .3); top: 50%; left: 50%; transform: translate(-50%, -50%); transition: transform 50ms ease-out; pointer-events: none; box-sizing: border-box; }
 
     @media (max-width: 720px) {
       .title-screen { padding: 16px 12px; gap: 16px; }
@@ -328,8 +338,12 @@ const VERSION = 'v0.0.1';
       .game-action-bar { top: 52px; right: 6px; }
       .game-action-btn { min-width: 40px; padding: 5px 8px; font-size: .68rem; }
       .hp-dot { width: 9px; height: 9px; }
-      .t-btn { width: 54px; height: 54px; font-size: 1.2rem; }
-      .t-jump, .t-atk { width: 64px; height: 64px; }
+      .touch-controls { padding: 0 10px; }
+      .touch-left, .touch-right { gap: 10px; }
+      .t-btn { width: 56px; height: 56px; font-size: 1.2rem; }
+      .t-jump, .t-atk { width: 66px; height: 66px; }
+      .joystick { width: 100px; height: 100px; }
+      .joy-thumb { width: 38px; height: 38px; }
       .dialogue-text { font-size: .85rem; }
       .results-card { padding: 22px 18px; }
     }
@@ -625,6 +639,7 @@ const VERSION = 'v0.0.1';
     let runDustTimer = 0;
     let coyoteTimer = 0, jumpBufferTimer = 0, wasAirborne = false, freezeTimer = 0;
     let dialogueActive = false;
+    let joyX = 0;
     const SAVE_KEY = 'sekaiQuestSaveV1';
     const DEFAULT_SAVE: GameSave = { runs: 0, bestScore: 0, clearedStages: 0, unlockedChars: [1], metNpcIds: [], totalKills: 0, totalNotes: 0, bossClears: 0 };
     let saveData: GameSave = { ...DEFAULT_SAVE, unlockedChars: [...DEFAULT_SAVE.unlockedChars], metNpcIds: [] };
@@ -1095,6 +1110,7 @@ const VERSION = 'v0.0.1';
       finished = false;
       paused = false;
       choosingAbility = false;
+      joyX = 0;
       stopBgm();
       gameScreen.classList.add('hidden');
       resultsScreen.classList.add('hidden');
@@ -1422,9 +1438,9 @@ const VERSION = 'v0.0.1';
       }
     });
 
-    // Touch
-    const touchBtns = touchControls.querySelectorAll<HTMLButtonElement>('.t-btn');
-    touchBtns.forEach(btn => {
+    // Touch: right buttons (jump / attack)
+    const rightBtns = touchControls.querySelectorAll<HTMLButtonElement>('.t-btn');
+    rightBtns.forEach(btn => {
       const dir = btn.dataset.dir || '';
       const down = (e: PointerEvent) => { e.preventDefault(); btn.setPointerCapture(e.pointerId); btn.classList.add('active'); keys['t_' + dir] = true; if (dir === 'jump') doJump(); if (dir === 'attack') doAttack(); };
       const up = () => { btn.classList.remove('active'); keys['t_' + dir] = false; if (dir === 'jump' && player && player.vy < 0) player.vy *= 0.55; };
@@ -1433,6 +1449,46 @@ const VERSION = 'v0.0.1';
       btn.addEventListener('pointercancel', up);
       btn.addEventListener('lostpointercapture', up);
     });
+    // Touch: left joystick (analog horizontal control)
+    const JOY_MAX = 40;
+    const JOY_DEAD = 10;
+    const joystickEl = document.getElementById('joystick')!;
+    const joyThumb = document.getElementById('joyThumb')!;
+    let joyPointerId = -1;
+    function joyUpdate(clientX: number) {
+      const rect = joystickEl.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const dx = clientX - cx;
+      const clamped = Math.max(-JOY_MAX, Math.min(JOY_MAX, dx));
+      const abs = Math.abs(clamped);
+      joyX = abs > JOY_DEAD ? (clamped / JOY_MAX) : 0;
+      joyThumb.style.transform = `translate(calc(-50% + ${clamped}px), -50%)`;
+      joyThumb.style.opacity = abs > JOY_DEAD ? '1' : '0.6';
+    }
+    function joyReset() {
+      joyX = 0;
+      joyPointerId = -1;
+      joyThumb.style.transform = 'translate(-50%, -50%)';
+      joyThumb.style.opacity = '0.6';
+    }
+    joystickEl.addEventListener('pointerdown', (e: PointerEvent) => {
+      e.preventDefault();
+      joystickEl.setPointerCapture(e.pointerId);
+      joyPointerId = e.pointerId;
+      joyUpdate(e.clientX);
+    });
+    joystickEl.addEventListener('pointermove', (e: PointerEvent) => {
+      if (joyPointerId < 0) return;
+      joyUpdate(e.clientX);
+    });
+    joystickEl.addEventListener('pointerup', joyReset);
+    joystickEl.addEventListener('pointercancel', joyReset);
+    joystickEl.addEventListener('lostpointercapture', joyReset);
+
+    // Prevent browser scroll/zoom/context-menu over game area
+    canvas.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+    gameScreen.addEventListener('contextmenu', e => e.preventDefault());
+    touchControls.addEventListener('contextmenu', e => e.preventDefault());
 
     function doJump() {
       if (!running || finished || paused || choosingAbility) return;
@@ -1823,12 +1879,16 @@ const VERSION = 'v0.0.1';
       const stage = STAGES[selStage];
 
       // Player movement (smooth acceleration)
-      const moveL = keys['arrowleft'] || keys['a'] || keys['t_left'];
-      const moveR = keys['arrowright'] || keys['d'] || keys['t_right'];
+      const keyL = keys['arrowleft'] || keys['a'];
+      const keyR = keys['arrowright'] || keys['d'];
+      const usingJoy = Math.abs(joyX) > 0.01;
       let targetVx = 0;
-      if (moveL) { targetVx = -c.speed; player.facing = -1; }
-      else if (moveR) { targetVx = c.speed; player.facing = 1; }
-      const accelRate = player.grounded ? 14 : 9;
+      if (usingJoy) {
+        targetVx = joyX * c.speed;
+        if (Math.abs(joyX) > 0.2) player.facing = joyX > 0 ? 1 : -1;
+      } else if (keyL) { targetVx = -c.speed; player.facing = -1; }
+      else if (keyR) { targetVx = c.speed; player.facing = 1; }
+      const accelRate = usingJoy ? 40 : (player.grounded ? 14 : 9);
       const friction = player.grounded ? 0.82 : 0.92;
       if (targetVx !== 0) { player.vx += (targetVx - player.vx) * Math.min(1, dt * accelRate); }
       else { player.vx *= Math.pow(friction, dt * 60); }
@@ -2204,7 +2264,7 @@ const VERSION = 'v0.0.1';
       const retry = document.getElementById('retryBtn')!;
       retry.textContent = clear && pendingNextStage ? '下一幕' : '重试';
       setPaused(false);
-      gameScreen.classList.add('hidden'); resultsScreen.classList.remove('hidden'); touchControls.classList.add('hidden');
+      resultsScreen.classList.remove('hidden'); touchControls.classList.add('hidden');
     }
     let canvasW = 0, canvasH = 0, canvasScale = 1, canvasOx = 0, canvasOy = 0;
     function resizeCanvas() {
