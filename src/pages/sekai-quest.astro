@@ -51,7 +51,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
           <span class="go-text">开始</span>
           <span class="go-keys">← → ↑ J</span>
         </button>
-        <button class="fullscreen-btn" id="fullscreenBtn" title="全屏">⛶</button>
       </div>
     </div>
 
@@ -67,7 +66,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="hud-abilities" id="hudAbilities"></div>
       <div class="game-action-bar">
         <button class="game-action-btn" id="pauseBtn" type="button">暂停</button>
-        <button class="game-action-btn" id="menuBtn" type="button">菜单</button>
         <button class="game-action-btn fs-btn" id="gameFullscreenBtn" title="全屏">⛶</button>
       </div>
       <div class="game-msg" id="gameMsg"></div>
@@ -79,10 +77,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <div class="pause-overlay hidden" id="pauseOverlay">
         <div class="pause-panel">
           <div class="pause-title">已暂停</div>
-          <div class="pause-actions">
-            <button class="retry-btn" id="resumeBtn" type="button">继续</button>
-            <button class="back-btn" id="pauseMenuBtn" type="button">返回菜单</button>
-          </div>
+          <button class="resume-btn" id="resumeBtn" type="button">继续游戏</button>
         </div>
       </div>
       <div class="ability-overlay hidden" id="abilityOverlay">
@@ -98,6 +93,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         <img id="bossFinisherImg" src="/25miku/25miku_%E6%88%98%E8%B4%A51.png" alt="25 Miku boss defeated" />
         <div class="boss-finisher-line" id="bossFinisherLine">破碎的世界....还值得拯救吗...</div>
         <div class="boss-finisher-title">25 初音核心 崩坏</div>
+      </div>
+      <!-- Touch Controls (inside game-screen for fullscreen support) -->
+      <div class="touch-controls hidden" id="touchControls">
+        <div class="touch-left">
+          <button class="t-btn" data-dir="left">◀</button>
+          <button class="t-btn" data-dir="right">▶</button>
+        </div>
+        <div class="touch-right">
+          <button class="t-btn t-jump" data-dir="jump">↑</button>
+          <button class="t-btn t-atk" data-dir="attack">♪</button>
+        </div>
       </div>
     </div>
 
@@ -117,18 +123,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         </div>
       </div>
     </div>
-
-    <!-- Touch Controls -->
-    <div class="touch-controls hidden" id="touchControls">
-      <div class="touch-left">
-        <button class="t-btn" data-dir="left">◀</button>
-        <button class="t-btn" data-dir="right">▶</button>
-      </div>
-      <div class="touch-right">
-        <button class="t-btn t-jump" data-dir="jump">↑</button>
-        <button class="t-btn t-atk" data-dir="attack">♪</button>
-      </div>
-    </div>
   </section>
 
   <style is:global>
@@ -142,19 +136,21 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .fullscreen-btn { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid rgba(255,255,255,.12); background: rgba(6,8,18,.72); color: rgba(255,255,255,.55); font-size: 1.2rem; cursor: pointer; transition: all 160ms ease; }
     .fullscreen-btn:hover { border-color: rgba(var(--dash-accent-rgb), .5); color: var(--dash-accent); background: rgba(var(--dash-accent-rgb), .08); }
     .fs-btn { font-size: 1rem; }
-    .game-screen:fullscreen .game-screen { height: 100vh; min-height: 100vh; }
-    .game-screen:fullscreen .game-canvas { height: 100vh; }
-    .game-screen:fullscreen .touch-controls { bottom: 14px; }
+    .game-screen:fullscreen { height: 100vh; min-height: 100vh; width: 100vw; background: #000; }
+    .game-screen:fullscreen .game-canvas { height: 100vh; width: 100vw; }
+    .game-screen:fullscreen .game-hud-top { top: 12px; left: 12px; right: 12px; }
+    .game-screen:fullscreen .touch-controls { bottom: 16px; }
 
     /* ===== Title ===== */
-    .title-screen { display: grid; gap: 20px; padding: 22px 16px; max-width: 860px; margin: 0 auto; position: relative; }
+    .title-screen { display: grid; gap: 22px; padding: 28px 20px; max-width: 860px; margin: 0 auto; position: relative; }
     .title-screen::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 20%, rgba(var(--dash-accent-rgb), .06), transparent); pointer-events: none; }
-    .title-logo { text-align: center; position: relative; }
-    .title-sub { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--dash-accent); margin-bottom: 2px; opacity: .8; }
-    .title-main { margin: 0; font-family: 'Courier New', monospace; font-size: clamp(2.2rem, 7vw, 4.2rem); font-weight: 900; line-height: 1; background: linear-gradient(135deg, #fff 28%, var(--dash-accent) 72%, #aaf 92%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 24px rgba(var(--dash-accent-rgb), .28)); letter-spacing: -.02em; }
-    .save-summary { margin-top: 8px; color: var(--muted); font-size: .78rem; font-weight: 700; }
+    .title-logo { text-align: center; position: relative; padding-top: 4px; }
+    .title-logo::after { content: ''; display: block; width: 60px; height: 2px; margin: 10px auto 0; border-radius: 2px; background: linear-gradient(90deg, transparent, rgba(var(--dash-accent-rgb), .25), transparent); }
+    .title-sub { display: block; font-size: .7rem; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--dash-accent); margin-bottom: 3px; opacity: .75; }
+    .title-main { margin: 0; font-family: 'Courier New', monospace; font-size: clamp(2.4rem, 7vw, 4.6rem); font-weight: 900; line-height: 1; background: linear-gradient(135deg, #fff 24%, var(--dash-accent) 68%, #aaf 92%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; filter: drop-shadow(0 0 32px rgba(var(--dash-accent-rgb), .3)); letter-spacing: -.02em; }
+    .save-summary { margin-top: 10px; color: var(--muted); font-size: .78rem; font-weight: 700; letter-spacing: .02em; }
 
-    .sel-label { margin: 0 0 6px; font-size: .68rem; font-weight: 800; letter-spacing: .12em; color: var(--muted); text-transform: uppercase; }
+    .sel-label { margin: 0 0 7px; font-size: .68rem; font-weight: 800; letter-spacing: .14em; color: var(--muted); text-transform: uppercase; }
 
     .stage-pills { display: flex; flex-wrap: wrap; gap: 6px; }
     .stage-pill { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--panel-border); background: var(--panel); color: var(--text-soft); font-family: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; transition: all 140ms ease; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
@@ -164,25 +160,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .pill-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; box-shadow: 0 0 6px currentColor; }
 
     .char-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-    .char-btn { position: relative; display: grid; gap: 3px; justify-items: center; padding: 10px 4px 8px; border-radius: 12px; border: 1.5px solid var(--panel-border); background: linear-gradient(180deg, var(--panel) 0%, rgba(6,8,18,.2) 100%); color: var(--text-soft); font-family: inherit; cursor: pointer; transition: all 160ms ease; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
-    .char-btn:hover { border-color: rgba(var(--dash-accent-rgb), .3); transform: translateY(-1px); }
-    .char-btn.active { border-color: var(--dash-accent); background: linear-gradient(180deg, rgba(var(--dash-accent-rgb), .1) 0%, rgba(var(--dash-accent-rgb), .04) 100%); color: var(--dash-accent); box-shadow: 0 0 16px rgba(var(--dash-accent-rgb), .1); }
+    .char-btn { position: relative; display: grid; gap: 3px; justify-items: center; padding: 11px 4px 9px; border-radius: 12px; border: 1.5px solid var(--panel-border); background: linear-gradient(180deg, var(--panel) 0%, rgba(6,8,18,.2) 100%); color: var(--text-soft); font-family: inherit; cursor: pointer; transition: all 160ms ease; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .char-btn:hover { border-color: rgba(var(--dash-accent-rgb), .3); transform: translateY(-2px); box-shadow: 0 4px 14px rgba(0,0,0,.1); }
+    .char-btn.active { border-color: var(--dash-accent); background: linear-gradient(180deg, rgba(var(--dash-accent-rgb), .12) 0%, rgba(var(--dash-accent-rgb), .04) 100%); color: var(--dash-accent); box-shadow: 0 0 20px rgba(var(--dash-accent-rgb), .12); }
     .char-btn.locked { opacity: .45; filter: grayscale(.55); }
     .char-btn.locked::after { content: 'LOCK'; position: absolute; top: 4px; right: 4px; padding: 1px 4px; border-radius: 4px; background: rgba(6,8,18,.86); color: #ffd66e; font-family: 'Courier New', monospace; font-size: .5rem; font-weight: 900; line-height: 1.4; }
-    .char-btn img { width: 44px; height: 44px; image-rendering: pixelated; image-rendering: crisp-edges; object-fit: contain; border-radius: 6px; }
+    .char-btn img { width: 44px; height: 44px; image-rendering: pixelated; image-rendering: crisp-edges; object-fit: contain; border-radius: 6px; transition: transform 160ms ease; }
+    .char-btn:hover img { transform: scale(1.08); }
     .char-btn span { font-size: .74rem; font-weight: 800; }
     .char-btn small { font-size: .58rem; color: var(--muted); }
 
-    .title-actions { display: flex; align-items: center; justify-content: center; gap: 12px; }
-    .go-btn { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 14px 40px; border: none; border-radius: 14px; background: linear-gradient(135deg, var(--dash-accent), rgba(var(--dash-accent-rgb), .6)); color: #0a0e18; font-family: 'Courier New', monospace; font-size: 1.3rem; font-weight: 900; cursor: pointer; letter-spacing: .06em; box-shadow: 0 6px 24px rgba(var(--dash-accent-rgb), .28); transition: transform 120ms ease, box-shadow 120ms ease; }
-    .go-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(var(--dash-accent-rgb), .35); }
+    .title-actions { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 2px; }
+    .go-btn { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 16px 48px; border: none; border-radius: 16px; background: linear-gradient(135deg, var(--dash-accent), rgba(var(--dash-accent-rgb), .55)); color: #0a0e18; font-family: 'Courier New', monospace; font-size: 1.4rem; font-weight: 900; cursor: pointer; letter-spacing: .06em; box-shadow: 0 6px 28px rgba(var(--dash-accent-rgb), .28); transition: transform 140ms ease, box-shadow 140ms ease; }
+    .go-btn:hover { transform: translateY(-3px); box-shadow: 0 12px 36px rgba(var(--dash-accent-rgb), .38); }
     .go-btn:active { transform: translateY(0); box-shadow: 0 4px 16px rgba(var(--dash-accent-rgb), .2); }
-    .go-keys { font-size: .64rem; font-weight: 700; letter-spacing: .16em; opacity: .5; }
+    .go-keys { font-size: .64rem; font-weight: 700; letter-spacing: .16em; opacity: .45; }
 
     /* ===== Game ===== */
     .game-screen { position: relative; height: calc(100vh - 140px); min-height: 420px; }
     @media (max-width: 600px) { .game-screen:not(:fullscreen) { height: calc(100vh - 100px); min-height: 340px; } }
-    .game-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; cursor: none; }
+    .game-canvas { display: block; width: 100%; height: 100%; image-rendering: pixelated; image-rendering: crisp-edges; }
     .game-hud-top { position: absolute; top: 8px; left: 8px; right: 8px; display: flex; justify-content: space-between; pointer-events: none; z-index: 2; gap: 6px; flex-wrap: wrap; }
     .game-hud-top > div { min-height: 30px; padding: 5px 10px; border-radius: 8px; background: rgba(4,6,14,.78); border: 1px solid rgba(255,255,255,.07); backdrop-filter: blur(4px); font-family: 'Courier New', monospace; box-shadow: 0 4px 14px rgba(0,0,0,.14); }
     .hud-hp { display: flex; align-items: center; gap: 4px; font-size: .85rem; color: #fff; }
@@ -217,9 +214,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     .game-action-btn:hover { border-color: rgba(var(--dash-accent-rgb), .5); color: var(--dash-accent); }
     .pause-overlay { position: absolute; inset: 0; z-index: 9; display: grid; place-items: center; background: rgba(4,6,14,.68); backdrop-filter: blur(6px); animation: fadeIn .2s ease; }
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-    .pause-panel { width: min(300px, calc(100vw - 36px)); padding: 22px; border-radius: 16px; border: 1.5px solid var(--panel-border); background: rgba(8,10,22,.94); box-shadow: 0 16px 48px rgba(0,0,0,.24); }
-    .pause-title { margin-bottom: 14px; text-align: center; font-family: 'Courier New', monospace; font-size: 1.3rem; font-weight: 900; color: var(--dash-accent); }
-    .pause-actions { display: flex; gap: 8px; }
+    .pause-panel { width: min(280px, calc(100vw - 36px)); padding: 28px 24px 22px; border-radius: 18px; border: 1.5px solid rgba(var(--dash-accent-rgb), .2); background: linear-gradient(180deg, rgba(10,12,28,.96), rgba(6,8,18,.96)); box-shadow: 0 16px 48px rgba(0,0,0,.3), 0 0 40px rgba(var(--dash-accent-rgb), .04); text-align: center; animation: panelIn .3s ease both; }
+    .pause-title { margin-bottom: 18px; font-family: 'Courier New', monospace; font-size: 1.4rem; font-weight: 900; color: var(--dash-accent); text-shadow: 0 0 20px rgba(var(--dash-accent-rgb), .3); letter-spacing: .04em; }
+    .resume-btn { display: inline-block; padding: 12px 36px; border: none; border-radius: 12px; background: linear-gradient(135deg, var(--dash-accent), rgba(var(--dash-accent-rgb), .55)); color: #0a0e18; font-family: 'Courier New', monospace; font-size: .95rem; font-weight: 900; cursor: pointer; box-shadow: 0 4px 20px rgba(var(--dash-accent-rgb), .25); transition: transform 120ms ease, box-shadow 120ms ease; letter-spacing: .04em; }
+    .resume-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(var(--dash-accent-rgb), .32); }
+    .resume-btn:active { transform: translateY(0); box-shadow: 0 3px 12px rgba(var(--dash-accent-rgb), .18); }
     .ability-overlay { position: absolute; inset: 0; z-index: 10; display: grid; place-items: center; padding: 14px; background: radial-gradient(circle at 50% 35%, rgba(var(--dash-accent-rgb), .3), transparent 34%), linear-gradient(180deg, rgba(4,6,16,.92), rgba(6,8,20,.86)); backdrop-filter: blur(10px); overflow: hidden; }
     .ability-overlay::before { content: ''; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.03) 1px, transparent 1px); background-size: 32px 32px; mask-image: radial-gradient(circle at center, black, transparent 74%); pointer-events: none; }
     .ability-panel { position: relative; width: min(720px, calc(100vw - 24px)); padding: 24px; border-radius: 18px; border: 1.5px solid rgba(var(--dash-accent-rgb), .45); background: linear-gradient(180deg, rgba(10,12,28,.98), rgba(5,7,16,.98)); box-shadow: 0 20px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.07), 0 0 50px rgba(var(--dash-accent-rgb), .06); animation: panelIn .3s ease both; }
@@ -271,17 +270,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
     /* ===== Results ===== */
     .results-screen { position: fixed; inset: 0; z-index: 90; display: grid; place-content: center; background: rgba(4,6,14,.88); backdrop-filter: blur(12px); padding: 16px; animation: fadeIn .25s ease; }
-    .results-card { display: grid; gap: 16px; max-width: 360px; width: 100%; padding: 28px 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(10,12,28,.96), rgba(6,8,18,.96)); border: 1.5px solid var(--panel-border); box-shadow: 0 18px 56px rgba(0,0,0,.22); animation: panelIn .3s ease both; }
-    .res-title { text-align: center; font-family: 'Courier New', monospace; font-size: 1.7rem; font-weight: 900; color: var(--dash-accent); }
-    .res-stats { display: grid; gap: 6px; }
-    .res-row { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.04); }
-    .res-row span { color: var(--muted); font-size: .85rem; } .res-row strong { color: #fff; font-family: 'Courier New', monospace; font-size: .95rem; }
-    .res-actions { display: flex; gap: 8px; margin-top: 4px; }
-    .retry-btn, .back-btn { flex: 1; padding: 11px; border-radius: 10px; font-family: 'Courier New', monospace; font-size: .88rem; font-weight: 800; cursor: pointer; transition: all 120ms ease; }
-    .retry-btn { border: none; background: var(--dash-accent); color: #0a0e18; box-shadow: 0 4px 16px rgba(var(--dash-accent-rgb), .25); }
-    .retry-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(var(--dash-accent-rgb), .32); }
+    .results-card { display: grid; gap: 18px; max-width: 380px; width: 100%; padding: 32px 28px 24px; border-radius: 22px; background: linear-gradient(180deg, rgba(10,12,28,.98), rgba(6,8,18,.98)); border: 1.5px solid rgba(var(--dash-accent-rgb), .15); box-shadow: 0 18px 56px rgba(0,0,0,.28), 0 0 40px rgba(var(--dash-accent-rgb), .04); animation: panelIn .35s ease both; }
+    .res-title { text-align: center; font-family: 'Courier New', monospace; font-size: 1.8rem; font-weight: 900; color: var(--dash-accent); text-shadow: 0 0 24px rgba(var(--dash-accent-rgb), .3); letter-spacing: .02em; }
+    .res-stats { display: grid; gap: 8px; }
+    .res-row { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px solid rgba(255,255,255,.05); }
+    .res-row:last-child { border-bottom: none; }
+    .res-row span { color: var(--muted); font-size: .88rem; } .res-row strong { color: #fff; font-family: 'Courier New', monospace; font-size: 1rem; }
+    .res-actions { display: flex; gap: 10px; margin-top: 6px; }
+    .retry-btn, .back-btn { flex: 1; padding: 12px; border-radius: 12px; font-family: 'Courier New', monospace; font-size: .9rem; font-weight: 800; cursor: pointer; transition: all 140ms ease; }
+    .retry-btn { border: none; background: linear-gradient(135deg, var(--dash-accent), rgba(var(--dash-accent-rgb), .6)); color: #0a0e18; box-shadow: 0 4px 20px rgba(var(--dash-accent-rgb), .25); }
+    .retry-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(var(--dash-accent-rgb), .34); }
     .back-btn { border: 1.5px solid var(--panel-border); background: rgba(6,8,18,.6); color: var(--text-soft); }
-    .back-btn:hover { border-color: rgba(var(--dash-accent-rgb), .35); color: var(--dash-accent); }
+    .back-btn:hover { border-color: rgba(var(--dash-accent-rgb), .4); color: var(--dash-accent); transform: translateY(-1px); }
 
     /* ===== Touch ===== */
     .touch-controls { position: fixed; bottom: 8px; left: 0; right: 0; z-index: 50; display: flex; justify-content: space-between; padding: 0 10px; pointer-events: none; }
@@ -311,10 +311,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .game-action-bar { top: 52px; right: 6px; }
       .game-action-btn { min-width: 40px; padding: 5px 8px; font-size: .68rem; }
       .hp-dot { width: 9px; height: 9px; }
-      .t-btn { width: 50px; height: 50px; font-size: 1.1rem; }
-      .t-jump, .t-atk { width: 56px; height: 56px; }
+      .t-btn { width: 52px; height: 52px; font-size: 1.15rem; }
+      .t-jump, .t-atk { width: 60px; height: 60px; }
       .dialogue-text { font-size: .85rem; }
       .results-card { padding: 22px 18px; }
+      .fullscreen-btn { width: 40px; height: 40px; font-size: 1rem; }
     }
 
     @media (max-width: 460px) {
@@ -327,9 +328,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       .hud-notes strong, .hud-lvl strong, .hud-score strong { font-size: .85rem; }
       .hp-count { font-size: .75rem; }
       .hp-dot { width: 7px; height: 7px; }
-      .t-btn { width: 44px; height: 44px; font-size: 1rem; }
-      .t-jump, .t-atk { width: 50px; height: 50px; }
+      .t-btn { width: 46px; height: 46px; font-size: 1.05rem; }
+      .t-jump, .t-atk { width: 54px; height: 54px; }
       .xp-track { width: 36px; }
+      .fullscreen-btn { width: 36px; height: 36px; font-size: .9rem; }
     }
   </style>
 
@@ -654,13 +656,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     const touchControls = document.getElementById('touchControls')!;
     const gameMsg = document.getElementById('gameMsg')!;
     const pauseBtn = document.getElementById('pauseBtn')!;
-    const menuBtn = document.getElementById('menuBtn')!;
     const pauseOverlay = document.getElementById('pauseOverlay')!;
     const abilityOverlay = document.getElementById('abilityOverlay')!;
     const abilitySubtitle = document.getElementById('abilitySubtitle')!;
     const abilityChoices = document.getElementById('abilityChoices')!;
     const resumeBtn = document.getElementById('resumeBtn')!;
-    const pauseMenuBtn = document.getElementById('pauseMenuBtn')!;
     const secretToast = document.getElementById('secretToast')!;
     const bossFinisher = document.getElementById('bossFinisher')!;
     const bossFinisherImg = document.getElementById('bossFinisherImg') as HTMLImageElement;
@@ -1039,6 +1039,19 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     function activateStageButton() {
       updateStageLocks();
     }
+    function toggleFullscreen() {
+      const gs = document.getElementById('gameScreen')!;
+      if (document.fullscreenElement) {
+        document.exitFullscreen().catch(() => {});
+      } else {
+        gs.requestFullscreen().catch(() => {});
+      }
+    }
+    document.addEventListener('fullscreenchange', () => {
+      document.querySelectorAll('.fullscreen-btn, .fs-btn').forEach(btn => {
+        (btn as HTMLElement).textContent = document.fullscreenElement ? '⛶' : '⛶';
+      });
+    });
     function setPaused(value: boolean) {
       if (!running || finished) value = false;
       paused = value;
@@ -1279,17 +1292,20 @@ import BaseLayout from '../layouts/BaseLayout.astro';
         }
         return true;
       });
-      for (let i = 0; i < 12; i++) {
-        const p = safePlats.length > 0 ? safePlats[Math.floor(Math.random() * safePlats.length)] : platforms[0];
-        collectNotes.push({ x: p.x + 20 + Math.random() * Math.max(0, p.w - 40), y: p.y - 50 - Math.random() * 30, taken: false, spawnT: 0.5 });
+      for (let i = 0; i < 8; i++) {
+        if (safePlats.length === 0) break;
+        const p = safePlats[i % safePlats.length];
+        collectNotes.push({ x: p.x + 10 + Math.random() * Math.max(10, p.w - 20), y: p.y - 48 - Math.random() * 20, taken: false, spawnT: 0.5 });
       }
-      for (let i = 0; i < 3; i++) {
-        const p = safePlats.length > 1 ? safePlats[1 + Math.floor(Math.random() * (safePlats.length - 1))] : platforms[2];
+      for (let i = 0; i < 2; i++) {
+        if (safePlats.length < 3) break;
+        const p = safePlats[1 + i * 2];
         pickups.push({ x: p.x + p.w / 2, y: p.y - 40, type: 'health', taken: false, spawnT: 0.4 });
       }
-      for (let i = 0; i < 4; i++) {
-        const p = safePlats.length > 1 ? safePlats[1 + Math.floor(Math.random() * (safePlats.length - 1))] : platforms[1];
-        pickups.push({ x: p.x + 30 + Math.random() * Math.max(0, p.w - 60), y: p.y - 72, type: 'amp', taken: false, spawnT: 0.5 });
+      for (let i = 0; i < 3; i++) {
+        if (safePlats.length < 3) break;
+        const p = safePlats[1 + i * 2];
+        pickups.push({ x: p.x + 30 + Math.random() * Math.max(0, p.w - 60), y: p.y - 68, type: 'amp', taken: false, spawnT: 0.5 });
       }
       if (stage.boss) {
         boss = { x: worldW - 430, y: 300, w: 96, h: 144, hp: 120, maxHp: 120, active: false, alive: true, phase: 1, pattern: 'idle', timer: 0, attackTimer: 1.4, burstCount: 0, beamWarn: 0, beamY: 0, beamX: 0, teleportTimer: 3.2, homeY: 300, driftX: 0 };
@@ -1317,6 +1333,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       gameScreen.classList.remove('hidden');
       resultsScreen.classList.add('hidden');
       touchControls.classList.remove('hidden');
+      if (!document.fullscreenElement && window.matchMedia('(pointer: coarse)').matches) {
+        const gs = document.getElementById('gameScreen')!;
+        gs.requestFullscreen().catch(() => {});
+        showMsg('建议横屏全屏游玩', 2.4);
+      }
       updateHud();
       showMsg(stage.name, 1.8);
       sfxStageStart(); startBgm();
@@ -3068,10 +3089,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     });
     document.getElementById('retryBtn')!.addEventListener('click', () => { sfxSelect(); if (pendingNextStage) { selStage++; activateStageButton(); setAccent(STAGES[selStage].accent); initGame(false); } else initGame(true); });
     document.getElementById('backBtn')!.addEventListener('click', () => { sfxBack(); returnToMenu(); });
+    document.getElementById('gameFullscreenBtn')!.addEventListener('click', toggleFullscreen);
     pauseBtn.addEventListener('click', () => setPaused(!paused));
-    menuBtn.addEventListener('click', returnToMenu);
     resumeBtn.addEventListener('click', () => setPaused(false));
-    pauseMenuBtn.addEventListener('click', () => { sfxBack(); returnToMenu(); });
     abilityChoices.addEventListener('click', e => {
       const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('.ability-card');
       if (!btn) return;
