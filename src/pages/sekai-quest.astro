@@ -61,6 +61,7 @@ const VERSION = 'v0.0.1';
       <canvas class="game-canvas" id="gameCanvas" width="960" height="540"></canvas>
       <div class="game-hud-top">
         <div class="hud-hp" id="hudHp"></div>
+        <div class="hud-mana-inline"><span class="mana-label">MP</span><span class="mana-track"><span class="mana-fill" id="manaFill"></span></span></div>
         <div class="hud-lvl"><span>等级</span><strong id="hudLevel">1</strong><em id="hudXp">0/100</em><span class="xp-track"><span class="xp-fill" id="xpFill"></span></span></div>
         <div class="hud-notes"><span>音符</span><strong id="hudNotes">0</strong></div>
       </div>
@@ -244,6 +245,10 @@ const VERSION = 'v0.0.1';
     .xp-fill { height: 100%; width: 0%; border-radius: 2px; background: linear-gradient(90deg, var(--dash-accent), #77aaff); transition: width .2s ease; }
     .hud-abilities { position: absolute; top: 36px; left: 8px; z-index: 2; display: flex; flex-wrap: wrap; gap: 3px; max-width: min(560px, calc(100% - 120px)); pointer-events: none; opacity: .55; transition: opacity .2s; }
     .hud-abilities:hover { opacity: 1; }
+    .hud-mana-inline { display: flex; align-items: center; gap: 3px; min-height: 22px; padding: 2px 8px; border-radius: 6px; background: rgba(4,6,14,.55); border: 1px solid rgba(255,255,255,.06); backdrop-filter: blur(4px); font-family: 'Courier New', monospace; box-shadow: 0 2px 8px rgba(0,0,0,.1); pointer-events: none; }
+    .mana-label { color: #66aaff; font-size: .6rem; font-weight: 900; }
+    .mana-track { width: 48px; height: 4px; border-radius: 2px; background: rgba(255,255,255,.08); overflow: hidden; }
+    .mana-fill { display: block; height: 100%; width: 100%; border-radius: 2px; background: linear-gradient(90deg, #4488ff, #66ddff); box-shadow: 0 0 6px rgba(68,136,255,.25); }
     .ability-chip { min-height: 20px; padding: 2px 7px; border-radius: 5px; background: rgba(4,6,14,.6); border: 1px solid rgba(255,255,255,.06); color: #ccc; font-family: 'Courier New', monospace; font-size: .6rem; font-weight: 800; }
     .ability-chip.super { color: #ffd66e; border-color: rgba(255,214,110,.45); box-shadow: 0 0 14px rgba(255,214,110,.14); }
     .ability-chip.rare { border-color: rgba(221,85,136,.42); box-shadow: 0 0 10px rgba(221,85,136,.1); }
@@ -449,7 +454,7 @@ const VERSION = 'v0.0.1';
       .char-btn span { font-size: .6rem; }
       .stage-pill { padding: 5px 8px; font-size: .68rem; }
       .game-hud-top > div { font-size: .68rem; padding: 1px 4px; min-height: 18px; }
-      .hud-notes strong, .hud-lvl strong, .hud-score strong { font-size: .75rem; }
+      .hud-notes strong, .hud-lvl strong { font-size: .75rem; }
       .hp-count { font-size: .68rem; }
       .hp-dot { width: 6px; height: 6px; }
       .t-btn { width: 50px; height: 50px; font-size: 1.1rem; }
@@ -680,7 +685,7 @@ const VERSION = 'v0.0.1';
         }},
     ];
     interface Rect { x: number; y: number; w: number; h: number; }
-    interface Player extends Rect { vx: number; vy: number; grounded: boolean; facing: number; hp: number; maxHp: number; invuln: number; jumps: number; maxJumps: number; atkTimer: number; dodgeTimer: number; }
+    interface Player extends Rect { vx: number; vy: number; grounded: boolean; facing: number; hp: number; maxHp: number; invuln: number; jumps: number; maxJumps: number; atkTimer: number; dodgeTimer: number; windupTimer: number; }
     type EnemyType = 'slime' | 'bat' | 'ghost' | 'charger' | 'sniper' | 'shielder' | 'orbiter' | 'bomber' | 'drone';
     interface Enemy extends Rect { vx: number; vy: number; hp: number; maxHp: number; left: number; right: number; type: EnemyType; alive: boolean; atkTimer: number; xp: number; elite?: boolean; dashTimer?: number; deathTimer?: number; baseY?: number; popIn?: number; summonTag?: string; hitFlash?: number; }
     interface Note { x: number; y: number; taken: boolean; spawnT: number; }
@@ -747,6 +752,7 @@ const VERSION = 'v0.0.1';
     let upgradeHp = 0, upgradePower = 0, upgradeHaste = 0, upgradeJump = 0;
     let rogueDamage = 0, rogueRange = 0, rogueMulti = 0, roguePierce = 0, rogueCrit = 0, rogueRegen = 0, rogueShield = 0, rogueExplode = 0;
     let shieldCharges = 0;
+    let mana = 100, maxMana = 100;
     let talentLevels: Record<string, number> = {};
     let talentPoints = 0;
     let bestiarySeen: string[] = [];
@@ -852,6 +858,7 @@ const VERSION = 'v0.0.1';
     const hudLevel = document.getElementById('hudLevel')!;
     const hudXp = document.getElementById('hudXp')!;
     const xpFill = document.getElementById('xpFill')!;
+    const manaFill = document.getElementById('manaFill')!;
     const cdDodgeFill = document.getElementById('cdDodgeFill')!;
     const cdMeleeFill = document.getElementById('cdMeleeFill')!;
 
@@ -1225,7 +1232,7 @@ const VERSION = 'v0.0.1';
       talentOverlay.classList.add('hidden');
     }
     function maxHpForChar() { return CHARS[selChar].hp + upgradeHp; }
-    function attackDamage() { return (superMode ? 4 : 1) + Math.floor((upgradePower + rogueDamage) * 0.4); }
+    function attackDamage() { return Math.max(1, Math.floor(heroLevel * 0.2)) + Math.floor((upgradePower + rogueDamage) * 0.35); }
     function rollAttackDamage() { return attackDamage() * (Math.random() < rogueCrit ? 2 : 1); }
     function attackCooldown() { return Math.max(95, CHARS[selChar].atkCd * (1 - upgradeHaste * 0.08)); }
     function jumpPower() { return CHARS[selChar].jumpPow + upgradeJump * 35; }
@@ -1584,9 +1591,10 @@ const VERSION = 'v0.0.1';
 
       const maxHp = maxHpForChar();
       const startHp = resetRun ? maxHp : Math.min(maxHp, Math.max(1, prevHp));
-      player = { x: 60, y: 400, w: 36, h: 48, vx: 0, vy: 0, grounded: false, facing: 1, hp: startHp, maxHp, invuln: 0, jumps: 0, maxJumps: superMode ? 3 : (selChar === 2 || selChar === 3 || upgradeJump > 0) ? 2 : 1, atkTimer: 0, dodgeTimer: 0 };
+      player = { x: 60, y: 400, w: 36, h: 48, vx: 0, vy: 0, grounded: false, facing: 1, hp: startHp, maxHp, invuln: 0, jumps: 0, maxJumps: superMode ? 3 : (selChar === 2 || selChar === 3 || upgradeJump > 0) ? 2 : 1, atkTimer: 0, dodgeTimer: 0, windupTimer: 0 };
       if (!resetRun && rogueRegen > 0) player.hp = Math.min(player.maxHp, player.hp + rogueRegen);
       shieldCharges = rogueShield;
+      mana = maxMana;
       cameraX = 0; running = true; finished = false; paused = false; resultRecorded = false;
       pauseOverlay.classList.add('hidden');
       pauseBtn.textContent = '暂停';
@@ -1628,9 +1636,10 @@ const VERSION = 'v0.0.1';
 
     function updateCooldowns() {
       const dodgePct = Math.min(100, dodgeCooldown / 0.8 * 100);
-      const meleePct = Math.min(100, meleeTimer / 0.3 * 100);
+      const meleePct = Math.min(100, meleeTimer / 0.8 * 100);
       cdDodgeFill.style.width = `${100 - dodgePct}%`;
       cdMeleeFill.style.width = `${100 - meleePct}%`;
+      manaFill.style.width = `${Math.max(0, mana / maxMana * 100)}%`;
     }
     // --- Input ---
     document.addEventListener('keydown', e => {
@@ -1758,14 +1767,12 @@ const VERSION = 'v0.0.1';
       return 0;
     }
 
-    function doAttack() {
-      if (!running || finished || paused || player.atkTimer > 0) return;
+    function fireAttack() {
       const c = CHARS[selChar];
       const dir = player.facing;
       const spd = projectileSpeed();
       const dmg = rollAttackDamage();
       const pierce = roguePierce + (superMode ? 2 : 0);
-      player.atkTimer = attackCooldown();
       const angleV = getAttackVAngle();
       const vAngle = angleV * 100;
 
@@ -1806,6 +1813,19 @@ const VERSION = 'v0.0.1';
       }
     }
 
+    function doAttack() {
+      if (!running || finished || paused || player.atkTimer > 0 || player.windupTimer > 0) return;
+      const manaCost = selChar === 1 ? 22 : selChar === 3 ? 18 : selChar === 0 ? 15 : selChar === 2 ? 12 : 10;
+      if (mana < manaCost) { showMsg('法力不足', 0.5); return; }
+      mana -= manaCost;
+      player.windupTimer = 0.15;
+      player.vx *= 0.4; // root during windup
+      player.atkTimer = attackCooldown() + 150;
+      animState = 'attack';
+      animFrame = 0;
+      burst(player.x + player.w / 2, player.y + player.h / 2, '#aaccff', 4);
+    }
+
     let attackAngle = 0; // in radians, 0 = horizontal right, negative = up
 
     function doDodge() {
@@ -1822,7 +1842,7 @@ const VERSION = 'v0.0.1';
 
     function doMelee() {
       if (!running || finished || paused || meleeTimer > 0) return;
-      meleeTimer = 0.3;
+      meleeTimer = 0.8;
       player.atkTimer = 200;
       // Determine attack angle from keys / joystick
       const up = keys['arrowup'] || keys['w'] || joyY < -0.3;
@@ -2209,7 +2229,12 @@ const VERSION = 'v0.0.1';
       dodgeCooldown = Math.max(0, dodgeCooldown - dt);
       meleeTimer = Math.max(0, meleeTimer - dt);
       player.dodgeTimer = Math.max(0, player.dodgeTimer - dt);
+      if (player.windupTimer > 0) {
+        player.windupTimer -= dt;
+        if (player.windupTimer <= 0) fireAttack();
+      }
       if (meleeFx) { meleeFx.timer -= dt; if (meleeFx.timer <= 0) meleeFx = null; }
+      mana = Math.min(maxMana, mana + 18 * dt);
 
       // Horizontal collision
       player.x += player.vx * dt;
