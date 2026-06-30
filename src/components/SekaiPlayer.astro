@@ -1461,6 +1461,20 @@
   font-size: .76rem;
   text-align: center;
 }
+:global(.sekai-load-more) {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 10px;
+  color: rgba(255,255,255,0.35);
+  font-size: .72rem;
+  text-align: center;
+  animation: sekaiLoadPulse 2.5s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes sekaiLoadPulse {
+  0%, 100% { opacity: .5; }
+  50% { opacity: .9; }
+}
 .sekai-page-visualizer {
   position: fixed;
   inset: 0;
@@ -1824,7 +1838,8 @@
   var MASTER_BASE = 'https://sekai-world.github.io/sekai-master-db-diff';
   var ASSET_BASE = 'https://music-proxy-3e4.pages.dev/api/asset?path=';
   var STORAGE_KEY = 'sekai_player_v3';
-  var MAX_RENDERED_TRACKS = 140;
+  var BATCH_SIZE = 50;
+  var renderedCount = BATCH_SIZE;
   var DEFAULT_START_OFFSET = 8;
   var MAX_AUDIO_RETRIES = 2;
   var AUDIO_RETRY_DELAY_MS = 1200;
@@ -2208,6 +2223,7 @@
       var matchesQuery = !normalizedQuery || song.searchText.indexOf(normalizedQuery) >= 0;
       return matchesTag && matchesQuery;
     });
+    renderedCount = BATCH_SIZE;
     renderPlaylist();
     saveState();
   }
@@ -2225,87 +2241,112 @@
       return;
     }
 
-    filteredSongs.slice(0, MAX_RENDERED_TRACKS).forEach(function(song) {
-      var isActive = currentSong && song.id === currentSong.id;
-      var item = document.createElement('button');
-      item.type = 'button';
-      item.className = 'sekai-playlist-item' + (isActive ? ' active' : '');
+    var batch = filteredSongs.slice(0, renderedCount);
+    batch.forEach(function(song) { playlistEl.appendChild(createSongItem(song)); });
 
-      var icon = document.createElement('div');
-      icon.className = 'sekai-pl-icon';
-
-      if (song.jacketBundle) {
-        var cover = document.createElement('img');
-        cover.className = 'sekai-pl-cover-img';
-        cover.src = getJacketUrl(song);
-        cover.alt = '';
-        cover.loading = 'lazy';
-        cover.decoding = 'async';
-        cover.referrerPolicy = 'no-referrer';
-        cover.onerror = function() {
-          cover.classList.add('is-error');
-        };
-        icon.appendChild(cover);
-      }
-
-      var fallback = document.createElement('span');
-      fallback.className = 'sekai-pl-fallback';
-      fallback.textContent = '♪';
-      icon.appendChild(fallback);
-
-      if (isActive) {
-        var playing = document.createElement('span');
-        playing.className = 'sekai-pl-playing';
-        playing.textContent = '▶';
-        icon.appendChild(playing);
-      }
-
-      var info = document.createElement('div');
-      info.className = 'sekai-pl-info';
-
-      var title = document.createElement('div');
-      title.className = 'sekai-pl-title';
-      title.textContent = song.title;
-
-      var sub = document.createElement('div');
-      sub.className = 'sekai-pl-sub';
-      sub.textContent = getSongSubtitle(song);
-
-      info.appendChild(title);
-      info.appendChild(sub);
-      item.appendChild(icon);
-      item.appendChild(info);
-
-      if (song.source && song.source !== 'sekai') {
-        var del = document.createElement('button');
-        del.type = 'button';
-        del.className = 'sekai-pl-del';
-        del.title = '删除';
-        del.textContent = '\u00d7';
-        del.addEventListener('click', function(event) {
-          event.stopPropagation();
-          deleteSong(song.id);
-        });
-        item.appendChild(del);
-      }
-
-      item.addEventListener('click', function(event) {
-        event.stopPropagation();
-        selectSong(song, true);
-        // Close library overlay on mobile after selecting a song
-        panel.classList.remove('sekai-mobile-library-open');
-        if (playlistToggle) playlistToggle.classList.remove('active');
-      });
-      playlistEl.appendChild(item);
-    });
-
-    if (filteredSongs.length > MAX_RENDERED_TRACKS) {
+    if (filteredSongs.length > renderedCount) {
       var more = document.createElement('div');
-      more.className = 'sekai-empty';
-      more.textContent = '继续搜索可缩小结果';
+      more.className = 'sekai-load-more';
+      more.textContent = '\u2193 \u6eda\u52a8\u52a0\u8f7d\u66f4\u591a (' + (filteredSongs.length - renderedCount) + ')';
       playlistEl.appendChild(more);
     }
   }
+
+  function createSongItem(song) {
+    var isActive = currentSong && song.id === currentSong.id;
+    var item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'sekai-playlist-item' + (isActive ? ' active' : '');
+
+    var icon = document.createElement('div');
+    icon.className = 'sekai-pl-icon';
+
+    if (song.jacketBundle) {
+      var cover = document.createElement('img');
+      cover.className = 'sekai-pl-cover-img';
+      cover.src = getJacketUrl(song);
+      cover.alt = '';
+      cover.loading = 'lazy';
+      cover.decoding = 'async';
+      cover.referrerPolicy = 'no-referrer';
+      cover.onerror = function() {
+        cover.classList.add('is-error');
+      };
+      icon.appendChild(cover);
+    }
+
+    var fallback = document.createElement('span');
+    fallback.className = 'sekai-pl-fallback';
+    fallback.textContent = '\u266A';
+    icon.appendChild(fallback);
+
+    if (isActive) {
+      var playing = document.createElement('span');
+      playing.className = 'sekai-pl-playing';
+      playing.textContent = '\u25B6';
+      icon.appendChild(playing);
+    }
+
+    var info = document.createElement('div');
+    info.className = 'sekai-pl-info';
+
+    var title = document.createElement('div');
+    title.className = 'sekai-pl-title';
+    title.textContent = song.title;
+
+    var sub = document.createElement('div');
+    sub.className = 'sekai-pl-sub';
+    sub.textContent = getSongSubtitle(song);
+
+    info.appendChild(title);
+    info.appendChild(sub);
+    item.appendChild(icon);
+    item.appendChild(info);
+
+    if (song.source && song.source !== 'sekai') {
+      var del = document.createElement('button');
+      del.type = 'button';
+      del.className = 'sekai-pl-del';
+      del.title = '\u5220\u9664';
+      del.textContent = '\u00d7';
+      del.addEventListener('click', function(event) {
+        event.stopPropagation();
+        deleteSong(song.id);
+      });
+      item.appendChild(del);
+    }
+
+    item.addEventListener('click', function(event) {
+      event.stopPropagation();
+      selectSong(song, true);
+      panel.classList.remove('sekai-mobile-library-open');
+      if (playlistToggle) playlistToggle.classList.remove('active');
+    });
+    return item;
+  }
+
+  function loadMoreTracks() {
+    if (renderedCount >= filteredSongs.length) return;
+    var moreHint = playlistEl.querySelector('.sekai-load-more');
+    if (moreHint) moreHint.remove();
+    var nextBatch = filteredSongs.slice(renderedCount, renderedCount + BATCH_SIZE);
+    nextBatch.forEach(function(song) { playlistEl.appendChild(createSongItem(song)); });
+    renderedCount += nextBatch.length;
+    if (filteredSongs.length > renderedCount) {
+      var more = document.createElement('div');
+      more.className = 'sekai-load-more';
+      more.textContent = '\u2193 \u6eda\u52a8\u52a0\u8f7d\u66f4\u591a (' + (filteredSongs.length - renderedCount) + ')';
+      playlistEl.appendChild(more);
+    }
+  }
+
+  playlistEl.addEventListener('scroll', function() {
+    if (renderedCount >= filteredSongs.length) return;
+    var threshold = 120;
+    if (playlistEl.scrollTop + playlistEl.clientHeight >= playlistEl.scrollHeight - threshold) {
+      loadMoreTracks();
+    }
+  });
 
   function revealActiveTrack() {
     var activeItem = playlistEl.querySelector('.sekai-playlist-item.active');
