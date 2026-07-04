@@ -16,6 +16,7 @@ const MOMENT_MAX_TEXT = 2000;
 const MOMENT_MAX_IMAGES = 9;
 const MOMENT_CATEGORIES = ['游戏', '音乐', '生活', '吐槽'];
 const MOMENT_IMAGE_MAX_SIZE = 8 * 1024 * 1024; // 8 MB, keep aligned with the client limit
+const MOMENT_IMAGE_PUBLIC_BASE = 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev';
 const GUEST_MESSAGE_MAX_TEXT = 800;
 const COMMENT_MAX_TEXT = 500;
 const USER_ID_MAX_LENGTH = 32;
@@ -406,8 +407,8 @@ async function handleMomentsUpload(request, env) {
     httpMetadata: { contentType: mimeType }
   });
 
-  // Return the public URL path (assumes R2 is connected to a custom domain or we return the key)
-  var imageUrl = '/moments/' + filename;
+  // Return an absolute public URL so old and new records resolve the same way.
+  var imageUrl = MOMENT_IMAGE_PUBLIC_BASE.replace(/\/$/, '') + '/moments/' + filename;
 
   return json({ url: imageUrl, key: key }, 201, request, env);
 }
@@ -630,6 +631,14 @@ function normalizePublicText(value, maxLength) {
   return value.replace(/\r\n/g, '\n').replace(/\r/g, '\n').trim().slice(0, maxLength);
 }
 
+function normalizeMomentImageUrl(value) {
+  if (typeof value !== 'string') return '';
+  var src = value.trim();
+  if (!src) return '';
+  if (/^https?:\/\//i.test(src)) return src;
+  return MOMENT_IMAGE_PUBLIC_BASE.replace(/\/$/, '') + '/' + src.replace(/^\/+/, '');
+}
+
 function normalizeTargetType(value) {
   return value === 'moment' || value === 'message' ? value : '';
 }
@@ -678,7 +687,7 @@ function toMomentItem(row) {
     category: row.category,
     text: row.text,
     link: row.link || undefined,
-    images: images,
+    images: images.map(function(src) { return normalizeMomentImageUrl(src); }).filter(Boolean),
     createdAt: row.created_at,
     reactions: {}
   };

@@ -904,6 +904,14 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     box-shadow: var(--shadow-soft);
   }
 
+  .card-images img.image-load-failed {
+    min-height: 110px;
+    background: linear-gradient(135deg, var(--bg-soft), var(--panel));
+    opacity: 0.55;
+    filter: grayscale(1);
+    object-fit: contain;
+  }
+
   .card-link {
     font-size: 0.85rem;
     color: var(--accent);
@@ -1469,17 +1477,38 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   const API_BASE = (import.meta.env.PUBLIC_DANMAKU_API || DEFAULT_DANMAKU_API_BASE).replace(/\/$/, '');
   const MOMENTS_API_URL = `${API_BASE}/moments`;
   const MOMENT_REACTIONS_API_URL = `${API_BASE}/moment-reactions`;
-  const IMAGE_BASE_URL = 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev';
+  const IMAGE_PUBLIC_BASE = (import.meta.env.PUBLIC_R2_PUBLIC_URL || 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev').replace(/\/$/, '');
   const ADMIN_TOKEN_KEY = 'moments_admin_token';
   const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
   const maxImages = 9;
   const maxImageBytes = 8 * 1024 * 1024;
 
   // === Helpers ===
-  function resolveImageUrl(src: string) {
-    if (!src) return '';
-    if (src.startsWith('http://') || src.startsWith('https://')) return src;
-    return IMAGE_BASE_URL + '/' + src.replace(/^\//, '');
+  function resolveImageCandidates(src: string) {
+    if (!src) return [];
+    if (src.startsWith('http://') || src.startsWith('https://')) return [src];
+
+    const normalized = src.replace(/^\/+/, '');
+    const sameOrigin = `${window.location.origin}/${normalized}`;
+    const apiOrigin = `${API_BASE}/${normalized}`;
+    const publicBase = `${IMAGE_PUBLIC_BASE}/${normalized}`;
+    return Array.from(new Set([publicBase, apiOrigin, sameOrigin]));
+  }
+
+  function attachImageFallback(img: HTMLImageElement, candidates: string[]) {
+    if (candidates.length <= 1) return;
+    img.dataset.imageCandidates = JSON.stringify(candidates);
+    img.dataset.imageCandidateIndex = '0';
+    img.addEventListener('error', () => {
+      const nextIndex = Number.parseInt(img.dataset.imageCandidateIndex || '0', 10) + 1;
+      const next = candidates[nextIndex];
+      if (!next) {
+        img.classList.add('image-load-failed');
+        return;
+      }
+      img.dataset.imageCandidateIndex = String(nextIndex);
+      img.src = next;
+    });
   }
 
   function formatMomentDate(value: string) {
@@ -1857,9 +1886,13 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       imgDiv.dataset.count = String(moment.images.length);
       moment.images.forEach((imgSrc: string) => {
         const img = document.createElement('img');
-        const resolvedSrc = resolveImageUrl(imgSrc);
-        img.src = resolvedSrc;
-        img.dataset.lightboxSrc = resolvedSrc;
+        const resolvedCandidates = resolveImageCandidates(imgSrc);
+        img.src = resolvedCandidates[0];
+        img.dataset.lightboxSrc = resolvedCandidates[0];
+        if (resolvedCandidates.length > 1) {
+          img.dataset.lightboxCandidates = JSON.stringify(resolvedCandidates);
+          attachImageFallback(img, resolvedCandidates);
+        }
         img.alt = '';
         img.loading = 'lazy';
         img.decoding = 'async';
