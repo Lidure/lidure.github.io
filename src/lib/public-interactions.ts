@@ -1,4 +1,5 @@
-export const PUBLIC_API_BASE = 'https://danmaku.lidure22.xyz/api';
+const DEFAULT_PUBLIC_API_BASE = 'https://danmaku.lidure22.xyz/api';
+export const PUBLIC_API_BASE = (import.meta.env.PUBLIC_DANMAKU_API || DEFAULT_PUBLIC_API_BASE).replace(/\/$/, '');
 export const USER_ID_KEY = 'guest_user_id';
 const COMMENT_REACTION_STORAGE_KEY = 'public_comment_reactions_v1';
 const PUBLIC_ADMIN_TOKEN_KEY = 'moments_admin_token';

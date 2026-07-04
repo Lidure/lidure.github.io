@@ -1465,8 +1465,10 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   import { createCommentsWidget } from '../lib/public-interactions';
 
   // === Config ===
-  const MOMENTS_API_URL = 'https://danmaku.lidure22.xyz/api/moments';
-  const MOMENT_REACTIONS_API_URL = 'https://danmaku.lidure22.xyz/api/moment-reactions';
+  const DEFAULT_DANMAKU_API_BASE = 'https://danmaku.lidure22.xyz/api';
+  const API_BASE = (import.meta.env.PUBLIC_DANMAKU_API || DEFAULT_DANMAKU_API_BASE).replace(/\/$/, '');
+  const MOMENTS_API_URL = `${API_BASE}/moments`;
+  const MOMENT_REACTIONS_API_URL = `${API_BASE}/moment-reactions`;
   const IMAGE_BASE_URL = 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev';
   const ADMIN_TOKEN_KEY = 'moments_admin_token';
   const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
@@ -2203,7 +2205,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       });
     }
 
-    async function uploadImagesToR2() {
+    async function uploadImagesToR2(adminToken: string) {
       const urls: string[] = [];
       for (const item of selectedImages) {
         if (item.remoteUrl) { urls.push(item.remoteUrl); continue; }
@@ -2213,7 +2215,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           throw new Error('图片过大，请控制在 8 MB 以内');
         }
         try {
-          const url = await uploadToR2(item.file);
+          const url = await uploadToR2(item.file, { adminToken, apiBase: API_BASE });
           item.remoteUrl = url;
           urls.push(url);
           setPreviewStatus(item.id, '已上传', 'uploaded');
@@ -2320,7 +2322,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           if (!date || !category || !text) throw new Error('请填写时间、分类和内容');
 
           // Upload images to R2 first
-          const imageUrls = selectedImages.length > 0 ? await uploadImagesToR2() : [];
+          const imageUrls = selectedImages.length > 0 ? await uploadImagesToR2(adminToken) : [];
 
           submitBtn.textContent = '发布中...';
 
