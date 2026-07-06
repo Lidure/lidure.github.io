@@ -3,8 +3,19 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": [
+        "src/*"
+      ]
     }
   },
-  "exclude": ["danmaku-api", "music-proxy", "dist", ".tmp", ".wrangler"]
+  "exclude": [
+    "danmaku-api",
+    "music-proxy",
+    "dist",
+    ".tmp",
+    ".wrangler"
+  ],
+  "include": [
+    "./worker-configuration.d.ts"
+  ]
 }
