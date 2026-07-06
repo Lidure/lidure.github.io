@@ -41,7 +41,7 @@ const DEFAULT_OPACITY = 0.45;
 >
   <div class="slideshow-layer" aria-hidden="true"></div>
   <canvas class="slideshow-canvas" aria-hidden="true"></canvas>
-  <video class="slideshow-video" id="slideshowVideo" muted loop playsinline preload="auto" aria-hidden="true"></video>
+  <video class="slideshow-video" id="slideshowVideo" muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true" tabindex="-1" disablepictureinpicture disableRemotePlayback></video>
   <div class="slideshow-overlay" aria-hidden="true"></div>
 </div>
 
@@ -114,7 +114,7 @@ const DEFAULT_OPACITY = 0.45;
       <label class="upload-zone" id="upload-zone">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         <span>点击上传或拖入图片/视频</span>
-        <input type="file" accept="image/*,video/mp4" multiple id="file-input" hidden />
+        <input type="file" accept="image/*" multiple id="file-input" hidden />
       </label>
       <div class="url-row">
         <input type="url" id="url-input" placeholder="粘贴图片/视频 URL 后回车" />
@@ -153,7 +153,7 @@ const DEFAULT_OPACITY = 0.45;
   <button class="media-preview-close" id="media-preview-close" type="button" aria-label="关闭">&times;</button>
   <div class="media-preview-stage" id="media-preview-stage">
     <img class="media-preview-img" id="media-preview-img" src="" alt="" />
-    <video class="media-preview-video" id="media-preview-video" src="" muted loop playsinline controls></video>
+    <video class="media-preview-video" id="media-preview-video" src="" muted loop playsinline webkit-playsinline controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableRemotePlayback></video>
   </div>
 </div>
 
@@ -199,18 +199,19 @@ const DEFAULT_OPACITY = 0.45;
 
   .slideshow-video {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0;
-    transition: opacity 1.5s ease-in-out;
-    z-index: 1;
+    width: 1px;
+    height: 1px;
+    left: -9999px;
+    top: -9999px;
+    opacity: 0 !important;
+    visibility: hidden !important;
     pointer-events: none;
+    z-index: -1;
   }
 
   .slideshow-video.visible {
-    opacity: 1;
+    opacity: 0 !important;
+    visibility: hidden !important;
   }
 
   .slideshow-overlay {
@@ -1141,9 +1142,50 @@ const DEFAULT_OPACITY = 0.45;
     var mediaPreviewClose = document.getElementById('media-preview-close');
     var mediaPreviewImg = document.getElementById('media-preview-img');
     var mediaPreviewVideo = document.getElementById('media-preview-video');
+    hardenPreviewVideo(mediaPreviewVideo);
 
     if (!container || !settingsBtn) return;
 
+    function hardenBackgroundVideo(el) {
+      if (!el) return;
+      el.muted = true;
+      el.defaultMuted = true;
+      el.loop = true;
+      el.autoplay = false;
+      el.controls = false;
+      el.playsInline = true;
+      el.preload = 'metadata';
+      el.tabIndex = -1;
+      el.setAttribute('muted', '');
+      el.setAttribute('playsinline', '');
+      el.setAttribute('webkit-playsinline', '');
+      el.setAttribute('aria-hidden', 'true');
+      el.setAttribute('disablepictureinpicture', '');
+      el.setAttribute('disableremoteplayback', '');
+      try { el.disablePictureInPicture = true; } catch (err) {}
+      try { el.disableRemotePlayback = true; } catch (err) {}
+    }
+
+    function hardenPreviewVideo(el) {
+      if (!el) return;
+      el.muted = true;
+      el.loop = true;
+      el.playsInline = true;
+      el.preload = 'metadata';
+      el.setAttribute('playsinline', '');
+      el.setAttribute('webkit-playsinline', '');
+      el.setAttribute('controlslist', 'nodownload noplaybackrate noremoteplayback');
+      el.setAttribute('disablepictureinpicture', '');
+      el.setAttribute('disableremoteplayback', '');
+      try { el.disablePictureInPicture = true; } catch (err) {}
+      try { el.disableRemotePlayback = true; } catch (err) {}
+    }
+
+    function isMobileVideoHostile() {
+      var coarsePointer = window.matchMedia && window.matchMedia('(hover: none), (pointer: coarse), (max-width: 760px)').matches;
+      var mobileUA = /Android|iPhone|iPad|iPod|Mobile|MicroMessenger|MQQBrowser|UCBrowser|Quark|HuaweiBrowser|MiuiBrowser/i.test(navigator.userAgent || '');
+      return Boolean(coarsePointer || mobileUA);
+    }
     // ===== Element-level guard (same pattern as theme toggle fix) =====
     // Prevents double-initialization when astro:page-load fires on first load
     if (container.__initialized) {
@@ -1181,21 +1223,18 @@ const DEFAULT_OPACITY = 0.45;
       videoEl.muted = true;
       videoEl.loop = true;
       videoEl.playsInline = true;
-      videoEl.preload = 'auto';
       container.appendChild(videoEl);
     }
-    videoEl.muted = true;
-    videoEl.loop = true;
-    videoEl.playsInline = true;
+    hardenBackgroundVideo(videoEl);
     var videoAnimFrame = null;
     var idx = 0;
     var currentSrc = '';
     var slideRequestId = 0;
-    var MAX_INLINE_VIDEO_BYTES = 50 * 1024 * 1024;
     var VIDEO_POSTER_MAX_WIDTH = 960;
     var VIDEO_READY_TIMEOUT_MS = 9000;
     var VIDEO_BUFFER_MARGIN = 1.5;
     var videoPosterMap = {};
+    var preferStaticVideo = isMobileVideoHostile() || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
     /* ===== Video Cache (IndexedDB) ===== */
     var VIDEO_CACHE_NAME = 'hero-video-cache';
@@ -1274,13 +1313,11 @@ const DEFAULT_OPACITY = 0.45;
     var preloadedMap = {}; // src → { blobUrl, videoElement }
 
     function preloadSlide(src) {
-      if (!src || !isVideo(src) || preloadedMap[src]) return;
+      if (!src || !isVideo(src) || preloadedMap[src] || preferStaticVideo) return;
 
       fetchVideoCached(src).then(function(blobUrl) {
         var vid = document.createElement('video');
-        vid.muted = true;
-        vid.loop = true;
-        vid.playsInline = true;
+        hardenBackgroundVideo(vid);
         vid.preload = 'auto';
         vid.src = blobUrl;
         vid.load();
@@ -1338,8 +1375,7 @@ const DEFAULT_OPACITY = 0.45;
           }
         }
 
-        vid.muted = true;
-        vid.playsInline = true;
+        hardenBackgroundVideo(vid);
         vid.preload = 'metadata';
         vid.crossOrigin = 'anonymous';
         vid.addEventListener('loadeddata', drawPoster, { once: true });
@@ -1359,18 +1395,28 @@ const DEFAULT_OPACITY = 0.45;
     var _lastVW = 0, _lastVH = 0;
     var MAX_CANVAS_DIM = 1280;
 
-    function renderVideoFrame() {
-      if (!canvasEl || videoEl.paused || videoEl.ended) return;
+    function drawVideoFrameOnce() {
+      if (!canvasEl || !videoEl || videoEl.readyState < 2) return false;
       var vw = videoEl.videoWidth, vh = videoEl.videoHeight;
       if (vw > 0 && vh > 0 && (vw !== _lastVW || vh !== _lastVH)) {
-        // Cap resolution for performance (background doesn't need full HD)
         var scale = Math.min(1, MAX_CANVAS_DIM / Math.max(vw, vh));
-        canvasEl.width = Math.round(vw * scale);
-        canvasEl.height = Math.round(vh * scale);
+        canvasEl.width = Math.max(1, Math.round(vw * scale));
+        canvasEl.height = Math.max(1, Math.round(vh * scale));
         _lastVW = vw; _lastVH = vh;
       }
       var ctx = canvasEl.getContext('2d');
-      if (ctx) ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+      if (!ctx || !canvasEl.width || !canvasEl.height) return false;
+      try {
+        ctx.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    }
+
+    function renderVideoFrame() {
+      if (!canvasEl || videoEl.paused || videoEl.ended) return;
+      if (!drawVideoFrameOnce()) return;
       videoAnimFrame = requestAnimationFrame(renderVideoFrame);
     }
 
@@ -1535,7 +1581,7 @@ const DEFAULT_OPACITY = 0.45;
       var video = isVideo(src);
       if (video) {
         if (mediaPreviewImg) mediaPreviewImg.style.display = 'none';
-        if (mediaPreviewVideo) { mediaPreviewVideo.src = src; mediaPreviewVideo.style.display = 'block'; }
+        if (mediaPreviewVideo) { hardenPreviewVideo(mediaPreviewVideo); mediaPreviewVideo.src = src; mediaPreviewVideo.style.display = 'block'; }
       } else {
         if (mediaPreviewVideo) mediaPreviewVideo.style.display = 'none';
         if (mediaPreviewImg) { mediaPreviewImg.src = src; mediaPreviewImg.style.display = 'block'; }
@@ -1589,15 +1635,18 @@ const DEFAULT_OPACITY = 0.45;
         }
 
         if (video) {
-          var vidThumb = document.createElement('video');
-          vidThumb.className = 'media-card-poster';
-          vidThumb.src = src;
-          vidThumb.muted = true;
-          vidThumb.playsInline = true;
-          vidThumb.preload = 'metadata';
-          vidThumb.setAttribute('disableRemotePlayback', '');
-          vidThumb.onerror = function() { vidThumb.style.opacity = '0.3'; };
-          card.appendChild(vidThumb);
+          var posterImg = document.createElement('img');
+          posterImg.className = 'media-card-poster';
+          posterImg.alt = '';
+          posterImg.loading = 'lazy';
+          posterImg.style.opacity = '0.35';
+          getVideoPoster(src).then(function(poster) {
+            if (!poster) return;
+            posterImg.src = poster;
+            posterImg.style.opacity = '1';
+          });
+          posterImg.onerror = function() { posterImg.style.opacity = '0.35'; };
+          card.appendChild(posterImg);
 
           var mark = document.createElement('span');
           mark.className = 'media-card-video-mark';
@@ -1698,6 +1747,8 @@ const DEFAULT_OPACITY = 0.45;
           }
         });
 
+        if (preferStaticVideo) return;
+
         // Use cached blob URL if available, otherwise fetch + cache
         var srcPromise = preloadedMap[videoSrc]
           ? Promise.resolve(preloadedMap[videoSrc].blobUrl)
@@ -1750,9 +1801,23 @@ const DEFAULT_OPACITY = 0.45;
           cleanup();
           requestAnimationFrame(function() {
             if (_destroyed || activeRequestId !== slideRequestId) return;
-            videoEl.classList.add('visible');
-            layer.classList.remove('visible');
-            videoEl.play().catch(function() {});
+            videoEl.classList.remove('visible');
+            if (preferStaticVideo) {
+              videoEl.pause();
+              if (canvasEl) canvasEl.classList.remove('visible');
+              return;
+            }
+            videoEl.play().then(function() {
+              if (_destroyed || activeRequestId !== slideRequestId) return;
+              if (drawVideoFrameOnce() && canvasEl) {
+                canvasEl.classList.add('visible');
+                layer.classList.remove('visible');
+              }
+              startVideoRender();
+            }).catch(function() {
+              videoEl.pause();
+              if (canvasEl) canvasEl.classList.remove('visible');
+            });
           });
         }
 
@@ -1766,14 +1831,18 @@ const DEFAULT_OPACITY = 0.45;
       }
 
       function showVideoFirstFrame(videoSrc, activeRequestId) {
-        if (videoEl.src === videoSrc || videoEl.currentSrc === videoSrc) return;
+        if (preferStaticVideo || videoEl.src === videoSrc || videoEl.currentSrc === videoSrc) return;
         videoEl.onloadeddata = function() {
           videoEl.onloadeddata = null;
           if (_destroyed || activeRequestId !== slideRequestId) return;
           videoEl.pause();
           requestAnimationFrame(function() {
             if (_destroyed || activeRequestId !== slideRequestId) return;
-            videoEl.classList.add('visible');
+            videoEl.classList.remove('visible');
+            if (drawVideoFrameOnce() && canvasEl) {
+              canvasEl.classList.add('visible');
+              layer.classList.remove('visible');
+            }
           });
         };
         videoEl.src = videoSrc;
@@ -1963,16 +2032,8 @@ const DEFAULT_OPACITY = 0.45;
       var quality = state.quality;
       Array.from(files).forEach(function(file) {
         if (file.type.startsWith('video/')) {
-          if (file.size > MAX_INLINE_VIDEO_BYTES) {
-            alert('视频文件超过 50MB，直接导入会导致页面卡顿并占满浏览器存储。请将视频放到图床、对象存储或 public 目录后，用 URL 添加。');
-            return;
-          }
-          // Video: read as data URL (no compression — videos are too large)
-          readVideoAsDataUrl(file).then(function(dataUrl) {
-            addCustomSource(dataUrl);
-          }).catch(function(err) {
-            console.warn('Video processing failed:', err);
-          });
+          alert('为避免手机浏览器原生播放覆盖页面，背景视频请用 URL 添加；移动端会自动使用静态封面。');
+          return;
         } else if (file.type.startsWith('image/')) {
           // Image: compress based on quality setting
           compressImage(file, quality).then(function(dataUrl) {
