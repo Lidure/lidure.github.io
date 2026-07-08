@@ -820,7 +820,8 @@ const DEFAULT_OPACITY = 0.45;
   }
 
   :global(.media-card img),
-  :global(.media-card video) {
+  :global(.media-card video),
+  :global(.media-card canvas) {
     width: 100%;
     aspect-ratio: 16 / 9;
     display: block;
@@ -828,7 +829,8 @@ const DEFAULT_OPACITY = 0.45;
     background: rgba(0, 0, 0, 0.35);
   }
 
-  :global(.media-card-poster:not([src])) {
+  :global(.media-card-poster:not([src])),
+  :global(.media-card-poster.is-loading) {
     min-height: 112px;
   }
 
@@ -1232,7 +1234,6 @@ const DEFAULT_OPACITY = 0.45;
     var slideRequestId = 0;
     var VIDEO_POSTER_MAX_WIDTH = 960;
     var VIDEO_READY_TIMEOUT_MS = 9000;
-    var VIDEO_BUFFER_MARGIN = 1.5;
     var videoPosterMap = {};
     var preferStaticVideo = isMobileVideoHostile() || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
@@ -1309,88 +1310,178 @@ const DEFAULT_OPACITY = 0.45;
       });
     }
 
+    function resolveVideoSource(url) {
+      if (!url || /^data:|^blob:/i.test(url)) return Promise.resolve(url);
+      return fetchVideoCached(url).catch(function() { return url; });
+    }
     // Preload a video into cache + create a warmed-up <video> element
     var preloadedMap = {}; // src → { blobUrl, videoElement }
 
     function preloadSlide(src) {
       if (!src || !isVideo(src) || preloadedMap[src] || preferStaticVideo) return;
 
-      fetchVideoCached(src).then(function(blobUrl) {
-        var vid = document.createElement('video');
-        hardenBackgroundVideo(vid);
-        vid.preload = 'auto';
-        vid.src = blobUrl;
-        vid.load();
-        preloadedMap[src] = { blobUrl: blobUrl, video: vid };
-      }).catch(function() {});
+      var vid = document.createElement('video');
+      hardenBackgroundVideo(vid);
+      vid.preload = 'metadata';
+      vid.src = src;
+      vid.load();
+      preloadedMap[src] = { blobUrl: src, video: vid };
     }
 
     function captureVideoPoster(src) {
       if (!src || !isVideo(src)) return Promise.resolve('');
       if (videoPosterMap[src]) return Promise.resolve(videoPosterMap[src]);
 
-      return new Promise(function(resolve) {
-        var vid = document.createElement('video');
-        var done = false;
-        var timer = window.setTimeout(function() {
-          finish('');
-        }, 6000);
-
-        function cleanup() {
-          window.clearTimeout(timer);
-          vid.pause();
-          vid.removeAttribute('src');
-          vid.load();
-        }
-
-        function finish(poster) {
-          if (done) return;
-          done = true;
-          cleanup();
-          if (poster) videoPosterMap[src] = poster;
-          resolve(poster || '');
-        }
-
-        function drawPoster() {
-          try {
-            var vw = vid.videoWidth || 0;
-            var vh = vid.videoHeight || 0;
-            if (!vw || !vh) {
-              finish('');
-              return;
-            }
-            var scale = Math.min(1, VIDEO_POSTER_MAX_WIDTH / Math.max(vw, vh));
-            var canvas = document.createElement('canvas');
-            canvas.width = Math.max(1, Math.round(vw * scale));
-            canvas.height = Math.max(1, Math.round(vh * scale));
-            var ctx = canvas.getContext('2d');
-            if (!ctx) {
-              finish('');
-              return;
-            }
-            ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
-            finish(canvas.toDataURL('image/jpeg', 0.82));
-          } catch (e) {
+      return resolveVideoSource(src).then(function(videoSource) {
+        return new Promise(function(resolve) {
+          var vid = document.createElement('video');
+          var done = false;
+          var drawScheduled = false;
+          var timer = window.setTimeout(function() {
             finish('');
-          }
-        }
+          }, 9000);
 
-        hardenBackgroundVideo(vid);
-        vid.preload = 'metadata';
-        vid.crossOrigin = 'anonymous';
-        vid.addEventListener('loadeddata', drawPoster, { once: true });
-        vid.addEventListener('canplay', drawPoster, { once: true });
-        vid.addEventListener('error', function() { finish(''); }, { once: true });
-        vid.src = src;
-        vid.load();
+          function cleanup() {
+            window.clearTimeout(timer);
+            vid.pause();
+            vid.removeAttribute('src');
+            vid.load();
+          }
+
+          function finish(poster) {
+            if (done) return;
+            done = true;
+            cleanup();
+            if (poster) videoPosterMap[src] = poster;
+            resolve(poster || '');
+          }
+
+          function drawPoster() {
+            if (done) return;
+            try {
+              var vw = vid.videoWidth || 0;
+              var vh = vid.videoHeight || 0;
+              if (!vw || !vh) {
+                finish('');
+                return;
+              }
+              var scale = Math.min(1, VIDEO_POSTER_MAX_WIDTH / Math.max(vw, vh));
+              var canvas = document.createElement('canvas');
+              canvas.width = Math.max(1, Math.round(vw * scale));
+              canvas.height = Math.max(1, Math.round(vh * scale));
+              var ctx = canvas.getContext('2d');
+              if (!ctx) {
+                finish('');
+                return;
+              }
+              ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
+              finish(canvas.toDataURL('image/jpeg', 0.82));
+            } catch (e) {
+              finish('');
+            }
+          }
+
+          function scheduleDraw() {
+            if (drawScheduled || done) return;
+            drawScheduled = true;
+            window.setTimeout(function() {
+              requestAnimationFrame(drawPoster);
+            }, 80);
+          }
+
+          function seekUsefulFrame() {
+            if (done) return;
+            try {
+              var duration = Number.isFinite(vid.duration) ? vid.duration : 0;
+              var target = duration > 2 ? Math.min(1, duration * 0.08) : 0.18;
+              if (duration > 0.25 && Math.abs(vid.currentTime - target) > 0.05) {
+                vid.currentTime = target;
+                return;
+              }
+            } catch (e) {}
+            scheduleDraw();
+          }
+
+          hardenBackgroundVideo(vid);
+          vid.preload = 'metadata';
+          vid.addEventListener('loadedmetadata', seekUsefulFrame, { once: true });
+          vid.addEventListener('loadeddata', function() { window.setTimeout(seekUsefulFrame, 60); }, { once: true });
+          vid.addEventListener('seeked', scheduleDraw, { once: true });
+          vid.addEventListener('canplay', scheduleDraw, { once: true });
+          vid.addEventListener('error', function() { finish(''); }, { once: true });
+          vid.src = videoSource;
+          vid.load();
+        });
+      }).catch(function() {
+        return '';
       });
     }
-
     function getVideoPoster(src) {
       if (videoPosterMap[src]) return Promise.resolve(videoPosterMap[src]);
       return captureVideoPoster(src);
     }
 
+    function drawVideoThumbnail(canvas, src) {
+      if (!canvas || !src) return;
+      var ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      canvas.width = 320;
+      canvas.height = 180;
+      canvas.classList.add('is-loading');
+
+      var vid = document.createElement('video');
+      var done = false;
+      var timer = window.setTimeout(function() {
+        cleanup();
+      }, 7000);
+
+      function cleanup() {
+        if (done) return;
+        done = true;
+        window.clearTimeout(timer);
+        vid.pause();
+        vid.removeAttribute('src');
+        vid.load();
+        canvas.classList.remove('is-loading');
+      }
+
+      function drawFrame() {
+        if (done || !vid.videoWidth || !vid.videoHeight) return;
+        try {
+          var scale = Math.max(canvas.width / vid.videoWidth, canvas.height / vid.videoHeight);
+          var drawW = vid.videoWidth * scale;
+          var drawH = vid.videoHeight * scale;
+          var dx = (canvas.width - drawW) / 2;
+          var dy = (canvas.height - drawH) / 2;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(vid, dx, dy, drawW, drawH);
+        } catch (e) {}
+        cleanup();
+      }
+
+      function seekUsefulFrame() {
+        if (done) return;
+        try {
+          var duration = Number.isFinite(vid.duration) ? vid.duration : 0;
+          var target = duration > 2 ? Math.min(1, duration * 0.08) : 0.18;
+          if (duration > 0.25 && Math.abs(vid.currentTime - target) > 0.05) {
+            vid.currentTime = target;
+            return;
+          }
+        } catch (e) {}
+        requestAnimationFrame(drawFrame);
+      }
+
+      hardenBackgroundVideo(vid);
+      vid.preload = 'metadata';
+      vid.addEventListener('loadedmetadata', seekUsefulFrame, { once: true });
+      vid.addEventListener('loadeddata', function() { window.setTimeout(seekUsefulFrame, 60); }, { once: true });
+      vid.addEventListener('seeked', function() { requestAnimationFrame(drawFrame); }, { once: true });
+      vid.addEventListener('canplay', function() { requestAnimationFrame(drawFrame); }, { once: true });
+      vid.addEventListener('error', cleanup, { once: true });
+      vid.src = src;
+      vid.load();
+    }
     // Canvas rendering loop for video (optimized: resize only when needed, cap resolution)
     var _lastVW = 0, _lastVH = 0;
     var MAX_CANVAS_DIM = 1280;
@@ -1635,18 +1726,11 @@ const DEFAULT_OPACITY = 0.45;
         }
 
         if (video) {
-          var posterImg = document.createElement('img');
-          posterImg.className = 'media-card-poster';
-          posterImg.alt = '';
-          posterImg.loading = 'lazy';
-          posterImg.style.opacity = '0.35';
-          getVideoPoster(src).then(function(poster) {
-            if (!poster) return;
-            posterImg.src = poster;
-            posterImg.style.opacity = '1';
-          });
-          posterImg.onerror = function() { posterImg.style.opacity = '0.35'; };
-          card.appendChild(posterImg);
+          var posterCanvas = document.createElement('canvas');
+          posterCanvas.className = 'media-card-poster is-loading';
+          posterCanvas.setAttribute('aria-hidden', 'true');
+          card.appendChild(posterCanvas);
+          drawVideoThumbnail(posterCanvas, src);
 
           var mark = document.createElement('span');
           mark.className = 'media-card-video-mark';
@@ -1735,24 +1819,12 @@ const DEFAULT_OPACITY = 0.45;
         videoEl.load();
         if (canvasEl) canvasEl.classList.remove('visible');
 
-        getVideoPoster(videoSrc).then(function(posterSrc) {
-          if (_destroyed || requestId !== slideRequestId) return;
-          if (posterSrc) {
-            layer.style.backgroundImage = 'url("' + posterSrc + '")';
-            requestAnimationFrame(function() {
-              if (!_destroyed && requestId === slideRequestId) layer.classList.add('visible');
-            });
-          } else {
-            showVideoFirstFrame(videoSrc, requestId);
-          }
-        });
+        showVideoFirstFrame(videoSrc, requestId);
 
         if (preferStaticVideo) return;
 
-        // Use cached blob URL if available, otherwise fetch + cache
-        var srcPromise = preloadedMap[videoSrc]
-          ? Promise.resolve(preloadedMap[videoSrc].blobUrl)
-          : fetchVideoCached(videoSrc);
+        // Stream the current video directly; full blob caching made first paint too slow.
+        var srcPromise = Promise.resolve(videoSrc);
 
         srcPromise.then(function(blobUrl) {
           if (_destroyed || requestId !== slideRequestId) return;
@@ -1770,17 +1842,8 @@ const DEFAULT_OPACITY = 0.45;
           cleanup();
         }, VIDEO_READY_TIMEOUT_MS);
         videoEl.onloadeddata = null;
-
-        function hasBufferedEnough() {
-          if (!videoEl.buffered || !videoEl.buffered.length) return videoEl.readyState >= HTMLMediaElement.HAVE_ENOUGH_DATA;
-          try {
-            var end = videoEl.buffered.end(videoEl.buffered.length - 1);
-            return videoEl.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA &&
-              end >= Math.min((videoEl.duration || VIDEO_BUFFER_MARGIN), videoEl.currentTime + VIDEO_BUFFER_MARGIN);
-          } catch (e) {
-            return videoEl.readyState >= HTMLMediaElement.HAVE_FUTURE_DATA;
-          }
-        }
+        videoEl.onloadedmetadata = null;
+        videoEl.onseeked = null;
 
         function cleanup() {
           if (settled) return;
@@ -1789,6 +1852,8 @@ const DEFAULT_OPACITY = 0.45;
           videoEl.oncanplay = null;
           videoEl.oncanplaythrough = null;
           videoEl.onprogress = null;
+          videoEl.onloadedmetadata = null;
+          videoEl.onseeked = null;
           videoEl.onerror = null;
         }
 
@@ -1797,7 +1862,7 @@ const DEFAULT_OPACITY = 0.45;
             cleanup();
             return;
           }
-          if (!hasBufferedEnough()) return;
+          if (videoEl.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return;
           cleanup();
           requestAnimationFrame(function() {
             if (_destroyed || activeRequestId !== slideRequestId) return;
@@ -1831,24 +1896,48 @@ const DEFAULT_OPACITY = 0.45;
       }
 
       function showVideoFirstFrame(videoSrc, activeRequestId) {
-        if (preferStaticVideo || videoEl.src === videoSrc || videoEl.currentSrc === videoSrc) return;
-        videoEl.onloadeddata = function() {
-          videoEl.onloadeddata = null;
+        Promise.resolve(videoSrc).then(function(frameSrc) {
           if (_destroyed || activeRequestId !== slideRequestId) return;
-          videoEl.pause();
-          requestAnimationFrame(function() {
-            if (_destroyed || activeRequestId !== slideRequestId) return;
-            videoEl.classList.remove('visible');
-            if (drawVideoFrameOnce() && canvasEl) {
-              canvasEl.classList.add('visible');
-              layer.classList.remove('visible');
-            }
-          });
-        };
-        videoEl.src = videoSrc;
-        videoEl.load();
-      }
+          videoEl.onloadeddata = null;
+          videoEl.onseeked = null;
+          videoEl.oncanplay = null;
+          videoEl.onerror = null;
 
+          function revealFrame() {
+            if (_destroyed || activeRequestId !== slideRequestId) return;
+            videoEl.pause();
+            requestAnimationFrame(function() {
+              if (_destroyed || activeRequestId !== slideRequestId) return;
+              videoEl.classList.remove('visible');
+              if (drawVideoFrameOnce() && canvasEl) {
+                canvasEl.classList.add('visible');
+                layer.classList.remove('visible');
+              }
+            });
+          }
+
+          function seekOrReveal() {
+            if (_destroyed || activeRequestId !== slideRequestId) return;
+            try {
+              var duration = Number.isFinite(videoEl.duration) ? videoEl.duration : 0;
+              var target = duration > 2 ? Math.min(1, duration * 0.08) : 0.18;
+              if (duration > 0.25 && Math.abs(videoEl.currentTime - target) > 0.05) {
+                videoEl.currentTime = target;
+                return;
+              }
+            } catch (e) {}
+            revealFrame();
+          }
+
+          videoEl.onloadedmetadata = seekOrReveal;
+          videoEl.onloadeddata = function() { window.setTimeout(seekOrReveal, 60); };
+          videoEl.onseeked = revealFrame;
+          videoEl.oncanplay = revealFrame;
+          videoEl.onerror = function() { videoEl.pause(); };
+          videoEl.src = frameSrc;
+          videoEl.load();
+        });
+      }
       if (!currentSrc) {
         if (video) {
           applyVideo(src);
