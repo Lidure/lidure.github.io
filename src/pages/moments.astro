@@ -1565,10 +1565,10 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   import { createCommentsWidget } from '../lib/public-interactions';
 
   // === Config ===
-  const DEFAULT_DANMAKU_API_BASE = 'https://danmaku.lidure22.xyz/api';
-  const API_BASE = (import.meta.env.PUBLIC_DANMAKU_API || DEFAULT_DANMAKU_API_BASE).replace(/\/$/, '');
+  const DEFAULT_DANMAKU_API_BASE = 'https://api.lidure.xyz/api';
+  const API_BASE = (import.meta.env.PUBLIC_MOMENTS_API || DEFAULT_DANMAKU_API_BASE).replace(/\/$/, '');
   const MOMENT_REACTIONS_API_URL = `${API_BASE}/moment-reactions`;
-  const IMAGE_PUBLIC_BASE = (import.meta.env.PUBLIC_R2_PUBLIC_URL || 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev').replace(/\/$/, '');
+  const IMAGE_PUBLIC_BASE = (import.meta.env.PUBLIC_MEDIA_BASE_URL || 'https://media.lidure.xyz').replace(/\/$/, '');
   const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
   const maxImages = 9;
   const maxMediaItems = 9;

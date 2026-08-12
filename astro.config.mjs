@@ -4,7 +4,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 export default defineConfig({
-  site: 'https://lidure22.xyz',
+  site: 'https://lidure.xyz',
   integrations: [sitemap()],
   markdown: {
     remarkPlugins: [remarkMath],

@@ -27,6 +27,39 @@ test('public URLs use the final domain and include social metadata', () => {
   assert.match(home, /property="og:title"/);
 });
 
+test('source configuration uses final public domains and no stale publishing defaults', () => {
+  const files = [
+    'astro.config.mjs',
+    'src/layouts/BaseLayout.astro',
+    'src/pages/rss.xml.ts',
+    'src/lib/moments-api.ts',
+    'src/lib/public-interactions.ts',
+    'src/pages/moments.astro',
+    'src/pages/player.astro',
+    'danmaku-api/wrangler.jsonc',
+    '.github/workflows/deploy.yml',
+    'AGENTS.md',
+    'README.md',
+    'danmaku-api/README.md',
+  ];
+  const combined = files.map((file) => readSource(file)).join('\n');
+  const envExample = readSource('.env.example').replace(/\r\n/g, '\n').trim();
+
+  assert.equal(
+    envExample,
+    [
+      'PUBLIC_MOMENTS_API=https://api.lidure.xyz/api',
+      'PUBLIC_MEDIA_BASE_URL=https://media.lidure.xyz',
+    ].join('\n'),
+  );
+  assert.doesNotMatch(combined, /danmaku\.lidure22\.xyz|PUBLIC_R2_|PUBLIC_DANMAKU_API|lidure22\.xyz/);
+  assert.match(combined, /https:\/\/lidure\.xyz/);
+  assert.match(combined, /https:\/\/api\.lidure\.xyz\/api/);
+  assert.match(combined, /https:\/\/media\.lidure\.xyz/);
+  assert.match(combined, /PUBLIC_MOMENTS_API/);
+  assert.match(combined, /PUBLIC_MEDIA_BASE_URL/);
+});
+
 test('optical-flow article has one h1 and no unparsed inline delimiters', () => {
   const html = read('posts/视觉光流公式推导与文献/index.html');
   const prose = html.match(/<div class="prose">([\s\S]*?)<\/div>\s*<section\b/)?.[1];

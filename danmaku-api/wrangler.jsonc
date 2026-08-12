@@ -3,6 +3,12 @@
 	"name": "lidure-danmaku-api",
 	"main": "src/index.ts",
 	"compatibility_date": "2026-06-15",
+	"routes": [
+		{
+			"pattern": "api.lidure.xyz",
+			"custom_domain": true
+		}
+	],
 	"observability": {
 		"enabled": true,
 		"head_sampling_rate": 1

@@ -1,10 +1,9 @@
-const DEFAULT_MOMENTS_API_BASE = 'https://danmaku.lidure22.xyz/api';
+const DEFAULT_MOMENTS_API_BASE = 'https://api.lidure.xyz/api';
 const REQUEST_TIMEOUT_MS = 8_000;
 const READ_RETRY_DELAYS_MS = [250];
 
 export const MOMENTS_API_BASE = (
   import.meta.env.PUBLIC_MOMENTS_API ||
-  import.meta.env.PUBLIC_DANMAKU_API ||
   DEFAULT_MOMENTS_API_BASE
 ).replace(/\/$/, '');
 

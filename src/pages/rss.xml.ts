@@ -10,7 +10,7 @@ export async function GET(context: APIContext) {
   return rss({
     title: '搁浅 的小窝',
     description: '一个使用 Astro 和 GitHub Pages 搭建的个人博客。',
-    site: context.site ?? 'https://lidure22.xyz',
+    site: context.site ?? 'https://lidure.xyz',
     items: posts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.pubDate,

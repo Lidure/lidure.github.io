@@ -1,7 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-const defaultDanmakuApiUrl = 'https://danmaku.lidure22.xyz/api/danmaku';
-const danmakuApiUrl = (import.meta.env.PUBLIC_DANMAKU_API || defaultDanmakuApiUrl).replace(/\/$/, '');
+const defaultApiBase = 'https://api.lidure.xyz/api';
+const apiBase = (import.meta.env.PUBLIC_MOMENTS_API || defaultApiBase).replace(/\/$/, '');
+const danmakuApiUrl = `${apiBase}/danmaku`;
 ---
 <BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">
   <div class="player-hint" id="playerHint">
