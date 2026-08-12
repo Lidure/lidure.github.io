@@ -1,4 +1,4 @@
-const DEFAULT_MOMENTS_API_BASE = 'https://api.lidure.xyz/api';
+const DEFAULT_MOMENTS_API_BASE = 'https://api.lidure22.xyz/api';
 const REQUEST_TIMEOUT_MS = 8_000;
 const READ_RETRY_DELAYS_MS = [250];
 

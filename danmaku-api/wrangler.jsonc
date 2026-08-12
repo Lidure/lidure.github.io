@@ -5,7 +5,7 @@
 	"compatibility_date": "2026-06-15",
 	"routes": [
 		{
-			"pattern": "api.lidure.xyz",
+			"pattern": "api.lidure22.xyz",
 			"custom_domain": true
 		}
 	],
@@ -14,8 +14,8 @@
 		"head_sampling_rate": 1
 	},
 	"vars": {
-		"ALLOWED_ORIGINS": "https://lidure.xyz,https://www.lidure.xyz,http://localhost:4321,http://127.0.0.1:4321",
-		"PUBLIC_MEDIA_BASE_URL": "https://media.lidure.xyz"
+		"ALLOWED_ORIGINS": "https://lidure22.xyz,https://www.lidure22.xyz,http://localhost:4321,http://127.0.0.1:4321",
+		"PUBLIC_MEDIA_BASE_URL": "https://media.lidure22.xyz"
 	},
 	"r2_buckets": [
 		{
