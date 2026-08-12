@@ -8,8 +8,15 @@
 		"head_sampling_rate": 1
 	},
 	"vars": {
-		"ALLOWED_ORIGINS": "https://lidure.github.io,http://localhost:4321,http://127.0.0.1:4321"
+		"ALLOWED_ORIGINS": "https://lidure.xyz,https://www.lidure.xyz,http://localhost:4321,http://127.0.0.1:4321",
+		"PUBLIC_MEDIA_BASE_URL": "https://media.lidure.xyz"
 	},
+	"r2_buckets": [
+		{
+			"binding": "MEDIA",
+			"bucket_name": "lidure-media"
+		}
+	],
 	"d1_databases": [
 		{
 			"binding": "DB",

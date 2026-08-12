@@ -1,7 +1,11 @@
+import { listMoments } from "./moments";
+
 interface Env {
   DB: D1Database;
+  MEDIA?: R2Bucket;
   ALLOWED_ORIGINS?: string;
   ALLOWED_ORIGIN?: string;
+  PUBLIC_MEDIA_BASE_URL?: string;
 }
 
 type DanmakuRow = {
@@ -27,6 +31,26 @@ export default {
       }
 
       const url = new URL(request.url);
+      if (url.pathname === "/api/moments") {
+        if (request.method === "GET") {
+          return handleListMoments(url, request, env);
+        }
+
+        if (request.method === "POST" || request.method === "DELETE") {
+          return requireSessionBoundary(request, env);
+        }
+
+        return json({ error: "Method not allowed" }, 405, request, env);
+      }
+
+      if (url.pathname.startsWith("/api/moments/")) {
+        if (request.method === "DELETE") {
+          return requireSessionBoundary(request, env);
+        }
+
+        return json({ error: "Method not allowed" }, 405, request, env);
+      }
+
       if (url.pathname !== "/api/danmaku") {
         return json({ error: "Not found" }, 404, request, env);
       }
@@ -46,6 +70,29 @@ export default {
     }
   }
 };
+
+async function handleListMoments(url: URL, request: Request, env: Env): Promise<Response> {
+  const requestedLimit = Number.parseInt(url.searchParams.get("limit") || "50", 10);
+  const limit = Number.isFinite(requestedLimit) ? requestedLimit : 50;
+  const cursor = url.searchParams.get("cursor") || undefined;
+
+  const payload = await listMoments(env.DB, limit, cursor);
+  return json(payload, 200, request, env, {
+    cacheControl: "public, max-age=30, stale-while-revalidate=120",
+  });
+}
+
+function requireSessionBoundary(request: Request, env: Env): Response {
+  return json(
+    {
+      error: "Authentication required",
+      code: "SESSION_REQUIRED",
+    },
+    401,
+    request,
+    env
+  );
+}
 
 async function handleList(url: URL, request: Request, env: Env): Promise<Response> {
   const track = normalizeTrack(url.searchParams.get("track"));
@@ -172,16 +219,24 @@ function corsHeaders(request: Request, env: Env): Headers {
   const allowAll = allowedOrigins.includes("*");
   const fallbackOrigin = allowedOrigins[0] || "*";
   headers.set("Access-Control-Allow-Origin", allowAll ? "*" : (origin && allowedOrigins.includes(origin) ? origin : fallbackOrigin));
-  headers.set("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  headers.set("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type");
   headers.set("Access-Control-Max-Age", "86400");
   headers.set("Vary", "Origin");
   return headers;
 }
 
-function json(payload: unknown, status: number, request: Request, env: Env): Response {
+function json(
+  payload: unknown,
+  status: number,
+  request: Request,
+  env: Env,
+  options: {
+    cacheControl?: string;
+  } = {}
+): Response {
   const headers = corsHeaders(request, env);
   headers.set("Content-Type", "application/json; charset=utf-8");
-  headers.set("Cache-Control", "no-store");
+  headers.set("Cache-Control", options.cacheControl || "no-store");
   return new Response(JSON.stringify(payload), { status, headers });
 }
