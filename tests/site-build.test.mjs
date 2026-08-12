@@ -17,12 +17,12 @@ test('search embeds parseable post data without a runtime jsonData reference', (
   assert.ok(posts.some((post) => post.title.includes('光流')));
 });
 
-test('public URLs use the custom domain and include social metadata', () => {
+test('public URLs use the final domain and include social metadata', () => {
   const sitemap = read('sitemap-index.xml');
   const home = read('index.html');
 
-  assert.match(sitemap, /https:\/\/lidure22\.xyz\/sitemap-0\.xml/);
-  assert.match(home, /rel="canonical" href="https:\/\/lidure22\.xyz\/"/);
+  assert.match(sitemap, /https:\/\/lidure\.xyz\/sitemap-0\.xml/);
+  assert.match(home, /rel="canonical" href="https:\/\/lidure\.xyz\/"/);
   assert.match(home, /property="og:title"/);
 });
 
@@ -67,4 +67,14 @@ test('rendered moments management controls are hidden by default', () => {
   assert.ok(publishPanel, 'publish panel should exist');
   assert.match(publishPanel, /data-admin-only/);
   assert.match(publishPanel, /\bhidden\b/);
+});
+
+test('moments page exposes the API hook and local controls', () => {
+  const moments = read('moments/index.html');
+
+  assert.match(moments, /data-moments-api/);
+  assert.match(moments, /id="moments-retry"/);
+  assert.match(moments, /id="moments-login"/);
+  assert.match(moments, /id="video-poster-range"/);
+  assert.doesNotMatch(moments, /PUBLIC_R2_SECRET_ACCESS_KEY|AWS_SECRET|moments_admin_token/);
 });
