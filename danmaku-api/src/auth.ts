@@ -148,23 +148,26 @@ function parsePasswordHash(
   }
 
   const [prefix, hashName, iterationsRaw, saltRaw, hashRaw] = parts;
-  const iterations = Number.parseInt(iterationsRaw, 10);
 
   if (
     prefix !== PASSWORD_PREFIX ||
     hashName !== PASSWORD_HASH ||
-    iterations !== PASSWORD_ITERATIONS
+    iterationsRaw !== String(PASSWORD_ITERATIONS)
   ) {
     return null;
   }
 
-  const salt = decodeBase64Url(saltRaw);
-  const hash = decodeBase64Url(hashRaw);
+  const salt = decodeCanonicalBase64Url(saltRaw);
+  const hash = decodeCanonicalBase64Url(hashRaw);
+  if (!salt || !hash) {
+    return null;
+  }
+
   if (hash.byteLength !== PASSWORD_KEY_LENGTH || salt.byteLength === 0) {
     return null;
   }
 
-  return { iterations, salt, hash };
+  return { iterations: PASSWORD_ITERATIONS, salt, hash };
 }
 
 function parseCookieHeader(header: string | null): Map<string, string> {
@@ -202,6 +205,19 @@ function decodeBase64Url(value: string): Uint8Array {
   } catch {
     return new Uint8Array();
   }
+}
+
+function decodeCanonicalBase64Url(value: string): Uint8Array | null {
+  if (!/^[A-Za-z0-9_-]+$/.test(value) || value.length % 4 === 1) {
+    return null;
+  }
+
+  const decoded = decodeBase64Url(value);
+  if (encodeBase64Url(decoded) !== value) {
+    return null;
+  }
+
+  return decoded;
 }
 
 function constantTimeEqual(left: Uint8Array, right: Uint8Array): boolean {

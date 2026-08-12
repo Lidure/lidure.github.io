@@ -58,6 +58,7 @@ function makeEnv(overrides: Record<string, unknown> = {}) {
     ALLOWED_ORIGINS:
       "https://lidure.xyz,https://www.lidure.xyz,http://localhost:4321,http://127.0.0.1:4321",
     PUBLIC_MEDIA_BASE_URL: "https://media.lidure.xyz",
+    SESSION_SECRET: "test-session-secret",
     ...overrides,
   };
 }
@@ -516,7 +517,18 @@ describe("moments worker routes", () => {
     });
   });
 
-  it("returns an explicit 401 boundary for POST before auth is implemented", async () => {
+  it("requires a session for POST and does not mutate moments", async () => {
+    const mutationSqlCalls: string[] = [];
+    const env = makeEnv({
+      DB: makeDb((sql) => {
+        if (sql.startsWith("INSERT INTO moments") || sql.startsWith("INSERT INTO moment_media")) {
+          mutationSqlCalls.push(sql);
+        }
+
+        return makeBoundStatement();
+      }),
+    });
+
     const response = await worker.fetch(
       new Request("https://api.lidure.xyz/api/moments", {
         method: "POST",
@@ -526,30 +538,43 @@ describe("moments worker routes", () => {
         },
         body: JSON.stringify(validMomentInput()),
       }),
-      makeEnv() as Parameters<typeof worker.fetch>[1]
+      env as Parameters<typeof worker.fetch>[1]
     );
 
     expect(response.status).toBe(401);
     expect(response.headers.get("Cache-Control")).toBe("no-store");
+    expect(mutationSqlCalls).toEqual([]);
     await expect(response.json()).resolves.toEqual({
-      error: "Authentication required",
-      code: "SESSION_REQUIRED",
+      error: "Authentication required.",
+      code: "AUTH_REQUIRED",
     });
   });
 
-  it("returns an explicit 401 boundary for DELETE before auth is implemented", async () => {
+  it("requires a session for DELETE and does not mutate moments", async () => {
+    const mutationSqlCalls: string[] = [];
+    const env = makeEnv({
+      DB: makeDb((sql) => {
+        if (sql.startsWith("DELETE FROM moment_media") || sql.startsWith("DELETE FROM moments")) {
+          mutationSqlCalls.push(sql);
+        }
+
+        return makeBoundStatement();
+      }),
+    });
+
     const response = await worker.fetch(
       new Request("https://api.lidure.xyz/api/moments/moment-1", {
         method: "DELETE",
         headers: { Origin: "https://lidure.xyz" },
       }),
-      makeEnv() as Parameters<typeof worker.fetch>[1]
+      env as Parameters<typeof worker.fetch>[1]
     );
 
     expect(response.status).toBe(401);
+    expect(mutationSqlCalls).toEqual([]);
     await expect(response.json()).resolves.toEqual({
-      error: "Authentication required",
-      code: "SESSION_REQUIRED",
+      error: "Authentication required.",
+      code: "AUTH_REQUIRED",
     });
   });
 });

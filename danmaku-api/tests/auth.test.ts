@@ -43,6 +43,11 @@ function makePasswordHash(password: string): string {
   return `pbkdf2$sha256$310000$${salt.toString("base64url")}$${hash.toString("base64url")}`;
 }
 
+function makePasswordHashWithSalt(password: string, salt: Buffer, encodedSalt: string): string {
+  const hash = pbkdf2Sync(password, salt, 310000, 32, "sha256");
+  return `pbkdf2$sha256$310000$${encodedSalt}$${hash.toString("base64url")}`;
+}
+
 function validMomentInput() {
   return {
     date: "2026-08-12T09:30",
@@ -73,6 +78,26 @@ describe("auth helpers", () => {
 
   it("rejects the wrong password for a PBKDF2 hash", async () => {
     await expect(verifyPassword("wrong", makePasswordHash("correct horse"))).resolves.toBe(false);
+  });
+
+  it.each([
+    ["wrong part count", "pbkdf2$sha256$310000$only-salt"],
+    ["wrong prefix", makePasswordHash("correct horse").replace("pbkdf2", "argon2")],
+    ["wrong hash name", makePasswordHash("correct horse").replace("sha256", "sha512")],
+    ["iteration suffix", makePasswordHash("correct horse").replace("$310000$", "$310000abc$")],
+    ["fractional iterations", makePasswordHash("correct horse").replace("$310000$", "$310000.5$")],
+    [
+      "standard base64 salt",
+      makePasswordHashWithSalt(
+        "correct horse",
+        Buffer.from([251, 252, 253, 254, 255, 1, 2, 3]),
+        Buffer.from([251, 252, 253, 254, 255, 1, 2, 3]).toString("base64").replace(/=+$/g, "")
+      ),
+    ],
+    ["empty salt", makePasswordHash("correct horse").replace(/\$[^$]+\$[^$]+$/, "$$hash")],
+    ["wrong hash length", makePasswordHash("correct horse").replace(/\$[^$]+$/, "$c2hvcnQ")],
+  ])("rejects malformed PBKDF2 hashes with %s", async (_caseName, encodedHash) => {
+    await expect(verifyPassword("correct horse", encodedHash)).resolves.toBe(false);
   });
 
   it("round-trips and expires signed sessions", async () => {
