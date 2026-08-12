@@ -13,7 +13,7 @@ const jsonData = JSON.stringify(
     tags: p.data.tags,
     pubDate: p.data.pubDate.valueOf(),
   })),
-);
+).replace(/</g, '\\u003c');
 ---
 <BaseLayout title="搜索 | 搁浅 的小窝" description="在全站文章中搜索关键字。">
   <section class="archive-shell">
@@ -33,12 +33,7 @@ const jsonData = JSON.stringify(
   </section>
 </BaseLayout>
 
-<script is:inline>
-document.currentScript?.insertAdjacentHTML(
-  'afterend',
-  `<script id="__SEARCH_DATA" type="application/json">${jsonData}<\/script>`,
-);
-</script>
+<script id="__SEARCH_DATA" type="application/json" set:html={jsonData}></script>
 
 <script>
 import Fuse from 'fuse.js';
@@ -51,8 +46,24 @@ interface PostDoc {
   pubDate: number;
 }
 
-const script = document.getElementById('__SEARCH_DATA');
-const posts: PostDoc[] = JSON.parse(script!.textContent!.toString());
+const input = document.getElementById('search-input') as HTMLInputElement | null;
+const results = document.getElementById('search-results');
+const count = document.getElementById('search-count');
+
+let posts: PostDoc[] = [];
+let searchReady = true;
+
+try {
+  const script = document.getElementById('__SEARCH_DATA');
+  if (!script?.textContent) throw new Error('Search data is missing');
+  posts = JSON.parse(script.textContent) as PostDoc[];
+} catch (error) {
+  searchReady = false;
+  console.error('Failed to initialize search:', error);
+  if (results) {
+    results.innerHTML = '<p class="search-empty">搜索数据加载失败，请刷新页面重试。</p>';
+  }
+}
 
 const fuse = new Fuse(posts, {
   keys: ['title', 'description', 'tags'],
@@ -60,11 +71,8 @@ const fuse = new Fuse(posts, {
   includeScore: true,
 });
 
-const input = document.getElementById('search-input') as HTMLInputElement | null;
-const results = document.getElementById('search-results')!;
-const count = document.getElementById('search-count')!;
-
 function render(items: PostDoc[]): void {
+  if (!results || !count) return;
   if (items.length === 0) {
     results.innerHTML = '<p class="search-empty">没有找到匹配的文章。</p>';
     count.textContent = '';
@@ -90,7 +98,8 @@ function render(items: PostDoc[]): void {
     .join('');
 }
 
-input?.addEventListener('input', () => {
+if (searchReady) input?.addEventListener('input', () => {
+  if (!results || !count) return;
   const query = input.value.trim();
   if (!query) {
     results.innerHTML = '';

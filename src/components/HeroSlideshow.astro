@@ -13,8 +13,8 @@
  */
 const defaultImages: string[] = [
   // 填入 R2 图床 URL，例如：
-  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/miku_star.mp4',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/953c5e02532e4eeb9ec758e7fd7e8ad3.jpg',
+  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/miku_star.mp4',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/1b87e2c5880511ebb6edd017c2d2eca2.png',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/wallhaven-1p9z61.jpg',
   'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_1(1).png',
@@ -1236,6 +1236,8 @@ const DEFAULT_OPACITY = 0.45;
     var VIDEO_READY_TIMEOUT_MS = 9000;
     var videoPosterMap = {};
     var preferStaticVideo = isMobileVideoHostile() || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var videoPreloadReady = false;
+    var videoPreloadScheduled = false;
 
     /* ===== Video Cache (IndexedDB) ===== */
     var VIDEO_CACHE_NAME = 'hero-video-cache';
@@ -1326,6 +1328,23 @@ const DEFAULT_OPACITY = 0.45;
       vid.src = src;
       vid.load();
       preloadedMap[src] = { blobUrl: src, video: vid };
+    }
+
+    function scheduleVideoPreload(src) {
+      if (!src || !isVideo(src) || videoPreloadScheduled || preferStaticVideo) return;
+      videoPreloadScheduled = true;
+
+      var warmVideo = function() {
+        if (_destroyed) return;
+        videoPreloadReady = true;
+        preloadSlide(src);
+      };
+
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(warmVideo, { timeout: 4000 });
+      } else {
+        window.setTimeout(warmVideo, 1500);
+      }
     }
 
     function captureVideoPoster(src) {
@@ -1992,7 +2011,13 @@ const DEFAULT_OPACITY = 0.45;
       } else {
         var img = new Image();
         img.onload = function() {
-          if (!_destroyed) showSlide(img.src);
+          if (!_destroyed) {
+            showSlide(img.src);
+            if (imgs.length > 1) {
+              var nextSrc = imgs[(index + 1) % imgs.length];
+              scheduleVideoPreload(nextSrc);
+            }
+          }
         };
         img.onerror = function() {
           if (!_destroyed && imgs.length > 1) {
@@ -2006,7 +2031,7 @@ const DEFAULT_OPACITY = 0.45;
       // Preload next slide's video in the background
       if (imgs.length > 1) {
         var nextSrc = imgs[(index + 1) % imgs.length];
-        if (isVideo(nextSrc)) preloadSlide(nextSrc);
+        if (videoPreloadReady && isVideo(nextSrc)) preloadSlide(nextSrc);
       }
     }
 
