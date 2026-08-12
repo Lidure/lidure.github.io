@@ -363,9 +363,12 @@ async function handleList(url: URL, request: Request, env: Env): Promise<Respons
      LIMIT ?`
   ).bind(track, since, limit).all<DanmakuRow>();
 
+  const now = Date.now();
+
   return json({
     items: (results || []).map(toClientItem),
-    now: Date.now()
+    now,
+    nextCursor: now
   }, 200, request, env);
 }
 

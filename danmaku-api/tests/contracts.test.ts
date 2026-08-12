@@ -29,10 +29,13 @@ describe('danmaku API contracts', () => {
     const response = await worker.fetch(request, makeEnv());
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({
+    const body = await response.json();
+    expect(body).toMatchObject({
       items: [],
-      nextCursor: expect.anything(),
+      now: expect.any(Number),
+      nextCursor: expect.any(Number),
     });
+    expect(body.nextCursor).toBe(body.now);
   });
 
   it('returns structured error payloads with code fields', async () => {
@@ -42,7 +45,7 @@ describe('danmaku API contracts', () => {
     expect(response.status).toBe(400);
     await expect(response.json()).resolves.toMatchObject({
       error: expect.any(String),
-      code: expect.any(String),
+      code: 'BAD_REQUEST',
     });
   });
 });
