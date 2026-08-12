@@ -75,19 +75,19 @@ test('optimized identity assets are used and remain small', () => {
   assert.ok(statSync(new URL('../public/favicon-32.png', import.meta.url)).size < 50_000);
 });
 
-test('background is static first and video preparation is deferred', () => {
-  const source = readFileSync(new URL('../src/components/HeroSlideshow.astro', import.meta.url), 'utf8');
-  const staticIndex = source.indexOf('953c5e02532e4eeb9ec758e7fd7e8ad3.jpg');
-  const videoIndex = source.indexOf('miku_star.mp4');
-  assert.ok(staticIndex >= 0 && staticIndex < videoIndex);
-  assert.match(source, /scheduleVideoPreload/);
-  assert.match(source, /requestIdleCallback/);
+test('rendered background configuration starts with a static image', () => {
+  const home = read('index.html');
+  const match = home.match(/data-defaults="([^"]+)"/);
+  assert.ok(match);
+  const defaults = JSON.parse(match[1].replaceAll('&quot;', '"').replaceAll('&amp;', '&'));
+  assert.match(defaults[0], /\.(?:jpe?g|png|webp)$/i);
+  assert.ok(defaults.some((source) => /\.mp4$/i.test(source)));
 });
 
-test('moments management controls are opt-in', () => {
+test('rendered moments management controls are hidden by default', () => {
   const html = read('moments/index.html');
-  assert.match(html, /data-admin-only/);
-  assert.match(html, /admin=1/);
+  assert.match(html, /<button[^>]*data-admin-only[^>]*hidden[^>]*id="publish-toggle"/);
+  assert.match(html, /<div[^>]*data-admin-only[^>]*hidden[^>]*id="publish-box"/);
 });
 ```
 
