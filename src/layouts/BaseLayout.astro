@@ -6,6 +6,10 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 import { ClientRouter } from 'astro:transitions';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
+
+const siteBase = Astro.site ?? new URL('https://lidure22.xyz');
+const canonicalUrl = new URL(Astro.url.pathname, siteBase);
+const socialImageUrl = new URL('/site-icon-512.png', siteBase);
 ---
 <!doctype html>
 <html lang="zh-CN">
@@ -15,6 +19,12 @@ import HeroSlideshow from '../components/HeroSlideshow.astro';
     <meta name="referrer" content="same-origin" />
     <meta name="description" content={description} />
     <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalUrl} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={socialImageUrl} />
     <title>{title}</title>
     <link rel="icon" type="image/png" href="/site2.png" />
     <link rel="apple-touch-icon" href="/site2.png" />

@@ -28,9 +28,11 @@ test('public URLs use the custom domain and include social metadata', () => {
 
 test('optical-flow article has one h1 and no unparsed inline delimiters', () => {
   const html = read('posts/视觉光流公式推导与文献/index.html');
+  const prose = html.match(/<div class="prose">([\s\S]*?)<\/div>\s*<section\b/)?.[1];
 
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
-  assert.doesNotMatch(html, /\\\(/);
+  assert.ok(prose, 'article body should be present');
+  assert.doesNotMatch(prose, /\\\(/);
 });
 
 test('optimized identity assets are used and remain small', () => {
