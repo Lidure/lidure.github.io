@@ -81,6 +81,26 @@ test('moments page exposes the API hook and local controls', () => {
   assert.doesNotMatch(moments, /id="token-input"|name="adminToken"|moments_admin_token|Authorization|Bearer|PUBLIC_R2_SECRET_ACCESS_KEY|AWS_SECRET/);
 });
 
+test('moments publishing UI accepts videos and requires selectable posters', () => {
+  const moments = read('moments/index.html');
+  const momentsPage = readSource('src/pages/moments.astro');
+  const posterHelper = readSource('src/lib/video-poster.ts');
+
+  assert.match(moments, /accept="image\/\*,video\/mp4,video\/webm"/);
+  assert.match(moments, /id="video-poster-range"/);
+  assert.match(moments, /id="manual-poster-input"/);
+  assert.match(momentsPage, /captureVideoPoster/);
+  assert.match(momentsPage, /kind:\s*'video'/);
+  assert.match(momentsPage, /kind:\s*'poster'/);
+  assert.match(momentsPage, /VIDEO_CORS_REQUIRED/);
+  assert.match(momentsPage, /posterRequired|requiresPoster|posterBlob/);
+  assert.match(posterHelper, /loadedmetadata/);
+  assert.match(posterHelper, /seeked/);
+  assert.match(posterHelper, /crossOrigin\s*=\s*'anonymous'/);
+  assert.match(posterHelper, /SecurityError/);
+  assert.match(posterHelper, /VIDEO_CORS_REQUIRED/);
+});
+
 test('moments browser code uses the session API client for management', () => {
   const apiClient = readSource('src/lib/moments-api.ts');
   const r2Upload = readSource('src/lib/r2-upload.ts');
@@ -108,11 +128,24 @@ test('moments browser code uses the session API client for management', () => {
   assert.doesNotMatch(r2Upload, /adminToken|Authorization|Bearer|PUBLIC_R2_SECRET_ACCESS_KEY|AWS_SECRET/);
 
   assert.match(momentsPage, /from '\.\.\/lib\/moments-api'/);
-  assert.doesNotMatch(momentsPage, /ADMIN_TOKEN_KEY|localStorage\.getItem\(['"]moments_admin_token|Authorization|Bearer|id="video-poster-range"/);
+  assert.doesNotMatch(momentsPage, /ADMIN_TOKEN_KEY|localStorage\.getItem\(['"]moments_admin_token|Authorization|Bearer/);
 
   assert.match(publicInteractions, /credentials:\s*'include'/);
   assert.match(publicInteractions, /AUTH_REQUIRED/);
   assert.doesNotMatch(publicInteractions, /PUBLIC_ADMIN_TOKEN_KEY|Authorization|Bearer|window\.prompt/);
+});
+
+test('hero slideshow uses explicit saved video posters instead of black canvas fallback', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+
+  assert.match(hero, /crossOrigin\s*=\s*'anonymous'/);
+  assert.match(hero, /loadedmetadata/);
+  assert.match(hero, /seeked/);
+  assert.match(hero, /requestAnimationFrame/);
+  assert.match(hero, /hero_settings/);
+  assert.match(hero, /posters/);
+  assert.match(hero, /poster-needed|VIDEO_CORS_REQUIRED|needs-poster/);
+  assert.doesNotMatch(hero, /fillRect\([^)]*0,\s*0/);
 });
 
 test('moments api preserves distinct 401 auth worker codes', () => {

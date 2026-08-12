@@ -75,7 +75,9 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         </label>
 
         <div class="image-upload-area" id="image-upload-area">
-          <input type="file" id="image-input" accept="image/*" multiple hidden />
+          <input type="file" id="image-input" accept="image/*,video/mp4,video/webm" multiple hidden />
+          <input type="file" id="manual-poster-input" accept="image/jpeg" hidden />
+          <input type="range" id="video-poster-range" min="0.1" max="1" step="0.1" value="0.1" hidden aria-label="video poster time" />
           <div class="upload-dropzone" id="upload-placeholder">
             <span>📷 点击上传 / 拖入 / Ctrl+V 粘贴图片（最多 9 张）</span>
           </div>
@@ -924,6 +926,74 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     object-fit: contain;
   }
 
+  .card-images video,
+  .preview-item video {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg-soft);
+  }
+
+  .poster-needed-placeholder,
+  .video-poster-needed {
+    display: flex;
+    min-height: 96px;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border: 1px dashed var(--panel-border);
+    border-radius: 10px;
+    background: var(--bg-soft);
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  .preview-item.video-preview {
+    width: 168px;
+    height: auto;
+    min-height: 118px;
+    padding: 6px;
+    background: var(--bg-soft);
+  }
+
+  .preview-item.video-preview video,
+  .preview-item.video-preview img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .poster-controls {
+    display: grid;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .poster-controls input[type="range"] {
+    width: 100%;
+  }
+
+  .poster-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .poster-actions button {
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    background: var(--panel);
+    color: var(--text-soft);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 3px 7px;
+  }
+
   .card-link {
     font-size: 0.85rem;
     color: var(--accent);
@@ -1482,6 +1552,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
 <script>
   import { uploadToR2 } from '../lib/r2-upload';
+  import { captureVideoPoster, choosePosterTime, VideoPosterError } from '../lib/video-poster';
   import {
     createMoment as createMomentViaApi,
     deleteMoment as deleteMomentViaApi,
@@ -1500,7 +1571,9 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   const IMAGE_PUBLIC_BASE = (import.meta.env.PUBLIC_R2_PUBLIC_URL || 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev').replace(/\/$/, '');
   const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
   const maxImages = 9;
+  const maxMediaItems = 9;
   const maxImageBytes = 8 * 1024 * 1024;
+  const maxVideoBytes = 100 * 1024 * 1024;
   let adminMode = false;
 
   // === Helpers ===
@@ -1593,6 +1666,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     text: string;
     link?: string;
     images: string[];
+    media: Array<{ kind: 'image' | 'video' | 'poster'; url: string }>;
     createdAt?: number;
     reactions?: Record<string, number>;
   };
@@ -1630,9 +1704,22 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
     const createdAt = typeof raw.createdAt === 'number' ? raw.createdAt : undefined;
     const date = String(raw.date ?? '').trim() || (createdAt ? localDateTimeValue(new Date(createdAt)) : localDateTimeValue());
-    const images = Array.isArray(raw.images)
+    const legacyImages = Array.isArray(raw.images)
       ? raw.images.map((src: unknown) => String(src ?? '').trim()).filter(Boolean)
       : [];
+    const rawMedia = Array.isArray(raw.media) ? raw.media : [];
+    const media = rawMedia
+      .map((item: any) => ({
+        kind: item?.kind === 'video' || item?.kind === 'poster' ? item.kind : 'image',
+        url: String(item?.url ?? '').trim(),
+      }))
+      .filter((item: { kind: 'image' | 'video' | 'poster'; url: string }) => Boolean(item.url));
+    for (const imageUrl of legacyImages) {
+      if (!media.some((item: { kind: string; url: string }) => item.kind === 'image' && item.url === imageUrl)) {
+        media.push({ kind: 'image', url: imageUrl });
+      }
+    }
+    const images = media.filter((item) => item.kind === 'image').map((item) => item.url);
     const link = String(raw.link ?? '').trim();
 
     return {
@@ -1642,6 +1729,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       text,
       ...(link && { link }),
       images,
+      media,
       ...(createdAt && { createdAt }),
       reactions: raw.reactions && typeof raw.reactions === 'object' ? raw.reactions : {},
     };
@@ -1936,6 +2024,36 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       content.appendChild(imgDiv);
     }
 
+    const videos = (moment.media || []).filter((item) => item.kind === 'video');
+    if (videos.length > 0) {
+      const videoDiv = document.createElement('div');
+      videoDiv.className = 'card-images';
+      videoDiv.dataset.count = String(videos.length);
+      videos.forEach((videoItem) => {
+        const poster = (moment.media || []).find((item) => item.kind === 'poster' && item.url)?.url || '';
+        if (!poster) {
+          const placeholder = document.createElement('div');
+          placeholder.className = 'poster-needed-placeholder';
+          placeholder.textContent = '封面生成失败：需要上传封面';
+          videoDiv.appendChild(placeholder);
+          return;
+        }
+
+        const video = document.createElement('video');
+        video.src = videoItem.url;
+        video.poster = poster;
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = 'metadata';
+        video.controls = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.crossOrigin = 'anonymous';
+        videoDiv.appendChild(video);
+      });
+      content.appendChild(videoDiv);
+    }
+
     // Link
     if (moment.link) {
       const link = document.createElement('a');
@@ -2096,10 +2214,28 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     lightboxIndex = 0;
     returnFocusTarget = null;
 
-    const selectedImages: Array<{ id: string; file: File; previewUrl: string; remoteUrl?: string }> = [];
+    type SelectedMediaItem = {
+      id: string;
+      file: File;
+      kind: 'image' | 'video';
+      previewUrl: string;
+      remoteUrl?: string;
+      posterBlob?: Blob;
+      posterPreviewUrl?: string;
+      posterRemoteUrl?: string;
+      posterTime: number;
+      duration?: number;
+      error?: string;
+      posterRequired?: boolean;
+    };
+    const selectedImages: SelectedMediaItem[] = [];
+    let manualPosterTargetId = '';
 
     function cleanupPageState() {
-      selectedImages.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      selectedImages.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
+        if (item.posterPreviewUrl) URL.revokeObjectURL(item.posterPreviewUrl);
+      });
       selectedImages.length = 0;
       closeLightbox();
       if (cleanupMomentsPage === controller) cleanupMomentsPage = undefined;
@@ -2293,6 +2429,199 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       renderPreviews();
     }
 
+    function clearSelectedMedia() {
+      selectedImages.forEach((item) => {
+        URL.revokeObjectURL(item.previewUrl);
+        if (item.posterPreviewUrl) URL.revokeObjectURL(item.posterPreviewUrl);
+      });
+      selectedImages.length = 0;
+      if (imagePreviews) imagePreviews.innerHTML = '';
+    }
+
+    function revokePosterPreview(item: SelectedMediaItem) {
+      if (item.posterPreviewUrl) URL.revokeObjectURL(item.posterPreviewUrl);
+      item.posterPreviewUrl = undefined;
+    }
+
+    async function setVideoPoster(item: SelectedMediaItem, requestedTime = item.posterTime) {
+      if (item.kind !== 'video') return;
+      try {
+        item.error = undefined;
+        item.posterTime = choosePosterTime(item.duration || Number.POSITIVE_INFINITY, requestedTime);
+        const blob = await captureVideoPoster(item.file, item.posterTime);
+        item.posterBlob = blob;
+        item.posterRequired = false;
+        item.posterRemoteUrl = undefined;
+        revokePosterPreview(item);
+        item.posterPreviewUrl = URL.createObjectURL(blob);
+      } catch (err) {
+        item.posterBlob = undefined;
+        item.posterRequired = true;
+        const code = err instanceof VideoPosterError ? err.code : '';
+        item.error = code === 'VIDEO_CORS_REQUIRED'
+          ? 'VIDEO_CORS_REQUIRED: 此视频源不允许浏览器取帧，请上传手动 JPEG 封面。'
+          : err instanceof Error ? err.message : '封面生成失败，请重试或上传手动 JPEG 封面。';
+      }
+      renderMediaPreviews();
+    }
+
+    function renderMediaPreviews() {
+      if (!imagePreviews) return;
+      imagePreviews.innerHTML = '';
+      selectedImages.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = `preview-item ${item.kind === 'video' ? 'video-preview' : ''}`.trim();
+        div.id = `preview-${item.id}`;
+        const progress = document.createElement('div');
+        progress.className = 'upload-progress hidden';
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-img';
+        removeBtn.textContent = '×';
+        removeBtn.addEventListener('click', () => {
+          const index = selectedImages.findIndex((media) => media.id === item.id);
+          if (index > -1) {
+            URL.revokeObjectURL(selectedImages[index].previewUrl);
+            if (selectedImages[index].posterPreviewUrl) URL.revokeObjectURL(selectedImages[index].posterPreviewUrl);
+            selectedImages.splice(index, 1);
+            renderMediaPreviews();
+          }
+        }, { signal });
+
+        if (item.kind === 'video') {
+          const video = document.createElement('video');
+          video.src = item.previewUrl;
+          video.poster = item.posterPreviewUrl || '';
+          video.muted = true;
+          video.playsInline = true;
+          video.preload = 'metadata';
+          video.controls = true;
+          video.setAttribute('playsinline', '');
+          video.setAttribute('webkit-playsinline', '');
+          video.addEventListener('loadedmetadata', () => {
+            if (!Number.isFinite(video.duration)) return;
+            item.duration = video.duration;
+            const range = div.querySelector<HTMLInputElement>('.video-poster-range');
+            if (range) {
+              range.max = String(Math.max(0.1, video.duration - 0.1));
+              range.value = String(choosePosterTime(video.duration, item.posterTime));
+            }
+          }, { once: true, signal });
+          div.appendChild(video);
+
+          const controls = document.createElement('div');
+          controls.className = 'poster-controls';
+          const range = document.createElement('input');
+          range.type = 'range';
+          range.className = 'video-poster-range';
+          range.min = '0.1';
+          range.max = String(Math.max(0.1, (item.duration || 1) - 0.1));
+          range.step = '0.1';
+          range.value = String(item.posterTime);
+          const time = document.createElement('span');
+          time.textContent = `封面时间 ${item.posterTime.toFixed(1)}s`;
+          range.addEventListener('input', () => {
+            item.posterTime = Number.parseFloat(range.value);
+            time.textContent = `封面时间 ${item.posterTime.toFixed(1)}s`;
+          }, { signal });
+          range.addEventListener('change', () => { void setVideoPoster(item, Number.parseFloat(range.value)); }, { signal });
+
+          const actions = document.createElement('div');
+          actions.className = 'poster-actions';
+          const retry = document.createElement('button');
+          retry.type = 'button';
+          retry.textContent = '重试取帧';
+          retry.addEventListener('click', () => { void setVideoPoster(item, item.posterTime); }, { signal });
+          const manual = document.createElement('button');
+          manual.type = 'button';
+          manual.textContent = '上传 JPEG 封面';
+          manual.addEventListener('click', () => {
+            manualPosterTargetId = item.id;
+            (document.getElementById('manual-poster-input') as HTMLInputElement | null)?.click();
+          }, { signal });
+          actions.append(retry, manual);
+          controls.append(range, time, actions);
+          if (item.error) {
+            const failure = document.createElement('span');
+            failure.className = 'video-poster-needed';
+            failure.textContent = item.error;
+            controls.appendChild(failure);
+          }
+          div.appendChild(controls);
+        } else {
+          const img = document.createElement('img');
+          img.src = item.previewUrl;
+          img.alt = item.file.name;
+          div.appendChild(img);
+        }
+
+        div.append(progress, removeBtn);
+        applyScopedStyles(div);
+        imagePreviews.appendChild(div);
+        if (item.remoteUrl) setPreviewStatus(item.id, '已上传', 'uploaded');
+      });
+    }
+
+    async function uploadSelectedMedia() {
+      const media: Array<{ kind: 'image' | 'video' | 'poster'; url: string }> = [];
+      for (const item of selectedImages) {
+        if (item.kind === 'video' && !item.posterBlob && !item.posterRemoteUrl) {
+          item.posterRequired = true;
+          item.error = item.error || '发布视频前需要先生成或上传 JPEG 封面。';
+          renderMediaPreviews();
+          throw new Error('发布视频前需要先生成或上传 JPEG 封面。');
+        }
+        if (item.kind === 'image' && item.file.size > maxImageBytes) {
+          setPreviewStatus(item.id, '过大', 'failed');
+          throw new Error('图片过大，请控制在 8 MB 以内');
+        }
+        if (item.kind === 'video' && item.file.size > maxVideoBytes) {
+          setPreviewStatus(item.id, '过大', 'failed');
+          throw new Error('视频过大，请控制在 100 MB 以内');
+        }
+        setPreviewStatus(item.id, '上传中...', 'uploading');
+        try {
+          if (!item.remoteUrl) item.remoteUrl = await uploadToR2(item.file, { kind: item.kind, signal });
+          media.push({ kind: item.kind, url: item.remoteUrl });
+          if (item.kind === 'video') {
+            if (!item.posterRemoteUrl && item.posterBlob) {
+              const posterFile = new File([item.posterBlob], `${item.file.name.replace(/\.[^.]+$/, '')}-poster.jpg`, { type: 'image/jpeg' });
+              item.posterRemoteUrl = await uploadToR2(posterFile, { kind: 'poster', signal });
+            }
+            if (item.posterRemoteUrl) media.push({ kind: 'poster', url: item.posterRemoteUrl });
+          }
+          setPreviewStatus(item.id, '已上传', 'uploaded');
+        } catch (err) {
+          setPreviewStatus(item.id, '失败', 'failed');
+          throw err;
+        }
+      }
+      return media;
+    }
+
+    function handleMediaFiles(files: File[]) {
+      for (const file of files) {
+        const isImage = file.type.startsWith('image/');
+        const isVideo = file.type === 'video/mp4' || file.type === 'video/webm';
+        if (!isImage && !isVideo) continue;
+        if (selectedImages.length >= maxMediaItems) {
+          setMessage(`最多选择 ${maxMediaItems} 个媒体`, 'error');
+          break;
+        }
+        const item: SelectedMediaItem = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          file,
+          kind: isVideo ? 'video' : 'image',
+          previewUrl: URL.createObjectURL(file),
+          posterTime: 0.1,
+          posterRequired: isVideo,
+        };
+        selectedImages.push(item);
+        if (isVideo) void setVideoPoster(item, 0.1);
+      }
+      renderMediaPreviews();
+    }
+
     uploadPlaceholder?.addEventListener('click', () => imageInput?.click(), { signal });
     uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadPlaceholder?.classList.add('drag-over'); }, { signal });
     uploadArea?.addEventListener('dragleave', () => { uploadPlaceholder?.classList.remove('drag-over'); }, { signal });
@@ -2300,11 +2629,29 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       e.preventDefault();
       uploadPlaceholder?.classList.remove('drag-over');
       const files = (e as DragEvent).dataTransfer?.files;
-      if (files) handleFiles(Array.from(files));
+      if (files) handleMediaFiles(Array.from(files));
     }, { signal });
     imageInput?.addEventListener('change', () => {
-      if (imageInput.files) handleFiles(Array.from(imageInput.files));
+      if (imageInput.files) handleMediaFiles(Array.from(imageInput.files));
       imageInput.value = '';
+    }, { signal });
+    document.getElementById('manual-poster-input')?.addEventListener('change', (event) => {
+      const input = event.currentTarget as HTMLInputElement;
+      const file = input.files?.[0];
+      const target = selectedImages.find((item) => item.id === manualPosterTargetId && item.kind === 'video');
+      input.value = '';
+      if (!file || !target) return;
+      if (file.type !== 'image/jpeg') {
+        setMessage('请上传 JPEG 格式封面', 'error');
+        return;
+      }
+      target.posterBlob = file;
+      target.posterRemoteUrl = undefined;
+      target.posterRequired = false;
+      target.error = undefined;
+      revokePosterPreview(target);
+      target.posterPreviewUrl = URL.createObjectURL(file);
+      renderMediaPreviews();
     }, { signal });
 
     // Paste images
@@ -2321,7 +2668,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       }
       if (files.length > 0) {
         e.preventDefault();
-        handleFiles(files);
+        handleMediaFiles(files);
         setMessage(`📷 已粘贴 ${files.length} 张图片`, 'success');
       }
     }, { signal });
@@ -2410,7 +2757,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         const fd = new FormData(form);
 
         submitBtn.disabled = true;
-        submitBtn.textContent = selectedImages.length > 0 ? '上传图片...' : '发布中...';
+        submitBtn.textContent = selectedImages.length > 0 ? '上传媒体...' : '发布中...';
         setMessage('', '');
 
         try {
@@ -2421,7 +2768,8 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
           if (!date || !category || !text) throw new Error('请填写时间、分类和内容');
 
-          const imageUrls = selectedImages.length > 0 ? await uploadImagesToR2() : [];
+          const media = selectedImages.length > 0 ? await uploadSelectedMedia() : [];
+          const imageUrls = media.filter((item) => item.kind === 'image').map((item) => item.url);
 
           submitBtn.textContent = '发布中...';
           const created = await createMomentViaApi({
@@ -2430,6 +2778,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
             text,
             ...(link && { link }),
             ...(imageUrls.length > 0 && { images: imageUrls }),
+            ...(media.length > 0 && { media }),
           }, { signal });
 
           setMessage('✅ 发布成功！', 'success');
@@ -2445,9 +2794,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           }, 2000);
 
           form.reset();
-          selectedImages.forEach((item) => URL.revokeObjectURL(item.previewUrl));
-          selectedImages.length = 0;
-          if (imagePreviews) imagePreviews.innerHTML = '';
+          clearSelectedMedia();
           if (dateInput) dateInput.value = localDateTimeValue();
         } catch (err) {
           const detail = err instanceof Error ? err.message : String(err);

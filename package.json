@@ -10,6 +10,7 @@
     "preview": "astro preview",
     "check": "astro check",
     "test:site": "node --test tests/site-build.test.mjs",
+    "test:poster": "node --test tests/video-poster.test.mjs",
     "test": "npm run build && npm run test:site"
   },
   "dependencies": {
