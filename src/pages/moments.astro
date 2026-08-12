@@ -1719,7 +1719,9 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         media.push({ kind: 'image', url: imageUrl });
       }
     }
-    const images = media.filter((item) => item.kind === 'image').map((item) => item.url);
+    const images = media
+      .filter((item: { kind: 'image' | 'video' | 'poster'; url: string }) => item.kind === 'image')
+      .map((item: { kind: 'image' | 'video' | 'poster'; url: string }) => item.url);
     const link = String(raw.link ?? '').trim();
 
     return {
@@ -2423,7 +2425,9 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         selectedImages.push({
           id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
           file,
+          kind: 'image',
           previewUrl: URL.createObjectURL(file),
+          posterTime: 0.1,
         });
       }
       renderPreviews();
@@ -2514,6 +2518,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           const range = document.createElement('input');
           range.type = 'range';
           range.className = 'video-poster-range';
+          range.id = 'video-poster-range';
           range.min = '0.1';
           range.max = String(Math.max(0.1, (item.duration || 1) - 0.1));
           range.step = '0.1';
@@ -2608,14 +2613,23 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           setMessage(`最多选择 ${maxMediaItems} 个媒体`, 'error');
           break;
         }
-        const item: SelectedMediaItem = {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-          file,
-          kind: isVideo ? 'video' : 'image',
-          previewUrl: URL.createObjectURL(file),
-          posterTime: 0.1,
-          posterRequired: isVideo,
-        };
+        const item: SelectedMediaItem = isVideo
+          ? {
+              id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+              file,
+              kind: 'video',
+              previewUrl: URL.createObjectURL(file),
+              posterTime: 0.1,
+              posterRequired: true,
+            }
+          : {
+              id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+              file,
+              kind: 'image',
+              previewUrl: URL.createObjectURL(file),
+              posterTime: 0.1,
+              posterRequired: false,
+            };
         selectedImages.push(item);
         if (isVideo) void setVideoPoster(item, 0.1);
       }
@@ -2769,7 +2783,9 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           if (!date || !category || !text) throw new Error('请填写时间、分类和内容');
 
           const media = selectedImages.length > 0 ? await uploadSelectedMedia() : [];
-          const imageUrls = media.filter((item) => item.kind === 'image').map((item) => item.url);
+          const imageUrls = media
+            .filter((item: { kind: 'image' | 'video' | 'poster'; url: string }) => item.kind === 'image')
+            .map((item: { kind: 'image' | 'video' | 'poster'; url: string }) => item.url);
 
           submitBtn.textContent = '发布中...';
           const created = await createMomentViaApi({

@@ -197,6 +197,27 @@ const DEFAULT_OPACITY = 0.45;
     opacity: 1;
   }
 
+  .poster-needed-placeholder {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    color: rgba(255, 255, 255, 0.86);
+    text-align: center;
+    background:
+      radial-gradient(circle at 30% 30%, rgba(117, 135, 255, 0.28), transparent 34%),
+      linear-gradient(135deg, rgba(20, 24, 42, 0.82), rgba(5, 8, 18, 0.92));
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .poster-needed-placeholder.visible {
+    opacity: 1;
+  }
+
   .slideshow-video {
     position: absolute;
     width: 1px;
@@ -829,6 +850,12 @@ const DEFAULT_OPACITY = 0.45;
     background: rgba(0, 0, 0, 0.35);
   }
 
+  :global(.media-card .poster-needed-placeholder) {
+    position: absolute;
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
   :global(.media-card-poster:not([src])),
   :global(.media-card-poster.is-loading) {
     min-height: 112px;
@@ -1157,6 +1184,7 @@ const DEFAULT_OPACITY = 0.45;
       el.controls = false;
       el.playsInline = true;
       el.preload = 'metadata';
+      el.crossOrigin = 'anonymous';
       el.tabIndex = -1;
       el.setAttribute('muted', '');
       el.setAttribute('playsinline', '');
@@ -1174,6 +1202,7 @@ const DEFAULT_OPACITY = 0.45;
       el.loop = true;
       el.playsInline = true;
       el.preload = 'metadata';
+      el.crossOrigin = 'anonymous';
       el.setAttribute('playsinline', '');
       el.setAttribute('webkit-playsinline', '');
       el.setAttribute('controlslist', 'nodownload noplaybackrate noremoteplayback');
@@ -1216,6 +1245,14 @@ const DEFAULT_OPACITY = 0.45;
 
     var layer = container.querySelector('.slideshow-layer');
     var canvasEl = container.querySelector('.slideshow-canvas');
+    var posterNeededEl = container.querySelector('.poster-needed-placeholder');
+    if (!posterNeededEl) {
+      posterNeededEl = document.createElement('div');
+      posterNeededEl.className = 'poster-needed-placeholder';
+      posterNeededEl.setAttribute('aria-hidden', 'true');
+      posterNeededEl.textContent = 'VIDEO_CORS_REQUIRED · needs-poster';
+      container.appendChild(posterNeededEl);
+    }
     // Use the persistent <video> element directly (survives page transitions without stuttering)
     var videoEl = document.getElementById('slideshowVideo');
     if (!videoEl) {
@@ -1234,6 +1271,7 @@ const DEFAULT_OPACITY = 0.45;
     var slideRequestId = 0;
     var VIDEO_POSTER_MAX_WIDTH = 960;
     var VIDEO_READY_TIMEOUT_MS = 9000;
+    var POSTER_NEEDED = 'poster-needed';
     var videoPosterMap = {};
     var preferStaticVideo = isMobileVideoHostile() || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
     var videoPreloadReady = false;
@@ -1371,8 +1409,13 @@ const DEFAULT_OPACITY = 0.45;
             if (done) return;
             done = true;
             cleanup();
-            if (poster) videoPosterMap[src] = poster;
-            resolve(poster || '');
+            if (poster) {
+              rememberVideoPoster(src, poster);
+              resolve(poster);
+            } else {
+              markVideoPosterNeeded(src);
+              resolve(POSTER_NEEDED);
+            }
           }
 
           function drawPoster() {
@@ -1432,10 +1475,12 @@ const DEFAULT_OPACITY = 0.45;
           vid.load();
         });
       }).catch(function() {
-        return '';
+        markVideoPosterNeeded(src);
+        return POSTER_NEEDED;
       });
     }
     function getVideoPoster(src) {
+      if (state.posters && state.posters[src]) return Promise.resolve(state.posters[src]);
       if (videoPosterMap[src]) return Promise.resolve(videoPosterMap[src]);
       return captureVideoPoster(src);
     }
@@ -1448,9 +1493,11 @@ const DEFAULT_OPACITY = 0.45;
       canvas.height = 180;
       canvas.classList.add('is-loading');
 
+      var placeholder = null;
       var vid = document.createElement('video');
       var done = false;
       var timer = window.setTimeout(function() {
+        showThumbnailPlaceholder();
         cleanup();
       }, 7000);
 
@@ -1464,8 +1511,19 @@ const DEFAULT_OPACITY = 0.45;
         canvas.classList.remove('is-loading');
       }
 
+      function showThumbnailPlaceholder() {
+        if (placeholder) return;
+        placeholder = document.createElement('span');
+        placeholder.className = 'poster-needed-placeholder';
+        placeholder.textContent = 'needs-poster';
+        canvas.replaceWith(placeholder);
+      }
+
       function drawFrame() {
-        if (done || !vid.videoWidth || !vid.videoHeight) return;
+        if (done || !vid.videoWidth || !vid.videoHeight) {
+          showThumbnailPlaceholder();
+          return;
+        }
         try {
           var scale = Math.max(canvas.width / vid.videoWidth, canvas.height / vid.videoHeight);
           var drawW = vid.videoWidth * scale;
@@ -1474,7 +1532,9 @@ const DEFAULT_OPACITY = 0.45;
           var dy = (canvas.height - drawH) / 2;
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(vid, dx, dy, drawW, drawH);
-        } catch (e) {}
+        } catch (e) {
+          showThumbnailPlaceholder();
+        }
         cleanup();
       }
 
@@ -1497,7 +1557,7 @@ const DEFAULT_OPACITY = 0.45;
       vid.addEventListener('loadeddata', function() { window.setTimeout(seekUsefulFrame, 60); }, { once: true });
       vid.addEventListener('seeked', function() { requestAnimationFrame(drawFrame); }, { once: true });
       vid.addEventListener('canplay', function() { requestAnimationFrame(drawFrame); }, { once: true });
-      vid.addEventListener('error', cleanup, { once: true });
+      vid.addEventListener('error', function() { showThumbnailPlaceholder(); cleanup(); }, { once: true });
       vid.src = src;
       vid.load();
     }
@@ -1547,7 +1607,8 @@ const DEFAULT_OPACITY = 0.45;
       opacity: defOpacity,
       quality: 'high',
       selectedIndex: 0,
-      images: []
+      images: [],
+      posters: {}
     };
 
     /* ===== Load saved ===== */
@@ -1562,8 +1623,10 @@ const DEFAULT_OPACITY = 0.45;
         if (s.quality) state.quality = s.quality;
         if (typeof s.selectedIndex === 'number') state.selectedIndex = s.selectedIndex;
         if (Array.isArray(s.images)) state.images = s.images;
+        if (s.posters && typeof s.posters === 'object') state.posters = s.posters;
       }
     } catch (e) {}
+    videoPosterMap = state.posters || {};
 
     /* ===== Helpers ===== */
     function allImages() {
@@ -1584,7 +1647,8 @@ const DEFAULT_OPACITY = 0.45;
           selectedIndex: state.selectedIndex,
           images: state.images.filter(function(src) {
             return defaults.indexOf(src) === -1;
-          })
+          }),
+          posters: state.posters
         }));
         return true;
       } catch (e) {
@@ -1605,6 +1669,30 @@ const DEFAULT_OPACITY = 0.45;
       syncUI();
       restartSlideshow();
       return true;
+    }
+
+    function rememberVideoPoster(src, poster) {
+      if (!src || !poster || poster === POSTER_NEEDED) return;
+      videoPosterMap[src] = poster;
+      state.posters[src] = poster;
+      save();
+    }
+
+    function markVideoPosterNeeded(src) {
+      if (!src) return;
+      delete videoPosterMap[src];
+      delete state.posters[src];
+      save();
+    }
+
+    function showPosterNeededPlaceholder() {
+      if (posterNeededEl) posterNeededEl.classList.add('visible');
+      if (canvasEl) canvasEl.classList.remove('visible');
+      layer.classList.remove('visible');
+    }
+
+    function hidePosterNeededPlaceholder() {
+      if (posterNeededEl) posterNeededEl.classList.remove('visible');
     }
 
     function applyOverlay() {
@@ -1818,6 +1906,7 @@ const DEFAULT_OPACITY = 0.45;
     /* ===== Slideshow logic: handles both images and videos ===== */
     function hideAll() {
       layer.classList.remove('visible');
+      hidePosterNeededPlaceholder();
       if (canvasEl) canvasEl.classList.remove('visible');
       videoEl.classList.remove('visible');
       videoEl.onloadeddata = null;
@@ -1838,7 +1927,7 @@ const DEFAULT_OPACITY = 0.45;
         videoEl.load();
         if (canvasEl) canvasEl.classList.remove('visible');
 
-        showVideoFirstFrame(videoSrc, requestId);
+        showVideoPoster(videoSrc, requestId);
 
         if (preferStaticVideo) return;
 
@@ -1914,47 +2003,25 @@ const DEFAULT_OPACITY = 0.45;
         revealWhenReady();
       }
 
-      function showVideoFirstFrame(videoSrc, activeRequestId) {
-        Promise.resolve(videoSrc).then(function(frameSrc) {
+      function showVideoPoster(videoSrc, activeRequestId) {
+        getVideoPoster(videoSrc).then(function(poster) {
           if (_destroyed || activeRequestId !== slideRequestId) return;
-          videoEl.onloadeddata = null;
-          videoEl.onseeked = null;
-          videoEl.oncanplay = null;
-          videoEl.onerror = null;
-
-          function revealFrame() {
-            if (_destroyed || activeRequestId !== slideRequestId) return;
-            videoEl.pause();
-            requestAnimationFrame(function() {
-              if (_destroyed || activeRequestId !== slideRequestId) return;
-              videoEl.classList.remove('visible');
-              if (drawVideoFrameOnce() && canvasEl) {
-                canvasEl.classList.add('visible');
-                layer.classList.remove('visible');
-              }
-            });
+          videoEl.classList.remove('visible');
+          if (canvasEl) canvasEl.classList.remove('visible');
+          if (!poster || poster === POSTER_NEEDED) {
+            showPosterNeededPlaceholder();
+            return;
           }
-
-          function seekOrReveal() {
+          hidePosterNeededPlaceholder();
+          layer.style.backgroundImage = 'url("' + poster + '")';
+          requestAnimationFrame(function() {
             if (_destroyed || activeRequestId !== slideRequestId) return;
-            try {
-              var duration = Number.isFinite(videoEl.duration) ? videoEl.duration : 0;
-              var target = duration > 2 ? Math.min(1, duration * 0.08) : 0.18;
-              if (duration > 0.25 && Math.abs(videoEl.currentTime - target) > 0.05) {
-                videoEl.currentTime = target;
-                return;
-              }
-            } catch (e) {}
-            revealFrame();
-          }
-
-          videoEl.onloadedmetadata = seekOrReveal;
-          videoEl.onloadeddata = function() { window.setTimeout(seekOrReveal, 60); };
-          videoEl.onseeked = revealFrame;
-          videoEl.oncanplay = revealFrame;
-          videoEl.onerror = function() { videoEl.pause(); };
-          videoEl.src = frameSrc;
-          videoEl.load();
+            layer.classList.add('visible');
+          });
+        }).catch(function() {
+          if (_destroyed || activeRequestId !== slideRequestId) return;
+          markVideoPosterNeeded(videoSrc);
+          showPosterNeededPlaceholder();
         });
       }
       if (!currentSrc) {

@@ -114,8 +114,9 @@ export async function captureVideoPoster(source: string | File, requestedTime = 
     video.setAttribute('playsinline', '');
     video.setAttribute('webkit-playsinline', '');
 
-    objectUrl = source instanceof File ? URL.createObjectURL(source) : '';
-    video.src = objectUrl || source;
+    const sourceUrl = typeof source === 'string' ? source : URL.createObjectURL(source);
+    objectUrl = typeof source === 'string' ? '' : sourceUrl;
+    video.src = sourceUrl;
     video.load();
 
     await waitFor(video, 'loadedmetadata');
