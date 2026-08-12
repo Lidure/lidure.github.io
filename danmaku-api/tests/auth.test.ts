@@ -14,6 +14,8 @@ type BoundStatement = {
   all: ReturnType<typeof vi.fn>;
   first: ReturnType<typeof vi.fn>;
   run: ReturnType<typeof vi.fn>;
+  sql?: string;
+  args?: unknown[];
 };
 
 function makeBoundStatement(overrides: Partial<BoundStatement> = {}): BoundStatement {
@@ -30,9 +32,20 @@ function makeDb(handler: (sql: string, args: unknown[]) => BoundStatement): D1Da
     prepare(sql: string) {
       return {
         bind(...args: unknown[]) {
-          return handler(sql, args);
+          return {
+            sql,
+            args,
+            ...handler(sql, args),
+          };
         },
       };
+    },
+    async batch(statements: BoundStatement[]) {
+      const results: unknown[] = [];
+      for (const statement of statements) {
+        results.push(await statement.run());
+      }
+      return results;
     },
   } as unknown as D1Database;
 }
@@ -241,11 +254,13 @@ describe("auth worker routes", () => {
   });
 
   it("creates a moment once a valid session cookie is present", async () => {
-    const runCalls: Array<{ sql: string; args: unknown[] }> = [];
+    const insertStatements: Array<{ sql: string; args: unknown[] }> = [];
     const db = makeDb((sql, args) => {
       if (sql.startsWith("INSERT INTO moments") || sql.startsWith("INSERT INTO moment_media")) {
-        runCalls.push({ sql, args });
-        return makeBoundStatement();
+        insertStatements.push({ sql, args });
+        return makeBoundStatement({
+          run: vi.fn().mockResolvedValue({}),
+        });
       }
 
       if (sql.includes("SELECT m.id")) {
@@ -288,7 +303,7 @@ describe("auth worker routes", () => {
     );
 
     expect(response.status).toBe(201);
-    expect(runCalls).toHaveLength(2);
+    expect(insertStatements).toHaveLength(2);
     await expect(response.json()).resolves.toEqual({
       item: {
         id: "moment-created",

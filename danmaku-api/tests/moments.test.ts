@@ -13,6 +13,8 @@ type BoundStatement = {
   all: ReturnType<typeof vi.fn>;
   first: ReturnType<typeof vi.fn>;
   run: ReturnType<typeof vi.fn>;
+  sql?: string;
+  args?: unknown[];
 };
 
 function makeBoundStatement(overrides: Partial<BoundStatement> = {}): BoundStatement {
@@ -29,10 +31,40 @@ function makeDb(handler: (sql: string, args: unknown[]) => BoundStatement): D1Da
     prepare(sql: string) {
       return {
         bind(...args: unknown[]) {
-          return handler(sql, args);
+          return {
+            sql,
+            args,
+            ...handler(sql, args),
+          };
         },
       };
     },
+  } as unknown as D1Database;
+}
+
+function makeBatchDb(
+  handler: (sql: string, args: unknown[]) => BoundStatement,
+  batch: (statements: BoundStatement[]) => Promise<unknown[]> = async (statements) => {
+    const results: unknown[] = [];
+    for (const statement of statements) {
+      results.push(await statement.run());
+    }
+    return results;
+  }
+): D1Database {
+  return {
+    prepare(sql: string) {
+      return {
+        bind(...args: unknown[]) {
+          return {
+            sql,
+            args,
+            ...handler(sql, args),
+          };
+        },
+      };
+    },
+    batch,
   } as unknown as D1Database;
 }
 
@@ -351,15 +383,13 @@ describe("moments data access", () => {
   });
 
   it("creates a moment and writes ordered media records", async () => {
-    const runCalls: Array<{ sql: string; args: unknown[] }> = [];
-    const db = makeDb((sql, args) => {
+    const batchCalls: Array<Array<{ sql: string; args: unknown[] }>> = [];
+    const db = makeBatchDb((sql, args) => {
       if (sql.startsWith("INSERT INTO moments")) {
-        runCalls.push({ sql, args });
         return makeBoundStatement();
       }
 
       if (sql.startsWith("INSERT INTO moment_media")) {
-        runCalls.push({ sql, args });
         return makeBoundStatement();
       }
 
@@ -399,6 +429,18 @@ describe("moments data access", () => {
       }
 
       throw new Error(`Unexpected SQL: ${sql}`);
+    }, async (statements) => {
+      batchCalls.push(
+        statements.map((statement) => ({
+          sql: statement.sql ?? "",
+          args: statement.args ?? [],
+        }))
+      );
+      const results: unknown[] = [];
+      for (const statement of statements) {
+        results.push(await statement.run());
+      }
+      return results;
     });
 
     const item = await createMoment(db, validMomentInput(), {
@@ -411,9 +453,10 @@ describe("moments data access", () => {
       })(),
     });
 
-    expect(runCalls).toHaveLength(4);
-    expect(runCalls[0].sql).toContain("INSERT INTO moments");
-    expect(runCalls[0].args).toEqual([
+    expect(batchCalls).toHaveLength(1);
+    expect(batchCalls[0]).toHaveLength(4);
+    expect(batchCalls[0][0].sql).toContain("INSERT INTO moments");
+    expect(batchCalls[0][0].args).toEqual([
       "moment-created",
       "2026-06-18T10:08",
       "生活",
@@ -422,21 +465,21 @@ describe("moments data access", () => {
       "2026-06-18T10:08:00.000Z",
       "2026-06-18T10:08:00.000Z",
     ]);
-    expect(runCalls[1].args.slice(1)).toEqual([
+    expect(batchCalls[0][1].args.slice(1)).toEqual([
       "moment-created",
       "image",
       "https://media.lidure.xyz/moments/2026/06/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.png",
       0,
       "2026-06-18T10:08:00.000Z",
     ]);
-    expect(runCalls[2].args.slice(1)).toEqual([
+    expect(batchCalls[0][2].args.slice(1)).toEqual([
       "moment-created",
       "video",
       "https://media.lidure.xyz/moments/2026/06/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.mp4",
       1,
       "2026-06-18T10:08:00.000Z",
     ]);
-    expect(runCalls[3].args.slice(1)).toEqual([
+    expect(batchCalls[0][3].args.slice(1)).toEqual([
       "moment-created",
       "poster",
       "https://media.lidure.xyz/moments/2026/06/cccccccc-cccc-4ccc-8ccc-cccccccccccc.jpg",
@@ -463,6 +506,124 @@ describe("moments data access", () => {
         },
       ],
     });
+  });
+
+  it("uses an atomic D1 batch so media insert failures cannot leave parent-only moments", async () => {
+    const input = validMomentInput();
+    const batchCalls: Array<Array<{ sql: string; args: unknown[] }>> = [];
+    const selectCalls: Array<{ sql: string; args: unknown[] }> = [];
+    const db = makeBatchDb(
+      (sql, args) => {
+        if (sql.includes("SELECT m.id")) {
+          selectCalls.push({ sql, args });
+          return makeBoundStatement({
+            all: vi.fn().mockResolvedValue({
+              results: [
+                {
+                  id: args[0],
+                  date: input.date,
+                  category: input.category,
+                  text: input.text,
+                  link: input.link ?? null,
+                  created_at: "2026-06-18T10:08:00.000Z",
+                  updated_at: "2026-06-18T10:08:00.000Z",
+                  media_id: null,
+                  media_kind: null,
+                  media_url: null,
+                  media_sort_order: null,
+                },
+              ],
+            }),
+          });
+        }
+
+        if (sql.startsWith("INSERT INTO moments") || sql.startsWith("INSERT INTO moment_media")) {
+          return makeBoundStatement({
+            run: sql.startsWith("INSERT INTO moment_media")
+              ? vi.fn().mockRejectedValue(new Error("simulated moment_media insert failure"))
+              : vi.fn().mockResolvedValue({}),
+          });
+        }
+
+        throw new Error(`Unexpected SQL: ${sql}`);
+      },
+      async (statements) => {
+        batchCalls.push(
+          statements.map((statement) => ({
+            sql: statement.sql ?? "",
+            args: statement.args ?? [],
+          }))
+        );
+        const results: unknown[] = [];
+        for (const statement of statements) {
+          results.push(await statement.run());
+        }
+        return results;
+      }
+    );
+
+    await expect(
+      createMoment(db, input, {
+        publicMediaBaseUrl: "https://media.lidure.xyz",
+        now: () => "2026-06-18T10:08:00.000Z",
+        createId: (() => {
+          let index = 0;
+          const ids = ["moment-created", "media-a", "media-b", "media-c"];
+          return () => ids[index++] ?? `generated-${index++}`;
+        })(),
+      })
+    ).rejects.toThrow("simulated moment_media insert failure");
+
+    expect(batchCalls).toEqual([
+      [
+        {
+          sql: "INSERT INTO moments (id, date, category, text, link, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+          args: [
+            "moment-created",
+            input.date,
+            input.category,
+            input.text,
+            input.link,
+            "2026-06-18T10:08:00.000Z",
+            "2026-06-18T10:08:00.000Z",
+          ],
+        },
+        {
+          sql: "INSERT INTO moment_media (id, moment_id, kind, url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+          args: [
+            "media-a",
+            "moment-created",
+            "image",
+            "https://media.lidure.xyz/moments/2026/06/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.png",
+            0,
+            "2026-06-18T10:08:00.000Z",
+          ],
+        },
+        {
+          sql: "INSERT INTO moment_media (id, moment_id, kind, url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+          args: [
+            "media-b",
+            "moment-created",
+            "video",
+            "https://media.lidure.xyz/moments/2026/06/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.mp4",
+            1,
+            "2026-06-18T10:08:00.000Z",
+          ],
+        },
+        {
+          sql: "INSERT INTO moment_media (id, moment_id, kind, url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+          args: [
+            "media-c",
+            "moment-created",
+            "poster",
+            "https://media.lidure.xyz/moments/2026/06/cccccccc-cccc-4ccc-8ccc-cccccccccccc.jpg",
+            2,
+            "2026-06-18T10:08:00.000Z",
+          ],
+        },
+      ],
+    ]);
+    expect(selectCalls).toEqual([]);
   });
 
   it("deletes a moment and its media rows", async () => {

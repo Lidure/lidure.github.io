@@ -29,6 +29,26 @@ Focused RED/GREEN check:
 - Before implementation: `npm --prefix danmaku-api test -- tests/contracts.test.ts` failed because `nextCursor` was missing.
 - After implementation: `npm --prefix danmaku-api test -- tests/contracts.test.ts` passed with 2/2 tests.
 
+## Final review blocker fix: atomic moment/media creation
+
+The final independent review at `.superpowers/sdd/2026-08-12-cloudflare-publishing/final-review.md` blocked handoff because `createMoment()` inserted the parent `moments` row and then inserted `moment_media` rows through separate awaited `.run()` calls.
+
+Fix applied locally:
+
+- `danmaku-api/src/moments.ts` now builds the parent moment insert and all ordered `moment_media` inserts as prepared statements.
+- The statements execute via one `db.batch(...)` call, matching D1 transaction-compatible batch semantics for all-or-nothing writes.
+- The existing API result mapping is preserved by reading back the created moment after the batch succeeds.
+- Media `sort_order` still follows the submitted media array order.
+- No deploy, frontend, domain, remote D1, or R2 changes were made.
+
+Focused RED/GREEN check:
+
+- RED: `npm --prefix danmaku-api test -- tests/moments.test.ts` failed with exit code 1 before the production fix.
+  - Test files: 1 failed.
+  - Tests: 1 failed, 13 passed.
+  - Failure: `uses an atomic D1 batch so media insert failures cannot leave parent-only moments` expected a `db.batch(...)` call, but `batchCalls` was `[]`.
+- GREEN: covered by the final Worker test run below after implementing the D1 batch write path and adapting D1 mocks for batch-compatible semantics.
+
 ## Command results
 
 ### Dependency installs
@@ -63,6 +83,10 @@ Focused RED/GREEN check:
 
 - Result: PASS, exit code 0.
 - `tsc --noEmit` completed successfully.
+- Re-run after atomicity fix on 2026-08-12: PASS, exit code 0.
+- Output:
+  - `> lidure-danmaku-api@0.0.1 check`
+  - `> tsc --noEmit`
 
 `npm test`
 
@@ -79,11 +103,15 @@ Focused RED/GREEN check:
 - Final result after compatibility fix: PASS, exit code 0.
   - Test files: 4 passed.
   - Tests: 46 passed, 0 failed.
+- Re-run after atomicity fix on 2026-08-12: PASS, exit code 0.
+  - Test files: 4 passed.
+  - Tests: 47 passed, 0 failed.
+  - Files shown passing: `tests/contracts.test.ts`, `tests/moments.test.ts`, `tests/media.test.ts`, `tests/auth.test.ts`.
 
 `git diff --check`
 
 - Result: PASS, exit code 0.
-- Non-blocking warnings only: Git noted that LF in the two changed Worker files will be replaced by CRLF the next time Git touches them.
+- Non-blocking warnings only: Git noted that LF in the four changed files will be replaced by CRLF the next time Git touches them.
 
 ## Status, log, and sensitive-file inspection
 
@@ -105,6 +133,9 @@ Changed files inspected before commit:
 
 - `danmaku-api/src/index.ts`
 - `danmaku-api/tests/contracts.test.ts`
+- `danmaku-api/src/moments.ts`
+- `danmaku-api/tests/moments.test.ts`
+- `danmaku-api/tests/auth.test.ts`
 - `docs/superpowers/verification/2026-08-12-cloudflare-publishing.md`
 
 Sensitive-string scan notes:
@@ -135,4 +166,4 @@ These remain intentionally manual and were not performed in this verification ta
 
 ## Explicit no-deploy status
 
-No deploy commands were run. No remote D1 or R2 write commands were run. This Task 9 pass is local verification plus the minimal `/api/danmaku` response compatibility fix only.
+No deploy commands were run. No remote D1 or R2 write commands were run. This Task 9 pass is local verification plus the minimal `/api/danmaku` response compatibility fix and the final review D1 moment/media atomicity fix only.

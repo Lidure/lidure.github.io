@@ -206,29 +206,30 @@ export async function createMoment(
   const createId = options.createId ?? (() => crypto.randomUUID());
   const momentId = createId();
 
-  await db
-    .prepare(
-      "INSERT INTO moments (id, date, category, text, link, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
-    )
-    .bind(
-      momentId,
-      normalized.value.date,
-      normalized.value.category,
-      normalized.value.text,
-      normalized.value.link ?? null,
-      now,
-      now
-    )
-    .run();
-
-  for (const [index, media] of normalized.value.media.entries()) {
-    await db
+  const statements = [
+    db
       .prepare(
-        "INSERT INTO moment_media (id, moment_id, kind, url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+        "INSERT INTO moments (id, date, category, text, link, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, ?)"
       )
-      .bind(createId(), momentId, media.kind, media.url, index, now)
-      .run();
-  }
+      .bind(
+        momentId,
+        normalized.value.date,
+        normalized.value.category,
+        normalized.value.text,
+        normalized.value.link ?? null,
+        now,
+        now
+      ),
+    ...normalized.value.media.map((media, index) =>
+      db
+        .prepare(
+          "INSERT INTO moment_media (id, moment_id, kind, url, sort_order, created_at) VALUES (?, ?, ?, ?, ?, ?)"
+        )
+        .bind(createId(), momentId, media.kind, media.url, index, now)
+    ),
+  ];
+
+  await db.batch(statements);
 
   return getMomentById(db, momentId);
 }
