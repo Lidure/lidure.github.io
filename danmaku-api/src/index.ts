@@ -5,6 +5,11 @@ import {
   sessionCookie,
   verifyPassword,
 } from "./auth";
+import {
+  buildMomentMediaKey,
+  publicMediaUrlForKey,
+  validateUpload,
+} from "./media";
 import { createMoment, deleteMoment, listMoments, type CreateMomentInput } from "./moments";
 
 interface Env {
@@ -71,6 +76,14 @@ export default {
 
         if (request.method === "POST") {
           return handleCreateMoment(request, env);
+        }
+
+        return errorResponse("Method not allowed", "METHOD_NOT_ALLOWED", 405, request, env);
+      }
+
+      if (url.pathname === "/api/media/upload") {
+        if (request.method === "POST") {
+          return handleUploadMedia(request, env);
         }
 
         return errorResponse("Method not allowed", "METHOD_NOT_ALLOWED", 405, request, env);
@@ -223,6 +236,74 @@ async function handleCreateMoment(request: Request, env: Env): Promise<Response>
       error instanceof Error && error.message ? error.message : "Moment payload is invalid";
     return errorResponse(message, code, 400, request, env);
   }
+}
+
+async function handleUploadMedia(request: Request, env: Env): Promise<Response> {
+  const sessionState = await requireSession(request, env);
+  if (sessionState instanceof Response) {
+    return sessionState;
+  }
+
+  if (!env.MEDIA) {
+    return errorResponse("Media storage is not configured.", "MEDIA_UNAVAILABLE", 500, request, env);
+  }
+
+  if (!isMultipartRequest(request)) {
+    return errorResponse("Expected multipart/form-data.", "UNSUPPORTED_MEDIA_TYPE", 415, request, env);
+  }
+
+  let form: FormData;
+  try {
+    form = await request.formData();
+  } catch {
+    return errorResponse("Multipart form data is invalid.", "BAD_MULTIPART", 400, request, env);
+  }
+
+  const upload = form.get("file");
+  if (!isFileUpload(upload)) {
+    return errorResponse("Uploaded media file is required.", "MEDIA_EMPTY", 400, request, env);
+  }
+
+  const validation = validateUpload(
+    { type: upload.type, size: upload.size },
+    { requestedKind: form.get("kind") }
+  );
+  if (!validation.ok) {
+    if (validation.code === "MEDIA_EMPTY") {
+      return errorResponse("Uploaded media file is empty.", validation.code, 400, request, env);
+    }
+
+    if (validation.code === "MEDIA_TYPE_NOT_ALLOWED") {
+      return errorResponse("Media type is not allowed.", validation.code, 415, request, env);
+    }
+
+    return json(
+      {
+        error: "Uploaded media exceeds the size limit.",
+        code: validation.code,
+        limit: validation.limit,
+      },
+      413,
+      request,
+      env
+    );
+  }
+
+  const key = buildMomentMediaKey(new Date(Date.now()), crypto.randomUUID(), validation.extension);
+  await env.MEDIA.put(key, await upload.arrayBuffer(), {
+    httpMetadata: { contentType: validation.contentType },
+  });
+
+  return json(
+    {
+      url: publicMediaUrlForKey(env.PUBLIC_MEDIA_BASE_URL, key),
+      key,
+      kind: validation.kind,
+    },
+    201,
+    request,
+    env
+  );
 }
 
 async function handleDeleteMoment(url: URL, request: Request, env: Env): Promise<Response> {
@@ -414,6 +495,24 @@ function corsHeaders(request: Request, env: Env): Headers {
 function isJsonRequest(request: Request): boolean {
   const contentType = request.headers.get("content-type") || "";
   return contentType.toLowerCase().includes("application/json");
+}
+
+function isMultipartRequest(request: Request): boolean {
+  const contentType = request.headers.get("content-type") || "";
+  return contentType.toLowerCase().includes("multipart/form-data");
+}
+
+function isFileUpload(value: File | string | null): value is File {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "arrayBuffer" in value &&
+    "size" in value &&
+    "type" in value &&
+    typeof value.arrayBuffer === "function" &&
+    typeof value.size === "number" &&
+    typeof value.type === "string"
+  );
 }
 
 function errorResponse(
