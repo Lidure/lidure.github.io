@@ -206,3 +206,91 @@ SHA256 29DEF5A5EBB5DEEC0EB0E3ECD7DB35DE984611EED5DA3991AE4A28EADB93972C
 Compare-Object: no differences
 Count    : 21
 ```
+
+## Follow-up fix: import media boundary alignment
+
+Review 2 found that `scripts/import-moments.mjs` could still preserve arbitrary external `http(s)` image URLs, while `normalizeMomentMediaInput()` only accepts generated upload keys or generated-key URLs under `PUBLIC_MEDIA_BASE_URL`.
+
+Scoped changes:
+
+- Updated only `scripts/import-moments.mjs` so legacy import media uses the same trusted generated upload boundary as the API.
+- Safe policy: keep URLs only when they are already under `https://media.lidure.xyz/` with a `moments/YYYY/MM/uuid.ext` generated upload key, or when they are under the known legacy R2 host and rewrite to that same generated-key path.
+- Unsupported or untrusted legacy media URLs are skipped, not imported, with a deterministic warning count.
+- `sort_order` is compacted after skips, and media IDs are still derived from stable normalized URL/order inputs.
+- Added focused Node test coverage in `tests/import-moments.test.mjs`.
+- Did not change `danmaku-api/src/media.ts` validation or frontend files.
+
+### TDD evidence
+
+RED before importer change:
+
+```powershell
+node --test tests/import-moments.test.mjs
+```
+
+Result: exit 1.
+
+```text
+✖ importer skips media URLs that the moments API would reject
+AssertionError [ERR_ASSERTION]: The input did not match the regular expression /Wrote 1 moments and 2 media rows/.
+Input:
+'Wrote 1 moments and 4 media rows ...'
+```
+
+GREEN after importer change:
+
+```powershell
+node --test tests/import-moments.test.mjs
+```
+
+Result: exit 0.
+
+```text
+✔ importer skips media URLs that the moments API would reject (82.722ms)
+tests 1
+pass 1
+fail 0
+```
+
+### API media boundary regression check
+
+```powershell
+npm --prefix danmaku-api test -- tests/media.test.ts
+```
+
+Result: exit 0.
+
+```text
+✓ tests/media.test.ts (12 tests) 288ms
+Test Files  1 passed (1)
+Tests  12 passed (12)
+```
+
+### Import script determinism after boundary fix
+
+Commands:
+
+```powershell
+node scripts/import-moments.mjs --input src/data/moments.json --output .tmp/moments-import.sql
+Get-FileHash -Algorithm SHA256 -LiteralPath '.tmp\moments-import.sql'
+Copy-Item -LiteralPath '.tmp\moments-import.sql' -Destination '.tmp\moments-import.first.sql' -Force
+node scripts/import-moments.mjs --input src/data/moments.json --output .tmp/moments-import.sql
+Get-FileHash -Algorithm SHA256 -LiteralPath '.tmp\moments-import.sql'
+Compare-Object -ReferenceObject (Get-Content -LiteralPath '.tmp\moments-import.first.sql') -DifferenceObject (Get-Content -LiteralPath '.tmp\moments-import.sql')
+Select-String -LiteralPath '.tmp\moments-import.sql' -Pattern 'INSERT OR IGNORE INTO moments','INSERT OR IGNORE INTO moment_media' | Measure-Object
+Select-String -LiteralPath '.tmp\moments-import.sql' -Pattern 'https?://'
+```
+
+Result: exit 0.
+
+```text
+Wrote 15 moments and 0 media rows to .tmp/moments-import.sql
+Skipped 6 unsupported media URLs outside the trusted generated upload boundary.
+SHA256 AED19455D0330D3B1BD56D28BDD1F8EC993D801290B5417D3C509AA0E3F22F06
+Wrote 15 moments and 0 media rows to .tmp/moments-import.sql
+Skipped 6 unsupported media URLs outside the trusted generated upload boundary.
+SHA256 AED19455D0330D3B1BD56D28BDD1F8EC993D801290B5417D3C509AA0E3F22F06
+Compare-Object: no differences
+Count    : 15
+Select-String 'https?://': no matches
+```

@@ -9,6 +9,8 @@ const DEFAULT_INPUT = "src/data/moments.json";
 const DEFAULT_OUTPUT = ".tmp/moments-import.sql";
 const LEGACY_R2_BASE_URL = "https://pub-6108779417b647c592c51538e44c8bd0.r2.dev";
 const PUBLIC_MEDIA_BASE_URL = "https://media.lidure.xyz";
+const GENERATED_MEDIA_KEY_PATTERN =
+  /^moments\/\d{4}\/\d{2}\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\.(?:jpg|png|webp|gif|mp4|webm)$/;
 
 async function main() {
   const args = parseArgs(process.argv.slice(2));
@@ -21,7 +23,8 @@ async function main() {
     throw new Error("Input moments JSON must be an array.");
   }
 
-  const normalized = moments.map((moment, index) => normalizeMoment(moment, index));
+  const stats = { skippedUnsupportedMedia: 0 };
+  const normalized = moments.map((moment, index) => normalizeMoment(moment, index, stats));
   const sql = renderSql(normalized);
 
   await mkdir(path.dirname(outputPath), { recursive: true });
@@ -29,6 +32,11 @@ async function main() {
 
   const mediaCount = normalized.reduce((total, moment) => total + moment.media.length, 0);
   console.log(`Wrote ${normalized.length} moments and ${mediaCount} media rows to ${outputPath}`);
+  if (stats.skippedUnsupportedMedia > 0) {
+    console.warn(
+      `Skipped ${stats.skippedUnsupportedMedia} unsupported media URLs outside the trusted generated upload boundary.`
+    );
+  }
 }
 
 function parseArgs(argv) {
@@ -54,7 +62,7 @@ function parseArgs(argv) {
   return args;
 }
 
-function normalizeMoment(moment, index) {
+function normalizeMoment(moment, index, stats) {
   if (!moment || typeof moment !== "object" || Array.isArray(moment)) {
     throw new Error(`Moment at index ${index} must be an object.`);
   }
@@ -80,7 +88,7 @@ function normalizeMoment(moment, index) {
   }
 
   const id = stableMomentId(date, category, text, link);
-  const media = normalizeImages(moment.images, id);
+  const media = normalizeImages(moment.images, id, stats);
   const createdAt = toCreatedAt(date);
 
   return {
@@ -94,25 +102,36 @@ function normalizeMoment(moment, index) {
   };
 }
 
-function normalizeImages(images, momentId) {
+function normalizeImages(images, momentId, stats) {
   if (images == null) return [];
   if (!Array.isArray(images)) {
     throw new Error(`Moment ${momentId} images must be an array.`);
   }
 
-  return images.map((rawUrl, index) => {
+  const media = [];
+
+  for (const [sourceIndex, rawUrl] of images.entries()) {
     const url = stringField(rawUrl);
     if (!isHttpUrl(url)) {
-      throw new Error(`Moment ${momentId} image ${index} must be an http(s) URL.`);
+      throw new Error(`Moment ${momentId} image ${sourceIndex} must be an http(s) URL.`);
     }
 
-    return {
-      id: stableMediaId(momentId, "image", normalizeLegacyMediaUrl(url), index),
+    const trustedUrl = normalizeTrustedMediaUrl(url);
+    if (!trustedUrl) {
+      stats.skippedUnsupportedMedia += 1;
+      continue;
+    }
+
+    const sortOrder = media.length;
+    media.push({
+      id: stableMediaId(momentId, "image", trustedUrl, sortOrder),
       kind: "image",
-      url: normalizeLegacyMediaUrl(url),
-      sortOrder: index,
-    };
-  });
+      url: trustedUrl,
+      sortOrder,
+    });
+  }
+
+  return media;
 }
 
 function renderSql(moments) {
@@ -191,10 +210,36 @@ function isHttpUrl(value) {
   }
 }
 
-function normalizeLegacyMediaUrl(value) {
-  return value.startsWith(`${LEGACY_R2_BASE_URL}/`)
-    ? `${PUBLIC_MEDIA_BASE_URL}/${value.slice(LEGACY_R2_BASE_URL.length + 1)}`
-    : value;
+function normalizeTrustedMediaUrl(value) {
+  const normalized = normalizeAbsoluteHttpUrl(value);
+  if (!normalized) return null;
+
+  const key = mediaKeyFromTrustedUrl(normalized);
+  return key && GENERATED_MEDIA_KEY_PATTERN.test(key) ? `${PUBLIC_MEDIA_BASE_URL}/${key}` : null;
+}
+
+function mediaKeyFromTrustedUrl(value) {
+  if (value.startsWith(`${PUBLIC_MEDIA_BASE_URL}/`)) {
+    return value.slice(PUBLIC_MEDIA_BASE_URL.length + 1);
+  }
+
+  if (value.startsWith(`${LEGACY_R2_BASE_URL}/`)) {
+    return value.slice(LEGACY_R2_BASE_URL.length + 1);
+  }
+
+  return null;
+}
+
+function normalizeAbsoluteHttpUrl(value) {
+  try {
+    const url = new URL(value);
+    if (url.protocol !== "http:" && url.protocol !== "https:") {
+      return null;
+    }
+    return url.toString();
+  } catch {
+    return null;
+  }
 }
 
 function sqlString(value) {
