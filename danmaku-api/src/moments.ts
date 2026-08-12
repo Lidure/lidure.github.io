@@ -302,7 +302,7 @@ function aggregateMomentRows(rows: MomentListRow[]): MomentApiItem[] {
     }
 
     if (row.media_kind && row.media_url) {
-      item.media.push({ kind: row.media_kind, url: row.media_url });
+      item.media.push({ kind: row.media_kind, url: normalizeLegacyMediaUrl(row.media_url) });
     }
   }
 
@@ -311,6 +311,10 @@ function aggregateMomentRows(rows: MomentListRow[]): MomentApiItem[] {
   }
 
   return Array.from(items.values());
+}
+
+function normalizeLegacyMediaUrl(value: string): string {
+  return value.startsWith("/") ? `https://pub-6108779417b647c592c51538e44c8bd0.r2.dev${value}` : value;
 }
 
 async function getMomentById(db: D1Database, id: string): Promise<MomentApiItem> {
