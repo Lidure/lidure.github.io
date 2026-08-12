@@ -37,7 +37,10 @@
     setGreeting(el);
   }
 
-  document.addEventListener('astro:page-load', initGreeting);
+  if (!window.__greetingPageLoadBound) {
+    document.addEventListener('astro:page-load', initGreeting);
+    window.__greetingPageLoadBound = true;
+  }
   initGreeting();
 })();
 </script>

@@ -207,6 +207,8 @@ test('persistent layout scripts initialize through astro page-load with data gua
 
   assert.match(greeting, /function initGreeting/);
   assert.match(greeting, /dataset\.greetingInitialized/);
+  assert.match(greeting, /window\.__greetingPageLoadBound/);
+  assert.match(greeting, /if\s*\(!window\.__greetingPageLoadBound\)/);
   assert.match(greeting, /document\.addEventListener\(['"]astro:page-load['"], initGreeting\)/);
   assert.doesNotMatch(greeting, /DOMContentLoaded/);
 });
