@@ -1,19 +1,19 @@
 ---
-/** 根据访客本地时段显示可爱问候语（客户端动态计算） */
+/** 根据访客本地时段显示问候语（客户端动态计算） */
 ---
 <span id="greeting-text" class="greeting-text"></span>
 
 <script is:inline>
 (function() {
-  function setGreeting() {
+  function setGreeting(el) {
     var greetings = {
-      dawn:    { emoji: '🌅', text: '清晨好呀，今天也一起加油吧 ～' },
-      morning: { emoji: '☀️', text: '早上好～ 愿你今天也有好心情！' },
-      noon:    { emoji: '🌞', text: '中午啦，记得好好吃饭哦 ～' },
-      afternoon: { emoji: '🌤️', text: '下午好～ 要不要停下来喝杯茶呢' },
-      dusk:    { emoji: '🌆', text: '傍晚了呢，今天辛苦啦 ✨' },
-      night:   { emoji: '🌙', text: '夜深了，早点休息哦，晚安 ～' },
-      late:    { emoji: '💫', text: '还没睡吗？注意身体呀～' }
+      dawn: { emoji: '🌅', text: '清晨好呀，今天也一起加油吧 ～' },
+      morning: { emoji: '☀️', text: '早上好呀 愿你今天也有好心情！' },
+      noon: { emoji: '🌤️', text: '中午啦，记得好好吃饭哦 ～' },
+      afternoon: { emoji: '🍵', text: '下午好呀 要不要停下来喝杯茶呢' },
+      dusk: { emoji: '🌇', text: '傍晚了呢，今天辛苦啦 ✨' },
+      night: { emoji: '🌙', text: '夜深了，早点休息哦，晚安 ～' },
+      late: { emoji: '💫', text: '还没睡吗？注意身体呀 ～' }
     };
 
     var hour = new Date().getHours();
@@ -27,15 +27,18 @@
     else key = 'late';
 
     var g = greetings[key];
-    var el = document.getElementById('greeting-text');
     if (el && g) el.textContent = g.emoji + ' ' + g.text;
   }
 
-  // 首次加载
-  setGreeting();
+  function initGreeting() {
+    var el = document.getElementById('greeting-text');
+    if (!el || el.dataset.greetingInitialized === '1') return;
+    el.dataset.greetingInitialized = '1';
+    setGreeting(el);
+  }
 
-  // ClientRouter 每次页面切换完成后重新设置问候语
-  document.addEventListener('astro:page-load', setGreeting);
+  document.addEventListener('astro:page-load', initGreeting);
+  initGreeting();
 })();
 </script>
 

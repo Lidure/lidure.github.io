@@ -179,3 +179,43 @@ test('moments api preserves distinct 401 auth worker codes', () => {
     /workerCode\.startsWith\('AUTH_'\)\s*\?\s*'AUTH_REQUIRED'/,
   );
 });
+
+test('Astro swaps clean page-scoped media while preserving persistent background media', () => {
+  const layout = readSource('src/layouts/BaseLayout.astro');
+  const hero = readSource('src/components/HeroSlideshow.astro');
+
+  assert.match(layout, /astro:before-swap/);
+  assert.match(layout, /video\[data-page-media\], audio\[data-page-media\]/);
+  assert.match(layout, /:not\(\[data-persistent-media\]\)/);
+  assert.match(layout, /\.pause\(\)/);
+  assert.match(layout, /removeAttribute\(['"]src['"]\)/);
+  assert.match(layout, /\.load\(\)/);
+
+  assert.match(hero, /id="slideshowVideo"[^>]*data-persistent-media/s);
+  assert.match(hero, /id="media-preview-video"[^>]*data-page-media/s);
+});
+
+test('persistent layout scripts initialize through astro page-load with data guards', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+  const greeting = readSource('src/components/Greeting.astro');
+
+  assert.match(hero, /function initHeroSlideshow/);
+  assert.match(hero, /AbortController/);
+  assert.match(hero, /dataset\.heroSlideshowInitialized/);
+  assert.match(hero, /document\.addEventListener\(['"]astro:page-load['"], initHeroSlideshow\)/);
+  assert.doesNotMatch(hero, /DOMContentLoaded/);
+
+  assert.match(greeting, /function initGreeting/);
+  assert.match(greeting, /dataset\.greetingInitialized/);
+  assert.match(greeting, /document\.addEventListener\(['"]astro:page-load['"], initGreeting\)/);
+  assert.doesNotMatch(greeting, /DOMContentLoaded/);
+});
+
+test('background video degrades safely on navigation visibility and reduced motion', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+
+  assert.match(hero, /prefersReducedMotion/);
+  assert.match(hero, /visibilitychange/);
+  assert.match(hero, /document\.hidden/);
+  assert.match(hero, /videoEl\.pause\(\)/);
+});

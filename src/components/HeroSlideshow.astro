@@ -41,7 +41,7 @@ const DEFAULT_OPACITY = 0.45;
 >
   <div class="slideshow-layer" aria-hidden="true"></div>
   <canvas class="slideshow-canvas" aria-hidden="true"></canvas>
-  <video class="slideshow-video" id="slideshowVideo" muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true" tabindex="-1" disablepictureinpicture disableRemotePlayback></video>
+  <video class="slideshow-video" id="slideshowVideo" data-persistent-media muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true" tabindex="-1" disablepictureinpicture disableRemotePlayback></video>
   <div class="slideshow-overlay" aria-hidden="true"></div>
 </div>
 
@@ -153,7 +153,7 @@ const DEFAULT_OPACITY = 0.45;
   <button class="media-preview-close" id="media-preview-close" type="button" aria-label="关闭">&times;</button>
   <div class="media-preview-stage" id="media-preview-stage">
     <img class="media-preview-img" id="media-preview-img" src="" alt="" />
-    <video class="media-preview-video" id="media-preview-video" src="" muted loop playsinline webkit-playsinline controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableRemotePlayback></video>
+    <video class="media-preview-video" id="media-preview-video" data-page-media src="" muted loop playsinline webkit-playsinline controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableRemotePlayback></video>
   </div>
 </div>
 
@@ -1131,6 +1131,7 @@ const DEFAULT_OPACITY = 0.45;
   var _timer = null;
   var _destroyed = false;
   var _pageHandler = null;
+  var _heroLifecycleController = null;
 
   function cleanup() {
     if (_timer) { clearTimeout(_timer); _timer = null; }
@@ -1144,7 +1145,7 @@ const DEFAULT_OPACITY = 0.45;
     _destroyed = true;
   }
 
-  function init() {
+  function initHeroSlideshow() {
     // ===== Query persistent DOM elements =====
     var container = document.getElementById('hero-slideshow');
     var settingsBtn = document.getElementById('hero-settings-btn');
@@ -1190,6 +1191,7 @@ const DEFAULT_OPACITY = 0.45;
       el.setAttribute('playsinline', '');
       el.setAttribute('webkit-playsinline', '');
       el.setAttribute('aria-hidden', 'true');
+      el.setAttribute('data-persistent-media', '');
       el.setAttribute('disablepictureinpicture', '');
       el.setAttribute('disableremoteplayback', '');
       try { el.disablePictureInPicture = true; } catch (err) {}
@@ -1205,6 +1207,7 @@ const DEFAULT_OPACITY = 0.45;
       el.crossOrigin = 'anonymous';
       el.setAttribute('playsinline', '');
       el.setAttribute('webkit-playsinline', '');
+      el.setAttribute('data-page-media', '');
       el.setAttribute('controlslist', 'nodownload noplaybackrate noremoteplayback');
       el.setAttribute('disablepictureinpicture', '');
       el.setAttribute('disableremoteplayback', '');
@@ -1219,7 +1222,7 @@ const DEFAULT_OPACITY = 0.45;
     }
     // ===== Element-level guard (same pattern as theme toggle fix) =====
     // Prevents double-initialization when astro:page-load fires on first load
-    if (container.__initialized) {
+    if (container.dataset.heroSlideshowInitialized === '1') {
       // Lightweight reinit: just restart slideshow on page navigation return
       _destroyed = false;
       var savedState = null;
@@ -1233,7 +1236,7 @@ const DEFAULT_OPACITY = 0.45;
       }
       return;
     }
-    container.__initialized = true;
+    container.dataset.heroSlideshowInitialized = '1';
 
     // ===== Full initialization =====
     cleanup();
@@ -1259,6 +1262,7 @@ const DEFAULT_OPACITY = 0.45;
       videoEl = document.createElement('video');
       videoEl.id = 'slideshowVideo';
       videoEl.className = 'slideshow-video';
+      videoEl.setAttribute('data-persistent-media', '');
       videoEl.muted = true;
       videoEl.loop = true;
       videoEl.playsInline = true;
@@ -1273,7 +1277,8 @@ const DEFAULT_OPACITY = 0.45;
     var VIDEO_READY_TIMEOUT_MS = 9000;
     var POSTER_NEEDED = 'poster-needed';
     var videoPosterMap = {};
-    var preferStaticVideo = isMobileVideoHostile() || (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var prefersReducedMotion = Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    var preferStaticVideo = isMobileVideoHostile() || prefersReducedMotion;
     var videoPreloadReady = false;
     var videoPreloadScheduled = false;
 
@@ -2288,10 +2293,16 @@ const DEFAULT_OPACITY = 0.45;
       if (state.enabled && !_destroyed) start();
     });
 
+    if (_heroLifecycleController) {
+      _heroLifecycleController.abort();
+    }
+    _heroLifecycleController = typeof AbortController === 'function' ? new AbortController() : null;
+    var lifecycleOptions = _heroLifecycleController ? { signal: _heroLifecycleController.signal } : undefined;
+
     document.addEventListener('visibilitychange', function() {
       if (document.hidden) stop();
       else if (state.enabled && !_destroyed) start();
-    });
+    }, lifecycleOptions);
 
     /* ===== Register page-load handler for navigation ===== */
     _pageHandler = function() {
@@ -2303,16 +2314,13 @@ const DEFAULT_OPACITY = 0.45;
         return;
       }
       // Re-init on return to homepage (element-level guard handles dedup)
-      init();
+      initHeroSlideshow();
     };
-    document.addEventListener('astro:page-load', _pageHandler);
+    document.addEventListener('astro:page-load', _pageHandler, lifecycleOptions);
   }
 
   /* ===== Bootstrap ===== */
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  document.addEventListener('astro:page-load', initHeroSlideshow);
+  initHeroSlideshow();
 })();
 </script>

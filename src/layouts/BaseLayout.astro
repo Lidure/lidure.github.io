@@ -48,6 +48,24 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         }
       } catch(e) {}
     })();
+    (function() {
+      if (window.__pageMediaSwapCleanupBound) return;
+      window.__pageMediaSwapCleanupBound = true;
+
+      var pageMediaSelector = 'video[data-page-media], audio[data-page-media]';
+
+      document.addEventListener('astro:before-swap', function() {
+        document.querySelectorAll(pageMediaSelector).forEach(function(media) {
+          if (media.matches(':not([data-persistent-media])') === false) return;
+          try { media.pause(); } catch(e) {}
+          media.removeAttribute('src');
+          media.querySelectorAll('source').forEach(function(source) {
+            source.removeAttribute('src');
+          });
+          try { media.load(); } catch(e) {}
+        });
+      });
+    })();
     </script>
   </head>
   <body>
