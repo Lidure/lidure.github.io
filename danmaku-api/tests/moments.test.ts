@@ -150,9 +150,11 @@ describe("normalizeMomentInput", () => {
 });
 
 describe("moments data access", () => {
-  it("lists moments with images, media, and nextCursor", async () => {
-    const db = makeDb((sql) => {
+  it("returns no nextCursor on the final page when there is no extra moment", async () => {
+    const db = makeDb((sql, args) => {
       if (sql.includes("SELECT m.id")) {
+        expect(args.at(-1)).toBe(3);
+
         return makeBoundStatement({
           all: vi.fn().mockResolvedValue({
             results: [
@@ -228,7 +230,104 @@ describe("moments data access", () => {
           media: [],
         },
       ],
-      nextCursor: "2026-06-17|moment-1",
+      nextCursor: null,
+    });
+  });
+
+  it("returns nextCursor only when an extra moment exists beyond the page limit", async () => {
+    const db = makeDb((sql, args) => {
+      if (sql.includes("SELECT m.id")) {
+        expect(args.at(-1)).toBe(3);
+
+        return makeBoundStatement({
+          all: vi.fn().mockResolvedValue({
+            results: [
+              {
+                id: "moment-3",
+                date: "2026-06-19",
+                category: "生活",
+                text: "第三条",
+                link: null,
+                created_at: "2026-06-19T09:00:00.000Z",
+                updated_at: "2026-06-19T09:00:00.000Z",
+                media_id: null,
+                media_kind: null,
+                media_url: null,
+                media_sort_order: null,
+              },
+              {
+                id: "moment-2",
+                date: "2026-06-18T10:08",
+                category: "生活",
+                text: "第二条",
+                link: "https://lidure.xyz/two",
+                created_at: "2026-06-18T10:08:00.000Z",
+                updated_at: "2026-06-18T10:08:00.000Z",
+                media_id: "media-1",
+                media_kind: "image",
+                media_url: "https://media.lidure.xyz/moments/2.png",
+                media_sort_order: 0,
+              },
+              {
+                id: "moment-2",
+                date: "2026-06-18T10:08",
+                category: "生活",
+                text: "第二条",
+                link: "https://lidure.xyz/two",
+                created_at: "2026-06-18T10:08:00.000Z",
+                updated_at: "2026-06-18T10:08:00.000Z",
+                media_id: "media-2",
+                media_kind: "poster",
+                media_url: "https://media.lidure.xyz/moments/2-poster.jpg",
+                media_sort_order: 1,
+              },
+              {
+                id: "moment-1",
+                date: "2026-06-17",
+                category: "游戏",
+                text: "第一条",
+                link: null,
+                created_at: "2026-06-17T09:00:00.000Z",
+                updated_at: "2026-06-17T09:00:00.000Z",
+                media_id: null,
+                media_kind: null,
+                media_url: null,
+                media_sort_order: null,
+              },
+            ],
+          }),
+        });
+      }
+
+      throw new Error(`Unexpected SQL: ${sql}`);
+    });
+
+    const result = await listMoments(db, 2);
+
+    expect(result).toEqual({
+      items: [
+        {
+          id: "moment-3",
+          date: "2026-06-19",
+          category: "生活",
+          text: "第三条",
+          images: [],
+          media: [],
+        },
+        {
+          id: "moment-2",
+          date: "2026-06-18T10:08",
+          category: "生活",
+          text: "第二条",
+          link: "https://lidure.xyz/two",
+          images: ["https://media.lidure.xyz/moments/2.png"],
+          media: [
+            { kind: "image", url: "https://media.lidure.xyz/moments/2.png" },
+            { kind: "poster", url: "https://media.lidure.xyz/moments/2-poster.jpg" },
+          ],
+        },
+      ],
+      nextCursor: "2026-06-18T10:08|moment-2",
     });
   });
 
@@ -413,7 +512,7 @@ describe("moments worker routes", () => {
           media: [],
         },
       ],
-      nextCursor: "2026-06-18|moment-1",
+      nextCursor: null,
     });
   });
 

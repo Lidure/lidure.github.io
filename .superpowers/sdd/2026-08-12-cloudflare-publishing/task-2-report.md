@@ -62,3 +62,58 @@ Files changed for Task 2:
 - `danmaku-api/tests/moments.test.ts`
 - `danmaku-api/wrangler.jsonc`
 - `.superpowers/sdd/2026-08-12-cloudflare-publishing/task-2-report.md`
+
+Review fix round 1 — pagination contract:
+
+Issue fixed:
+
+- `listMoments()` no longer returns `nextCursor` on the final page.
+- It now returns `nextCursor` only when the `limit + 1` query reveals an additional aggregated moment beyond the returned page, while preserving `date DESC, id DESC` ordering and the existing cursor format/semantics.
+
+Focused regression coverage added:
+
+- final page with no extra moment row group => `nextCursor: null`
+- page with an extra moment beyond the returned limit => `nextCursor` points at the last returned item
+- public `GET /api/moments` response now also asserts `nextCursor: null` on a single-item final page
+
+Round 1 verification trail:
+
+1. RED — pagination regression reproduced
+
+   Command:
+   `npm --prefix danmaku-api test -- tests/moments.test.ts`
+
+   Result:
+   `tests/moments.test.ts (13 tests | 2 failed)`
+
+   Exact failures:
+   - `moments data access > returns no nextCursor on the final page when there is no extra moment`
+   - `moments worker routes > returns public list responses with cache headers`
+
+   Both failures showed the same bug:
+   - expected `nextCursor: null`
+   - received a non-null cursor on the final page
+
+2. GREEN — Worker type-check before code change
+
+   Command:
+   `npm --prefix danmaku-api run check`
+
+   Result:
+   `tsc --noEmit` exited successfully.
+
+3. GREEN — focused pagination regression tests after fix
+
+   Command:
+   `npm --prefix danmaku-api test -- tests/moments.test.ts`
+
+   Result:
+   `✓ tests/moments.test.ts (13 tests)`
+
+4. GREEN — Worker type-check after fix
+
+   Command:
+   `npm --prefix danmaku-api run check`
+
+   Result:
+   `tsc --noEmit` exited successfully.

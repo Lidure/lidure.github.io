@@ -178,10 +178,11 @@ export async function listMoments(
   const aggregated = aggregateMomentRows(results ?? []);
   const pageItems = aggregated.slice(0, normalizedLimit);
   const tail = pageItems[pageItems.length - 1];
+  const hasMore = aggregated.length > normalizedLimit;
 
   return {
     items: pageItems,
-    nextCursor: tail ? formatCursor(tail.date, tail.id) : null,
+    nextCursor: hasMore && tail ? formatCursor(tail.date, tail.id) : null,
   };
 }
 
