@@ -81,6 +81,19 @@ export default {
         return errorResponse("Method not allowed", "METHOD_NOT_ALLOWED", 405, request, env);
       }
 
+      if (url.pathname === "/api/messages") {
+        if (request.method === "GET") return handleMessagesList(url, request, env);
+        if (request.method === "POST") return handleMessagesCreate(request, env);
+      }
+      if (url.pathname === "/api/comments") {
+        if (request.method === "GET") return handleCommentsList(url, request, env);
+        if (request.method === "POST") return handleCommentsCreate(request, env);
+        if (request.method === "DELETE") return handleCommentsDelete(request, env);
+      }
+      if (url.pathname === "/api/comment-reactions" && request.method === "POST") {
+        return handleCommentReactionCreate(request, env);
+      }
+
       if (url.pathname === "/api/media/upload") {
         if (request.method === "POST") {
           return handleUploadMedia(request, env);
@@ -320,6 +333,47 @@ async function handleDeleteMoment(url: URL, request: Request, env: Env): Promise
   await deleteMoment(env.DB, momentId);
   return noContent(204, request, env);
 }
+
+async function handleMessagesList(url: URL, request: Request, env: Env) {
+  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit")) || 50));
+  const { results } = await env.DB.prepare("SELECT id,user_id,text,created_at FROM guest_messages ORDER BY created_at DESC LIMIT ?").bind(limit).all<any>();
+  return json({ items: (results || []).map((r: any) => ({ id: r.id, userId: r.user_id, text: r.text, createdAt: r.created_at, commentCount: 0 })), now: Date.now() }, 200, request, env);
+}
+
+async function handleMessagesCreate(request: Request, env: Env) {
+  if (!isJsonRequest(request)) return errorResponse("Expected application/json", "UNSUPPORTED_MEDIA_TYPE", 415, request, env);
+  const body = await readJsonBody(request); const userId = normalizePublicUserId(body.ok ? body.value.userId : ""); const text = normalizePublicText(body.ok ? body.value.text : "", 500);
+  if (!userId || !text) return errorResponse("Missing userId or text", "BAD_REQUEST", 400, request, env);
+  const now = Date.now(), id = crypto.randomUUID(), ipHash = await hashClient(request);
+  await env.DB.prepare("INSERT INTO guest_messages (id,user_id,text,ip_hash,created_at) VALUES (?,?,?,?,?)").bind(id,userId,text,ipHash,now).run();
+  return json({ item: { id,userId,text,createdAt:now,commentCount:0 } }, 201, request, env);
+}
+
+async function handleCommentsList(url: URL, request: Request, env: Env) {
+  const targetType = normalizeTargetType(url.searchParams.get("targetType")), targetId = (url.searchParams.get("targetId") || "").trim();
+  if (!targetType || !targetId) return errorResponse("Missing target", "BAD_REQUEST", 400, request, env);
+  const limit = Math.min(100, Math.max(1, Number(url.searchParams.get("limit")) || 80));
+  const { results } = await env.DB.prepare("SELECT id,target_type,target_id,user_id,text,created_at FROM comments WHERE target_type=? AND target_id=? ORDER BY created_at ASC LIMIT ?").bind(targetType,targetId,limit).all<any>();
+  return json({ items: (results || []).map(toPublicComment), now: Date.now() }, 200, request, env);
+}
+
+async function handleCommentsCreate(request: Request, env: Env) {
+  if (!isJsonRequest(request)) return errorResponse("Expected application/json", "UNSUPPORTED_MEDIA_TYPE", 415, request, env);
+  const body = await readJsonBody(request); const b = body.ok ? body.value : {}; const targetType = normalizeTargetType(b.targetType), targetId = typeof b.targetId === "string" ? b.targetId.trim() : "", userId = normalizePublicUserId(b.userId), text = normalizePublicText(b.text, 500);
+  if (!targetType || !targetId || !userId || !text) return errorResponse("Missing comment fields", "BAD_REQUEST", 400, request, env);
+  const now = Date.now(), id = crypto.randomUUID();
+  await env.DB.prepare("INSERT INTO comments (id,target_type,target_id,user_id,text,ip_hash,created_at) VALUES (?,?,?,?,?,?,?)").bind(id,targetType,targetId,userId,text,await hashClient(request),now).run();
+  return json({ item: { id,targetType,targetId,userId,text,createdAt:now,reactions:{} } }, 201, request, env);
+}
+
+async function handleCommentsDelete(request: Request, env: Env) { const body = await readJsonBody(request); const id = body.ok && typeof body.value.id === "string" ? body.value.id : ""; if (!id) return errorResponse("Missing id","BAD_REQUEST",400,request,env); await env.DB.prepare("DELETE FROM comment_reactions WHERE comment_id=?").bind(id).run(); await env.DB.prepare("DELETE FROM comments WHERE id=?").bind(id).run(); return json({ deleted:true },200,request,env); }
+
+async function handleCommentReactionCreate(request: Request, env: Env) { const body = await readJsonBody(request); const b=body.ok?body.value:{}; const id=typeof b.commentId==='string'?b.commentId:''; const emoji=typeof b.emoji==='string'?b.emoji:''; if(!id||!emoji)return errorResponse('Missing reaction','BAD_REQUEST',400,request,env); const ip=await hashClient(request); await env.DB.prepare('DELETE FROM comment_reactions WHERE comment_id=? AND ip_hash=?').bind(id,ip).run(); await env.DB.prepare('INSERT INTO comment_reactions (comment_id,emoji,ip_hash,created_at) VALUES (?,?,?,?)').bind(id,emoji,ip,Date.now()).run(); return json({ reactions:{[emoji]:1}, selectedEmoji:emoji },200,request,env); }
+
+function normalizeTargetType(value: unknown): "moment" | "message" | "" { return value === "moment" || value === "message" ? value : ""; }
+function normalizePublicUserId(value: unknown): string { return typeof value === "string" ? value.replace(/\s+/g," ").trim().slice(0,32) : ""; }
+function normalizePublicText(value: unknown, max: number): string { return typeof value === "string" ? value.replace(/\r\n/g,"\n").replace(/\r/g,"\n").trim().slice(0,max) : ""; }
+function toPublicComment(r: any) { return { id:r.id,targetType:r.target_type,targetId:r.target_id,userId:r.user_id,text:r.text,createdAt:r.created_at,reactions:{} }; }
 
 async function requireSession(request: Request, env: Env): Promise<{ exp: number } | Response> {
   const sessionSecret = env.SESSION_SECRET || "";
