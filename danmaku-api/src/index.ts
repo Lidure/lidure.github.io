@@ -492,7 +492,8 @@ async function readJsonBody(
   request: Request
 ): Promise<{ ok: true; value: Record<string, unknown> } | { ok: false }> {
   try {
-    const body = await request.json();
+    const raw = await request.text();
+    const body = JSON.parse(raw);
     return {
       ok: true,
       value: body && typeof body === "object" && !Array.isArray(body) ? (body as Record<string, unknown>) : {},

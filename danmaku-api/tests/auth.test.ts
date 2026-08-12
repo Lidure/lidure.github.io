@@ -52,13 +52,13 @@ function makeDb(handler: (sql: string, args: unknown[]) => BoundStatement): D1Da
 
 function makePasswordHash(password: string): string {
   const salt = Buffer.from("auth-test-salt-1");
-  const hash = pbkdf2Sync(password, salt, 310000, 32, "sha256");
-  return `pbkdf2$sha256$310000$${salt.toString("base64url")}$${hash.toString("base64url")}`;
+  const hash = pbkdf2Sync(password, salt, 100000, 32, "sha256");
+  return `pbkdf2$sha256$100000$${salt.toString("base64url")}$${hash.toString("base64url")}`;
 }
 
 function makePasswordHashWithSalt(password: string, salt: Buffer, encodedSalt: string): string {
-  const hash = pbkdf2Sync(password, salt, 310000, 32, "sha256");
-  return `pbkdf2$sha256$310000$${encodedSalt}$${hash.toString("base64url")}`;
+  const hash = pbkdf2Sync(password, salt, 100000, 32, "sha256");
+  return `pbkdf2$sha256$100000$${encodedSalt}$${hash.toString("base64url")}`;
 }
 
 function validMomentInput() {
@@ -99,11 +99,11 @@ describe("auth helpers", () => {
   });
 
   it.each([
-    ["wrong part count", "pbkdf2$sha256$310000$only-salt"],
+    ["wrong part count", "pbkdf2$sha256$100000$only-salt"],
     ["wrong prefix", makePasswordHash("correct horse").replace("pbkdf2", "argon2")],
     ["wrong hash name", makePasswordHash("correct horse").replace("sha256", "sha512")],
-    ["iteration suffix", makePasswordHash("correct horse").replace("$310000$", "$310000abc$")],
-    ["fractional iterations", makePasswordHash("correct horse").replace("$310000$", "$310000.5$")],
+    ["iteration suffix", makePasswordHash("correct horse").replace("$100000$", "$100000abc$")],
+    ["fractional iterations", makePasswordHash("correct horse").replace("$100000$", "$100000.5$")],
     [
       "standard base64 salt",
       makePasswordHashWithSalt(

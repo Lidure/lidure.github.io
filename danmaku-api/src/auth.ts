@@ -3,7 +3,7 @@ const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const SESSION_MAX_AGE_SECONDS = SESSION_MAX_AGE_MS / 1000;
 const PASSWORD_PREFIX = "pbkdf2";
 const PASSWORD_HASH = "sha256";
-const PASSWORD_ITERATIONS = 310000;
+const PASSWORD_ITERATIONS = 100000;
 const PASSWORD_KEY_LENGTH = 32;
 
 const textEncoder = new TextEncoder();
