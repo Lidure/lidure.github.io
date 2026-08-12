@@ -17,3 +17,5 @@ danmaku-api/.wrangler/
 
 .dev.vars*
 !.dev.vars.example
+.worktrees/
+.superpowers/
