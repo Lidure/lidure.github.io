@@ -1568,7 +1568,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   const DEFAULT_DANMAKU_API_BASE = 'https://api.lidure22.xyz/api';
   const API_BASE = (import.meta.env.PUBLIC_MOMENTS_API || DEFAULT_DANMAKU_API_BASE).replace(/\/$/, '');
   const MOMENT_REACTIONS_API_URL = `${API_BASE}/moment-reactions`;
-  const IMAGE_PUBLIC_BASE = (import.meta.env.PUBLIC_MEDIA_BASE_URL || 'https://media.lidure22.xyz').replace(/\/$/, '');
+  const IMAGE_PUBLIC_BASE = (import.meta.env.PUBLIC_MEDIA_BASE_URL || 'https://api.lidure22.xyz/media').replace(/\/$/, '');
   const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
   const maxImages = 9;
   const maxMediaItems = 9;

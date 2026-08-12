@@ -53,6 +53,7 @@ type MomentListRow = {
   link: string | null;
   created_at: string;
   updated_at: string;
+  legacy_images: string | null;
   media_id: string | null;
   media_kind: MomentMediaItem["kind"] | null;
   media_url: string | null;
@@ -157,13 +158,13 @@ export async function listMoments(
   const cursorArgs = parsedCursor ? [parsedCursor.date, parsedCursor.date, parsedCursor.id] : [];
   const sql = `
     WITH selected_moments AS (
-      SELECT id, date, category, text, link, created_at, updated_at
+      SELECT id, date, category, text, link, images AS legacy_images, created_at, updated_at
       FROM moments
       ${cursorClause}
       ORDER BY date DESC, id DESC
       LIMIT ?
     )
-    SELECT m.id, m.date, m.category, m.text, m.link, m.created_at, m.updated_at,
+    SELECT m.id, m.date, m.category, m.text, m.link, m.images AS legacy_images, m.created_at, m.updated_at,
            mm.id AS media_id, mm.kind AS media_kind, mm.url AS media_url, mm.sort_order AS media_sort_order
     FROM selected_moments m
     LEFT JOIN moment_media mm ON mm.moment_id = m.id
@@ -280,6 +281,16 @@ function aggregateMomentRows(rows: MomentListRow[]): MomentApiItem[] {
         ...(row.link ? { link: row.link } : {}),
       };
       items.set(row.id, item);
+      if (row.legacy_images) {
+        try {
+          const legacy = JSON.parse(row.legacy_images) as unknown;
+          if (Array.isArray(legacy)) {
+            for (const url of legacy) {
+              if (typeof url === "string" && url.trim()) item.media.push({ kind: "image", url: url.trim() });
+            }
+          }
+        } catch {}
+      }
     }
 
     if (row.media_kind && row.media_url) {

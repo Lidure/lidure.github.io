@@ -35,7 +35,7 @@ type ValidationResult<T> =
   | { ok: true; value: T }
   | { ok: false; error: MomentValidationError };
 
-const DEFAULT_PUBLIC_MEDIA_BASE_URL = "https://media.lidure22.xyz";
+const DEFAULT_PUBLIC_MEDIA_BASE_URL = "https://api.lidure22.xyz/media";
 const MAX_MEDIA_ITEMS = 9;
 export const MAX_IMAGE_UPLOAD_BYTES = 8 * 1024 * 1024;
 export const MAX_VIDEO_UPLOAD_BYTES = 100 * 1024 * 1024;

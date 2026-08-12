@@ -102,6 +102,10 @@ export default {
         return errorResponse("Method not allowed", "METHOD_NOT_ALLOWED", 405, request, env);
       }
 
+      if (url.pathname.startsWith("/media/") && request.method === "GET") {
+        return handleMedia(request, url, env);
+      }
+
       if (url.pathname.startsWith("/api/moments/")) {
         if (request.method === "DELETE") {
           return handleDeleteMoment(url, request, env);
@@ -332,6 +336,18 @@ async function handleDeleteMoment(url: URL, request: Request, env: Env): Promise
 
   await deleteMoment(env.DB, momentId);
   return noContent(204, request, env);
+}
+
+async function handleMedia(request: Request, url: URL, env: Env): Promise<Response> {
+  if (!env.MEDIA) return errorResponse("Media storage is not configured.", "MEDIA_UNAVAILABLE", 500, request, env);
+  const key = decodeURIComponent(url.pathname.slice("/media/".length));
+  const object = await env.MEDIA.get(key);
+  if (!object) return errorResponse("Media not found", "MEDIA_NOT_FOUND", 404, request, env);
+  const headers = new Headers();
+  object.writeHttpMetadata(headers);
+  headers.set("Cache-Control", "public, max-age=31536000, immutable");
+  headers.set("ETag", object.httpEtag);
+  return new Response(object.body, { headers });
 }
 
 async function handleMessagesList(url: URL, request: Request, env: Env) {

@@ -15,7 +15,7 @@
 	},
 	"vars": {
 		"ALLOWED_ORIGINS": "https://lidure22.xyz,https://www.lidure22.xyz,http://localhost:4321,http://127.0.0.1:4321",
-		"PUBLIC_MEDIA_BASE_URL": "https://media.lidure22.xyz"
+		"PUBLIC_MEDIA_BASE_URL": "https://api.lidure22.xyz/media"
 	},
 	"r2_buckets": [
 		{
