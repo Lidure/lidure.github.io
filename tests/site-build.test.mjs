@@ -114,3 +114,19 @@ test('moments browser code uses the session API client for management', () => {
   assert.match(publicInteractions, /AUTH_REQUIRED/);
   assert.doesNotMatch(publicInteractions, /PUBLIC_ADMIN_TOKEN_KEY|Authorization|Bearer|window\.prompt/);
 });
+
+test('moments api preserves distinct 401 auth worker codes', () => {
+  const apiClient = readSource('src/lib/moments-api.ts');
+
+  assert.match(apiClient, /'AUTH_REQUIRED'/);
+  assert.match(apiClient, /'AUTH_INVALID'/);
+  assert.match(apiClient, /'AUTH_EXPIRED'/);
+  assert.match(
+    apiClient,
+    /workerCode === 'AUTH_REQUIRED'\s*\|\|\s*workerCode === 'AUTH_INVALID'\s*\|\|\s*workerCode === 'AUTH_EXPIRED'/,
+  );
+  assert.doesNotMatch(
+    apiClient,
+    /workerCode\.startsWith\('AUTH_'\)\s*\?\s*'AUTH_REQUIRED'/,
+  );
+});

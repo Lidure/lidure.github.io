@@ -49,6 +49,8 @@ export type MomentUploadResult = {
 
 export type MomentApiErrorCode =
   | 'AUTH_REQUIRED'
+  | 'AUTH_INVALID'
+  | 'AUTH_EXPIRED'
   | 'AUTH_FORBIDDEN'
   | 'PAYLOAD_TOO_LARGE'
   | 'RATE_LIMITED'
@@ -128,6 +130,10 @@ function defaultMessage(code: MomentApiErrorCode, status?: number) {
   switch (code) {
     case 'AUTH_REQUIRED':
       return '请先登录后再操作。';
+    case 'AUTH_INVALID':
+      return '登录信息无效，请重新登录。';
+    case 'AUTH_EXPIRED':
+      return '登录已过期，请重新登录。';
     case 'AUTH_FORBIDDEN':
       return '当前登录没有权限执行这个操作。';
     case 'PAYLOAD_TOO_LARGE':
@@ -149,7 +155,10 @@ async function readError(res: Response): Promise<MomentApiError> {
   const data = await res.json().catch(() => ({}));
   const statusCode = mapStatusToCode(res.status);
   const workerCode = typeof data.code === 'string' ? data.code : '';
-  const code = workerCode.startsWith('AUTH_') ? 'AUTH_REQUIRED' : statusCode;
+  const code: MomentApiErrorCode =
+    workerCode === 'AUTH_REQUIRED' || workerCode === 'AUTH_INVALID' || workerCode === 'AUTH_EXPIRED'
+      ? workerCode
+      : statusCode;
   const message = typeof data.error === 'string' && data.error.trim()
     ? data.error.trim()
     : defaultMessage(code, res.status);

@@ -148,3 +148,153 @@ Notes:
 - This failure is the known Task 1 RED contract.
 - It is not caused by the Task 5 session-based moments publishing changes.
 - No change was made to weaken or bypass that failing assertion.
+
+## Review fix addendum (2026-08-12)
+
+Scope for this follow-up review fix:
+
+- `src/lib/moments-api.ts`
+- `tests/site-build.test.mjs`
+
+Summary:
+
+- Preserved distinct 401 auth codes from the Worker in the moments API client:
+  - `AUTH_REQUIRED` remains the missing-session client code.
+  - `AUTH_INVALID` is now preserved distinctly.
+  - `AUTH_EXPIRED` is now preserved distinctly.
+- Added a focused source contract in `tests/site-build.test.mjs` to prevent regressing this 401 auth-code mapping.
+
+### Fresh command results
+
+#### `npm run check`
+
+Exit code: `0`
+
+```text
+> lidure-github-io@0.0.1 check
+> astro check
+
+[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
+14:33:13 [content] Syncing content
+14:33:13 [content] Synced content
+14:33:13 [types] Generated 1.04s
+14:33:13 [check] Getting diagnostics for Astro files in C:\Users\陈腾鑫\OneDrive\文档\ChatGPT\我的blog\.worktrees\cloudflare-publishing...
+
+Result (35 files):
+- 0 errors
+- 0 warnings
+- 34 hints
+```
+
+#### `npm run build`
+
+Exit code: `0`
+
+```text
+> lidure-github-io@0.0.1 build
+> astro check && astro build
+
+[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
+14:33:13 [content] Syncing content
+14:33:13 [content] Synced content
+14:33:13 [types] Generated 1.03s
+14:33:13 [check] Getting diagnostics for Astro files in C:\Users\陈腾鑫\OneDrive\文档\ChatGPT\我的blog\.worktrees\cloudflare-publishing...
+
+Result (35 files):
+- 0 errors
+- 0 warnings
+- 34 hints
+
+[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
+14:33:32 [content] Syncing content
+14:33:32 [content] Synced content
+14:33:32 [types] Generated 835ms
+14:33:32 [build] output: "static"
+14:33:32 [build] mode: "static"
+14:33:32 [build] directory: C:\Users\陈腾鑫\OneDrive\文档\ChatGPT\我的blog\.worktrees\cloudflare-publishing\dist\
+14:33:32 [build] Collecting build info...
+14:33:32 [build] ✓ Completed in 883ms.
+14:33:33 [build] Building static entrypoints...
+14:33:37 [vite] ✓ built in 3.89s
+14:33:37 [vite] ✓ built in 927ms
+14:33:37 [build] Rearranging server assets...
+
+ generating static routes
+14:33:38   ├─ /messages/index.html (+37ms)
+14:33:38   ├─ /moments/index.html (+16ms)
+14:33:38   ├─ /player/index.html (+35ms)
+14:33:38   ├─ /posts/视觉光流/index.html (+29ms)
+14:33:38   ├─ /posts/视觉光流公式推导与文献/index.html (+9ms)
+14:33:38   ├─ /posts/hello-world/index.html (+8ms)
+14:33:38   ├─ /posts/uav完整流程/index.html (+8ms)
+14:33:38   ├─ /posts/index.html (+633ms)
+14:33:39   ├─ /rhythm/index.html (+11ms)
+14:33:39   ├─ /rss.xml (+105ms)
+14:33:39   ├─ /search/index.html (+11ms)
+14:33:39   ├─ /sekai-quest/index.html (+11ms)
+14:33:39   ├─ /tags/光流/index.html (+8ms)
+14:33:39   ├─ /tags/摄像头/index.html (+6ms)
+14:33:39   ├─ /tags/视觉测高/index.html (+6ms)
+14:33:39   ├─ /tags/UAV/index.html (+7ms)
+14:33:39   ├─ /tags/文献/index.html (+7ms)
+14:33:39   ├─ /tags/astro/index.html (+12ms)
+14:33:39   ├─ /tags/github-pages/index.html (+6ms)
+14:33:39   ├─ /tags/blog/index.html (+11ms)
+14:33:39   ├─ /tags/ROS/index.html (+19ms)
+14:33:39   ├─ /tags/树莓派/index.html (+7ms)
+14:33:39   ├─ /tags/index.html (+10ms)
+14:33:39   ├─ /index.html (+15ms)
+14:33:39 ✓ Completed in 1.14s.
+
+ generating optimized images
+14:33:39   ▶ /_astro/image.CGzDrFJK_122Idx.webp (reused cache entry) (+5ms) (1/4)
+14:33:39   ▶ /_astro/image-1.BBvBuft0_MmBdf.webp (reused cache entry) (+4ms) (2/4)
+14:33:39   ▶ /_astro/image-2.DrWzS8Gl_2tVqY0.webp (reused cache entry) (+5ms) (3/4)
+14:33:39   ▶ /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp (reused cache entry) (+6ms) (4/4)
+14:33:39 ✓ Completed in 9ms.
+
+14:33:39 [build] ✓ Completed in 6.26s.
+14:33:39 [@astrojs/sitemap] `sitemap-index.xml` created at `dist`
+14:33:39 [build] 23 page(s) built in 7.25s
+14:33:39 [build] Complete!
+```
+
+#### `npm run test:site`
+
+Exit code: `1`
+
+```text
+> lidure-github-io@0.0.1 test:site
+> node --test tests/site-build.test.mjs
+
+✔ search embeds parseable post data without a runtime jsonData reference (4.2534ms)
+✖ public URLs use the final domain and include social metadata (5.5006ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (4.5532ms)
+✔ optimized identity assets are used and remain small (2.6661ms)
+✔ rendered background configuration starts with a static image (2.3849ms)
+✔ rendered moments management controls are hidden by default (2.6242ms)
+✔ moments page exposes the API hook and local controls (3.81ms)
+✔ moments browser code uses the session API client for management (2.8591ms)
+✔ moments api preserves distinct 401 auth worker codes (0.7945ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 163.3085
+
+✖ failing tests:
+
+test at tests\site-build.test.mjs:21:1
+✖ public URLs use the final domain and include social metadata (5.5006ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /https:\/\/lidure\.xyz\/sitemap-0\.xml/. Input:
+
+  '<?xml version="1.0" encoding="UTF-8"?><sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><sitemap><loc>https://lidure22.xyz/sitemap-0.xml</loc></sitemap></sitemapindex>'
+```
+
+Addendum notes:
+
+- The new focused auth-mapping contract passes.
+- The only remaining failing site test is the pre-existing sitemap domain mismatch, unrelated to this review fix.
