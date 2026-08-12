@@ -34,13 +34,13 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           </button>
         ))}
       </div>
-      <button class="fab" id="publish-toggle" aria-label="发布新动态" data-admin-only hidden>
+      <button class="fab" id="publish-toggle" aria-label="发布新动态">
         <span id="toggle-icon">✏️</span>
       </button>
     </div>
 
     <!-- 发布面板 -->
-    <div class="publish-panel hidden" id="publish-box" data-admin-only hidden>
+    <div class="publish-panel hidden" id="publish-box">
       <div class="panel-topbar">
         <span class="panel-title">📝 发布新动态</span>
         <button type="button" class="icon-btn" id="close-btn" aria-label="关闭">✕</button>
@@ -2198,11 +2198,8 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     const shell = document.querySelector<HTMLElement>('.moments-shell');
     if (!shell || shell.dataset.momentsInitialized === '1') return;
 
-    // Management UI is intentionally available only at /moments/?admin=1.
+    // The publish button is public; authentication is required inside the panel.
     adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
-    document.querySelectorAll<HTMLElement>('[data-admin-only]').forEach((element) => {
-      element.hidden = !adminMode;
-    });
 
     cleanupMomentsPage?.abort();
     const controller = new AbortController();
