@@ -2229,12 +2229,15 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       duration?: number;
       error?: string;
       posterRequired?: boolean;
+      posterGenerationId?: number;
     };
     const selectedImages: SelectedMediaItem[] = [];
+    let nextPosterGenerationId = 0;
     let manualPosterTargetId = '';
 
     function cleanupPageState() {
       selectedImages.forEach((item) => {
+        invalidateVideoPosterGeneration(item);
         URL.revokeObjectURL(item.previewUrl);
         if (item.posterPreviewUrl) URL.revokeObjectURL(item.posterPreviewUrl);
       });
@@ -2381,6 +2384,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         removeBtn.addEventListener('click', () => {
           const index = selectedImages.findIndex((image) => image.id === item.id);
           if (index > -1) {
+            invalidateVideoPosterGeneration(selectedImages[index]);
             URL.revokeObjectURL(selectedImages[index].previewUrl);
             selectedImages.splice(index, 1);
             renderPreviews();
@@ -2435,6 +2439,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
     function clearSelectedMedia() {
       selectedImages.forEach((item) => {
+        invalidateVideoPosterGeneration(item);
         URL.revokeObjectURL(item.previewUrl);
         if (item.posterPreviewUrl) URL.revokeObjectURL(item.posterPreviewUrl);
       });
@@ -2447,18 +2452,38 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       item.posterPreviewUrl = undefined;
     }
 
+    function startVideoPosterGeneration(item: SelectedMediaItem) {
+      item.posterGenerationId = ++nextPosterGenerationId;
+      return item.posterGenerationId;
+    }
+
+    function invalidateVideoPosterGeneration(item: SelectedMediaItem) {
+      item.posterGenerationId = ++nextPosterGenerationId;
+    }
+
+    function isCurrentVideoPosterGeneration(item: SelectedMediaItem, generationId: number) {
+      return selectedImages.includes(item) && item.posterGenerationId === generationId && !signal.aborted;
+    }
+
     async function setVideoPoster(item: SelectedMediaItem, requestedTime = item.posterTime) {
       if (item.kind !== 'video') return;
+      const generationId = startVideoPosterGeneration(item);
       try {
         item.error = undefined;
         item.posterTime = choosePosterTime(item.duration || Number.POSITIVE_INFINITY, requestedTime);
         const blob = await captureVideoPoster(item.file, item.posterTime);
+        const posterPreviewUrl = URL.createObjectURL(blob);
+        if (!isCurrentVideoPosterGeneration(item, generationId)) {
+          URL.revokeObjectURL(posterPreviewUrl);
+          return;
+        }
         item.posterBlob = blob;
         item.posterRequired = false;
         item.posterRemoteUrl = undefined;
         revokePosterPreview(item);
-        item.posterPreviewUrl = URL.createObjectURL(blob);
+        item.posterPreviewUrl = posterPreviewUrl;
       } catch (err) {
+        if (!isCurrentVideoPosterGeneration(item, generationId)) return;
         item.posterBlob = undefined;
         item.posterRequired = true;
         const code = err instanceof VideoPosterError ? err.code : '';
@@ -2485,6 +2510,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         removeBtn.addEventListener('click', () => {
           const index = selectedImages.findIndex((media) => media.id === item.id);
           if (index > -1) {
+            invalidateVideoPosterGeneration(selectedImages[index]);
             URL.revokeObjectURL(selectedImages[index].previewUrl);
             if (selectedImages[index].posterPreviewUrl) URL.revokeObjectURL(selectedImages[index].posterPreviewUrl);
             selectedImages.splice(index, 1);
@@ -2659,6 +2685,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         setMessage('请上传 JPEG 格式封面', 'error');
         return;
       }
+      invalidateVideoPosterGeneration(target);
       target.posterBlob = file;
       target.posterRemoteUrl = undefined;
       target.posterRequired = false;

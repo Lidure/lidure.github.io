@@ -101,6 +101,22 @@ test('moments publishing UI accepts videos and requires selectable posters', () 
   assert.match(posterHelper, /VIDEO_CORS_REQUIRED/);
 });
 
+test('moments video poster generation ignores stale async captures', () => {
+  const momentsPage = readSource('src/pages/moments.astro');
+
+  assert.match(momentsPage, /posterGenerationId\?:\s*number/);
+  assert.match(momentsPage, /function invalidateVideoPosterGeneration/);
+  assert.match(momentsPage, /function isCurrentVideoPosterGeneration/);
+  assert.match(momentsPage, /selectedImages\.includes\(item\)/);
+  assert.match(momentsPage, /!signal\.aborted/);
+  assert.match(momentsPage, /const posterPreviewUrl = URL\.createObjectURL\(blob\)/);
+  assert.match(
+    momentsPage,
+    /if \(!isCurrentVideoPosterGeneration\(item, generationId\)\) \{\s*URL\.revokeObjectURL\(posterPreviewUrl\);\s*return;\s*\}/s,
+  );
+  assert.match(momentsPage, /invalidateVideoPosterGeneration\(item\)/);
+});
+
 test('moments browser code uses the session API client for management', () => {
   const apiClient = readSource('src/lib/moments-api.ts');
   const r2Upload = readSource('src/lib/r2-upload.ts');
