@@ -34,13 +34,13 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           </button>
         ))}
       </div>
-      <button class="fab" id="publish-toggle" aria-label="发布新动态">
+      <button class="fab" id="publish-toggle" aria-label="发布新动态" data-admin-only hidden>
         <span id="toggle-icon">✏️</span>
       </button>
     </div>
 
     <!-- 发布面板 -->
-    <div class="publish-panel hidden" id="publish-box">
+    <div class="publish-panel hidden" id="publish-box" data-admin-only hidden>
       <div class="panel-topbar">
         <span class="panel-title">📝 发布新动态</span>
         <button type="button" class="icon-btn" id="close-btn" aria-label="关闭">✕</button>
@@ -1482,6 +1482,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
   const maxImages = 9;
   const maxImageBytes = 8 * 1024 * 1024;
+  let adminMode = false;
 
   // === Helpers ===
   function resolveImageCandidates(src: string) {
@@ -1857,7 +1858,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     actions.className = 'card-actions';
     actions.appendChild(dateEl);
 
-    if (moment.id) {
+    if (adminMode && moment.id) {
       card.dataset.id = moment.id;
       const deleteBtn = document.createElement('button');
       deleteBtn.type = 'button';
@@ -2066,6 +2067,12 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   function initMomentsPage() {
     const shell = document.querySelector<HTMLElement>('.moments-shell');
     if (!shell || shell.dataset.momentsInitialized === '1') return;
+
+    // Management UI is intentionally available only at /moments/?admin=1.
+    adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
+    document.querySelectorAll<HTMLElement>('[data-admin-only]').forEach((element) => {
+      element.hidden = !adminMode;
+    });
 
     cleanupMomentsPage?.abort();
     const controller = new AbortController();
