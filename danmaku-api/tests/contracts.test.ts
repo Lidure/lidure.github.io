@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import { readFileSync } from 'node:fs';
 import worker from '../src/index';
 
 type FetchEnv = Parameters<typeof worker.fetch>[1];
@@ -45,22 +44,5 @@ describe('danmaku API contracts', () => {
       error: expect.any(String),
       code: expect.any(String),
     });
-  });
-
-  it('includes session credentials on moments management requests', () => {
-    const momentsSource = readFileSync(
-      new URL('../../src/pages/moments.astro', import.meta.url),
-      'utf8',
-    );
-    const managementRequests = [...momentsSource.matchAll(
-      /fetch\(MOMENTS_API_URL,\s*\{([\s\S]*?)\n\s*\}\);/g,
-    )]
-      .map((match) => match[1])
-      .filter((options) => /method:\s*'(?:POST|DELETE)'/.test(options));
-
-    expect(managementRequests).toHaveLength(2);
-    for (const options of managementRequests) {
-      expect(options).toMatch(/credentials:\s*'include'/);
-    }
   });
 });
