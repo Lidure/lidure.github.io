@@ -286,7 +286,15 @@ function aggregateMomentRows(rows: MomentListRow[]): MomentApiItem[] {
           const legacy = JSON.parse(row.legacy_images) as unknown;
           if (Array.isArray(legacy)) {
             for (const url of legacy) {
-              if (typeof url === "string" && url.trim()) item.media.push({ kind: "image", url: url.trim() });
+              if (typeof url === "string" && url.trim()) {
+                const value = url.trim();
+                item.media.push({
+                  kind: "image",
+                  url: value.startsWith("/")
+                    ? `https://pub-6108779417b647c592c51538e44c8bd0.r2.dev${value}`
+                    : value,
+                });
+              }
             }
           }
         } catch {}
@@ -307,7 +315,7 @@ function aggregateMomentRows(rows: MomentListRow[]): MomentApiItem[] {
 
 async function getMomentById(db: D1Database, id: string): Promise<MomentApiItem> {
   const sql = `
-    SELECT m.id, m.date, m.category, m.text, m.link, m.created_at, m.updated_at,
+    SELECT m.id, m.date, m.category, m.text, m.link, m.legacy_images, m.created_at, m.updated_at,
            mm.id AS media_id, mm.kind AS media_kind, mm.url AS media_url, mm.sort_order AS media_sort_order
     FROM moments m
     LEFT JOIN moment_media mm ON mm.moment_id = m.id
