@@ -2,7 +2,6 @@ const DEFAULT_PUBLIC_API_BASE = 'https://danmaku.lidure22.xyz/api';
 export const PUBLIC_API_BASE = (import.meta.env.PUBLIC_DANMAKU_API || DEFAULT_PUBLIC_API_BASE).replace(/\/$/, '');
 export const USER_ID_KEY = 'guest_user_id';
 const COMMENT_REACTION_STORAGE_KEY = 'public_comment_reactions_v1';
-const PUBLIC_ADMIN_TOKEN_KEY = 'moments_admin_token';
 
 export type CommentTargetType = 'moment' | 'message';
 
@@ -104,7 +103,10 @@ async function readApiJson(res: Response) {
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
     const message = typeof data.error === 'string' ? data.error : `API 错误 (${res.status})`;
-    throw new Error(message);
+    const error = new Error(message) as Error & { code?: string; status?: number };
+    error.code = typeof data.code === 'string' ? data.code : (res.status === 401 ? 'AUTH_REQUIRED' : undefined);
+    error.status = res.status;
+    throw error;
   }
   return data;
 }
@@ -126,13 +128,11 @@ export async function createComment(targetType: CommentTargetType, targetId: str
   return data.item as PublicComment;
 }
 
-export async function deleteComment(commentId: string, adminToken: string) {
+export async function deleteComment(commentId: string) {
   const res = await fetch(`${PUBLIC_API_BASE}/comments`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json; charset=utf-8',
-      'Authorization': `Bearer ${adminToken}`,
-    },
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
     body: JSON.stringify({ id: commentId }),
   });
   await readApiJson(res);
@@ -221,18 +221,6 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
   let expanded = previewCount <= 0;
   let allComments: PublicComment[] = [];
 
-  function getAdminToken() {
-    try { return localStorage.getItem(PUBLIC_ADMIN_TOKEN_KEY) || ''; } catch { return ''; }
-  }
-
-  function setAdminToken(token: string) {
-    try { localStorage.setItem(PUBLIC_ADMIN_TOKEN_KEY, token); } catch {}
-  }
-
-  function clearAdminToken() {
-    try { localStorage.removeItem(PUBLIC_ADMIN_TOKEN_KEY); } catch {}
-  }
-
   function closeReactionPanels(except?: HTMLElement) {
     root.querySelectorAll<HTMLElement>('.public-comment-reaction-panel').forEach((panel) => {
       if (except && panel === except) return;
@@ -275,25 +263,20 @@ export function createCommentsWidget(targetType: CommentTargetType, targetId: st
         const label = comment.text ? `「${comment.text.slice(0, 18)}${comment.text.length > 18 ? '...' : ''}」` : '这条评论';
         if (!window.confirm(`确定删除 ${label} 吗？删除后不可恢复。`)) return;
 
-        let adminToken = getAdminToken();
-        if (!adminToken) {
-          adminToken = window.prompt('请输入管理密钥以删除评论')?.trim() || '';
-          if (adminToken) setAdminToken(adminToken);
-        }
-        if (!adminToken) return;
-
         deleteBtn.disabled = true;
         try {
-          await deleteComment(comment.id, adminToken);
+          await deleteComment(comment.id);
           clearStoredCommentReaction(comment.id);
           allComments = allComments.filter((item) => item.id !== comment.id);
           render(allComments);
           status.hidden = false;
           status.textContent = '已删除';
         } catch (err) {
-          if (err instanceof Error && err.message.toLowerCase().includes('unauthorized')) clearAdminToken();
+          const apiError = err as Error & { code?: string; status?: number };
           status.hidden = false;
-          status.textContent = err instanceof Error ? err.message : '删除失败';
+          status.textContent = apiError.code === 'AUTH_REQUIRED' || apiError.status === 401
+            ? '需要先在管理入口登录后才能删除评论'
+            : (err instanceof Error ? err.message : '删除失败');
           deleteBtn.disabled = false;
         }
       });

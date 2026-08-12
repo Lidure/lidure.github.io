@@ -3,7 +3,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import { categoryMeta, categoryOrder } from '../data/moments';
 ---
 <BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏，音乐、生活、吐槽，随时碎碎念。" showTime={true}>
-  <section class="moments-shell">
+  <section class="moments-shell" data-moments-api>
 
     <!-- Hero -->
     <div class="moments-hero">
@@ -82,18 +82,19 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           <div class="image-previews" id="image-previews"></div>
         </div>
 
-        <label class="field full token-field">
-          <span class="field-label">🔑 管理密钥 <span id="token-saved-badge" class="token-saved-badge" style="display:none">✓ 已保存</span></span>
-          <div class="token-input-wrap">
-            <input type="password" name="adminToken" id="token-input" placeholder="首次输入后自动保存，下次不用再填" />
-            <button type="button" id="token-clear-btn" class="token-clear-btn" title="清除已保存的密钥" style="display:none">✕</button>
+        <div class="field full session-field">
+          <div class="session-status-row">
+            <p id="moments-session-status" class="session-status">检查登录状态中...</p>
+            <button type="button" id="moments-logout" class="session-secondary" hidden>退出登录</button>
           </div>
-        </label>
-
-
+          <div id="moments-login" class="session-login" hidden>
+            <input type="password" id="moments-login-password" autocomplete="current-password" placeholder="管理密码" />
+            <button type="button" id="moments-login-submit" class="session-secondary">登录</button>
+          </div>
+        </div>
 
         <button type="submit" class="submit-btn" id="submit-btn">🚀 发布</button>
-        <p class="form-note">管理密钥在首次输入后自动保存，无需重复填写。</p>
+        <p class="form-note">登录状态由安全 Cookie 保存，不再在浏览器保存管理密钥。</p>
       </form>
       <div id="form-message"></div>
     </div>
@@ -106,6 +107,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         <div class="skeleton-card" style="--delay: 160ms"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
       </div>
     </div>
+    <button type="button" id="moments-retry" class="moments-retry" hidden>重试加载</button>
 
     <div class="lightbox-overlay" id="moment-lightbox" aria-hidden="true" hidden>
       <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close image preview">&times;</button>
@@ -533,21 +535,43 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     background: rgba(160, 30, 30, 0.72);
   }
 
-  /* Token */
-  .token-field {
+  /* Session */
+  .session-field {
     grid-column: 1 / -1;
   }
 
-
-
-  .token-input-wrap {
-    position: relative;
+  .session-status-row,
+  .session-login {
     display: flex;
     align-items: center;
     gap: 10px;
   }
 
-  .token-input-wrap input {
+  .session-status-row {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .session-status {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.86rem;
+  }
+
+  .session-status.authenticated {
+    color: #3aaa5a;
+  }
+
+  .session-status.error {
+    color: #d94040;
+  }
+
+  .session-login[hidden],
+  .session-secondary[hidden] {
+    display: none;
+  }
+
+  .session-login input {
     flex: 1;
     padding: 10px 14px;
     border-radius: 12px;
@@ -559,47 +583,20 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     transition: border-color 180ms ease;
   }
 
-  .token-input-wrap input:focus {
+  .session-login input:focus {
     outline: none;
     border-color: var(--accent);
   }
 
-  .token-link {
-    font-size: 0.8rem;
-    color: var(--accent);
-    white-space: nowrap;
-    text-decoration: underline;
-    text-underline-offset: 3px;
-  }
-
-  .token-link:hover {
-    color: var(--accent-hover);
-  }
-
-  .token-saved-badge {
-    font-size: 0.75rem;
-    color: #3aaa5a;
-    font-weight: 600;
-    margin-left: 6px;
-    padding: 2px 8px;
+  .session-secondary {
     border-radius: 999px;
-    background: rgba(80, 200, 120, 0.12);
-  }
-
-  [data-theme="light"] .token-saved-badge {
-    color: #6ed88a;
-    background: rgba(80, 200, 120, 0.16);
-  }
-
-  .token-clear-btn {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
     border: 1px solid var(--panel-border);
     background: var(--bg-soft);
-    color: var(--muted);
+    color: var(--text-soft);
     cursor: pointer;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 8px 14px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -607,10 +604,10 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     transition: all 180ms ease;
   }
 
-  .token-clear-btn:hover {
-    color: #d94040;
-    border-color: rgba(217, 64, 64, 0.3);
-    background: rgba(217, 64, 64, 0.08);
+  .session-secondary:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.08);
   }
 
   .submit-btn {
@@ -730,6 +727,21 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
   .error-state {
     color: #d94040;
+  }
+
+  .moments-retry {
+    margin: 14px auto 0;
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .moments-retry[hidden] {
+    display: none;
   }
 
   /* ===== 时间线卡片 ===== */
@@ -1445,11 +1457,11 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       grid-template-columns: 1fr;
     }
 
-    .token-input-wrap {
+    .session-login {
       flex-wrap: wrap;
     }
 
-    .token-input-wrap input {
+    .session-login input {
       font-size: 0.82rem;
     }
 
@@ -1470,15 +1482,22 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
 <script>
   import { uploadToR2 } from '../lib/r2-upload';
+  import {
+    createMoment as createMomentViaApi,
+    deleteMoment as deleteMomentViaApi,
+    fetchMoments,
+    getSession,
+    login,
+    logout,
+    MomentApiError,
+  } from '../lib/moments-api';
   import { createCommentsWidget } from '../lib/public-interactions';
 
   // === Config ===
   const DEFAULT_DANMAKU_API_BASE = 'https://danmaku.lidure22.xyz/api';
   const API_BASE = (import.meta.env.PUBLIC_DANMAKU_API || DEFAULT_DANMAKU_API_BASE).replace(/\/$/, '');
-  const MOMENTS_API_URL = `${API_BASE}/moments`;
   const MOMENT_REACTIONS_API_URL = `${API_BASE}/moment-reactions`;
   const IMAGE_PUBLIC_BASE = (import.meta.env.PUBLIC_R2_PUBLIC_URL || 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev').replace(/\/$/, '');
-  const ADMIN_TOKEN_KEY = 'moments_admin_token';
   const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
   const maxImages = 9;
   const maxImageBytes = 8 * 1024 * 1024;
@@ -1520,10 +1539,6 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   function localDateTimeValue(date = new Date()) {
     const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
     return local.toISOString().slice(0, 16);
-  }
-
-  function getAdminToken(): string {
-    try { return localStorage.getItem(ADMIN_TOKEN_KEY) || ''; } catch { return ''; }
   }
 
   function insertTextAtCursor(input: HTMLInputElement | HTMLTextAreaElement, text: string) {
@@ -1642,6 +1657,11 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     list.replaceChildren(message);
   }
 
+  function setMomentsRetryVisible(visible: boolean) {
+    const retry = document.getElementById('moments-retry') as HTMLButtonElement | null;
+    if (retry) retry.hidden = !visible;
+  }
+
   function notifyMomentAction(text: string) {
     let toast = document.getElementById('moments-toast');
     if (!toast) {
@@ -1659,11 +1679,22 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     toastTimer = window.setTimeout(() => toast?.classList.remove('show'), 2200);
   }
 
+  function markMomentsSessionRequired(message = '登录已失效，请重新登录。') {
+    const sessionStatus = document.getElementById('moments-session-status');
+    const loginBox = document.getElementById('moments-login');
+    const logoutBtn = document.getElementById('moments-logout') as HTMLButtonElement | null;
+    if (sessionStatus) {
+      sessionStatus.textContent = message;
+      sessionStatus.classList.remove('authenticated');
+      sessionStatus.classList.add('error');
+    }
+    if (loginBox) loginBox.hidden = false;
+    if (logoutBtn) logoutBtn.hidden = true;
+  }
+
   // === API Fetch & Render ===
-  async function fetchMomentsFromApi() {
-    const res = await fetch(MOMENTS_API_URL + '?limit=200', { cache: 'no-store' });
-    if (!res.ok) throw new Error('API error: ' + res.status);
-    return (await res.json()).items || [];
+  async function fetchMomentsFromApi(signal?: AbortSignal) {
+    return (await fetchMoments({ limit: 200, signal })).items;
   }
 
   async function reactToMoment(momentId: string, emoji: string, previousEmoji: string) {
@@ -1799,6 +1830,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
   function syncMoments(apiMoments: any[]) {
     const list = document.getElementById('moments-list');
     if (!list) return;
+    setMomentsRetryVisible(false);
 
     const moments = apiMoments.map(normalizeMoment).filter((moment): moment is RenderMoment => Boolean(moment));
     currentMoments = moments;
@@ -1949,37 +1981,12 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     const label = target?.text ? `「${target.text.slice(0, 24)}${target.text.length > 24 ? '...' : ''}」` : '这条动态';
     if (!window.confirm(`确定删除 ${label} 吗？删除后不可恢复。`)) return;
 
-    let adminToken = getAdminToken();
-    if (!adminToken) {
-      adminToken = window.prompt('请输入管理密钥以删除动态')?.trim() || '';
-      if (adminToken) {
-        try { localStorage.setItem(ADMIN_TOKEN_KEY, adminToken); } catch {}
-      }
-    }
-    if (!adminToken) return;
-
     trigger.disabled = true;
     const originalText = trigger.textContent || '删除';
     trigger.textContent = '删除中...';
 
     try {
-      const res = await fetch(MOMENTS_API_URL, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          'Authorization': `Bearer ${adminToken}`,
-        },
-        body: JSON.stringify({ id: momentId }),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        if (res.status === 401) {
-          try { localStorage.removeItem(ADMIN_TOKEN_KEY); } catch {}
-        }
-        throw new Error(errData.error || `API 错误 (${res.status})`);
-      }
-
+      await deleteMomentViaApi(momentId);
       currentMoments = currentMoments.filter((moment) => moment.id !== momentId);
       syncMoments(currentMoments);
       notifyMomentAction('✅ 删除成功');
@@ -1993,6 +2000,9 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     } catch (err) {
       const detail = err instanceof Error ? err.message : String(err);
       notifyMomentAction('❌ 删除失败: ' + detail.slice(0, 200));
+      if (err instanceof MomentApiError && err.code === 'AUTH_REQUIRED') {
+        markMomentsSessionRequired();
+      }
       trigger.disabled = false;
       trigger.textContent = originalText;
     }
@@ -2245,7 +2255,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       });
     }
 
-    async function uploadImagesToR2(adminToken: string) {
+    async function uploadImagesToR2() {
       const urls: string[] = [];
       for (const item of selectedImages) {
         if (item.remoteUrl) { urls.push(item.remoteUrl); continue; }
@@ -2255,7 +2265,7 @@ import { categoryMeta, categoryOrder } from '../data/moments';
           throw new Error('图片过大，请控制在 8 MB 以内');
         }
         try {
-          const url = await uploadToR2(item.file, { adminToken, apiBase: API_BASE });
+          const url = await uploadToR2(item.file, { signal });
           item.remoteUrl = url;
           urls.push(url);
           setPreviewStatus(item.id, '已上传', 'uploaded');
@@ -2316,44 +2326,94 @@ import { categoryMeta, categoryOrder } from '../data/moments';
       }
     }, { signal });
 
+    function updateSessionUi(authenticated: boolean, message?: string) {
+      const sessionStatus = document.getElementById('moments-session-status');
+      const loginBox = document.getElementById('moments-login');
+      const logoutBtn = document.getElementById('moments-logout') as HTMLButtonElement | null;
+      if (sessionStatus) {
+        sessionStatus.textContent = message || (authenticated ? '已登录，可以发布和删除动态。' : '请登录后发布或删除动态。');
+        sessionStatus.classList.toggle('authenticated', authenticated);
+        sessionStatus.classList.toggle('error', !authenticated && Boolean(message));
+      }
+      if (loginBox) loginBox.hidden = authenticated;
+      if (logoutBtn) logoutBtn.hidden = !authenticated;
+      if (submitBtn) submitBtn.disabled = !authenticated;
+    }
+
+    async function refreshSessionState() {
+      try {
+        const sessionState = await getSession({ signal });
+        updateSessionUi(sessionState.authenticated);
+        return sessionState.authenticated;
+      } catch (err) {
+        updateSessionUi(false, err instanceof Error ? err.message : '登录状态检查失败，请重试。');
+        return false;
+      }
+    }
+
+    const loginBox = document.getElementById('moments-login');
+    const loginPassword = document.getElementById('moments-login-password') as HTMLInputElement | null;
+    const loginSubmit = document.getElementById('moments-login-submit') as HTMLButtonElement | null;
+    const logoutBtn = document.getElementById('moments-logout') as HTMLButtonElement | null;
+
+    loginSubmit?.addEventListener('click', async () => {
+      const password = loginPassword?.value.trim() || '';
+      if (!password) {
+        updateSessionUi(false, '请输入管理密码。');
+        loginPassword?.focus();
+        return;
+      }
+
+      loginSubmit.disabled = true;
+      loginSubmit.textContent = '登录中...';
+      try {
+        const sessionState = await login(password, { signal });
+        if (loginPassword) loginPassword.value = '';
+        updateSessionUi(sessionState.authenticated);
+      } catch (err) {
+        updateSessionUi(false, err instanceof Error ? err.message : '登录失败，请重试。');
+      } finally {
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = '登录';
+      }
+    }, { signal });
+
+    loginBox?.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        loginSubmit?.click();
+      }
+    }, { signal });
+
+    logoutBtn?.addEventListener('click', async () => {
+      logoutBtn.disabled = true;
+      try {
+        await logout({ signal });
+        updateSessionUi(false, '已退出登录。');
+      } catch (err) {
+        updateSessionUi(false, err instanceof Error ? err.message : '退出失败，请重试。');
+      } finally {
+        logoutBtn.disabled = false;
+      }
+    }, { signal });
+
+    void refreshSessionState();
+
     // === Form submit → API ===
     if (form && msg && submitBtn) {
       const dateInput = form.querySelector<HTMLInputElement>('input[name="date"]');
       if (dateInput) dateInput.value = localDateTimeValue();
-
-      const tokenInput = document.getElementById('token-input') as HTMLInputElement | null;
-      const savedBadge = document.getElementById('token-saved-badge');
-      const clearBtn = document.getElementById('token-clear-btn');
-
-      function refreshTokenUI() {
-        const saved = getAdminToken();
-        if (saved && tokenInput && !tokenInput.value) tokenInput.value = saved;
-        const hasToken = !!(tokenInput?.value || getAdminToken());
-        if (savedBadge) savedBadge.style.display = hasToken ? 'inline' : 'none';
-        if (clearBtn) clearBtn.style.display = hasToken ? 'inline-flex' : 'none';
-      }
-
-      refreshTokenUI();
-
-      clearBtn?.addEventListener('click', () => {
-        localStorage.removeItem(ADMIN_TOKEN_KEY);
-        if (tokenInput) tokenInput.value = '';
-        refreshTokenUI();
-      }, { signal });
+      updateSessionUi(false, '检查登录状态中...');
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const fd = new FormData(form);
-        let adminToken = String(fd.get('adminToken') ?? '').trim();
-        if (!adminToken) adminToken = getAdminToken();
 
         submitBtn.disabled = true;
         submitBtn.textContent = selectedImages.length > 0 ? '上传图片...' : '发布中...';
         setMessage('', '');
 
         try {
-          if (!adminToken) throw new Error('请输入管理密钥（首次使用需要输入一次，之后自动保存）');
-
           const link = String(fd.get('link') ?? '').trim();
           const date = String(fd.get('date') ?? '').trim();
           const category = String(fd.get('category') ?? '').trim();
@@ -2361,74 +2421,29 @@ import { categoryMeta, categoryOrder } from '../data/moments';
 
           if (!date || !category || !text) throw new Error('请填写时间、分类和内容');
 
-          // Upload images to R2 first
-          const imageUrls = selectedImages.length > 0 ? await uploadImagesToR2(adminToken) : [];
+          const imageUrls = selectedImages.length > 0 ? await uploadImagesToR2() : [];
 
           submitBtn.textContent = '发布中...';
-
-          // POST to moments API
-          const res = await fetch(MOMENTS_API_URL, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json; charset=utf-8',
-              'Authorization': `Bearer ${adminToken}`,
-            },
-            body: JSON.stringify({
-              date, category, text,
-              ...(link && { link }),
-              ...(imageUrls.length > 0 && { images: imageUrls }),
-            }),
-          });
-
-          if (!res.ok) {
-            const errData = await res.json().catch(() => ({}));
-            throw new Error(errData.error || `API 错误 (${res.status})`);
-          }
-
-          // Save token
-          try { localStorage.setItem(ADMIN_TOKEN_KEY, adminToken); } catch {}
-          refreshTokenUI();
+          const created = await createMomentViaApi({
+            date,
+            category,
+            text,
+            ...(link && { link }),
+            ...(imageUrls.length > 0 && { images: imageUrls }),
+          }, { signal });
 
           setMessage('✅ 发布成功！', 'success');
+          currentMoments = [normalizeMoment(created), ...currentMoments].filter((moment): moment is RenderMoment => Boolean(moment));
+          syncMoments(currentMoments);
 
-          // Optimistic render: immediately show the new card
-          const list = document.getElementById('moments-list');
-          if (list) {
-            const activeTab = document.querySelector('.pill[data-category].active') as HTMLElement | null;
-            const activeCat = activeTab?.dataset?.category || 'all';
-            const newMoment = { date, category, text, link: link || undefined, images: imageUrls };
-            const newCard = buildMomentCard(newMoment, 0, activeCat);
-            if (newCard) list.prepend(newCard);
-            // Re-index animation delays
-            list.querySelectorAll<HTMLElement>('.moment-card').forEach((c, i) => c.style.setProperty('--delay', `${i * 40}ms`));
-            // Update stats optimistically
-            try {
-              const existing = await fetchMomentsFromApi().catch(() => null);
-              if (existing) {
-                // Deduplicate: add new moment only if not already in API results
-                const normalizedExisting: RenderMoment[] = [];
-                existing.forEach((item: any) => {
-                  const moment = normalizeMoment(item);
-                  if (moment) normalizedExisting.push(moment);
-                });
-                const ids = new Set(normalizedExisting.map((m: RenderMoment) => m.date + m.text));
-                const key = newMoment.date + newMoment.text;
-                if (!ids.has(key)) normalizedExisting.unshift(newMoment);
-                updateStats(normalizedExisting);
-              }
-            } catch {}
-          }
-
-          // Background refresh (handles replication lag gracefully)
           setTimeout(async () => {
             if (signal.aborted) return;
             try {
-              const fresh = await fetchMomentsFromApi();
+              const fresh = await fetchMomentsFromApi(signal);
               if (!signal.aborted) syncMoments(fresh);
             } catch {}
           }, 2000);
 
-          // Reset form
           form.reset();
           selectedImages.forEach((item) => URL.revokeObjectURL(item.previewUrl));
           selectedImages.length = 0;
@@ -2437,13 +2452,16 @@ import { categoryMeta, categoryOrder } from '../data/moments';
         } catch (err) {
           const detail = err instanceof Error ? err.message : String(err);
           setMessage('❌ 发布失败: ' + detail.slice(0, 200), 'error');
+          if (err instanceof MomentApiError && err.code === 'AUTH_REQUIRED') {
+            updateSessionUi(false, '登录已失效，请重新登录。');
+          }
         } finally {
-          submitBtn.disabled = false;
+          const authenticated = (await getSession({ signal }).catch(() => ({ authenticated: false }))).authenticated;
+          updateSessionUi(authenticated);
           submitBtn.textContent = '🚀 发布';
         }
       }, { signal });
     }
-
     lightbox = document.getElementById('moment-lightbox') as HTMLElement | null;
     lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
     lightboxCounter = document.getElementById('lightbox-counter');

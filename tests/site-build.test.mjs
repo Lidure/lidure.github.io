@@ -3,6 +3,7 @@ import { readFileSync, statSync } from 'node:fs';
 import test from 'node:test';
 
 const read = (path) => readFileSync(new URL(`../dist/${path}`, import.meta.url), 'utf8');
+const readSource = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('search embeds parseable post data without a runtime jsonData reference', () => {
   const html = read('search/index.html');
@@ -75,6 +76,41 @@ test('moments page exposes the API hook and local controls', () => {
   assert.match(moments, /data-moments-api/);
   assert.match(moments, /id="moments-retry"/);
   assert.match(moments, /id="moments-login"/);
-  assert.match(moments, /id="video-poster-range"/);
-  assert.doesNotMatch(moments, /PUBLIC_R2_SECRET_ACCESS_KEY|AWS_SECRET|moments_admin_token/);
+  assert.match(moments, /id="moments-session-status"/);
+  assert.match(moments, /id="moments-logout"/);
+  assert.doesNotMatch(moments, /id="token-input"|name="adminToken"|moments_admin_token|Authorization|Bearer|PUBLIC_R2_SECRET_ACCESS_KEY|AWS_SECRET/);
+});
+
+test('moments browser code uses the session API client for management', () => {
+  const apiClient = readSource('src/lib/moments-api.ts');
+  const r2Upload = readSource('src/lib/r2-upload.ts');
+  const momentsPage = readSource('src/pages/moments.astro');
+  const publicInteractions = readSource('src/lib/public-interactions.ts');
+
+  for (const exportedName of [
+    'fetchMoments',
+    'login',
+    'logout',
+    'getSession',
+    'uploadMomentMedia',
+    'createMoment',
+    'deleteMoment',
+  ]) {
+    assert.match(apiClient, new RegExp(`export async function ${exportedName}\\b`));
+  }
+
+  assert.match(apiClient, /PUBLIC_MOMENTS_API/);
+  assert.match(apiClient, /credentials:\s*'include'/);
+  assert.match(apiClient, /REQUEST_TIMEOUT_MS\s*=\s*8_000/);
+  assert.match(apiClient, /AUTH_REQUIRED|AUTH_FORBIDDEN|PAYLOAD_TOO_LARGE|RATE_LIMITED|SERVER_ERROR|NETWORK_ERROR|TIMEOUT/);
+
+  assert.match(r2Upload, /uploadMomentMedia/);
+  assert.doesNotMatch(r2Upload, /adminToken|Authorization|Bearer|PUBLIC_R2_SECRET_ACCESS_KEY|AWS_SECRET/);
+
+  assert.match(momentsPage, /from '\.\.\/lib\/moments-api'/);
+  assert.doesNotMatch(momentsPage, /ADMIN_TOKEN_KEY|localStorage\.getItem\(['"]moments_admin_token|Authorization|Bearer|id="video-poster-range"/);
+
+  assert.match(publicInteractions, /credentials:\s*'include'/);
+  assert.match(publicInteractions, /AUTH_REQUIRED/);
+  assert.doesNotMatch(publicInteractions, /PUBLIC_ADMIN_TOKEN_KEY|Authorization|Bearer|window\.prompt/);
 });
