@@ -53,7 +53,12 @@ function validMomentInput() {
     date: "2026-08-12T09:30",
     category: "生活",
     text: "Added auth-protected publishing",
-    media: [{ kind: "image", url: "https://media.lidure.xyz/moments/auth.png" }],
+    media: [
+      {
+        kind: "image",
+        url: "https://media.lidure.xyz/moments/2026/08/44444444-4444-4444-8444-444444444444.png",
+      },
+    ],
   };
 }
 
@@ -257,7 +262,7 @@ describe("auth worker routes", () => {
                 updated_at: "2026-08-12T09:30:00.000Z",
                 media_id: "media-created",
                 media_kind: "image",
-                media_url: "https://media.lidure.xyz/moments/auth.png",
+                media_url: "https://media.lidure.xyz/moments/2026/08/44444444-4444-4444-8444-444444444444.png",
                 media_sort_order: 0,
               },
             ],
@@ -290,8 +295,15 @@ describe("auth worker routes", () => {
         date: "2026-08-12T09:30",
         category: "生活",
         text: "Added auth-protected publishing",
-        images: ["https://media.lidure.xyz/moments/auth.png"],
-        media: [{ kind: "image", url: "https://media.lidure.xyz/moments/auth.png" }],
+        images: [
+          "https://media.lidure.xyz/moments/2026/08/44444444-4444-4444-8444-444444444444.png",
+        ],
+        media: [
+          {
+            kind: "image",
+            url: "https://media.lidure.xyz/moments/2026/08/44444444-4444-4444-8444-444444444444.png",
+          },
+        ],
       },
     });
   });

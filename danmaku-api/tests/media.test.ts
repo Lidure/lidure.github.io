@@ -177,6 +177,21 @@ describe("normalizeMomentMediaInput upload key enforcement", () => {
       },
     });
   });
+
+  it("rejects public media URLs that do not contain generated upload keys", () => {
+    expect(
+      normalizeMomentMediaInput(
+        [{ kind: "image", url: "https://media.lidure.xyz/moments/not-generated.png" }],
+        { publicMediaBaseUrl: "https://media.lidure.xyz" }
+      )
+    ).toEqual({
+      ok: false,
+      error: {
+        code: "INVALID_MEDIA_KEY",
+        message: "Moment media URL must contain a generated upload key",
+      },
+    });
+  });
 });
 
 describe("POST /api/media/upload", () => {

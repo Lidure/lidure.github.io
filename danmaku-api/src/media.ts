@@ -223,6 +223,17 @@ function normalizeMomentMediaUrl(
     };
   }
 
+  const key = normalizedUrl.slice(`${publicMediaBaseUrl}/`.length);
+  if (!isGeneratedMomentMediaKey(key)) {
+    return {
+      url: null,
+      error: {
+        code: "INVALID_MEDIA_KEY",
+        message: "Moment media URL must contain a generated upload key",
+      },
+    };
+  }
+
   return { url: normalizedUrl };
 }
 

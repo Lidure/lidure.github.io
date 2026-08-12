@@ -43,9 +43,18 @@ function validMomentInput(overrides: Partial<CreateMomentInput> = {}): CreateMom
     text: "今天把 moments API 搭起来了。",
     link: "https://lidure.xyz/posts/cloudflare",
     media: [
-      { kind: "image", url: "https://media.lidure.xyz/moments/a.png" },
-      { kind: "video", url: "https://media.lidure.xyz/moments/a.mp4" },
-      { kind: "poster", url: "https://media.lidure.xyz/moments/a-poster.jpg" },
+      {
+        kind: "image",
+        url: "https://media.lidure.xyz/moments/2026/06/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.png",
+      },
+      {
+        kind: "video",
+        url: "https://media.lidure.xyz/moments/2026/06/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.mp4",
+      },
+      {
+        kind: "poster",
+        url: "https://media.lidure.xyz/moments/2026/06/cccccccc-cccc-4ccc-8ccc-cccccccccccc.jpg",
+      },
     ],
     ...overrides,
   };
@@ -80,9 +89,18 @@ describe("normalizeMomentInput", () => {
       text: "今天把 moments API 搭起来了。",
       link: "https://lidure.xyz/posts/cloudflare",
       media: [
-        { kind: "image", url: "https://media.lidure.xyz/moments/a.png" },
-        { kind: "video", url: "https://media.lidure.xyz/moments/a.mp4" },
-        { kind: "poster", url: "https://media.lidure.xyz/moments/a-poster.jpg" },
+        {
+          kind: "image",
+          url: "https://media.lidure.xyz/moments/2026/06/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.png",
+        },
+        {
+          kind: "video",
+          url: "https://media.lidure.xyz/moments/2026/06/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.mp4",
+        },
+        {
+          kind: "poster",
+          url: "https://media.lidure.xyz/moments/2026/06/cccccccc-cccc-4ccc-8ccc-cccccccccccc.jpg",
+        },
       ],
     });
   });
@@ -137,7 +155,7 @@ describe("normalizeMomentInput", () => {
       validMomentInput({
         media: Array.from({ length: 10 }, (_, index) => ({
           kind: "image" as const,
-          url: `https://media.lidure.xyz/moments/${index}.png`,
+          url: `https://media.lidure.xyz/moments/2026/06/00000000-0000-4000-8000-${String(index).padStart(12, "0")}.png`,
         })),
       }),
       { publicMediaBaseUrl: "https://media.lidure.xyz" }
@@ -359,7 +377,7 @@ describe("moments data access", () => {
                 updated_at: "2026-06-18T10:08:00.000Z",
                 media_id: "media-a",
                 media_kind: "image",
-                media_url: "https://media.lidure.xyz/moments/a.png",
+                media_url: "https://media.lidure.xyz/moments/2026/06/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.png",
                 media_sort_order: 0,
               },
               {
@@ -372,7 +390,7 @@ describe("moments data access", () => {
                 updated_at: "2026-06-18T10:08:00.000Z",
                 media_id: "media-b",
                 media_kind: "video",
-                media_url: "https://media.lidure.xyz/moments/a.mp4",
+                media_url: "https://media.lidure.xyz/moments/2026/06/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.mp4",
                 media_sort_order: 1,
               },
             ],
@@ -407,21 +425,21 @@ describe("moments data access", () => {
     expect(runCalls[1].args.slice(1)).toEqual([
       "moment-created",
       "image",
-      "https://media.lidure.xyz/moments/a.png",
+      "https://media.lidure.xyz/moments/2026/06/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.png",
       0,
       "2026-06-18T10:08:00.000Z",
     ]);
     expect(runCalls[2].args.slice(1)).toEqual([
       "moment-created",
       "video",
-      "https://media.lidure.xyz/moments/a.mp4",
+      "https://media.lidure.xyz/moments/2026/06/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.mp4",
       1,
       "2026-06-18T10:08:00.000Z",
     ]);
     expect(runCalls[3].args.slice(1)).toEqual([
       "moment-created",
       "poster",
-      "https://media.lidure.xyz/moments/a-poster.jpg",
+      "https://media.lidure.xyz/moments/2026/06/cccccccc-cccc-4ccc-8ccc-cccccccccccc.jpg",
       2,
       "2026-06-18T10:08:00.000Z",
     ]);
@@ -431,10 +449,18 @@ describe("moments data access", () => {
       category: "生活",
       text: "今天把 moments API 搭起来了。",
       link: "https://lidure.xyz/posts/cloudflare",
-      images: ["https://media.lidure.xyz/moments/a.png"],
+      images: [
+        "https://media.lidure.xyz/moments/2026/06/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.png",
+      ],
       media: [
-        { kind: "image", url: "https://media.lidure.xyz/moments/a.png" },
-        { kind: "video", url: "https://media.lidure.xyz/moments/a.mp4" },
+        {
+          kind: "image",
+          url: "https://media.lidure.xyz/moments/2026/06/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.png",
+        },
+        {
+          kind: "video",
+          url: "https://media.lidure.xyz/moments/2026/06/bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb.mp4",
+        },
       ],
     });
   });

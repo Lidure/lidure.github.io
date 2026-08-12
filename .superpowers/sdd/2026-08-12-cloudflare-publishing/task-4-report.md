@@ -123,3 +123,86 @@ SHA256 29DEF5A5EBB5DEEC0EB0E3ECD7DB35DE984611EED5DA3991AE4A28EADB93972C
 
 - No local D1 execution was performed for the import because the bounded Task 4 instruction requested focused media tests, Worker check, and import script twice/inspect deterministic output.
 - Full `npm --prefix danmaku-api test` was not used as completion evidence because it had a pre-existing unrelated failure in `tests/contracts.test.ts` before Task 4 changes.
+
+## Follow-up fix: generated media URL enforcement
+
+After commit `7f09e87`, audit found that `normalizeMomentMediaInput()` accepted any URL under `PUBLIC_MEDIA_BASE_URL`. Task 4 requires moment media URLs to be constrained to upload-generated keys, so a follow-up fix now rejects same-base URLs unless their path matches `moments/YYYY/MM/uuid.ext`.
+
+Scoped changes:
+
+- Tightened submitted moment media URL validation in `danmaku-api/src/media.ts`.
+- Added media regression coverage for same-base non-generated URLs in `danmaku-api/tests/media.test.ts`.
+- Updated only auth/moments test fixtures that submit media through create paths so they use generated-key URLs.
+- Restored and preserved `danmaku-api/tests/contracts.test.ts` exactly as it was at `209dffc`; Task 4 did not change `/api/danmaku`.
+
+Fresh verification on 2026-08-12 after the follow-up fix:
+
+### Focused media tests
+
+`npm run test -- media.test.ts` from `danmaku-api`
+
+Result: exit 0.
+
+```text
+✓ tests/media.test.ts (12 tests) 258ms
+Test Files  1 passed (1)
+Tests  12 passed (12)
+```
+
+### Worker type-check
+
+`npm run check` from `danmaku-api`
+
+Result: exit 0.
+
+```text
+> lidure-danmaku-api@0.0.1 check
+> tsc --noEmit
+```
+
+### All Worker-focused tests
+
+`npm run test` from `danmaku-api`
+
+Result: exit 1, with the restored Task 1 contract failure unchanged:
+
+```text
+Test Files  1 failed | 3 passed (4)
+Tests  1 failed | 45 passed (46)
+
+FAIL tests/contracts.test.ts > danmaku API contracts > returns items and nextCursor for public list responses
+expected { items: [], now: 1786511686664 } to match object { items: [], nextCursor: Anything }
+```
+
+Task 4-relevant suites passed in that run:
+
+```text
+✓ tests/moments.test.ts (13 tests)
+✓ tests/media.test.ts (12 tests)
+✓ tests/auth.test.ts (19 tests)
+```
+
+### Import script determinism
+
+Commands:
+
+```powershell
+node scripts/import-moments.mjs --input src/data/moments.json --output .tmp/moments-import.sql
+Get-FileHash -Algorithm SHA256 -LiteralPath '.tmp\moments-import.sql'
+Copy-Item -LiteralPath '.tmp\moments-import.sql' -Destination '.tmp\moments-import.first.sql' -Force
+node scripts/import-moments.mjs --input src/data/moments.json --output .tmp/moments-import.sql
+Get-FileHash -Algorithm SHA256 -LiteralPath '.tmp\moments-import.sql'
+Compare-Object -ReferenceObject (Get-Content -LiteralPath '.tmp\moments-import.first.sql') -DifferenceObject (Get-Content -LiteralPath '.tmp\moments-import.sql')
+Select-String -LiteralPath '.tmp\moments-import.sql' -Pattern 'INSERT OR IGNORE INTO moments','INSERT OR IGNORE INTO moment_media' | Measure-Object
+```
+
+Result: exit 0.
+
+```text
+Wrote 15 moments and 6 media rows to .tmp/moments-import.sql
+SHA256 29DEF5A5EBB5DEEC0EB0E3ECD7DB35DE984611EED5DA3991AE4A28EADB93972C
+Wrote 15 moments and 6 media rows to .tmp/moments-import.sql
+SHA256 29DEF5A5EBB5DEEC0EB0E3ECD7DB35DE984611EED5DA3991AE4A28EADB93972C
+Compare-Object: no differences
+Count    : 21
+```
