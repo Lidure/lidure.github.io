@@ -82,7 +82,9 @@
   }
 
   createSakura();
-  setInterval(createSakura, 800);
+  if (!container.dataset.sakuraTimer) {
+    container.dataset.sakuraTimer = String(setInterval(createSakura, 800));
+  }
 
   document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'hidden') {

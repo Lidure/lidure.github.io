@@ -17,7 +17,26 @@
   </span>
 </aside>
 
-<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script is:inline>
+(() => {
+  const scriptId = 'busuanzi-counter-script';
+  function refreshCounter() {
+    const caller = window.bszCaller;
+    if (caller && typeof caller.fetch === 'function') {
+      caller.fetch();
+      return;
+    }
+    if (document.getElementById(scriptId)) return;
+    const script = document.createElement('script');
+    script.id = scriptId;
+    script.async = true;
+    script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+    document.head.appendChild(script);
+  }
+  refreshCounter();
+  document.addEventListener('astro:page-load', refreshCounter);
+})();
+</script>
 
 <style>
 .visitor-counter {
