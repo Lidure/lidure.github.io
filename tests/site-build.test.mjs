@@ -276,6 +276,15 @@ test('QQ playlist imports normalize ids and report unavailable audio links', () 
   assert.match(player, /uin.*qm_keyst|qm_keyst.*uin/);
 });
 
+test('online playlist imports resolve audio URLs on demand', () => {
+  const player = readSource('src/components/SekaiPlayer.astro');
+
+  assert.match(player, /function fetchOnlineSongUrl\(/);
+  assert.match(player, /audioState/);
+  assert.match(player, /fetchOnlineSongUrl\(.*currentSong/);
+  assert.doesNotMatch(player, /fetchQQUrls\(tracks/);
+});
+
 test('Busuanzi refresh always supplies its JSONP endpoint after navigation', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
 
