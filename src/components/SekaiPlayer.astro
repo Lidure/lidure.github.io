@@ -4190,11 +4190,6 @@
           var id = u.mid || u.songmid || u.song_mid || u.id;
           if (id && u.url) urlMap[String(id)] = u.url;
         });
-        authed = authed || data.authed === true;
-        (data.urls || []).forEach(function(u) {
-          var id = u.mid || u.songmid || u.song_mid || u.id;
-          if (id && u.url) urlMap[String(id)] = u.url;
-        });
         fetched += batch.length;
         onlineStatus.textContent = '正在获取QQ音乐音频链接 (' + fetched + '/' + allMids.length + ')...';
         // Small delay between batches to avoid rate limiting
