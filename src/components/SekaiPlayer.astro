@@ -4148,6 +4148,19 @@
     try { qqCookie = localStorage.getItem('qq_cookie') || ''; } catch(e) {}
     if (!qqCookie && qqCookieInput) qqCookie = qqCookieInput.value.trim();
 
+    function hasQQPlaybackCookie(cookie) {
+      return /(?:^|[;\s])(?:uin|euin)=/i.test(cookie) &&
+        /(?:^|[;\s])(?:qm_keyst|qqmusic_key)=/i.test(cookie);
+    }
+
+    if (qqCookie && !hasQQPlaybackCookie(qqCookie)) {
+      onlineStatus.textContent = '请粘贴完整 QQ Cookie（至少包含 uin/euin 和 qm_keyst/qqmusic_key），保存后重新导入';
+      onlineStatus.className = 'sekai-online-status error';
+      if (qqCookieRow) qqCookieRow.style.display = 'flex';
+      callback(tracks);
+      return;
+    }
+
     // Split into batches
     var batches = [];
     for (var i = 0; i < allMids.length; i += BATCH_SIZE) {

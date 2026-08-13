@@ -272,6 +272,8 @@ test('QQ playlist imports normalize ids and report unavailable audio links', () 
   assert.match(player, /u\.mid \|\| u\.songmid \|\| u\.song_mid \|\| u\.id/);
   assert.match(player, /authed/);
   assert.match(player, /qqCookieRow/);
+  assert.match(player, /hasQQPlaybackCookie/);
+  assert.match(player, /uin.*qm_keyst|qm_keyst.*uin/);
 });
 
 test('Busuanzi refresh always supplies its JSONP endpoint after navigation', () => {
