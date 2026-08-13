@@ -314,3 +314,11 @@ test('background video degrades safely on navigation visibility and reduced moti
   assert.match(hero, /document\.hidden/);
   assert.match(hero, /videoEl\.pause\(\)/);
 });
+
+test('background videos recover playback when browsers emit ended despite loop', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+
+  assert.match(hero, /videoEl\.onended/);
+  assert.match(hero, /videoEl\.currentTime\s*=\s*0/);
+  assert.match(hero, /videoEl\.play\(\)/);
+});

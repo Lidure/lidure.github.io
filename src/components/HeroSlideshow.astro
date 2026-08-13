@@ -1973,6 +1973,13 @@ const DEFAULT_OPACITY = 0.45;
         videoEl.oncanplay = revealWhenReady;
         videoEl.oncanplaythrough = revealWhenReady;
         videoEl.onprogress = revealWhenReady;
+        videoEl.onended = function() {
+          if (_destroyed || activeRequestId !== slideRequestId || preferStaticVideo) return;
+          videoEl.currentTime = 0;
+          videoEl.play().then(function() {
+            startVideoRender();
+          }).catch(function() {});
+        };
         videoEl.onerror = cleanup;
         videoEl.src = videoSrc;
         videoEl.load();
