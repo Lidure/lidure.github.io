@@ -73,7 +73,8 @@ const serverTime = now.toLocaleString('zh-CN', {
 }
 </style>
 
-<script>
+<script is:inline>
+/* clock runtime persists across Astro client-side navigations */
 function pad(n: number): string {
   return n < 10 ? '0' + n : String(n);
 }
@@ -88,7 +89,9 @@ function tick() {
 }
 
 tick();
-const timer = setInterval(tick, 1000);
-
-document.addEventListener('astro:before-swap', () => clearInterval(timer));
+const runtimeKey = '__lidureClockRuntime';
+if (!window[runtimeKey]) {
+  window[runtimeKey] = { timer: setInterval(tick, 1000) };
+}
+document.addEventListener('astro:page-load', tick);
 </script>
