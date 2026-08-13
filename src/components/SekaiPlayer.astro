@@ -1,8 +1,8 @@
 ---
-/** SEKAI player */
+const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink/api';
 ---
 
-<button id="sekaiPlayerBtn" class="sekai-player-btn" title="SEKAI 播放器" aria-label="打开 SEKAI 播放器" transition:persist transition:name="sekai-btn">
+<button id="sekaiPlayerBtn" class="sekai-player-btn" data-meting-api={metingApi} title="SEKAI 播放器" aria-label="打开 SEKAI 播放器" transition:persist transition:name="sekai-btn">
   <img id="sekaiDockCover" class="sekai-dock-cover" src="" alt="" aria-hidden="true" />
   <canvas id="sekaiDockVisualizer" class="sekai-dock-visualizer" aria-hidden="true"></canvas>
   <span id="sekaiDockIcon" class="sekai-dock-icon">
@@ -87,7 +87,7 @@
           <button class="sekai-online-tab active" data-platform="netease">网易云</button>
           <button class="sekai-online-tab" data-platform="qq">QQ音乐</button>
         </div>
-        <div id="sekaiNeteaseCookieRow" class="sekai-qq-cookie-row" style="display:flex">
+        <div id="sekaiNeteaseCookieRow" class="sekai-qq-cookie-row" style="display:none">
           <input id="sekaiNeteaseCookie" class="sekai-online-input" type="text" placeholder="粘贴网易云 cookie（含 MUSIC_U，私密歌单必填）" autocomplete="off" />
           <button id="sekaiNeteaseCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>
         </div>
@@ -1837,6 +1837,7 @@
 
   var MASTER_BASE = 'https://sekai-world.github.io/sekai-master-db-diff';
   var ASSET_BASE = 'https://music-proxy-3e4.pages.dev/api/asset?path=';
+  var METING_API = btn && btn.dataset.metingApi ? btn.dataset.metingApi : 'https://meting.mikus.ink/api';
   var STORAGE_KEY = 'sekai_player_v3';
   var BATCH_SIZE = 50;
   var renderedCount = BATCH_SIZE;
@@ -2454,7 +2455,7 @@
       var pendingSongId = currentSong.id;
       currentSong.audioState = 'loading';
       renderPlaylist();
-      fetchOnlineSongUrl(currentSong).then(function(result) {
+      fetchMetingSongUrl(currentSong).then(function(result) {
         if (!currentSong || currentSong.id !== pendingSongId) return;
         if (!result.url) {
           delete onlineUrlPromises[pendingSongId];
@@ -2684,22 +2685,19 @@
     return ASSET_BASE + encodeURIComponent(path);
   }
 
-  function fetchOnlineSongUrl(song) {
+  function fetchOnlineSongUrlLegacy(song) {
     var songId = song && song.id;
     var onlineId = song && (song.onlineId || '');
     if (!songId || !onlineId) return Promise.resolve({ songId: songId, url: '', error: '歌曲缺少在线编号' });
     if (onlineUrlPromises[songId]) return onlineUrlPromises[songId];
+    var server = song.source === 'qq' ? 'tencent' : 'netease';
     var cookie = '';
-    try { cookie = localStorage.getItem('qq_cookie') || ''; } catch(e) {}
-    if (!cookie && qqCookieInput) cookie = qqCookieInput.value.trim();
-    if (!/(?:^|[;\s])(?:uin|euin)=/i.test(cookie) || !/(?:^|[;\s])(?:qm_keyst|qqmusic_key)=/i.test(cookie)) {
+    try { cookie = localStorage.getItem(song.source === 'qq' ? 'qq_cookie' : 'netease_cookie') || ''; } catch(e) {}
+    if (!cookie && (song.source === 'qq' ? qqCookieInput : neCookieInput)) cookie = (song.source === 'qq' ? qqCookieInput : neCookieInput).value.trim();
+    if (false && (!cookie || !/(?:^|[;\s])(?:uin|euin)=/i.test(cookie))) {
       return Promise.resolve({ songId: songId, url: '', error: '请先保存完整的 QQ Cookie（需包含 uin/euin 和 qm_keyst/qqmusic_key）' });
     }
-    var request = fetch('https://music-proxy-3e4.pages.dev/api/qq-url?mids=' + encodeURIComponent(onlineId), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: 'cookie=' + encodeURIComponent(cookie)
-    }).then(function(response) {
+    var request = fetch(METING_API + '?server=' + encodeURIComponent(server) + '&type=url&id=' + encodeURIComponent(onlineId) + '&br=2000').then(function(response) {
       if (!response.ok) throw new Error('播放地址服务暂时不可用');
       return response.json();
     }).then(function(data) {
@@ -2710,6 +2708,26 @@
     }).catch(function(error) {
       return { songId: songId, url: '', error: error.message || '获取播放地址失败' };
     });
+    onlineUrlPromises[songId] = request;
+    return request;
+  }
+
+  function fetchMetingSongUrl(song) {
+    var songId = song && song.id;
+    var onlineId = song && song.onlineId;
+    if (!songId || !onlineId) return Promise.resolve({ songId: songId, url: '', error: '歌曲缺少在线编号' });
+    if (onlineUrlPromises[songId]) return onlineUrlPromises[songId];
+    var server = song.source === 'qq' ? 'tencent' : 'netease';
+    var request = fetch(METING_API + '?server=' + encodeURIComponent(server) + '&type=url&id=' + encodeURIComponent(onlineId) + '&br=2000')
+      .then(function(response) {
+        if (!response.ok) throw new Error('Meting API unavailable');
+        return response.json();
+      })
+      .then(function(data) {
+        var item = Array.isArray(data) ? data[0] : data;
+        return { songId: songId, url: item && (item.url || item.musicUrl) || '', error: '这首歌暂时没有可用播放地址' };
+      })
+      .catch(function(error) { return { songId: songId, url: '', error: error.message || '获取播放地址失败' }; });
     onlineUrlPromises[songId] = request;
     return request;
   }
@@ -4036,13 +4054,13 @@
       onlineStatus.className = 'sekai-online-status';
 
       if (selectedPlatform === 'netease') {
-        fetchNeteasePlaylist(playlistId, function(tracks, error) {
+        fetchMetingPlaylist(playlistId, 'netease', function(tracks, error) {
           playlistFetchBtn.disabled = false;
           if (error) { onlineStatus.textContent = error; onlineStatus.className = 'sekai-online-status error'; return; }
           addOnlineTracks(tracks, 'netease');
         });
       } else {
-        fetchQQPlaylist(playlistId, function(tracks, error) {
+          fetchMetingPlaylist(playlistId, 'qq', function(tracks, error) {
           playlistFetchBtn.disabled = false;
           if (error) { onlineStatus.textContent = error; onlineStatus.className = 'sekai-online-status error'; return; }
           // QQ 需要额外获取音频 URL
@@ -4147,7 +4165,32 @@
     });
   }
 
-  function fetchNeteasePlaylist(playlistId, callback) {
+  function fetchMetingPlaylist(playlistId, platform, callback) {
+    var server = platform === 'qq' ? 'tencent' : 'netease';
+    var url = METING_API + '?server=' + encodeURIComponent(server) + '&type=playlist&id=' + encodeURIComponent(playlistId) + '&br=2000';
+    fetch(url).then(function(response) {
+      if (!response.ok) throw new Error('Meting API HTTP ' + response.status);
+      return response.json();
+    }).then(function(data) {
+      if (!Array.isArray(data) || !data.length) throw new Error('歌单为空或接口未返回歌曲');
+      callback(data.map(normalizeMetingSong));
+    }).catch(function(error) {
+      callback(null, 'Meting API 请求失败: ' + error.message);
+    });
+  }
+
+  function normalizeMetingSong(song) {
+    return {
+      id: song.id || song.mid || song.songmid || song.songId || song.url || Math.random().toString(36).slice(2),
+      title: song.title || song.name || '未命名歌曲',
+      artist: song.author || song.artist || '未知',
+      url: song.url || '',
+      cover: song.pic || song.cover || song.picture || '',
+      lrc: song.lrc || ''
+    };
+  }
+
+  function fetchNeteasePlaylistLegacy(playlistId, callback) {
     var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
     // Get NetEase cookie
     var neCookie = '';
@@ -4186,7 +4229,7 @@
     });
   }
 
-  function fetchQQPlaylist(playlistId, callback) {
+  function fetchQQPlaylistLegacy(playlistId, callback) {
     var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
     fetch(PROXY + 'qq-playlist?id=' + encodeURIComponent(playlistId)).then(function(res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);

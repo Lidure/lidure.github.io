@@ -279,10 +279,23 @@ test('QQ playlist imports normalize ids and report unavailable audio links', () 
 test('online playlist imports resolve audio URLs on demand', () => {
   const player = readSource('src/components/SekaiPlayer.astro');
 
-  assert.match(player, /function fetchOnlineSongUrl\(/);
+  assert.match(player, /function fetchMetingSongUrl\(/);
   assert.match(player, /audioState/);
-  assert.match(player, /fetchOnlineSongUrl\(.*currentSong/);
+  assert.match(player, /fetchMetingSongUrl\(.*currentSong/);
   assert.doesNotMatch(player, /fetchQQUrls\(tracks/);
+});
+
+test('online playlist imports use a unified Meting-compatible adapter', () => {
+  const player = readSource('src/components/SekaiPlayer.astro');
+
+  assert.match(player, /PUBLIC_METING_API/);
+  assert.match(player, /type=playlist/);
+  assert.match(player, /server.*tencent/);
+  assert.match(player, /song\.title \|\| song\.name/);
+  assert.match(player, /song\.author \|\| song\.artist/);
+  assert.match(readSource('.env.example'), /PUBLIC_METING_API=/);
+  assert.doesNotMatch(player, /fetchQQPlaylist\(/);
+  assert.doesNotMatch(player, /fetchNeteasePlaylist\(/);
 });
 
 test('Busuanzi refresh always supplies its JSONP endpoint after navigation', () => {
