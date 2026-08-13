@@ -861,6 +861,10 @@ const DEFAULT_OPACITY = 0.45;
     min-height: 112px;
   }
 
+  :global(.media-card video.media-card-poster) {
+    pointer-events: none;
+  }
+
   :global(.media-card-video-mark) {
     position: absolute;
     left: 50%;
@@ -1493,78 +1497,25 @@ const DEFAULT_OPACITY = 0.45;
 
     function drawVideoThumbnail(canvas, src) {
       if (!canvas || !src) return;
-      var ctx = canvas.getContext('2d');
-      if (!ctx) return;
-      canvas.width = 320;
-      canvas.height = 180;
-      canvas.classList.add('is-loading');
-
-      var placeholder = null;
+      // Canvas extraction is blocked for videos without CORS headers. Use the
+      // browser's native video renderer instead, paused at a useful frame.
       var vid = document.createElement('video');
-      var done = false;
-      var timer = window.setTimeout(function() {
-        showThumbnailPlaceholder();
-        cleanup();
-      }, 7000);
-
-      function cleanup() {
-        if (done) return;
-        done = true;
-        window.clearTimeout(timer);
-        vid.pause();
-        vid.removeAttribute('src');
-        vid.load();
-        canvas.classList.remove('is-loading');
-      }
-
-      function showThumbnailPlaceholder() {
-        if (placeholder) return;
-        placeholder = document.createElement('span');
-        placeholder.className = 'poster-needed-placeholder';
-        placeholder.textContent = 'needs-poster';
-        canvas.replaceWith(placeholder);
-      }
-
-      function drawFrame() {
-        if (done || !vid.videoWidth || !vid.videoHeight) {
-          showThumbnailPlaceholder();
-          return;
-        }
-        try {
-          var scale = Math.max(canvas.width / vid.videoWidth, canvas.height / vid.videoHeight);
-          var drawW = vid.videoWidth * scale;
-          var drawH = vid.videoHeight * scale;
-          var dx = (canvas.width - drawW) / 2;
-          var dy = (canvas.height - drawH) / 2;
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(vid, dx, dy, drawW, drawH);
-        } catch (e) {
-          showThumbnailPlaceholder();
-        }
-        cleanup();
-      }
-
-      function seekUsefulFrame() {
-        if (done) return;
-        try {
-          var duration = Number.isFinite(vid.duration) ? vid.duration : 0;
-          var target = duration > 2 ? Math.min(1, duration * 0.08) : 0.18;
-          if (duration > 0.25 && Math.abs(vid.currentTime - target) > 0.05) {
-            vid.currentTime = target;
-            return;
-          }
-        } catch (e) {}
-        requestAnimationFrame(drawFrame);
-      }
-
-      hardenBackgroundVideo(vid);
-      vid.preload = 'metadata';
-      vid.addEventListener('loadedmetadata', seekUsefulFrame, { once: true });
-      vid.addEventListener('loadeddata', function() { window.setTimeout(seekUsefulFrame, 60); }, { once: true });
-      vid.addEventListener('seeked', function() { requestAnimationFrame(drawFrame); }, { once: true });
-      vid.addEventListener('canplay', function() { requestAnimationFrame(drawFrame); }, { once: true });
-      vid.addEventListener('error', function() { showThumbnailPlaceholder(); cleanup(); }, { once: true });
+      vid.className = 'media-card-poster';
+      vid.muted = true;
+      vid.playsInline = true;
+      vid.preload = 'auto';
+      vid.controls = false;
+      vid.setAttribute('aria-hidden', 'true');
+      vid.addEventListener('loadedmetadata', function() {
+        var duration = Number.isFinite(vid.duration) ? vid.duration : 0;
+        var target = duration > 2 ? Math.min(1, duration * 0.08) : 0.18;
+        try { vid.currentTime = target; } catch (e) {}
+      }, { once: true });
+      vid.addEventListener('error', function() {
+        vid.classList.add('is-loading');
+      }, { once: true });
       vid.src = src;
+      canvas.replaceWith(vid);
       vid.load();
     }
     // Canvas rendering loop for video (optimized: resize only when needed, cap resolution)
@@ -1839,11 +1790,11 @@ const DEFAULT_OPACITY = 0.45;
         }
 
         if (video) {
-          var posterCanvas = document.createElement('canvas');
-          posterCanvas.className = 'media-card-poster is-loading';
-          posterCanvas.setAttribute('aria-hidden', 'true');
-          card.appendChild(posterCanvas);
-          drawVideoThumbnail(posterCanvas, src);
+          var posterVideo = document.createElement('video');
+          posterVideo.className = 'media-card-poster is-loading';
+          posterVideo.setAttribute('aria-hidden', 'true');
+          card.appendChild(posterVideo);
+          drawVideoThumbnail(posterVideo, src);
 
           var mark = document.createElement('span');
           mark.className = 'media-card-video-mark';
