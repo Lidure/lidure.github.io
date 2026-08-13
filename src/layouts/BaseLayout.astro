@@ -66,6 +66,25 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         });
       });
     })();
+    (function() {
+      if (window.__busuanziLifecycleBound) return;
+      window.__busuanziLifecycleBound = true;
+      function refreshBusuanzi() {
+        if (!document.getElementById('busuanzi_value_site_pv')) return;
+        if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {
+          window.bszCaller.fetch();
+          return;
+        }
+        if (document.getElementById('busuanzi-counter-script')) return;
+        var script = document.createElement('script');
+        script.id = 'busuanzi-counter-script';
+        script.async = true;
+        script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+        document.head.appendChild(script);
+      }
+      document.addEventListener('astro:page-load', refreshBusuanzi);
+      refreshBusuanzi();
+    })();
     </script>
   </head>
   <body>
