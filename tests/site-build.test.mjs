@@ -246,6 +246,14 @@ test('persistent layout scripts initialize through astro page-load with data gua
   assert.doesNotMatch(greeting, /DOMContentLoaded/);
 });
 
+test('Busuanzi refresh always supplies its JSONP endpoint after navigation', () => {
+  const layout = readSource('src/layouts/BaseLayout.astro');
+
+  assert.match(layout, /bszCaller\.fetch\(busuanziRequestUrl/);
+  assert.doesNotMatch(layout, /bszCaller\.fetch\(\)/);
+  assert.match(layout, /jsonpCallback=BusuanziCallback/);
+});
+
 test('background video degrades safely on navigation visibility and reduced motion', () => {
   const hero = readSource('src/components/HeroSlideshow.astro');
 

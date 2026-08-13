@@ -69,18 +69,31 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     (function() {
       if (window.__busuanziLifecycleBound) return;
       window.__busuanziLifecycleBound = true;
+      var busuanziRequestUrl = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback';
+
+      function applyBusuanzi(data) {
+        var values = data || {};
+        var pv = document.getElementById('busuanzi_value_site_pv');
+        var uv = document.getElementById('busuanzi_value_site_uv');
+        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);
+        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);
+      }
+
       function refreshBusuanzi() {
         if (!document.getElementById('busuanzi_value_site_pv')) return;
         if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {
-          window.bszCaller.fetch();
+          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);
           return;
         }
-        if (document.getElementById('busuanzi-counter-script')) return;
-        var script = document.createElement('script');
-        script.id = 'busuanzi-counter-script';
-        script.async = true;
-        script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
-        document.head.appendChild(script);
+        var script = document.getElementById('busuanzi-counter-script');
+        if (!script) {
+          script = document.createElement('script');
+          script.id = 'busuanzi-counter-script';
+          script.async = true;
+          script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';
+          document.head.appendChild(script);
+        }
+        script.addEventListener('load', refreshBusuanzi, { once: true });
       }
       document.addEventListener('astro:page-load', refreshBusuanzi);
       refreshBusuanzi();
