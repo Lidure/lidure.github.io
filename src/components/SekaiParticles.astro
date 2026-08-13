@@ -23,6 +23,12 @@
 
   var container = document.getElementById('sakura-container');
   if (!container) return;
+  var enabled = true;
+  try {
+    var saved = JSON.parse(localStorage.getItem('hero_settings') || '{}');
+    if (typeof saved.sakura === 'boolean') enabled = saved.sakura;
+  } catch (e) {}
+  container.hidden = !enabled;
 
   var emojis = ['🌸', '💮', '✿', '❀'];
   var MAX_PETALS = 30;
@@ -85,6 +91,12 @@
   if (!container.dataset.sakuraTimer) {
     container.dataset.sakuraTimer = String(setInterval(createSakura, 800));
   }
+
+  document.addEventListener('lidure:sakura-setting', function(event) {
+    var next = event.detail && event.detail.enabled !== false;
+    container.hidden = !next;
+    if (!next) container.innerHTML = '';
+  });
 
   document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'hidden') {
