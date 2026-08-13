@@ -1185,7 +1185,8 @@ const DEFAULT_OPACITY = 0.45;
       el.controls = false;
       el.playsInline = true;
       el.preload = 'metadata';
-      el.crossOrigin = 'anonymous';
+      // Do not force CORS on the playback element. The video can still play
+      // when the storage response lacks ACAO; only canvas poster capture needs it.
       el.tabIndex = -1;
       el.setAttribute('muted', '');
       el.setAttribute('playsinline', '');
@@ -1204,7 +1205,7 @@ const DEFAULT_OPACITY = 0.45;
       el.loop = true;
       el.playsInline = true;
       el.preload = 'metadata';
-      el.crossOrigin = 'anonymous';
+      // Preview playback also works without canvas-readable CORS headers.
       el.setAttribute('playsinline', '');
       el.setAttribute('webkit-playsinline', '');
       el.setAttribute('data-page-media', '');
@@ -1979,7 +1980,7 @@ const DEFAULT_OPACITY = 0.45;
           cleanup();
           requestAnimationFrame(function() {
             if (_destroyed || activeRequestId !== slideRequestId) return;
-            videoEl.classList.remove('visible');
+            videoEl.classList.add('visible');
             if (preferStaticVideo) {
               videoEl.pause();
               if (canvasEl) canvasEl.classList.remove('visible');
@@ -1990,11 +1991,16 @@ const DEFAULT_OPACITY = 0.45;
               if (drawVideoFrameOnce() && canvasEl) {
                 canvasEl.classList.add('visible');
                 layer.classList.remove('visible');
+              } else {
+                // A tainted/unreadable canvas must not hide a playable video.
+                hidePosterNeededPlaceholder();
+                layer.classList.add('visible');
               }
               startVideoRender();
             }).catch(function() {
               videoEl.pause();
               if (canvasEl) canvasEl.classList.remove('visible');
+              videoEl.classList.add('visible');
             });
           });
         }
