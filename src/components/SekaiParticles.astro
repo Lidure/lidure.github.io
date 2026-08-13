@@ -32,7 +32,9 @@
   container.hidden = !enabled;
 
   var emojis = ['🌸', '🌷', '🌹', '🌺'];
-  var MAX_PETALS = 30;
+  var approvedFlowers = ['🌸', '💮'];
+  var emojis = ['\u{1F338}', '\u{1F4AE}'];
+  var MAX_PETALS = 24;
 
   function createSakura() {
     if (container.children.length >= MAX_PETALS) return;
@@ -41,9 +43,13 @@
     petal.textContent = emojis[Math.floor(Math.random() * emojis.length)];
 
     var pixelX = Math.random() * (window.innerWidth - 30);
-    var size = Math.random() * 10 + 10;
-    var duration = Math.random() * 5 + 8;
-    var opacity = Math.random() * 0.5 + 0.3;
+    var size = Math.random() * 12 + 14;
+    var duration = Math.random() * 5 + 9;
+    var opacity = Math.random() * 0.35 + 0.5;
+    var windAmplitude = Math.random() * 70 + 45;
+    var windCycles = Math.random() * 1.5 + 1.5;
+    var rotateStart = Math.random() * 360;
+    var rotateAmount = (Math.random() > 0.5 ? 1 : -1) * (Math.random() * 360 + 360);
     var startY = -50;
     var endY = window.innerHeight + 50;
 
@@ -73,8 +79,8 @@
       }
       var progress = Math.min((ts - startTime) / 1000 / duration, 1);
       var y = startY + (endY - startY) * progress;
-      var x = pixelX + 100 * progress + Math.sin(progress * Math.PI * 3) * 20;
-      var rot = 720 * progress;
+      var x = pixelX + windAmplitude * Math.sin(progress * Math.PI * windCycles) + 35 * progress;
+      var rot = rotateStart + rotateAmount * progress;
       var fadeIn = Math.min(progress * 10, 1);
       var fadeOut = progress > 0.9 ? (1 - (progress - 0.9) / 0.1) : 1;
       petal.style.transform = 'translate(' + x + 'px,' + y + 'px) rotate(' + rot + 'deg)';

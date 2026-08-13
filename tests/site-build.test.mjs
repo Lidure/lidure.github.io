@@ -256,6 +256,15 @@ test('layout mounts the sakura particle layer and uses visible flower glyphs', (
   assert.match(particles, /'🌺'\]/);
 });
 
+test('sakura particles use the approved flowers and natural drift parameters', () => {
+  const particles = readSource('src/components/SekaiParticles.astro');
+
+  assert.match(particles, /var emojis = \['\\u\{1F338\}', '\\u\{1F4AE\}'\]/);
+  assert.match(particles, /windAmplitude/);
+  assert.match(particles, /rotateStart/);
+  assert.match(particles, /MAX_PETALS = 24/);
+});
+
 test('Busuanzi refresh always supplies its JSONP endpoint after navigation', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
 
