@@ -13,6 +13,7 @@
   pointer-events: none;
   z-index: 9999;
   overflow: hidden;
+  transform: translateZ(0);
 }
 </style>
 
@@ -23,7 +24,7 @@
 
   var container = document.getElementById('sakura-container');
   if (!container) return;
-  var enabled = true;
+  var enabled = false;
   try {
     var saved = JSON.parse(localStorage.getItem('hero_settings') || '{}');
     if (typeof saved.sakura === 'boolean') enabled = saved.sakura;
@@ -37,7 +38,7 @@
     if (container.children.length >= MAX_PETALS) return;
 
     var petal = document.createElement('div');
-    petal.innerHTML = emojis[Math.floor(Math.random() * emojis.length)];
+    petal.textContent = emojis[Math.floor(Math.random() * emojis.length)];
 
     var pixelX = Math.random() * (window.innerWidth - 30);
     var size = Math.random() * 10 + 10;
@@ -50,7 +51,9 @@
       'position:absolute',
       'left:' + pixelX + 'px',
       'font-size:' + size + 'px',
+      'line-height:1',
       'opacity:0',
+      'z-index:10000',
       'pointer-events:none',
       'text-shadow:0 0 10px rgba(255,107,157,0.45)',
       'will-change:transform,opacity'
@@ -87,7 +90,11 @@
     requestAnimationFrame(animate);
   }
 
-  createSakura();
+  function createBurst() {
+    for (var i = 0; i < 12; i += 1) createSakura();
+  }
+
+  if (enabled) createBurst();
   if (!container.dataset.sakuraTimer) {
     container.dataset.sakuraTimer = String(setInterval(createSakura, 800));
   }
@@ -96,6 +103,7 @@
     var next = event.detail && event.detail.enabled !== false;
     container.hidden = !next;
     if (!next) container.innerHTML = '';
+    else createBurst();
   });
 
   document.addEventListener('visibilitychange', function() {
