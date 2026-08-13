@@ -265,6 +265,15 @@ test('sakura particles use the approved flowers and natural drift parameters', (
   assert.match(particles, /MAX_PETALS = 24/);
 });
 
+test('QQ playlist imports normalize ids and report unavailable audio links', () => {
+  const player = readSource('src/components/SekaiPlayer.astro');
+
+  assert.match(player, /var QQ_URL_BATCH_SIZE = 10/);
+  assert.match(player, /u\.mid \|\| u\.songmid \|\| u\.song_mid \|\| u\.id/);
+  assert.match(player, /authed/);
+  assert.match(player, /qqCookieRow/);
+});
+
 test('Busuanzi refresh always supplies its JSONP endpoint after navigation', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
 
