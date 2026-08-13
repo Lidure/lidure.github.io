@@ -6,6 +6,7 @@ import ThemeToggle from '../components/ThemeToggle.astro';
 import { ClientRouter } from 'astro:transitions';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
+import SekaiParticles from '../components/SekaiParticles.astro';
 
 const siteBase = Astro.site ?? new URL('https://lidure.xyz');
 const canonicalUrl = new URL(Astro.url.pathname, siteBase);
@@ -102,6 +103,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
   </head>
   <body>
     <HeroSlideshow />
+    <SekaiParticles />
     <SekaiPlayer />
     <div class="site-shell">
       <header class="topbar">

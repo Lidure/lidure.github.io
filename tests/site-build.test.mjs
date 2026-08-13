@@ -246,6 +246,16 @@ test('persistent layout scripts initialize through astro page-load with data gua
   assert.doesNotMatch(greeting, /DOMContentLoaded/);
 });
 
+test('layout mounts the sakura particle layer and uses visible flower glyphs', () => {
+  const layout = readSource('src/layouts/BaseLayout.astro');
+  const particles = readSource('src/components/SekaiParticles.astro');
+
+  assert.match(layout, /import SekaiParticles from ['"]\.\.\/components\/SekaiParticles\.astro['"]/);
+  assert.match(layout, /<SekaiParticles\s*\/>/);
+  assert.match(particles, /var emojis = \['🌸'/);
+  assert.match(particles, /'🌺'\]/);
+});
+
 test('Busuanzi refresh always supplies its JSONP endpoint after navigation', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
 
