@@ -75,7 +75,7 @@ const serverTime = now.toLocaleString('zh-CN', {
 
 <script is:inline>
 /* clock runtime persists across Astro client-side navigations */
-function pad(n: number): string {
+function pad(n) {
   return n < 10 ? '0' + n : String(n);
 }
 
