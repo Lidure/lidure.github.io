@@ -164,7 +164,7 @@ export async function listMoments(
       ORDER BY date DESC, id DESC
       LIMIT ?
     )
-    SELECT m.id, m.date, m.category, m.text, m.link, m.legacy_images, m.created_at, m.updated_at,
+    SELECT m.id, m.date, m.category, m.text, m.link, m.images AS legacy_images, m.created_at, m.updated_at,
            mm.id AS media_id, mm.kind AS media_kind, mm.url AS media_url, mm.sort_order AS media_sort_order
     FROM selected_moments m
     LEFT JOIN moment_media mm ON mm.moment_id = m.id

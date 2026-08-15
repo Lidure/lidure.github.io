@@ -322,3 +322,9 @@ test('background videos recover playback when browsers emit ended despite loop',
   assert.match(hero, /videoEl\.currentTime\s*=\s*0/);
   assert.match(hero, /videoEl\.play\(\)/);
 });
+
+test('moments single-item query aliases the legacy images column', () => {
+  const moments = readSource('danmaku-api/src/moments.ts');
+
+  assert.match(moments, /m\.images AS legacy_images/);
+});
