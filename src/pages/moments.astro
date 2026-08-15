@@ -2198,9 +2198,6 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     const shell = document.querySelector<HTMLElement>('.moments-shell');
     if (!shell || shell.dataset.momentsInitialized === '1') return;
 
-    // The publish button is public; authentication is required inside the panel.
-    adminMode = new URLSearchParams(window.location.search).get('admin') === '1';
-
     cleanupMomentsPage?.abort();
     const controller = new AbortController();
     cleanupMomentsPage = controller;
@@ -2712,6 +2709,9 @@ import { categoryMeta, categoryOrder } from '../data/moments';
     }, { signal });
 
     function updateSessionUi(authenticated: boolean, message?: string) {
+      adminMode = authenticated;
+      if (currentMoments.length > 0) syncMoments(currentMoments);
+
       const sessionStatus = document.getElementById('moments-session-status');
       const loginBox = document.getElementById('moments-login');
       const logoutBtn = document.getElementById('moments-logout') as HTMLButtonElement | null;

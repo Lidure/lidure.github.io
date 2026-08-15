@@ -184,6 +184,14 @@ test('moments browser code uses the session API client for management', () => {
   assert.doesNotMatch(publicInteractions, /PUBLIC_ADMIN_TOKEN_KEY|Authorization|Bearer|window\.prompt/);
 });
 
+test('moment delete controls follow the authenticated session', () => {
+  const momentsPage = readSource('src/pages/moments.astro');
+
+  assert.match(momentsPage, /adminMode\s*=\s*authenticated/);
+  assert.match(momentsPage, /if \(currentMoments\.length > 0\) syncMoments\(currentMoments\)/);
+  assert.doesNotMatch(momentsPage, /adminMode\s*=\s*new URLSearchParams\(window\.location\.search\)/);
+});
+
 test('hero slideshow uses explicit saved video posters instead of black canvas fallback', () => {
   const hero = readSource('src/components/HeroSlideshow.astro');
 
