@@ -1975,7 +1975,11 @@ const DEFAULT_OPACITY = 0.45;
         videoEl.onprogress = revealWhenReady;
         videoEl.onended = function() {
           if (_destroyed || activeRequestId !== slideRequestId || preferStaticVideo) return;
+          videoEl.loop = true;
           videoEl.currentTime = 0;
+          // Some browsers keep the element in an ended state and reject an
+          // immediate play() unless the media pipeline is loaded again.
+          videoEl.load();
           videoEl.play().then(function() {
             startVideoRender();
           }).catch(function() {});

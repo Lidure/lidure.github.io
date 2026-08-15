@@ -346,6 +346,12 @@ test('background videos recover playback when browsers emit ended despite loop',
   assert.match(hero, /videoEl\.play\(\)/);
 });
 
+test('background videos reload before retrying playback after ended', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+
+  assert.match(hero, /videoEl\.onended\s*=\s*function[\s\S]*?videoEl\.load\(\)[\s\S]*?videoEl\.play\(\)/);
+});
+
 test('moments single-item query aliases the legacy images column', () => {
   const moments = readSource('danmaku-api/src/moments.ts');
 
