@@ -192,6 +192,21 @@ test('moment delete controls follow the authenticated session', () => {
   assert.doesNotMatch(momentsPage, /adminMode\s*=\s*new URLSearchParams\(window\.location\.search\)/);
 });
 
+test('guestbook exposes authenticated message deletion controls', () => {
+  const messagesPage = readSource('src/pages/messages.astro');
+  const interactions = readSource('src/lib/public-interactions.ts');
+  const worker = readSource('danmaku-api/src/index.ts');
+
+  assert.match(messagesPage, /getSession/);
+  assert.match(messagesPage, /login/);
+  assert.match(messagesPage, /deleteGuestMessage/);
+  assert.match(messagesPage, /message-delete/);
+  assert.match(interactions, /export async function deleteGuestMessage/);
+  assert.match(worker, /request\.method === "DELETE"\) return handleMessagesDelete/);
+  assert.match(worker, /async function handleMessagesDelete/);
+  assert.match(worker, /requireSession\(request, env\)/);
+});
+
 test('hero slideshow uses explicit saved video posters instead of black canvas fallback', () => {
   const hero = readSource('src/components/HeroSlideshow.astro');
 

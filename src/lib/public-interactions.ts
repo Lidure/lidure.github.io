@@ -167,6 +167,16 @@ export async function createGuestMessage(userId: string, text: string) {
   return data.item as GuestMessage;
 }
 
+export async function deleteGuestMessage(messageId: string) {
+  const res = await fetch(`${PUBLIC_API_BASE}/messages`, {
+    method: 'DELETE',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ id: messageId }),
+  });
+  await readApiJson(res);
+}
+
 export function createCommentsWidget(targetType: CommentTargetType, targetId: string, initialCount?: number, previewCount = 0) {
   const root = document.createElement('section');
   root.className = 'public-comments';

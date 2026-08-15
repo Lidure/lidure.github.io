@@ -84,6 +84,8 @@ export default {
       if (url.pathname === "/api/messages") {
         if (request.method === "GET") return handleMessagesList(url, request, env);
         if (request.method === "POST") return handleMessagesCreate(request, env);
+        if (request.method === "DELETE") return handleMessagesDelete(request, env);
+        return errorResponse("Method not allowed", "METHOD_NOT_ALLOWED", 405, request, env);
       }
       if (url.pathname === "/api/comments") {
         if (request.method === "GET") return handleCommentsList(url, request, env);
@@ -363,6 +365,20 @@ async function handleMessagesCreate(request: Request, env: Env) {
   const now = Date.now(), id = crypto.randomUUID(), ipHash = await hashClient(request);
   await env.DB.prepare("INSERT INTO guest_messages (id,user_id,text,ip_hash,created_at) VALUES (?,?,?,?,?)").bind(id,userId,text,ipHash,now).run();
   return json({ item: { id,userId,text,createdAt:now,commentCount:0 } }, 201, request, env);
+}
+
+async function handleMessagesDelete(request: Request, env: Env) {
+  const session = await requireSession(request, env);
+  if (session instanceof Response) return session;
+  if (!isJsonRequest(request)) return errorResponse("Expected application/json", "UNSUPPORTED_MEDIA_TYPE", 415, request, env);
+  const body = await readJsonBody(request);
+  const id = body.ok && typeof body.value.id === "string" ? body.value.id.trim() : "";
+  if (!id) return errorResponse("Missing id", "BAD_REQUEST", 400, request, env);
+
+  await env.DB.prepare("DELETE FROM comment_reactions WHERE comment_id IN (SELECT id FROM comments WHERE target_type = 'message' AND target_id = ?)").bind(id).run();
+  await env.DB.prepare("DELETE FROM comments WHERE target_type = 'message' AND target_id = ?").bind(id).run();
+  await env.DB.prepare("DELETE FROM guest_messages WHERE id = ?").bind(id).run();
+  return json({ deleted: true }, 200, request, env);
 }
 
 async function handleCommentsList(url: URL, request: Request, env: Env) {

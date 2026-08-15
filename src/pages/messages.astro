@@ -10,6 +10,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       <p>路过也可以留下一句话。自设一个 ID 就能留言和评论，不需要密钥。</p>
     </header>
 
+    <section class="message-admin" id="message-admin">
+      <div class="message-admin-row">
+        <span id="message-session-status">检查登录状态中...</span>
+        <button type="button" id="message-logout" hidden>退出登录</button>
+      </div>
+      <div id="message-login" hidden>
+        <input type="password" id="message-login-password" placeholder="管理员密码" autocomplete="current-password" />
+        <button type="button" id="message-login-submit">登录</button>
+      </div>
+    </section>
+
     <form class="message-form" id="message-form">
       <label>
         <span>你的 ID</span>
@@ -153,6 +164,52 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     cursor: wait;
   }
 
+  .message-admin {
+    margin: 1rem 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 14px;
+    background: rgba(10, 14, 30, 0.35);
+  }
+
+  .message-admin-row,
+  #message-login {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  #message-login {
+    margin-top: 0.6rem;
+  }
+
+  #message-login input {
+    flex: 1;
+    min-width: 0;
+  }
+
+  #message-logout,
+  #message-login-submit,
+  .message-delete {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.35rem 0.75rem;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.12);
+    cursor: pointer;
+  }
+
+  .message-delete {
+    margin-left: auto;
+    color: #ffc1cb;
+    background: rgba(255, 92, 122, 0.14);
+  }
+
+  .message-delete:disabled {
+    opacity: 0.6;
+    cursor: wait;
+  }
+
   .messages-list {
     display: grid;
     gap: 14px;
@@ -219,6 +276,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   import {
     createCommentsWidget,
     createGuestMessage,
+    deleteGuestMessage,
     fetchGuestMessages,
     formatPublicTime,
     getStoredUserId,
@@ -226,6 +284,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     setStoredUserId,
     type GuestMessage,
   } from '../lib/public-interactions';
+  import { getSession, login, logout } from '../lib/moments-api';
 
   const form = document.getElementById('message-form') as HTMLFormElement | null;
   const userInput = document.getElementById('message-user-id') as HTMLInputElement | null;
@@ -233,6 +292,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   const submit = document.getElementById('message-submit') as HTMLButtonElement | null;
   const status = document.getElementById('message-status');
   const list = document.getElementById('messages-list');
+  const sessionStatus = document.getElementById('message-session-status');
+  const loginBox = document.getElementById('message-login');
+  const loginPassword = document.getElementById('message-login-password') as HTMLInputElement | null;
+  const loginSubmit = document.getElementById('message-login-submit') as HTMLButtonElement | null;
+  const logoutButton = document.getElementById('message-logout') as HTMLButtonElement | null;
+  let adminMode = false;
+  let currentMessages: GuestMessage[] = [];
 
   if (userInput) userInput.value = getStoredUserId();
 
@@ -242,8 +308,17 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     status.className = error ? 'error' : '';
   }
 
+  function updateSessionUi(authenticated: boolean, message = '') {
+    adminMode = authenticated;
+    if (sessionStatus) sessionStatus.textContent = message || (authenticated ? '已登录，可以删除留言。' : '管理员登录后可删除留言。');
+    if (loginBox) loginBox.hidden = authenticated;
+    if (logoutButton) logoutButton.hidden = !authenticated;
+    if (currentMessages.length > 0) renderMessages(currentMessages);
+  }
+
   function renderMessages(messages: GuestMessage[]) {
     if (!list) return;
+    currentMessages = messages;
     list.innerHTML = '';
 
     if (!messages.length) {
@@ -265,6 +340,26 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       time.dateTime = new Date(message.createdAt).toISOString();
       time.textContent = formatPublicTime(message.createdAt);
       meta.append(user, time);
+      if (adminMode) {
+        const deleteButton = document.createElement('button');
+        deleteButton.type = 'button';
+        deleteButton.className = 'message-delete';
+        deleteButton.textContent = '删除';
+        deleteButton.title = '删除这条留言';
+        deleteButton.addEventListener('click', async () => {
+          if (!window.confirm('确定删除这条留言吗？删除后不可恢复。')) return;
+          deleteButton.disabled = true;
+          try {
+            await deleteGuestMessage(message.id);
+            currentMessages = currentMessages.filter((item) => item.id !== message.id);
+            renderMessages(currentMessages);
+          } catch (err) {
+            deleteButton.disabled = false;
+            setStatus(err instanceof Error ? err.message : '删除失败', true);
+          }
+        });
+        meta.appendChild(deleteButton);
+      }
 
       const text = document.createElement('p');
       text.className = 'message-text';
@@ -273,6 +368,44 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       list.appendChild(card);
     });
   }
+
+  async function refreshSession() {
+    try {
+      const state = await getSession();
+      updateSessionUi(state.authenticated);
+    } catch (err) {
+      updateSessionUi(false, err instanceof Error ? err.message : '登录状态检查失败');
+    }
+  }
+
+  loginSubmit?.addEventListener('click', async () => {
+    const password = loginPassword?.value.trim() || '';
+    if (!password) return updateSessionUi(false, '请输入管理员密码');
+    loginSubmit.disabled = true;
+    try {
+      const state = await login(password);
+      if (loginPassword) loginPassword.value = '';
+      updateSessionUi(state.authenticated);
+    } catch (err) {
+      updateSessionUi(false, err instanceof Error ? err.message : '登录失败，请重试');
+    } finally {
+      loginSubmit.disabled = false;
+    }
+  });
+
+  loginPassword?.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') loginSubmit?.click();
+  });
+
+  logoutButton?.addEventListener('click', async () => {
+    logoutButton.disabled = true;
+    try {
+      await logout();
+      updateSessionUi(false, '已退出登录');
+    } finally {
+      logoutButton.disabled = false;
+    }
+  });
 
   async function refreshMessages() {
     if (!list) return;
@@ -312,4 +445,5 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   });
 
   refreshMessages();
+  refreshSession();
 </script>
