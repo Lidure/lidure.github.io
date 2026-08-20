@@ -100,6 +100,10 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
       refreshBusuanzi();
     })();
     </script>
+    <script>
+      import { installHeroVideoLoopGuard } from '../lib/hero-video-loop-guard.mjs';
+      installHeroVideoLoopGuard();
+    </script>
   </head>
   <body>
     <HeroSlideshow />
