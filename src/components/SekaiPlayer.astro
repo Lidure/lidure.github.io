@@ -2220,11 +2220,27 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
     updateTagDropdownLabel();
   }
 
+  function getSongSearchText(song) {
+    if (!song) return '';
+    if (song.searchText) return song.searchText;
+    song.searchText = normalize([
+      song.title,
+      song.pronunciation,
+      song.lyricist,
+      song.composer,
+      song.arranger,
+      (song.vocals || []).map(function(vocal) {
+        return vocal.name || vocal.caption || '';
+      }).join(' ')
+    ].join(' '));
+    return song.searchText;
+  }
+
   function applyFilters() {
     var normalizedQuery = normalize(query);
     filteredSongs = songs.filter(function(song) {
       var matchesTag = tagFilter === 'all' || song.tags.indexOf(tagFilter) >= 0;
-      var matchesQuery = !normalizedQuery || song.searchText.indexOf(normalizedQuery) >= 0;
+      var matchesQuery = !normalizedQuery || getSongSearchText(song).indexOf(normalizedQuery) >= 0;
       return matchesTag && matchesQuery;
     });
     renderedCount = BATCH_SIZE;
@@ -3979,8 +3995,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
           vocals: [{ id: 'local', name: '原始音频', sourceUrl: url }]
         });
       });
-      filteredSongs = songs.slice();
-      renderPlaylist();
+      applyFilters();
       statusEl.textContent = '已添加 ' + files.length + ' 首本地歌曲';
       this.value = '';
     });
