@@ -1,0 +1,43 @@
+---
+interface Props {
+  postCount: number;
+  tagCount: number;
+  featuredHref: string;
+}
+
+const { postCount, tagCount, featuredHref } = Astro.props;
+
+const links = [
+  { href: 'https://github.com/Lidure/lidure.github.io', label: 'GitHub', external: true },
+  { href: '/moments', label: '碎碎念' },
+  { href: '/posts', label: '文章归档' },
+  { href: featuredHref, label: '精选文章' },
+];
+---
+
+<aside class="home-profile-sidebar" aria-label="个人信息">
+  <section class="home-profile-card">
+    <img class="home-profile-avatar" src="/p0-256.webp" alt="搁浅 的头像" width="104" height="104" />
+    <div class="home-profile-copy">
+      <h2>搁浅</h2>
+      <p>目前是一个苦逼的研究生~偶尔会打打游戏（pjsk、瓦、lol，还有一些 steam 游戏...），Vibe coding 中（雾）</p>
+    </div>
+
+    <dl class="home-profile-stats">
+      <div><dt>文章</dt><dd>{postCount}</dd></div>
+      <div><dt>标签</dt><dd>{tagCount}</dd></div>
+    </dl>
+
+    <nav class="home-profile-links" aria-label="快捷入口">
+      {links.map((link) => (
+        <a
+          href={link.href}
+          target={link.external ? '_blank' : undefined}
+          rel={link.external ? 'noreferrer' : undefined}
+        >
+          <span>{link.label}</span><span aria-hidden="true">→</span>
+        </a>
+      ))}
+    </nav>
+  </section>
+</aside>
