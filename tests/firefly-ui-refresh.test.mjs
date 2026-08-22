@@ -32,9 +32,12 @@ test('standard banner keeps B3 desktop and mobile heights', () => {
 });
 
 test('standard banner stays readable when the background is disabled', () => {
-  const css = readSource('src/styles/firefly-refresh.css');
-  assert.match(css, /html\.no-hero-bg\s+body\.layout-standard\s+\.blog-banner/);
-  assert.match(css, /color:\s*var\(--standard-text\)/);
+  const styles = [
+    readSource('src/styles/firefly-refresh.css'),
+    readSource('src/components/BlogBanner.astro'),
+  ].join('\n');
+  assert.match(styles, /html\.no-hero-bg\s+body\.layout-standard/);
+  assert.match(styles, /color:\s*var\(--standard-text\)/);
 });
 
 test('site header replaces its global scroll listener after Astro navigation', () => {
