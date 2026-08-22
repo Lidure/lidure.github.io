@@ -17,11 +17,14 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 const updatedDate = post.data.updatedDate ?? post.data.pubDate;
 ---
-<BaseLayout title={`${post.data.title} | Lidure Blog`} description={post.data.description}>
+<BaseLayout
+  title={`${post.data.title} | Lidure Blog`}
+  description={post.data.description}
+  bannerTitle={post.data.title}
+  bannerSubtitle={post.data.description}
+>
   <article class="post-shell">
-    <span class="kicker">Article</span>
-    <h1>{post.data.title}</h1>
-    <div class="meta">
+    <div class="meta post-meta-top">
       <span>发布于 {post.data.pubDate.toLocaleDateString('zh-CN')}</span>
       <span>最后更新 {updatedDate.toLocaleDateString('zh-CN')}</span>
       <span>{post.data.tags.length} tags</span>
