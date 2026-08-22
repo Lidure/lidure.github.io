@@ -9,7 +9,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test:site": "node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs",
+    "test:site": "node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs",
     "test:poster": "node --test tests/video-poster.test.mjs",
     "test": "npm run build && npm run test:site"
   },
