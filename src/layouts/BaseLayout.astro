@@ -8,16 +8,21 @@ interface Props {
   bannerSubtitle?: string;
 }
 
+const defaultLayoutMode: 'standard' | 'immersive' =
+  Astro.url.pathname === '/player' ? 'immersive' : 'standard';
+
 const {
   title = '搁浅 的小窝',
   description = '一个使用 Astro 和 GitHub Pages 搭建的个人博客。',
   showTime = false,
-  layoutMode = 'standard',
-  bannerTitle = '搁浅的小窝',
-  bannerSubtitle = '把喜欢的东西，认真地收进小站里。',
+  layoutMode = defaultLayoutMode,
+  bannerTitle,
+  bannerSubtitle,
 } = Astro.props;
 
 const isStandard = layoutMode === 'standard';
+const resolvedBannerTitle = bannerTitle ?? title.split('|')[0].trim();
+const resolvedBannerSubtitle = bannerSubtitle ?? description;
 
 import '../styles/global.css';
 import '../styles/firefly-refresh.css';
@@ -134,7 +139,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     {isStandard ? (
       <>
         <SiteHeader currentPath={Astro.url.pathname} />
-        <BlogBanner title={bannerTitle} subtitle={bannerSubtitle} />
+        <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
         <div class="standard-page-surface">
           <main class="content-area standard-content">
             {showTime && <div class="clock-row"><ClockDisplay /></div>}
