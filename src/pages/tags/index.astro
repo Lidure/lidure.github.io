@@ -13,11 +13,14 @@ for (const post of posts) {
 
 const sortedTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
 ---
-<BaseLayout title="标签 | 搁浅 的小窝" description="按标签分类浏览博客文章。">
+<BaseLayout
+  title="标签 | 搁浅 的小窝"
+  description="按标签分类浏览博客文章。"
+  bannerTitle="标签"
+  bannerSubtitle="按主题浏览站内文章。"
+>
   <section class="archive-shell">
-    <span class="kicker">Tags</span>
-    <h1>标签</h1>
-    <p>共有 {sortedTags.length} 个标签，点击可查看对应文章。</p>
+    <p class="page-intro">共有 {sortedTags.length} 个标签，点击可查看对应文章。</p>
 
     <div class="tag-cloud">
       {sortedTags.map(([tag, count]) => (
