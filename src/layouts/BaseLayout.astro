@@ -8,8 +8,9 @@ interface Props {
   bannerSubtitle?: string;
 }
 
+const normalizedPath = Astro.url.pathname.replace(/\/+$/, '');
 const defaultLayoutMode: 'standard' | 'immersive' =
-  Astro.url.pathname === '/player' ? 'immersive' : 'standard';
+  normalizedPath === '/player' ? 'immersive' : 'standard';
 
 const {
   title = '搁浅 的小窝',
