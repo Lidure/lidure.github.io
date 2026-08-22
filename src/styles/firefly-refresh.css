@@ -25,6 +25,39 @@ body.layout-standard {
   --standard-accent-soft: rgba(217, 95, 139, 0.10);
 }
 
+body.layout-standard .hero-slideshow {
+  position: absolute;
+  inset: 0 0 auto;
+  height: var(--blog-banner-height, 50vh);
+}
+
+body.layout-standard .slideshow-overlay {
+  background: rgba(0, 0, 0, 0.26);
+}
+
+body.layout-immersive .hero-slideshow {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+}
+
+body.layout-standard .theme-toggle {
+  width: 36px;
+  height: 36px;
+  border-radius: 9px;
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+
+body.layout-standard .theme-toggle:hover {
+  transform: translateY(-1px);
+  border-color: var(--standard-line);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: none;
+}
+
 body.layout-standard .site-header {
   position: fixed;
   inset: 0 0 auto;
