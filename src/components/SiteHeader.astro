@@ -90,7 +90,11 @@ const isActive = (href: string) =>
       link.addEventListener('click', closePanel);
     });
 
-    window.addEventListener('scroll', setScrolled, { passive: true });
+    if (window.__siteHeaderScrollHandler) {
+      window.removeEventListener('scroll', window.__siteHeaderScrollHandler);
+    }
+    window.__siteHeaderScrollHandler = setScrolled;
+    window.addEventListener('scroll', window.__siteHeaderScrollHandler, { passive: true });
     setScrolled();
   }
 
