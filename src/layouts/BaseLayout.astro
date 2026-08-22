@@ -1,8 +1,29 @@
 ---
-const { title = '搁浅 的小窝', description = '一个使用 Astro 和 GitHub Pages 搭建的个人博客。', showTime = false } = Astro.props;
+interface Props {
+  title?: string;
+  description?: string;
+  showTime?: boolean;
+  layoutMode?: 'standard' | 'immersive';
+  bannerTitle?: string;
+  bannerSubtitle?: string;
+}
+
+const {
+  title = '搁浅 的小窝',
+  description = '一个使用 Astro 和 GitHub Pages 搭建的个人博客。',
+  showTime = false,
+  layoutMode = 'standard',
+  bannerTitle = '搁浅的小窝',
+  bannerSubtitle = '把喜欢的东西，认真地收进小站里。',
+} = Astro.props;
+
+const isStandard = layoutMode === 'standard';
+
 import '../styles/global.css';
+import '../styles/firefly-refresh.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
-import ThemeToggle from '../components/ThemeToggle.astro';
+import BlogBanner from '../components/BlogBanner.astro';
+import SiteHeader from '../components/SiteHeader.astro';
 import { ClientRouter } from 'astro:transitions';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
@@ -105,34 +126,29 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
       installHeroVideoLoopGuard();
     </script>
   </head>
-  <body>
+  <body class={`layout-${layoutMode}`}>
     <HeroSlideshow />
     <SekaiParticles />
     <SekaiPlayer />
-    <div class="site-shell">
-      <header class="topbar">
-        <a class="brand" href="/">Lidure</a>
-        <nav class="nav">
-          <a href="/">首页</a>
-          <a href="/moments">碎碎念</a>
-          <a href="/messages">留言</a>
-          <a href="/posts">文章</a>
-          <a href="/tags">标签</a>
-          <a href="/search">搜索</a>
-          <a href="/player">沉浸</a>
-          <a href="/sekai-quest">闯关</a>
-        </nav>
-        <ThemeToggle />
-      </header>
-      <main class="content-area">
-        {showTime && <div class="clock-row"><ClockDisplay /></div>}
-        <slot />
-      </main>
-      <footer class="footer">
-        <div class="footer-inner">
-          <p>Built with Astro and GitHub Pages.</p>
+
+    {isStandard ? (
+      <>
+        <SiteHeader currentPath={Astro.url.pathname} />
+        <BlogBanner title={bannerTitle} subtitle={bannerSubtitle} />
+        <div class="standard-page-surface">
+          <main class="content-area standard-content">
+            {showTime && <div class="clock-row"><ClockDisplay /></div>}
+            <slot />
+          </main>
+          <footer class="footer">
+            <div class="footer-inner">
+              <p>Built with Astro and GitHub Pages.</p>
+            </div>
+          </footer>
         </div>
-      </footer>
-    </div>
+      </>
+    ) : (
+      <main class="immersive-content"><slot /></main>
+    )}
   </body>
 </html>
