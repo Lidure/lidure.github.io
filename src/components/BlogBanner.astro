@@ -13,3 +13,19 @@ const { title, subtitle } = Astro.props;
     {subtitle && <p>{subtitle}</p>}
   </div>
 </section>
+
+<style>
+  :global(html.no-hero-bg body.layout-standard) .blog-banner {
+    background: var(--standard-card-soft);
+    color: var(--standard-text);
+  }
+
+  :global(html.no-hero-bg body.layout-standard) .blog-banner-copy h1,
+  :global(html.no-hero-bg body.layout-standard) .blog-banner-copy p {
+    text-shadow: none;
+  }
+
+  :global(html.no-hero-bg body.layout-standard) .blog-banner-copy p {
+    color: var(--standard-muted);
+  }
+</style>
