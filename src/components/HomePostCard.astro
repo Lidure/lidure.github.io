@@ -1,0 +1,30 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const { post } = Astro.props;
+const href = `/posts/${post.id.replace(/\.md$/, '')}`;
+const minutes = Math.max(1, Math.ceil((post.body ?? '').length / 800));
+---
+
+<article class:list={['home-post-card', { 'has-cover': !!post.data.cover }]}>
+  <div class="home-post-copy">
+    <div class="home-post-meta">
+      <time datetime={post.data.pubDate.toISOString()}>{post.data.pubDate.toLocaleDateString('zh-CN')}</time>
+      <span>{minutes} 分钟阅读</span>
+    </div>
+    <h2><a href={href}>{post.data.title}</a></h2>
+    <p>{post.data.description}</p>
+    <div class="home-post-tags">
+      {post.data.tags.map((tag) => <a href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>)}
+    </div>
+  </div>
+  {post.data.cover && (
+    <a class="home-post-cover" href={href} aria-label={`阅读 ${post.data.title}`}>
+      <img src={post.data.cover} alt="" loading="lazy" decoding="async" />
+    </a>
+  )}
+</article>
