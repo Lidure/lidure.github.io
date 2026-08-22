@@ -1,0 +1,15 @@
+---
+interface Props {
+  title: string;
+  subtitle?: string;
+}
+
+const { title, subtitle } = Astro.props;
+---
+
+<section class="blog-banner" aria-labelledby="blog-banner-title">
+  <div class="blog-banner-copy">
+    <h1 id="blog-banner-title">{title}</h1>
+    {subtitle && <p>{subtitle}</p>}
+  </div>
+</section>
