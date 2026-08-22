@@ -2,13 +2,14 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="留言板 | 搁浅 的小窝" description="给博客留下想说的话。">
+<BaseLayout
+  title="留言板 | 搁浅 的小窝"
+  description="给博客留下想说的话。"
+  bannerTitle="留言板"
+  bannerSubtitle="路过也可以留下一句话。"
+>
   <section class="messages-shell">
-    <header class="messages-hero">
-      <span class="kicker">Guestbook</span>
-      <h1>留言板</h1>
-      <p>路过也可以留下一句话。自设一个 ID 就能留言和评论，不需要密钥。</p>
-    </header>
+    <p class="messages-intro">自设一个 ID 就能留言和评论，不需要密钥。</p>
 
     <section class="message-admin" id="message-admin">
       <div class="message-admin-row">
@@ -48,43 +49,18 @@ import BaseLayout from '../layouts/BaseLayout.astro';
     margin: 0 auto;
   }
 
-  .messages-hero {
-    padding: 34px 34px 30px;
-    margin-bottom: 22px;
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--panel-border);
-    background: var(--panel-gradient);
-    box-shadow: var(--shadow);
-    text-align: center;
-  }
-
-  .messages-hero .kicker {
-    color: var(--accent);
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    font-size: 0.78rem;
-  }
-
-  .messages-hero h1 {
-    margin: 8px 0 10px;
-    font-family: 'Ma Shan Zheng', cursive;
-    font-size: 3.6rem;
-    letter-spacing: 0;
-  }
-
-  .messages-hero p {
-    margin: 0;
+  .messages-intro {
+    margin: 0 0 18px;
     color: var(--muted);
     line-height: 1.7;
   }
 
   .message-form,
-  .message-card {
+  .message-card,
+  .message-admin {
     border: 1px solid var(--panel-border);
     background: var(--panel-gradient);
     box-shadow: var(--shadow-soft);
-    backdrop-filter: blur(14px);
   }
 
   .message-form {
@@ -107,11 +83,12 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .message-form input,
-  .message-form textarea {
+  .message-form textarea,
+  #message-login input {
     width: 100%;
     box-sizing: border-box;
     border: 1px solid var(--panel-border);
-    border-radius: 12px;
+    border-radius: 10px;
     background: var(--bg);
     color: var(--text);
     font: inherit;
@@ -124,7 +101,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .message-form input:focus,
-  .message-form textarea:focus {
+  .message-form textarea:focus,
+  #message-login input:focus {
     outline: none;
     border-color: var(--accent);
   }
@@ -149,14 +127,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 
   #message-submit {
     border: none;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    border-radius: 10px;
+    background: var(--accent);
     color: #fff;
     cursor: pointer;
     font: inherit;
     font-weight: 700;
     padding: 11px 18px;
-    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.28);
   }
 
   #message-submit:disabled {
@@ -165,11 +142,9 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   .message-admin {
-    margin: 1rem 0;
+    margin: 0 0 18px;
     padding: 0.75rem 1rem;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    border-radius: 14px;
-    background: rgba(10, 14, 30, 0.35);
+    border-radius: 12px;
   }
 
   .message-admin-row,
@@ -192,7 +167,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   #message-login-submit,
   .message-delete {
     border: 0;
-    border-radius: 999px;
+    border-radius: 8px;
     padding: 0.35rem 0.75rem;
     color: inherit;
     background: rgba(255, 255, 255, 0.12);
@@ -252,14 +227,6 @@ import BaseLayout from '../layouts/BaseLayout.astro';
   }
 
   @media (max-width: 640px) {
-    .messages-hero {
-      padding: 28px 18px 24px;
-    }
-
-    .messages-hero h1 {
-      font-size: 2.7rem;
-    }
-
     .form-actions,
     .message-meta {
       align-items: flex-start;
