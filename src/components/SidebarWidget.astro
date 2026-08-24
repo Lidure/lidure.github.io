@@ -1,0 +1,25 @@
+---
+interface Props {
+  title: string;
+  icon?: string;
+  tone?: 'pink' | 'purple' | 'cyan' | 'warm' | 'neutral';
+  className?: string;
+}
+
+const {
+  title,
+  icon = '✦',
+  tone = 'neutral',
+  className = '',
+} = Astro.props;
+---
+
+<section class:list={['sidebar-widget', `is-${tone}`, className]}>
+  <header class="sidebar-widget-header">
+    <span class="sidebar-widget-icon" aria-hidden="true">{icon}</span>
+    <h2>{title}</h2>
+  </header>
+  <div class="sidebar-widget-body">
+    <slot />
+  </div>
+</section>
