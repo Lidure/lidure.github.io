@@ -70,3 +70,23 @@ test('v4 music card reveals play control on fine-pointer hover and flows color w
   assert.match(music, /html\[data-reduce-motion="true"\][\s\S]*?animation:\s*none/);
   assert.match(music, /root\.classList\.toggle\(['"]is-playing['"]/);
 });
+
+test('v4 home post cards use image-forward alternating layouts with stable cover ratios', () => {
+  const card = readSource('src/components/HomePostCard.astro');
+  const css = readSource('src/styles/firefly-v4.css');
+  const layout = readSource('src/layouts/BaseLayout.astro');
+
+  assert.match(card, /class="home-post-title"/);
+  assert.match(card, /class="home-post-excerpt"/);
+  assert.match(card, /class="home-post-cover-image"/);
+  assert.match(card, /sizes=/);
+
+  assert.match(css, /\.home-post-card\.has-cover/);
+  assert.match(css, /grid-template-columns:\s*minmax\(220px,\s*36%\)\s+minmax\(0,\s*1fr\)/);
+  assert.match(css, /\.home-post-card:nth-child\(even\)\.has-cover/);
+  assert.match(css, /aspect-ratio:\s*16\s*\/\s*10/);
+  assert.match(css, /\.home-post-card:hover\s+\.home-post-cover-image/);
+  assert.match(css, /-webkit-line-clamp:\s*3/);
+  assert.match(css, /\.home-post-card:not\(\.has-cover\)/);
+  assert.match(layout, /firefly-v4\.css/);
+});
