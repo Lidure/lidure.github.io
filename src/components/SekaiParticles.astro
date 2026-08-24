@@ -53,8 +53,9 @@ function readSakuraSettings() {
 }
 
 function initSakuraParticles() {
-  const canvas = document.getElementById('sakura-canvas') as HTMLCanvasElement | null;
-  if (!canvas || canvas.dataset.sakuraInitialized === '1') return;
+  const canvasElement = document.getElementById('sakura-canvas') as HTMLCanvasElement | null;
+  if (!canvasElement || canvasElement.dataset.sakuraInitialized === '1') return;
+  const canvas: HTMLCanvasElement = canvasElement;
 
   sakuraWindow.__sakuraParticlesCleanup?.();
   canvas.dataset.sakuraInitialized = '1';
