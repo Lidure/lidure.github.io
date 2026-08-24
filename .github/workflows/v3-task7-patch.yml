@@ -1,0 +1,156 @@
+name: V3 Task7 Accessibility Patch
+
+on:
+  push:
+    branches:
+      - feat/firefly-banner-covers-music
+    paths:
+      - .github/workflows/v3-task7-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/firefly-banner-covers-music
+          fetch-depth: 0
+
+      - name: Apply exact task7 patches
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              file = Path(path)
+              text = file.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected exactly one match, got {count}: {old[:90]!r}')
+              file.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          # Visual settings dialog semantics, keyboard recovery, focus, and mobile viewport safety.
+          replace_once(
+              'src/components/VisualSettingsPanel.astro',
+              '  aria-label="背景与外观设置"\n  title="背景与外观设置"\n>',
+              '  aria-label="背景与外观设置"\n  aria-controls="hero-settings-panel"\n  aria-expanded="false"\n  title="背景与外观设置"\n>'
+          )
+          replace_once(
+              'src/components/VisualSettingsPanel.astro',
+              '<div class="hero-settings-panel" id="hero-settings-panel" transition:persist>',
+              '<div class="hero-settings-panel" id="hero-settings-panel" transition:persist role="dialog" aria-labelledby="visual-settings-title">'
+          )
+          replace_once(
+              'src/components/VisualSettingsPanel.astro',
+              '<span class="settings-title">背景与外观</span>',
+              '<span class="settings-title" id="visual-settings-title">背景与外观</span>'
+          )
+          replace_once(
+              'src/components/VisualSettingsPanel.astro',
+              '  .visual-tab:focus-visible,.wallpaper-mode-option:focus-visible,.settings-reset:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }',
+              '  .visual-tab:focus-visible,.wallpaper-mode-option:focus-visible,.settings-reset:focus-visible,.hero-settings-btn:focus-visible,.settings-close:focus-visible,.url-add-btn:focus-visible,.media-manage-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }\n  .toggle-switch input:focus-visible + .toggle-track { outline:2px solid var(--accent); outline-offset:2px; }'
+          )
+          replace_once(
+              'src/components/VisualSettingsPanel.astro',
+              '@media (max-width:720px) { .hero-settings-btn{left:16px;top:80px;width:38px;height:38px}.hero-settings-panel{left:12px;right:12px;top:126px;width:auto;max-height:calc(100vh - 146px);border-radius:18px}.settings-body{padding-left:14px;padding-right:14px} }',
+              '@media (max-width:720px) { .hero-settings-btn{left:16px;top:80px;width:38px;height:38px}.hero-settings-panel{left:12px;right:12px;top:126px;width:auto;max-height:calc(100vh - 146px);max-height:calc(100dvh - 146px);padding-bottom:env(safe-area-inset-bottom);border-radius:18px}.settings-body{padding-left:14px;padding-right:14px} }'
+          )
+          replace_once(
+              'src/components/VisualSettingsPanel.astro',
+              '@media (max-width:480px) { .hero-settings-btn{left:12px;top:76px;width:36px;height:36px}.hero-settings-panel{left:8px;right:8px;top:118px;max-height:calc(100vh - 128px)}.settings-header{padding:13px 14px 10px}.visual-tabs{margin-left:10px;margin-right:10px}.settings-close{width:40px;height:40px} }',
+              '@media (max-width:480px) { .hero-settings-btn{left:12px;top:76px;width:36px;height:36px}.hero-settings-panel{left:8px;right:8px;top:118px;max-height:calc(100vh - 128px);max-height:calc(100dvh - 128px);padding-bottom:env(safe-area-inset-bottom)}.settings-header{padding:13px 14px 10px}.visual-tabs{margin-left:10px;margin-right:10px}.settings-close{width:40px;height:40px} }'
+          )
+          replace_once(
+              'src/components/VisualSettingsPanel.astro',
+              "    var panel = document.getElementById('hero-settings-panel');\n    if (!panel) return;\n\n    var visualWindow = window;",
+              "    var panel = document.getElementById('hero-settings-panel');\n    if (!panel) return;\n    var settingsButton = document.getElementById('hero-settings-btn');\n    var closeButton = document.getElementById('settings-close');\n\n    var visualWindow = window;"
+          )
+          replace_once(
+              'src/components/VisualSettingsPanel.astro',
+              "    var options = controller ? { signal: controller.signal } : undefined;\n\n    var tabs = Array.from(panel.querySelectorAll('[role=\"tab\"]'));",
+              "    var options = controller ? { signal: controller.signal } : undefined;\n\n    if (visualWindow.__visualSettingsPanelExpandedObserver) visualWindow.__visualSettingsPanelExpandedObserver.disconnect();\n    function syncExpandedState() {\n      if (settingsButton) settingsButton.setAttribute('aria-expanded', String(panel.classList.contains('open')));\n    }\n    var expandedObserver = new MutationObserver(syncExpandedState);\n    expandedObserver.observe(panel, { attributes: true, attributeFilter: ['class'] });\n    visualWindow.__visualSettingsPanelExpandedObserver = expandedObserver;\n    syncExpandedState();\n\n    document.addEventListener('keydown', function (event) {\n      if (event.key === 'Escape' && panel.classList.contains('open')) {\n        event.preventDefault();\n        if (closeButton) closeButton.click();\n        else panel.classList.remove('open');\n        syncExpandedState();\n        if (settingsButton) settingsButton.focus();\n      }\n    }, options);\n\n    var tabs = Array.from(panel.querySelectorAll('[role=\"tab\"]'));"
+          )
+
+          # Music shortcut focus visibility and reduced-motion behavior.
+          replace_once(
+              'src/components/MusicStatusWidget.astro',
+              '  @media (max-width: 760px) {',
+              '''  body.layout-standard .music-status-cover-open:focus-visible,\n  body.layout-standard .music-status-play-overlay:focus-visible,\n  body.layout-standard .music-status-control:focus-visible {\n    outline: 2px solid var(--standard-purple);\n    outline-offset: 3px;\n  }\n\n  @media (prefers-reduced-motion: reduce) {\n    body.layout-standard .music-status-cover-open img,\n    body.layout-standard .music-status-play-overlay,\n    body.layout-standard .music-status-control { transition: none; }\n    body.layout-standard .music-status-cover-open:hover img { transform: none; }\n    body.layout-standard .music-status-play-overlay:hover { transform: translate(-50%, -50%); }\n    body.layout-standard .music-status-control:hover { transform: none; }\n  }\n\n  html[data-reduce-motion="true"] body.layout-standard .music-status-cover-open img,\n  html[data-reduce-motion="true"] body.layout-standard .music-status-play-overlay,\n  html[data-reduce-motion="true"] body.layout-standard .music-status-control { transition: none; }\n  html[data-reduce-motion="true"] body.layout-standard .music-status-cover-open:hover img { transform: none; }\n  html[data-reduce-motion="true"] body.layout-standard .music-status-play-overlay:hover { transform: translate(-50%, -50%); }\n  html[data-reduce-motion="true"] body.layout-standard .music-status-control:hover { transform: none; }\n\n  @media (max-width: 760px) {'''
+          )
+
+          # Sakura renderer consumes density/speed values from visual settings.
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''function readSakuraSettings() {\n  let sakura = false;\n  let reduceMotion = false;\n  try {\n    const saved = JSON.parse(localStorage.getItem('hero_settings') || '{}');\n    sakura = saved.sakura === true;\n    reduceMotion = saved.reduceMotion === true;\n  } catch (_error) {}\n  return { sakura, reduceMotion };\n}''',
+              '''function readSakuraSettings() {\n  let sakura = false;\n  let reduceMotion = false;\n  let sakuraDensity = 0.65;\n  let sakuraSpeed = 1;\n  try {\n    const saved = JSON.parse(localStorage.getItem('hero_settings') || '{}');\n    sakura = saved.sakura === true;\n    reduceMotion = saved.reduceMotion === true;\n    const densityValue = Number(saved.sakuraDensity);\n    const speedValue = Number(saved.sakuraSpeed);\n    if (Number.isFinite(densityValue)) sakuraDensity = Math.min(1, Math.max(0, densityValue));\n    if (Number.isFinite(speedValue)) sakuraSpeed = Math.min(2, Math.max(0.25, speedValue));\n  } catch (_error) {}\n  return { sakura, reduceMotion, sakuraDensity, sakuraSpeed };\n}'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''  let requestedEnabled = initialSettings.sakura;\n  let explicitReduceMotion = initialSettings.reduceMotion;''',
+              '''  let requestedEnabled = initialSettings.sakura;\n  let explicitReduceMotion = initialSettings.reduceMotion;\n  let density = initialSettings.sakuraDensity;\n  let speedMultiplier = initialSettings.sakuraSpeed;'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''  function resetFallbackPetals(initial = false) {\n    fallbackPetals = [];\n    fallbackSpawnCarry = 0;\n    if (!isEffectEnabled()) return;\n    const count = initial ? Math.min(14, FALLBACK_MAX_PETALS) : 6;\n    for (let i = 0; i < count; i += 1) fallbackPetals.push(createFallbackPetal(true));\n  }''',
+              '''  function fallbackTargetCount() {\n    return Math.max(0, Math.round(FALLBACK_MAX_PETALS * density));\n  }\n\n  function resetFallbackPetals(initial = false) {\n    fallbackPetals = [];\n    fallbackSpawnCarry = 0;\n    if (!isEffectEnabled()) return;\n    const target = fallbackTargetCount();\n    const count = initial ? Math.min(Math.round(14 * density), target) : Math.min(6, target);\n    for (let i = 0; i < count; i += 1) fallbackPetals.push(createFallbackPetal(true));\n  }'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''      fallbackSpawnCarry += dt * 1.15;\n      while (fallbackSpawnCarry >= 1 && fallbackPetals.length < FALLBACK_MAX_PETALS) {''',
+              '''      const target = fallbackTargetCount();\n      if (fallbackPetals.length > target) fallbackPetals.length = target;\n      fallbackSpawnCarry += dt * 1.15 * Math.max(0.15, density);\n      while (fallbackSpawnCarry >= 1 && fallbackPetals.length < target) {'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''        petal.x += (petal.drift + breeze) * dt;\n        petal.y += petal.speed * dt;\n        petal.rotation += petal.spin * dt;''',
+              '''        petal.x += (petal.drift + breeze) * dt * speedMultiplier;\n        petal.y += petal.speed * dt * speedMultiplier;\n        petal.rotation += petal.spin * dt * speedMultiplier;'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''        enabled: requestedEnabled,\n        reducedMotion: isReducedMotion(),''',
+              '''        enabled: requestedEnabled,\n        reducedMotion: isReducedMotion(),\n        density,\n        speedMultiplier,'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''        enabled: requestedEnabled && document.visibilityState !== 'hidden',\n        reducedMotion: isReducedMotion(),''',
+              '''        enabled: requestedEnabled && document.visibilityState !== 'hidden',\n        reducedMotion: isReducedMotion(),\n        density,\n        speedMultiplier,'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''  function onMotionPreferenceChange() {\n    syncEnabled();\n  }''',
+              '''  function onVisualSettingsChange(event: Event) {\n    const customEvent = event as CustomEvent<{ settings?: { sakura?: boolean; sakuraDensity?: number; sakuraSpeed?: number; reduceMotion?: boolean } }>;\n    const settings = customEvent.detail?.settings;\n    if (!settings) return;\n    if (typeof settings.sakura === 'boolean') requestedEnabled = settings.sakura;\n    if (Number.isFinite(Number(settings.sakuraDensity))) density = Math.min(1, Math.max(0, Number(settings.sakuraDensity)));\n    if (Number.isFinite(Number(settings.sakuraSpeed))) speedMultiplier = Math.min(2, Math.max(0.25, Number(settings.sakuraSpeed)));\n    if (typeof settings.reduceMotion === 'boolean') explicitReduceMotion = settings.reduceMotion;\n    if (worker) worker.postMessage({ type: 'settings', density, speedMultiplier, enabled: requestedEnabled, reducedMotion: isReducedMotion() });\n    else {\n      const target = fallbackTargetCount();\n      if (fallbackPetals.length > target) fallbackPetals.length = target;\n      if (isEffectEnabled() && fallbackPetals.length === 0) resetFallbackPetals(true);\n    }\n    syncEnabled();\n  }\n\n  function onMotionPreferenceChange() {\n    syncEnabled();\n  }'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''  document.addEventListener('lidure:sakura-setting', onSakuraSetting);\n  document.addEventListener('visibilitychange', onVisibilityChange);''',
+              '''  document.addEventListener('lidure:sakura-setting', onSakuraSetting);\n  document.addEventListener('lidure:visual-settings-change', onVisualSettingsChange);\n  document.addEventListener('visibilitychange', onVisibilityChange);'''
+          )
+          replace_once(
+              'src/components/SekaiParticles.astro',
+              '''    document.removeEventListener('lidure:sakura-setting', onSakuraSetting);\n    document.removeEventListener('visibilitychange', onVisibilityChange);''',
+              '''    document.removeEventListener('lidure:sakura-setting', onSakuraSetting);\n    document.removeEventListener('lidure:visual-settings-change', onVisualSettingsChange);\n    document.removeEventListener('visibilitychange', onVisibilityChange);'''
+          )
+          PY
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run full test suite
+        env:
+          PUBLIC_MOMENTS_API: https://api.lidure22.xyz/api
+          PUBLIC_MEDIA_BASE_URL: https://api.lidure22.xyz/media
+        run: npm test
+
+      - name: Commit task7 and remove one-shot workflow
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/v3-task7-patch.yml
+          git add src/components/VisualSettingsPanel.astro src/components/MusicStatusWidget.astro src/components/SekaiParticles.astro
+          git commit -m "feat: finish responsive visual controls"
+          git push origin HEAD:feat/firefly-banner-covers-music
