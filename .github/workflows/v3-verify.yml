@@ -1,0 +1,32 @@
+name: V3 Branch Verify
+
+on:
+  push:
+    branches:
+      - feat/firefly-banner-covers-music
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run full test suite
+        env:
+          PUBLIC_MOMENTS_API: ${{ vars.PUBLIC_MOMENTS_API }}
+          PUBLIC_MEDIA_BASE_URL: ${{ vars.PUBLIC_MEDIA_BASE_URL }}
+        run: npm test
