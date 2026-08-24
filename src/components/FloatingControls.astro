@@ -1,0 +1,188 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+---
+
+<div class="site-floating-controls" aria-label="站点快捷控制">
+  <button
+    id="floating-background-btn"
+    class="site-floating-control is-background"
+    type="button"
+    aria-label="背景设置"
+    title="背景设置"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="3" y="4" width="18" height="16" rx="3"></rect>
+      <circle cx="8.5" cy="9" r="1.5"></circle>
+      <path d="m5 17 4.5-4.5 3 3 2.5-2.5 4 4"></path>
+    </svg>
+  </button>
+
+  <ThemeToggle />
+
+  <button
+    id="floating-back-to-top"
+    class="site-floating-control is-top"
+    type="button"
+    aria-label="返回顶部"
+    title="返回顶部"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m6 11 6-6 6 6"></path>
+      <path d="M12 5v14"></path>
+    </svg>
+  </button>
+</div>
+
+<style is:global>
+  .site-floating-controls {
+    position: fixed;
+    right: 24px;
+    bottom: 92px;
+    z-index: 9998;
+    display: grid;
+    gap: 9px;
+    justify-items: center;
+  }
+
+  .site-floating-control,
+  .site-floating-controls .theme-toggle {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    background: rgba(22, 20, 34, 0.68);
+    color: rgba(255, 255, 255, 0.82);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+    backdrop-filter: blur(14px) saturate(1.15);
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      background 180ms ease,
+      color 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .site-floating-control {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .site-floating-control svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .site-floating-control:hover,
+  .site-floating-controls .theme-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.14);
+  }
+
+  .site-floating-control.is-background:hover {
+    color: #75e5e7;
+    border-color: rgba(117, 229, 231, 0.42);
+    background: rgba(44, 115, 124, 0.32);
+  }
+
+  .site-floating-controls .theme-toggle:hover {
+    color: #ff86b5;
+    border-color: rgba(255, 134, 181, 0.42);
+    background: rgba(132, 58, 93, 0.30);
+  }
+
+  .site-floating-control.is-top:hover {
+    color: #c7a1ff;
+    border-color: rgba(199, 161, 255, 0.44);
+    background: rgba(98, 64, 143, 0.30);
+  }
+
+  #floating-back-to-top {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px);
+  }
+
+  #floating-back-to-top[data-visible] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  body.floating-controls-ready #hero-settings-btn {
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  [data-theme="light"] .site-floating-control,
+  [data-theme="light"] .site-floating-controls .theme-toggle {
+    border-color: rgba(79, 62, 91, 0.12);
+    background: rgba(255, 255, 255, 0.76);
+    color: rgba(48, 42, 56, 0.78);
+    box-shadow: 0 8px 24px rgba(79, 62, 91, 0.10);
+  }
+
+  @media (max-width: 720px) {
+    .site-floating-controls {
+      right: 14px;
+      bottom: calc(76px + env(safe-area-inset-bottom, 0px));
+      gap: 7px;
+    }
+
+    .site-floating-control,
+    .site-floating-controls .theme-toggle {
+      width: 38px;
+      height: 38px;
+      border-radius: 11px;
+    }
+  }
+</style>
+
+<script is:inline>
+(function () {
+  function initFloatingControls() {
+    var root = document.querySelector('.site-floating-controls');
+    var background = document.getElementById('floating-background-btn');
+    var top = document.getElementById('floating-back-to-top');
+    if (!root || !background || !top || root.dataset.initialized === 'true') return;
+    root.dataset.initialized = 'true';
+
+    background.addEventListener('click', function () {
+      var trigger = document.getElementById('hero-settings-btn');
+      if (trigger) trigger.click();
+    });
+
+    top.addEventListener('click', function () {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    function syncTopVisibility() {
+      top.toggleAttribute('data-visible', window.scrollY > 420);
+    }
+
+    if (window.__floatingControlsScrollHandler) {
+      window.removeEventListener('scroll', window.__floatingControlsScrollHandler);
+    }
+    window.__floatingControlsScrollHandler = syncTopVisibility;
+    window.addEventListener('scroll', window.__floatingControlsScrollHandler, { passive: true });
+    syncTopVisibility();
+
+    if (document.getElementById('hero-settings-btn')) {
+      document.body.classList.add('floating-controls-ready');
+    }
+  }
+
+  if (!window.__floatingControlsPageLoadBound) {
+    window.__floatingControlsPageLoadBound = true;
+    document.addEventListener('astro:page-load', initFloatingControls);
+  }
+  initFloatingControls();
+})();
+</script>
