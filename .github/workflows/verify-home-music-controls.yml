@@ -1,0 +1,43 @@
+name: Verify home music controls
+
+on:
+  push:
+    branches: [fix/home-music-controls]
+    paths-ignore:
+      - '.ci/home-music-controls-result.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run tests and record result
+        shell: bash
+        run: |
+          set +e
+          mkdir -p .ci
+          {
+            echo '=== npm test ==='
+            npm test
+            code=$?
+            echo
+            echo "__EXIT_CODE__=$code"
+            exit "$code"
+          } > .ci/home-music-controls-result.txt 2>&1
+        continue-on-error: true
+      - name: Commit result
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .ci/home-music-controls-result.txt
+          git commit -m 'ci: record home music controls verification' || exit 0
+          git push
