@@ -22,6 +22,7 @@ const {
 } = Astro.props;
 
 const isStandard = layoutMode === 'standard';
+const isHome = normalizedPath === '';
 const resolvedBannerTitle = bannerTitle ?? title.split('|')[0].trim();
 const resolvedBannerSubtitle = bannerSubtitle ?? description;
 
@@ -37,6 +38,7 @@ import FloatingControls from '../components/FloatingControls.astro';
 import ImmersiveUiController from '../components/ImmersiveUiController.astro';
 import { ClientRouter } from 'astro:transitions';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
+import VisualSettingsPanel from '../components/VisualSettingsPanel.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
 import SekaiParticles from '../components/SekaiParticles.astro';
 
@@ -75,10 +77,26 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     })();
     (function() {
       try {
-        var s = localStorage.getItem('hero_settings');
-        if (s && JSON.parse(s).enabled === false) {
-          document.documentElement.classList.add('no-hero-bg');
-        }
+        var raw = JSON.parse(localStorage.getItem('hero_settings') || '{}');
+        var root = document.documentElement;
+        var mode = raw.wallpaperMode === 'fullscreen' ? 'fullscreen' : 'banner';
+        var opacity = Number.isFinite(Number(raw.opacity)) ? Math.max(0, Math.min(1, Number(raw.opacity))) : 0.45;
+        var blur = Number.isFinite(Number(raw.backgroundBlur)) ? Math.max(0, Math.min(20, Number(raw.backgroundBlur))) : 6;
+        var cardOpacity = Number.isFinite(Number(raw.cardOpacity)) ? Math.max(0.2, Math.min(1, Number(raw.cardOpacity))) : 0.92;
+        var hue = Number.isFinite(Number(raw.themeHue)) ? Math.max(0, Math.min(360, Number(raw.themeHue))) : 340;
+
+        root.dataset.wallpaperMode = mode;
+        root.dataset.bannerGradient = String(raw.bannerGradient !== false);
+        root.dataset.bannerTitle = String(raw.bannerTitle !== false);
+        root.dataset.cardBorder = String(raw.cardBorder !== false);
+        root.dataset.cardFollowTheme = String(raw.cardFollowTheme === true);
+        root.dataset.reduceMotion = String(raw.reduceMotion === true);
+        root.classList.toggle('no-hero-bg', raw.enabled === false);
+        root.style.setProperty('--wallpaper-overlay', String(opacity));
+        root.style.setProperty('--wallpaper-blur', blur + 'px');
+        root.style.setProperty('--card-opacity', String(cardOpacity));
+        root.style.setProperty('--card-opacity-percent', Math.round(cardOpacity * 100) + '%');
+        root.style.setProperty('--theme-hue', String(hue));
       } catch(e) {}
     })();
     (function() {
@@ -136,8 +154,40 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
       import { installHeroVideoLoopGuard } from '../lib/hero-video-loop-guard.mjs';
       installHeroVideoLoopGuard();
     </script>
+    <script>
+      import {
+        applyVisualSettingsToDocument,
+        readVisualSettings,
+        writeVisualSettings,
+      } from '../lib/visual-settings.mjs';
+
+      function installVisualSettingsBridge() {
+        const visualWindow = window as any;
+        visualWindow.__lidureVisualSettings = {
+          read() {
+            return readVisualSettings(window.localStorage);
+          },
+          write(patch: Record<string, unknown>) {
+            return writeVisualSettings(patch, {
+              storage: window.localStorage,
+              doc: document,
+              target: document,
+            });
+          },
+        };
+        applyVisualSettingsToDocument(visualWindow.__lidureVisualSettings.read(), document);
+      }
+
+      const visualWindow = window as any;
+      if (!visualWindow.__lidureVisualSettingsLifecycleBound) {
+        visualWindow.__lidureVisualSettingsLifecycleBound = true;
+        document.addEventListener('astro:page-load', installVisualSettingsBridge);
+      }
+      installVisualSettingsBridge();
+    </script>
   </head>
-  <body class={`layout-${layoutMode}`}>
+  <body class:list={[`layout-${layoutMode}`, { 'is-home': isHome }]}>
+    <VisualSettingsPanel />
     <HeroSlideshow />
     <SekaiParticles />
     <SekaiPlayer />

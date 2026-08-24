@@ -23,10 +23,10 @@ test('player route defaults to immersive layout with trailing slash tolerance', 
   assert.match(layout, /['"]immersive['"]\s*:\s*['"]standard['"]/);
 });
 
-test('standard banner keeps B3 desktop and mobile heights', () => {
+test('standard banner keeps approved v3 desktop and mobile heights', () => {
   const css = readSource('src/styles/firefly-refresh.css');
-  assert.match(css, /--blog-banner-height:\s*50vh/);
-  assert.match(css, /--blog-banner-height:\s*36vh/);
+  assert.match(css, /--blog-banner-height:\s*62vh/);
+  assert.match(css, /--blog-banner-height:\s*42vh/);
   assert.match(css, /body\.layout-standard/);
   assert.doesNotMatch(css, /body\.layout-immersive\s+\.post-card/);
 });
@@ -176,6 +176,36 @@ test('built immersive page keeps core controls without standard chrome', () => {
   assert.match(html, /class="site-floating-controls"/);
   assert.doesNotMatch(html, /class="blog-banner"/);
   assert.doesNotMatch(html, /class="footer"/);
+});
+
+test('visual settings panel owns the visible settings shell and preserves legacy media control ids', () => {
+  const panel = readSource('src/components/VisualSettingsPanel.astro');
+  const hero = readSource('src/components/HeroSlideshow.astro');
+  const layout = readSource('src/layouts/BaseLayout.astro');
+
+  assert.match(panel, /id="visual-tab-appearance"/);
+  assert.match(panel, /id="visual-tab-background"/);
+  assert.match(panel, /id="visual-tab-effects"/);
+  assert.match(panel, /id="hero-settings-btn"/);
+  assert.match(panel, /id="toggle-enabled"/);
+  assert.match(panel, /id="file-input"/);
+  assert.match(panel, /id="media-manage-btn"/);
+  assert.match(panel, /id="wallpaper-mode-fullscreen"/);
+  assert.match(panel, /id="fullscreen-card-opacity-range"/);
+  assert.match(panel, /id="visual-reset-current"/);
+  assert.match(panel, /\.hero-settings-panel/);
+  assert.match(panel, /\.hero-settings-btn/);
+  assert.doesNotMatch(hero, /id="hero-settings-btn"/);
+  assert.match(hero, /id="media-panel"/);
+  assert.match(hero, /id="media-preview"/);
+  assert.match(layout, /<VisualSettingsPanel\s*\/>[\s\S]*?<HeroSlideshow\s*\/>/);
+});
+
+test('HeroSlideshow persists hero settings through the merge-safe visual settings bridge', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+  assert.match(hero, /__lidureVisualSettings/);
+  assert.match(hero, /Object\.assign\(\{\},\s*current,\s*payload\)/);
+  assert.doesNotMatch(hero, /localStorage\.setItem\(\s*['"]hero_settings['"]\s*,\s*JSON\.stringify\(\s*\{/);
 });
 
 export { sourceExists };
