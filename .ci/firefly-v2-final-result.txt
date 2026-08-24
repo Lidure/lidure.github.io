@@ -1,0 +1,315 @@
+=== npm test ===
+
+> lidure-github-io@0.0.1 test
+> npm run build && npm run test:site
+
+
+> lidure-github-io@0.0.1 build
+> astro check && astro build
+
+[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
+[2m03:12:36[22m [34m[content][39m Syncing content
+[Shiki] The language "conf" doesn't exist, falling back to "plaintext".
+[Shiki] The language "conf" doesn't exist, falling back to "plaintext".
+[2m03:12:36[22m [34m[content][39m Synced content
+[2m03:12:36[22m [34m[types][39m Generated [2m1.06s[22m
+[2m03:12:36[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m14[0m     draft: z.boolean().default(false),
+[7m  [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m13[0m:[93m15[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m13[0m     featured: z.boolean().default(false),
+[7m  [0m [93m              ~[0m
+[96msrc/content.config.ts[0m:[93m12[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m12[0m     cover: z.string().optional(),
+[7m  [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m11[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m11[0m     tags: z.array(z.string()).default([]),
+[7m  [0m [93m                  ~[0m
+[96msrc/content.config.ts[0m:[93m11[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m11[0m     tags: z.array(z.string()).default([]),
+[7m  [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m10[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m10[0m     updatedDate: z.coerce.date().optional(),
+[7m  [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m9[0m:[93m14[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m9[0m     pubDate: z.coerce.date(),
+[7m [0m [93m             ~[0m
+[96msrc/content.config.ts[0m:[93m8[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m8[0m     description: z.string(),
+[7m [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m7[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m7[0m     title: z.string(),
+[7m [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m6[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m6[0m   schema: z.object({
+[7m [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m1[0m:[93m28[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m1[0m import { defineCollection, z } from 'astro:content';
+[7m [0m [93m                           ~[0m
+
+[96msrc/components/Comments.astro[0m:[93m37[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m37[0m <script define:vars={{ repo, repoId, category, categoryId, mapping, lang }}>
+[7m  [0m [93m        ~~~~~~~~~~~[0m
+
+[96msrc/components/HeroSlideshow.astro[0m:[93m1407[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1407[0m     function captureVideoPoster(src) {
+[7m    [0m [93m             ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/HeroSlideshow.astro[0m:[93m1372[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1372[0m     function resolveVideoSource(url) {
+[7m    [0m [93m             ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/HeroSlideshow.astro[0m:[93m1348[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1348[0m     function fetchVideoCached(url) {
+[7m    [0m [93m             ~~~~~~~~~~~~~~~~[0m
+[96msrc/components/HeroSlideshow.astro[0m:[93m1333[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1333[0m     function cachePutVideo(url, blob) {
+[7m    [0m [93m             ~~~~~~~~~~~~~[0m
+[96msrc/components/HeroSlideshow.astro[0m:[93m1321[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1321[0m     function cacheGetVideo(url) {
+[7m    [0m [93m             ~~~~~~~~~~~~~[0m
+
+[96msrc/components/SekaiPlayer.astro[0m:[93m4332[0m:[93m25[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+
+[7m4332[0m       }).catch(function(e) {
+[7m    [0m [93m                        ~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m4261[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchQQUrlsLegacy' is declared but its value is never read.
+
+[7m4261[0m   function fetchQQUrlsLegacy(tracks, callback) {
+[7m    [0m [93m           ~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m4247[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchQQPlaylistLegacy' is declared but its value is never read.
+
+[7m4247[0m   function fetchQQPlaylistLegacy(playlistId, callback) {
+[7m    [0m [93m           ~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m4208[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchNeteasePlaylistLegacy' is declared but its value is never read.
+
+[7m4208[0m   function fetchNeteasePlaylistLegacy(playlistId, callback) {
+[7m    [0m [93m           ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3769[0m:[93m50[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+
+[7m3769[0m   btn.addEventListener('pointercancel', function(e) {
+[7m    [0m [93m                                                 ~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3228[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'tickParticles' is declared but its value is never read.
+
+[7m3228[0m   function tickParticles(pool, ctx) {
+[7m    [0m [93m           ~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3223[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'spawnParticle' is declared but its value is never read.
+
+[7m3223[0m   function spawnParticle(pool, x, y, vx, vy, life, size, hue) {
+[7m    [0m [93m           ~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3221[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'pageParticles' is declared but its value is never read.
+
+[7m3221[0m   var pageParticles = [];
+[7m    [0m [93m      ~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3220[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'dockParticles' is declared but its value is never read.
+
+[7m3220[0m   var dockParticles = [];
+[7m    [0m [93m      ~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3219[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'cdParticles' is declared but its value is never read.
+
+[7m3219[0m   var cdParticles = [];
+[7m    [0m [93m      ~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3203[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'sampleWave' is declared but its value is never read.
+
+[7m3203[0m   function sampleWave(position) {
+[7m    [0m [93m           ~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m2714[0m:[93m7[0m - [93mwarning[0m[90m ts(7027): [0mUnreachable code detected.
+
+[7m2714[0m       return Promise.resolve({ songId: songId, url: '', error: '请先保存完整的 QQ Cookie（需包含 uin/euin 和 qm_keyst/qqmusic_key）' });
+[7m    [0m [93m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m2704[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchOnlineSongUrlLegacy' is declared but its value is never read.
+
+[7m2704[0m   function fetchOnlineSongUrlLegacy(song) {
+[7m    [0m [93m           ~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m2093[0m:[93m12[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m2093[0m   function fetchJson(name) {
+[7m    [0m [93m           ~~~~~~~~~[0m
+
+[96msrc/components/ThemeToggle.astro[0m:[93m51[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'getSystemTheme' is declared but its value is never read.
+
+[7m51[0m   function getSystemTheme() {
+[7m  [0m [93m           ~~~~~~~~~~~~~~[0m
+
+[96msrc/layouts/BaseLayout.astro[0m:[93m67[0m:[93m191[0m - [93mwarning[0m[90m ts(6133): [0m'media' is declared but its value is never read.
+
+[7m67[0m     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+[7m  [0m [93m                                                                                                                                                                                              ~~~~~[0m
+
+[96msrc/pages/moments.astro[0m:[93m2416[0m:[93m14[0m - [93mwarning[0m[90m ts(6133): [0m'handleFiles' is declared but its value is never read.
+
+[7m2416[0m     function handleFiles(files: File[]) {
+[7m    [0m [93m             ~~~~~~~~~~~[0m
+[96msrc/pages/moments.astro[0m:[93m2394[0m:[93m20[0m - [93mwarning[0m[90m ts(6133): [0m'uploadImagesToR2' is declared but its value is never read.
+
+[7m2394[0m     async function uploadImagesToR2() {
+[7m    [0m [93m                   ~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/player.astro[0m:[93m1670[0m:[93m48[0m - [93mwarning[0m[90m ts(6133): [0m'bass' is declared but its value is never read.
+
+[7m1670[0m     function drawSpectrum(ctx, w, h, freqData, bass) {
+[7m    [0m [93m                                               ~~~~[0m
+[96msrc/pages/player.astro[0m:[93m1271[0m:[93m48[0m - [93mwarning[0m[90m ts(2568): [0mProperty 'webkitAudioContext' may not exist on type 'Window & typeof globalThis'. Did you mean 'AudioContext'?
+
+[7m1271[0m         var AC = window.AudioContext || window.webkitAudioContext;
+[7m    [0m [93m                                               ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/player.astro[0m:[93m733[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'danmakuLane' is declared but its value is never read.
+
+[7m733[0m     var danmakuLane = 0;
+[7m   [0m [93m        ~~~~~~~~~~~[0m
+[96msrc/pages/player.astro[0m:[93m727[0m:[93m27[0m - [93mwarning[0m[90m ts(2570): [0mCould not find name 'danmakuApiUrl'. Did you mean 'DANMAKU_API_URL'?
+
+[7m727[0m     var DANMAKU_API_URL = danmakuApiUrl;
+[7m   [0m [93m                          ~~~~~~~~~~~~~[0m
+[96msrc/pages/player.astro[0m:[93m677[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'danmakuSendBtn' is declared but its value is never read.
+
+[7m677[0m     var danmakuSendBtn = document.getElementById('danmakuSendBtn');
+[7m   [0m [93m        ~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/search.astro[0m:[93m38[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m38[0m <script id="__SEARCH_DATA" type="application/json" set:html={jsonData}></script>
+[7m  [0m [93m        ~~[0m
+
+Result (52 files): 
+- 0 errors
+- 0 warnings
+- 41 hints
+
+[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
+[2m03:12:44[22m [34m[content][39m Syncing content
+[2m03:12:44[22m [34m[content][39m Synced content
+[2m03:12:44[22m [34m[types][39m Generated [2m382ms[22m
+[2m03:12:44[22m [34m[build][39m output: [34m"static"[39m
+[2m03:12:44[22m [34m[build][39m mode: [34m"static"[39m
+[2m03:12:44[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m03:12:44[22m [34m[build][39m Collecting build info...
+[2m03:12:44[22m [34m[build][39m [32m✓ Completed in 420ms.[39m
+[2m03:12:44[22m [34m[build][39m Building static entrypoints...
+[2m03:12:46[22m [34m[vite][39m [32m✓ built in 1.87s[39m
+[2m03:12:46[22m [34m[vite][39m [32m✓ built in 812ms[39m
+[2m03:12:46[22m [34m[build][39m Rearranging server assets...
+
+[42m[30m generating static routes [39m[49m
+[2m03:12:46[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+11ms)[22m 
+[2m03:12:46[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+3ms)[22m 
+[2m03:12:46[22m   [34m├─[39m [2m/player/index.html[22m [2m(+4ms)[22m 
+[2m03:12:46[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+6ms)[22m 
+[2m03:12:46[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
+[2m03:12:46[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
+[2m03:12:46[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+3ms)[22m 
+[2m03:12:46[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+331ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/rss.xml[22m [2m(+19ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/search/index.html[22m [2m(+3ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+2ms)[22m 
+[2m03:12:47[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
+[2m03:12:47[22m [32m✓ Completed in 434ms.
+[39m
+[42m[30m generating optimized images [39m[49m
+[2m03:12:47[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+66ms)[22m [2m(1/4)[22m
+[2m03:12:47[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+72ms)[22m [2m(2/4)[22m
+[2m03:12:47[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+77ms)[22m [2m(3/4)[22m
+[2m03:12:47[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+258ms)[22m [2m(4/4)[22m
+[2m03:12:47[22m [32m✓ Completed in 259ms.
+[39m
+[2m03:12:47[22m [34m[build][39m [32m✓ Completed in 3.42s.[39m
+[2m03:12:47[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m03:12:47[22m [34m[build][39m 23 page(s) built in [1m3.85s[22m
+[2m03:12:47[22m [34m[build][39m [1mComplete![22m
+
+> lidure-github-io@0.0.1 test:site
+> node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
+
+✔ BaseLayout exposes standard and immersive page modes (1.755077ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.311349ms)
+✔ standard banner keeps B3 desktop and mobile heights (0.29175ms)
+✔ standard banner stays readable when the background is disabled (0.313373ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.284028ms)
+✔ shared shell mounts navigation and floating controls for both modes (0.30491ms)
+✔ floating controls proxy existing background settings instead of duplicating them (0.427405ms)
+✔ immersive UI controller owns current shell visibility without touching player business logic (0.214684ms)
+✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.340113ms)
+✔ BaseLayout installs the immersive UI controller only for immersive mode (0.327554ms)
+✔ homepage exposes left, main, and right regions (0.188204ms)
+✔ homepage widgets consume real tag, moments, player, and visitor sources (0.292091ms)
+✔ v2 visual layer defines semantic colors and responsive Firefly grid (0.289817ms)
+✔ guestbook uses a wide two-column desktop shell (0.323137ms)
+✔ ordinary pages load the v2 cohesion layer (0.16558ms)
+✔ built immersive page keeps core controls without standard chrome (1.110835ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (1.575176ms)
+✔ base layout installs the background loop guard (0.322426ms)
+✔ player search tolerates imported songs without precomputed searchText (1.705692ms)
+✔ local imports keep active search and tag filters (0.302646ms)
+✔ search embeds parseable post data without a runtime jsonData reference (1.782528ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.751003ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.005825ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (1.928829ms)
+✔ optimized identity assets are used and remain small (0.804674ms)
+✔ rendered background configuration starts with a static image (0.695579ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.104295ms)
+✔ moments page exposes the API hook and local controls (1.080389ms)
+✔ moments publishing UI accepts videos and requires selectable posters (1.170846ms)
+✔ moments video poster generation ignores stale async captures (0.72331ms)
+✔ moments browser code uses the session API client for management (0.978966ms)
+✔ moment delete controls follow the authenticated session (0.510179ms)
+✔ guestbook exposes authenticated message deletion controls (0.288084ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.522558ms)
+✔ moments api preserves distinct 401 auth worker codes (0.239682ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.389598ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.531081ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.204158ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.10641ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.067961ms)
+✔ online playlist imports resolve audio URLs on demand (0.612173ms)
+✔ online playlist imports use a unified Meting-compatible adapter (0.75566ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.112299ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.33814ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.36428ms)
+✔ background videos reload before retrying playback after ended (0.363769ms)
+✔ moments single-item query aliases the legacy images column (0.117828ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 133.354112
+
+__EXIT_CODE__=0
