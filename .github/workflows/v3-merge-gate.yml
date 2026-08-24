@@ -1,0 +1,47 @@
+name: V3 Final Merge Gate
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/v3-merge-gate.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/firefly-banner-covers-music
+          fetch-depth: 0
+
+      - name: Remove merge gate from tested tree
+        run: git rm .github/workflows/v3-merge-gate.yml
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run final full test suite
+        env:
+          PUBLIC_MOMENTS_API: https://api.lidure22.xyz/api
+          PUBLIC_MEDIA_BASE_URL: https://api.lidure22.xyz/media
+        run: npm test
+
+      - name: Commit gate cleanup after success
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: remove final merge gate"
+          git push origin HEAD:feat/firefly-banner-covers-music
