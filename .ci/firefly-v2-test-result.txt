@@ -8,12 +8,12 @@
 > astro check && astro build
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m02:50:03[22m [34m[content][39m Syncing content
+[2m02:52:40[22m [34m[content][39m Syncing content
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
-[2m02:50:03[22m [34m[content][39m Synced content
-[2m02:50:03[22m [34m[types][39m Generated [2m1.21s[22m
-[2m02:50:03[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[2m02:52:41[22m [34m[content][39m Synced content
+[2m02:52:41[22m [34m[types][39m Generated [2m1.58s[22m
+[2m02:52:41[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
 [96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
 
 [7m14[0m     draft: z.boolean().default(false),
@@ -201,104 +201,104 @@ Result (46 files):
 - 41 hints
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m02:50:11[22m [34m[content][39m Syncing content
-[2m02:50:11[22m [34m[content][39m Synced content
-[2m02:50:11[22m [34m[types][39m Generated [2m411ms[22m
-[2m02:50:11[22m [34m[build][39m output: [34m"static"[39m
-[2m02:50:11[22m [34m[build][39m mode: [34m"static"[39m
-[2m02:50:11[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
-[2m02:50:11[22m [34m[build][39m Collecting build info...
-[2m02:50:11[22m [34m[build][39m [32m✓ Completed in 431ms.[39m
-[2m02:50:11[22m [34m[build][39m Building static entrypoints...
-[2m02:50:13[22m [34m[vite][39m [32m✓ built in 1.91s[39m
-[2m02:50:14[22m [34m[vite][39m [32m✓ built in 1.09s[39m
-[2m02:50:14[22m [34m[build][39m Rearranging server assets...
+[2m02:52:50[22m [34m[content][39m Syncing content
+[2m02:52:50[22m [34m[content][39m Synced content
+[2m02:52:50[22m [34m[types][39m Generated [2m517ms[22m
+[2m02:52:50[22m [34m[build][39m output: [34m"static"[39m
+[2m02:52:50[22m [34m[build][39m mode: [34m"static"[39m
+[2m02:52:50[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m02:52:50[22m [34m[build][39m Collecting build info...
+[2m02:52:50[22m [34m[build][39m [32m✓ Completed in 542ms.[39m
+[2m02:52:50[22m [34m[build][39m Building static entrypoints...
+[2m02:52:52[22m [34m[vite][39m [32m✓ built in 2.43s[39m
+[2m02:52:53[22m [34m[vite][39m [32m✓ built in 559ms[39m
+[2m02:52:53[22m [34m[build][39m Rearranging server assets...
 
 [42m[30m generating static routes [39m[49m
-[2m02:50:14[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+11ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+4ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/player/index.html[22m [2m(+4ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+7ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+3ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+183ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/rss.xml[22m [2m(+20ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/search/index.html[22m [2m(+3ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
-[2m02:50:14[22m   [34m├─[39m [2m/index.html[22m [2m(+3ms)[22m 
-[2m02:50:14[22m [32m✓ Completed in 292ms.
+[2m02:52:53[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+15ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+5ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+9ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+3ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+231ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/rss.xml[22m [2m(+25ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m02:52:53[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
+[2m02:52:53[22m [32m✓ Completed in 366ms.
 [39m
 [42m[30m generating optimized images [39m[49m
-[2m02:50:14[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+55ms)[22m [2m(1/4)[22m
-[2m02:50:14[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+59ms)[22m [2m(2/4)[22m
-[2m02:50:14[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+67ms)[22m [2m(3/4)[22m
-[2m02:50:14[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+278ms)[22m [2m(4/4)[22m
-[2m02:50:14[22m [32m✓ Completed in 279ms.
+[2m02:52:53[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+70ms)[22m [2m(1/4)[22m
+[2m02:52:53[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+79ms)[22m [2m(2/4)[22m
+[2m02:52:53[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+82ms)[22m [2m(3/4)[22m
+[2m02:52:53[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+332ms)[22m [2m(4/4)[22m
+[2m02:52:53[22m [32m✓ Completed in 333ms.
 [39m
-[2m02:50:14[22m [34m[build][39m [32m✓ Completed in 3.65s.[39m
-[2m02:50:14[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
-[2m02:50:14[22m [34m[build][39m 23 page(s) built in [1m4.08s[22m
-[2m02:50:14[22m [34m[build][39m [1mComplete![22m
+[2m02:52:53[22m [34m[build][39m [32m✓ Completed in 3.74s.[39m
+[2m02:52:53[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m02:52:53[22m [34m[build][39m 23 page(s) built in [1m4.29s[22m
+[2m02:52:53[22m [34m[build][39m [1mComplete![22m
 
 > lidure-github-io@0.0.1 test:site
 > node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
 
-✔ BaseLayout exposes standard and immersive page modes (1.128532ms)
-✔ player route defaults to immersive layout with trailing slash tolerance (0.291815ms)
-✔ standard banner keeps B3 desktop and mobile heights (0.299446ms)
-✔ standard banner stays readable when the background is disabled (0.280047ms)
-✔ site header replaces its global scroll listener after Astro navigation (0.25534ms)
-✔ shared shell mounts navigation and floating controls for both modes (0.259056ms)
-✔ floating controls proxy existing background settings instead of duplicating them (0.343221ms)
-✖ immersive hide state uses current shell selectors (1.892679ms)
-✖ immersive stage one keeps player and background controls visible (0.910957ms)
-✖ homepage exposes left, main, and right regions (1.633824ms)
-✖ guestbook uses a wide two-column desktop shell (0.630109ms)
-✔ built immersive page keeps core controls without standard chrome (1.066308ms)
-✔ background loop guard detects a wrap and reuses the player recovery handler (1.741505ms)
-✔ base layout installs the background loop guard (0.354038ms)
-✔ player search tolerates imported songs without precomputed searchText (0.940921ms)
-✔ local imports keep active search and tag filters (0.424944ms)
-✔ search embeds parseable post data without a runtime jsonData reference (1.987321ms)
-✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.796687ms)
-✔ source configuration uses configured public domains and no stale publishing defaults (2.142081ms)
-✔ optical-flow article has one h1 and no unparsed inline delimiters (2.124676ms)
-✔ optimized identity assets are used and remain small (0.813692ms)
-✔ rendered background configuration starts with a static image (0.722927ms)
-✔ rendered moments management controls keep the publish panel closed by default (1.193168ms)
-✔ moments page exposes the API hook and local controls (1.142452ms)
-✔ moments publishing UI accepts videos and requires selectable posters (1.237914ms)
-✔ moments video poster generation ignores stale async captures (0.775876ms)
-✔ moments browser code uses the session API client for management (1.011937ms)
-✔ moment delete controls follow the authenticated session (0.542258ms)
-✔ guestbook exposes authenticated message deletion controls (0.286497ms)
-✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.567335ms)
-✔ moments api preserves distinct 401 auth worker codes (0.197073ms)
-✔ Astro swaps clean page-scoped media while preserving persistent background media (0.404342ms)
-✔ persistent layout scripts initialize through astro page-load with data guards (0.542989ms)
-✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.199988ms)
-✔ sakura particles use the approved flowers and natural drift parameters (0.117035ms)
-✔ QQ playlist imports normalize ids and report unavailable audio links (1.224214ms)
-✔ online playlist imports resolve audio URLs on demand (0.616479ms)
-✔ online playlist imports use a unified Meting-compatible adapter (0.786682ms)
-✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.121071ms)
-✔ background video degrades safely on navigation visibility and reduced motion (0.37548ms)
-✔ background videos recover playback when browsers emit ended despite loop (0.378464ms)
-✔ background videos reload before retrying playback after ended (0.331544ms)
-✔ moments single-item query aliases the legacy images column (0.115943ms)
+✔ BaseLayout exposes standard and immersive page modes (2.074156ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.49647ms)
+✔ standard banner keeps B3 desktop and mobile heights (0.493245ms)
+✔ standard banner stays readable when the background is disabled (0.492173ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.543147ms)
+✔ shared shell mounts navigation and floating controls for both modes (0.430479ms)
+✔ floating controls proxy existing background settings instead of duplicating them (0.616614ms)
+✖ immersive hide state uses current shell selectors (3.408932ms)
+✖ immersive stage one keeps player and background controls visible (2.766852ms)
+✖ homepage exposes left, main, and right regions (1.519768ms)
+✖ guestbook uses a wide two-column desktop shell (2.163242ms)
+✔ built immersive page keeps core controls without standard chrome (2.216881ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (2.341102ms)
+✔ base layout installs the background loop guard (0.578042ms)
+✔ player search tolerates imported songs without precomputed searchText (1.133432ms)
+✔ local imports keep active search and tag filters (0.311287ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.624216ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.98651ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.629897ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.454101ms)
+✔ optimized identity assets are used and remain small (1.00283ms)
+✔ rendered background configuration starts with a static image (0.887195ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.421667ms)
+✔ moments page exposes the API hook and local controls (1.377294ms)
+✔ moments publishing UI accepts videos and requires selectable posters (1.612621ms)
+✔ moments video poster generation ignores stale async captures (1.011666ms)
+✔ moments browser code uses the session API client for management (1.282409ms)
+✔ moment delete controls follow the authenticated session (0.644075ms)
+✔ guestbook exposes authenticated message deletion controls (0.408818ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.688126ms)
+✔ moments api preserves distinct 401 auth worker codes (0.226219ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.497693ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.708043ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.278426ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.171538ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.390509ms)
+✔ online playlist imports resolve audio URLs on demand (0.808309ms)
+✔ online playlist imports use a unified Meting-compatible adapter (0.982111ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.146672ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.511138ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.481653ms)
+✔ background videos reload before retrying playback after ended (0.453511ms)
+✔ moments single-item query aliases the legacy images column (0.150739ms)
 ℹ tests 43
 ℹ suites 0
 ℹ pass 39
@@ -306,12 +306,12 @@ Result (46 files):
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 145.295517
+ℹ duration_ms 177.923357
 
 ✖ failing tests:
 
 test at tests/firefly-ui-refresh.test.mjs:70:1
-✖ immersive hide state uses current shell selectors (1.892679ms)
+✖ immersive hide state uses current shell selectors (3.408932ms)
   AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /querySelector\(['"]\.topbar['"]\)/. Input:
   
   '---\n' +
@@ -524,7 +524,7 @@ test at tests/firefly-ui-refresh.test.mjs:70:1
   }
 
 test at tests/firefly-ui-refresh.test.mjs:77:1
-✖ immersive stage one keeps player and background controls visible (0.910957ms)
+✖ immersive stage one keeps player and background controls visible (2.766852ms)
   AssertionError [ERR_ASSERTION]: The input did not match the regular expression /stage1:\s*\[\s*document\.querySelector\(['"]\.site-header['"]\)/. Input:
   
   '---\n' +
@@ -737,7 +737,7 @@ test at tests/firefly-ui-refresh.test.mjs:77:1
   }
 
 test at tests/firefly-ui-refresh.test.mjs:85:1
-✖ homepage exposes left, main, and right regions (1.633824ms)
+✖ homepage exposes left, main, and right regions (1.519768ms)
   AssertionError [ERR_ASSERTION]: The input did not match the regular expression /HomeLeftSidebar/. Input:
   
   '---\n' +
@@ -805,7 +805,7 @@ test at tests/firefly-ui-refresh.test.mjs:85:1
   }
 
 test at tests/firefly-ui-refresh.test.mjs:93:1
-✖ guestbook uses a wide two-column desktop shell (0.630109ms)
+✖ guestbook uses a wide two-column desktop shell (2.163242ms)
   AssertionError [ERR_ASSERTION]: The input did not match the regular expression /messages-layout/. Input:
   
   '---\n' +
