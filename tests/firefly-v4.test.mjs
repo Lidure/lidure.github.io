@@ -36,3 +36,21 @@ test('v4 settings center groups wave controls under Background and uses mobile b
   assert.match(panel, /Customize your space/);
   assert.match(panel, /max-height:\s*86dvh/);
 });
+
+test('v4 moments expose authenticated pin controls and preserve server pin ordering', () => {
+  const api = readSource('src/lib/moments-api.ts');
+  const page = readSource('src/pages/moments.astro');
+
+  assert.match(api, /pinned\?:\s*boolean/);
+  assert.match(api, /pinnedAt\?:\s*number/);
+  assert.match(api, /export async function setMomentPinned/);
+  assert.match(api, /method:\s*['"]PATCH['"]/);
+  assert.match(api, /\/pin/);
+
+  assert.match(page, /setMomentPinned as setMomentPinnedViaApi/);
+  assert.match(page, /className = ['"]moment-pin-badge['"]/);
+  assert.match(page, /className = ['"]pin-moment-btn['"]/);
+  assert.match(page, /adminMode && moment\.id/);
+  assert.match(page, /await setMomentPinnedViaApi/);
+  assert.match(page, /await fetchMomentsFromApi\(\)/);
+});
