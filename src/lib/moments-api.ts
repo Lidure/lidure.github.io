@@ -24,6 +24,8 @@ export type MomentApiItem = {
   media?: MomentMediaItem[];
   createdAt?: number;
   reactions?: Record<string, number>;
+  pinned?: boolean;
+  pinnedAt?: number;
 };
 
 export type MomentSession = {
@@ -302,4 +304,30 @@ export async function deleteMoment(momentId: string, options: { signal?: AbortSi
     credentials: 'include',
     signal: options.signal,
   });
+}
+
+export async function setMomentPinned(
+  momentId: string,
+  pinned: boolean,
+  options: { signal?: AbortSignal } = {},
+) {
+  const data = await requestJson<{ item?: MomentApiItem; displacedId?: string }>(
+    `/moments/${encodeURIComponent(momentId)}/pin`,
+    {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json; charset=utf-8' },
+      body: JSON.stringify({ pinned }),
+      signal: options.signal,
+    },
+  );
+
+  if (!data.item) {
+    throw new MomentApiError('置顶状态已更新，但 API 没有返回动态。', 'API_ERROR');
+  }
+
+  return {
+    item: data.item,
+    displacedId: data.displacedId,
+  };
 }
