@@ -23,10 +23,10 @@ test('player route defaults to immersive layout with trailing slash tolerance', 
   assert.match(layout, /['"]immersive['"]\s*:\s*['"]standard['"]/);
 });
 
-test('standard banner keeps B3 desktop and mobile heights', () => {
+test('standard banner keeps approved v3 desktop and mobile heights', () => {
   const css = readSource('src/styles/firefly-refresh.css');
-  assert.match(css, /--blog-banner-height:\s*50vh/);
-  assert.match(css, /--blog-banner-height:\s*36vh/);
+  assert.match(css, /--blog-banner-height:\s*62vh/);
+  assert.match(css, /--blog-banner-height:\s*42vh/);
   assert.match(css, /body\.layout-standard/);
   assert.doesNotMatch(css, /body\.layout-immersive\s+\.post-card/);
 });

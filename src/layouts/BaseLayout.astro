@@ -22,6 +22,7 @@ const {
 } = Astro.props;
 
 const isStandard = layoutMode === 'standard';
+const isHome = normalizedPath === '';
 const resolvedBannerTitle = bannerTitle ?? title.split('|')[0].trim();
 const resolvedBannerSubtitle = bannerSubtitle ?? description;
 
@@ -185,7 +186,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
       installVisualSettingsBridge();
     </script>
   </head>
-  <body class={`layout-${layoutMode}`}>
+  <body class:list={[`layout-${layoutMode}`, { 'is-home': isHome }]}>
     <VisualSettingsPanel />
     <HeroSlideshow />
     <SekaiParticles />

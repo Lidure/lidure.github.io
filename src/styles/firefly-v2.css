@@ -7,8 +7,8 @@ body.layout-standard {
   --standard-text: #f1f2f7;
   --standard-muted: #a2a8b8;
   --standard-line: rgba(226, 230, 255, 0.09);
-  --standard-accent: #f078a8;
-  --standard-accent-soft: rgba(240, 120, 168, 0.13);
+  --standard-accent: hsl(var(--theme-hue, 340) 78% 69%);
+  --standard-accent-soft: hsl(var(--theme-hue, 340) 78% 69% / 0.13);
   --standard-purple: #a58cf2;
   --standard-purple-soft: rgba(165, 140, 242, 0.13);
   --standard-cyan: #65c7cf;
@@ -25,8 +25,8 @@ body.layout-standard {
   --standard-text: #262833;
   --standard-muted: #707687;
   --standard-line: rgba(56, 61, 83, 0.09);
-  --standard-accent: #d95f91;
-  --standard-accent-soft: rgba(217, 95, 145, 0.11);
+  --standard-accent: hsl(var(--theme-hue, 340) 58% 50%);
+  --standard-accent-soft: hsl(var(--theme-hue, 340) 58% 50% / 0.11);
   --standard-purple: #8068d9;
   --standard-purple-soft: rgba(128, 104, 217, 0.11);
   --standard-cyan: #3d9fa9;
@@ -530,3 +530,39 @@ body.layout-standard .home-post-tags a:nth-child(3n + 3) { color: var(--standard
   body.layout-standard .home-category-bar { width: 100%; box-sizing: border-box; }
   body.layout-standard .sidebar-widget-body { padding: 12px; }
 }
+
+/* Firefly v3 wallpaper-aware card layer */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .sidebar-widget,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .home-post-card,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .card,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .archive-shell,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .post-shell,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .timeline-item,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .project-card,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .message-form,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .message-card,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .publish-panel,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .moment-card {
+  background: color-mix(in srgb, var(--standard-card-bg) var(--card-opacity-percent, 92%), transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+html[data-card-border="false"] body.layout-standard .sidebar-widget,
+html[data-card-border="false"] body.layout-standard .home-post-card,
+html[data-card-border="false"] body.layout-standard .card,
+html[data-card-border="false"] body.layout-standard .archive-shell,
+html[data-card-border="false"] body.layout-standard .post-shell,
+html[data-card-border="false"] body.layout-standard .timeline-item,
+html[data-card-border="false"] body.layout-standard .project-card {
+  border-color: transparent;
+}
+
+html[data-card-border="true"][data-card-follow-theme="true"] body.layout-standard .sidebar-widget,
+html[data-card-border="true"][data-card-follow-theme="true"] body.layout-standard .home-post-card,
+html[data-card-border="true"][data-card-follow-theme="true"] body.layout-standard .card,
+html[data-card-border="true"][data-card-follow-theme="true"] body.layout-standard .archive-shell,
+html[data-card-border="true"][data-card-follow-theme="true"] body.layout-standard .post-shell {
+  border-color: color-mix(in srgb, var(--standard-accent) 22%, var(--standard-line));
+}
+
