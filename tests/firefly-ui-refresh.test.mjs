@@ -67,19 +67,35 @@ test('floating controls proxy existing background settings instead of duplicatin
   assert.doesNotMatch(controls, /sekaiPlayerPanel|sekaiAudio|fetchMoments/);
 });
 
-test('immersive hide state uses current shell selectors', () => {
-  const player = readSource('src/pages/player.astro');
-  assert.doesNotMatch(player, /querySelector\(['"]\.topbar['"]\)/);
-  assert.match(player, /querySelector\(['"]\.site-header['"]\)/);
-  assert.match(player, /querySelector\(['"]\.site-floating-controls['"]\)/);
+test('immersive UI controller owns current shell visibility without touching player business logic', () => {
+  const path = 'src/components/ImmersiveUiController.astro';
+  assert.ok(sourceExists(path), 'ImmersiveUiController.astro must exist');
+  const controller = readSource(path);
+  assert.match(controller, /\.site-header/);
+  assert.match(controller, /\.site-floating-controls/);
+  assert.match(controller, /\.sekai-player-btn/);
+  assert.match(controller, /#hero-settings-panel/);
+  assert.match(controller, /#media-panel/);
+  assert.match(controller, /#media-preview/);
+  assert.match(controller, /stopImmediatePropagation\(\)/);
+  assert.match(controller, /astro:before-swap/);
+  assert.doesNotMatch(controller, /\.topbar/);
 });
 
-test('immersive stage one keeps player and background controls visible', () => {
-  const player = readSource('src/pages/player.astro');
-  assert.match(player, /stage1:\s*\[\s*document\.querySelector\(['"]\.site-header['"]\)/);
-  assert.match(player, /stage2:\s*\[[\s\S]*?document\.querySelector\(['"]\.site-floating-controls['"]\)/);
-  assert.match(player, /document\.querySelector\(['"]\.sekai-player-btn['"]\)/);
-  assert.match(player, /hideStage === 1[\s\S]*?setOpacity\(t\.stage1, '0'\)[\s\S]*?setOpacity\(t\.stage2, ''\)/);
+test('immersive stage one hides only navigation and restores persistent controls before navigation', () => {
+  const path = 'src/components/ImmersiveUiController.astro';
+  assert.ok(sourceExists(path), 'ImmersiveUiController.astro must exist');
+  const controller = readSource(path);
+  assert.match(controller, /stage1:\s*\[\s*document\.querySelector\(['"]\.site-header['"]\)/);
+  assert.match(controller, /stage2:\s*\[[\s\S]*?document\.querySelector\(['"]\.site-floating-controls['"]\)/);
+  assert.match(controller, /stage === 1[\s\S]*?setVisibility\(targets\.stage1, false\)[\s\S]*?setVisibility\(targets\.stage2, true\)/);
+  assert.match(controller, /function resetUi\([\s\S]*?setVisibility\(targets\.stage2, true\)/);
+});
+
+test('BaseLayout installs the immersive UI controller only for immersive mode', () => {
+  const layout = readSource('src/layouts/BaseLayout.astro');
+  assert.match(layout, /ImmersiveUiController/);
+  assert.match(layout, /!isStandard\s*&&\s*<ImmersiveUiController\s*\/>/);
 });
 
 test('homepage exposes left, main, and right regions', () => {
