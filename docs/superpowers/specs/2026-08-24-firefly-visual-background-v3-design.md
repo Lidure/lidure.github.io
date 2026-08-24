@@ -57,7 +57,7 @@ The selected image/video, slideshow order, uploads, URLs, background library, an
 Desktop:
 
 - visual height: `60–64vh`, target default `62vh`;
-- minimum height chosen to protect short desktop viewports;
+- minimum height: `360px`;
 - wallpaper spans full viewport width;
 - standard content max width remains approximately `1340px`, while the banner copy may use a wider visual allowance up to roughly `1360–1440px`;
 - content surface overlaps the banner by `52–56px`, target `56px`;
@@ -67,11 +67,13 @@ Desktop:
 Tablet:
 
 - height about `52–56vh`;
+- minimum height: `320px`;
 - overlap about `40–48px`.
 
 Mobile:
 
 - height about `40–44vh`;
+- minimum height: `260px`;
 - overlap about `24–32px`;
 - smaller title sizing and lighter fade.
 
@@ -184,7 +186,8 @@ The v2-compatible shape is conceptually:
   wallpaperMode: "banner", // banner | fullscreen
 
   // New background appearance
-  backgroundBlur: 0,
+  // fullscreen default; banner mode ignores backgroundBlur
+  backgroundBlur: 6,
   cardOpacity: 0.92,
   bannerGradient: true,
   bannerTitle: true,
@@ -207,7 +210,8 @@ Rules:
 - existing fields keep their meaning;
 - `sakura` remains the top-level sakura enable flag for compatibility;
 - restoring visual defaults must not delete user media/library data;
-- existing media-related persistence remains untouched.
+- existing media-related persistence remains untouched;
+- `backgroundBlur` defaults to `6px` for fullscreen presentation and is ignored by banner presentation unless a future design explicitly enables it there.
 
 At startup, critical values are reflected immediately on `<html>` and CSS variables to avoid post-load visual flashing, e.g.:
 
@@ -328,7 +332,7 @@ Use the user-provided Firefly screenshot as the primary visual reference rather 
 - large, nearly full-width square/near-square rounded cover;
 - central circular play/pause button floating over the cover;
 - bottom circular previous and next buttons;
-- optionally one restrained single-line track title for usability;
+- exactly one restrained, single-line current-track title for usability;
 - no dense artist/status block.
 
 Suggested cover radius: approximately `20–24px`.
@@ -403,7 +407,7 @@ Business logic preservation takes precedence over minimizing the file count.
 
 ## 14. Acceptance criteria
 
-1. Banner mode desktop hero is visibly broader/taller, about `62vh`, with ~`56px` content overlap and a soft bottom fade.
+1. Banner mode desktop hero is visibly broader/taller, about `62vh` with at least `360px` height, ~`56px` content overlap, and a soft bottom fade.
 2. Fullscreen homepage wallpaper occupies the first viewport; homepage content begins below it.
 3. Fullscreen non-home pages show fixed wallpaper behind content without forcing a blank 100vh hero.
 4. `/player` remains immersive and unaffected by `banner/fullscreen` standard-page mode.
@@ -411,7 +415,7 @@ Business logic preservation takes precedence over minimizing the file count.
 6. Existing `hero_settings` users retain prior enable/autoplay/opacity/quality/sakura values.
 7. Settings UI is split into `外观 / 背景 / 特效` and exposes only mode-relevant controls.
 8. Homepage cards use `cover`, then article first image, then text-only fallback without broken image URLs.
-9. Homepage music widget visually matches the approved large-cover composition and proxies the existing SEKAI controls/state.
+9. Homepage music widget visually matches the approved large-cover composition, keeps exactly one line of track title, and proxies the existing SEKAI controls/state.
 10. Sakura uses real petals, supports Worker/OffscreenCanvas when possible, and has a main-thread fallback.
 11. Sakura and visual settings do not leak duplicate listeners/workers/canvases across Astro navigation.
 12. Mobile and reduced-motion modes reduce decorative load appropriately.
