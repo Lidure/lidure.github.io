@@ -8,12 +8,12 @@
 > astro check && astro build
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m03:02:13[22m [34m[content][39m Syncing content
+[2m03:02:50[22m [34m[content][39m Syncing content
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
-[2m03:02:14[22m [34m[content][39m Synced content
-[2m03:02:14[22m [34m[types][39m Generated [2m1.01s[22m
-[2m03:02:14[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[2m03:02:50[22m [34m[content][39m Synced content
+[2m03:02:50[22m [34m[types][39m Generated [2m1.40s[22m
+[2m03:02:50[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
 [96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
 
 [7m14[0m     draft: z.boolean().default(false),
@@ -151,9 +151,9 @@ Add the `is:inline` directive explicitly to silence this hint.
 [7m51[0m   function getSystemTheme() {
 [7m  [0m [93m           ~~~~~~~~~~~~~~[0m
 
-[96msrc/layouts/BaseLayout.astro[0m:[93m64[0m:[93m191[0m - [93mwarning[0m[90m ts(6133): [0m'media' is declared but its value is never read.
+[96msrc/layouts/BaseLayout.astro[0m:[93m65[0m:[93m191[0m - [93mwarning[0m[90m ts(6133): [0m'media' is declared but its value is never read.
 
-[7m64[0m     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+[7m65[0m     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
 [7m  [0m [93m                                                                                                                                                                                              ~~~~~[0m
 
 [96msrc/pages/moments.astro[0m:[93m2416[0m:[93m14[0m - [93mwarning[0m[90m ts(6133): [0m'handleFiles' is declared but its value is never read.
@@ -201,301 +201,118 @@ Result (47 files):
 - 41 hints
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m03:02:20[22m [34m[content][39m Syncing content
-[2m03:02:20[22m [34m[content][39m Synced content
-[2m03:02:20[22m [34m[types][39m Generated [2m391ms[22m
-[2m03:02:20[22m [34m[build][39m output: [34m"static"[39m
-[2m03:02:20[22m [34m[build][39m mode: [34m"static"[39m
-[2m03:02:20[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
-[2m03:02:20[22m [34m[build][39m Collecting build info...
-[2m03:02:20[22m [34m[build][39m [32m✓ Completed in 413ms.[39m
-[2m03:02:20[22m [34m[build][39m Building static entrypoints...
-[2m03:02:21[22m [34m[vite][39m [32m✓ built in 1.85s[39m
-[2m03:02:22[22m [34m[vite][39m [32m✓ built in 688ms[39m
-[2m03:02:22[22m [34m[build][39m Rearranging server assets...
+[2m03:02:59[22m [34m[content][39m Syncing content
+[2m03:02:59[22m [34m[content][39m Synced content
+[2m03:02:59[22m [34m[types][39m Generated [2m513ms[22m
+[2m03:02:59[22m [34m[build][39m output: [34m"static"[39m
+[2m03:02:59[22m [34m[build][39m mode: [34m"static"[39m
+[2m03:02:59[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m03:02:59[22m [34m[build][39m Collecting build info...
+[2m03:02:59[22m [34m[build][39m [32m✓ Completed in 544ms.[39m
+[2m03:02:59[22m [34m[build][39m Building static entrypoints...
+[2m03:03:02[22m [34m[vite][39m [32m✓ built in 2.39s[39m
+[2m03:03:02[22m [34m[vite][39m [32m✓ built in 500ms[39m
+[2m03:03:02[22m [34m[build][39m Rearranging server assets...
 
 [42m[30m generating static routes [39m[49m
-[2m03:02:22[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+10ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+4ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/player/index.html[22m [2m(+4ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+7ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+3ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+95ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/rss.xml[22m [2m(+25ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/search/index.html[22m [2m(+15ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+6ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+6ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+12ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+1ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+1ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+1ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+1ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+2ms)[22m 
-[2m03:02:22[22m   [34m├─[39m [2m/index.html[22m [2m(+3ms)[22m 
-[2m03:02:22[22m [32m✓ Completed in 233ms.
+[2m03:03:02[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+23ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+9ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/player/index.html[22m [2m(+15ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+10ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+4ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+3ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+83ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/rss.xml[22m [2m(+30ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m03:03:02[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
+[2m03:03:02[22m [32m✓ Completed in 244ms.
 [39m
 [42m[30m generating optimized images [39m[49m
-[2m03:02:22[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+47ms)[22m [2m(1/4)[22m
-[2m03:02:22[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+48ms)[22m [2m(2/4)[22m
-[2m03:02:22[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+58ms)[22m [2m(3/4)[22m
-[2m03:02:23[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+255ms)[22m [2m(4/4)[22m
-[2m03:02:23[22m [32m✓ Completed in 256ms.
+[2m03:03:02[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+69ms)[22m [2m(1/4)[22m
+[2m03:03:02[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+75ms)[22m [2m(2/4)[22m
+[2m03:03:02[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+76ms)[22m [2m(3/4)[22m
+[2m03:03:03[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+324ms)[22m [2m(4/4)[22m
+[2m03:03:03[22m [32m✓ Completed in 325ms.
 [39m
-[2m03:02:23[22m [34m[build][39m [32m✓ Completed in 3.12s.[39m
-[2m03:02:23[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
-[2m03:02:23[22m [34m[build][39m 23 page(s) built in [1m3.54s[22m
-[2m03:02:23[22m [34m[build][39m [1mComplete![22m
+[2m03:03:03[22m [34m[build][39m [32m✓ Completed in 3.52s.[39m
+[2m03:03:03[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m03:03:03[22m [34m[build][39m 23 page(s) built in [1m4.07s[22m
+[2m03:03:03[22m [34m[build][39m [1mComplete![22m
 
 > lidure-github-io@0.0.1 test:site
 > node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
 
-✔ BaseLayout exposes standard and immersive page modes (2.075428ms)
-✔ player route defaults to immersive layout with trailing slash tolerance (0.326503ms)
-✔ standard banner keeps B3 desktop and mobile heights (0.319325ms)
-✔ standard banner stays readable when the background is disabled (0.304757ms)
-✔ site header replaces its global scroll listener after Astro navigation (0.236451ms)
-✔ shared shell mounts navigation and floating controls for both modes (0.334378ms)
-✔ floating controls proxy existing background settings instead of duplicating them (0.413683ms)
-✔ immersive UI controller owns current shell visibility without touching player business logic (0.464522ms)
-✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.366332ms)
-✖ BaseLayout installs the immersive UI controller only for immersive mode (1.784346ms)
-✖ homepage exposes left, main, and right regions (0.444003ms)
-✖ guestbook uses a wide two-column desktop shell (1.829193ms)
-✔ built immersive page keeps core controls without standard chrome (1.983093ms)
-✔ background loop guard detects a wrap and reuses the player recovery handler (1.077438ms)
-✔ base layout installs the background loop guard (0.234683ms)
-✔ player search tolerates imported songs without precomputed searchText (0.660616ms)
-✔ local imports keep active search and tag filters (0.22559ms)
-✔ search embeds parseable post data without a runtime jsonData reference (1.539664ms)
-✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.638345ms)
-✔ source configuration uses configured public domains and no stale publishing defaults (1.789858ms)
-✔ optical-flow article has one h1 and no unparsed inline delimiters (1.740709ms)
-✔ optimized identity assets are used and remain small (0.657767ms)
-✔ rendered background configuration starts with a static image (0.661288ms)
-✔ rendered moments management controls keep the publish panel closed by default (1.03565ms)
-✔ moments page exposes the API hook and local controls (1.141115ms)
-✔ moments publishing UI accepts videos and requires selectable posters (1.030706ms)
-✔ moments video poster generation ignores stale async captures (0.666832ms)
-✔ moments browser code uses the session API client for management (0.893045ms)
-✔ moment delete controls follow the authenticated session (0.437443ms)
-✔ guestbook exposes authenticated message deletion controls (0.253791ms)
-✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.442826ms)
-✔ moments api preserves distinct 401 auth worker codes (0.165724ms)
-✔ Astro swaps clean page-scoped media while preserving persistent background media (0.316846ms)
-✔ persistent layout scripts initialize through astro page-load with data guards (0.423304ms)
-✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.156756ms)
-✔ sakura particles use the approved flowers and natural drift parameters (0.068108ms)
-✔ QQ playlist imports normalize ids and report unavailable audio links (0.994893ms)
-✔ online playlist imports resolve audio URLs on demand (0.548307ms)
-✔ online playlist imports use a unified Meting-compatible adapter (0.655641ms)
-✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.092885ms)
-✔ background video degrades safely on navigation visibility and reduced motion (0.258561ms)
-✔ background videos recover playback when browsers emit ended despite loop (0.26504ms)
-✔ background videos reload before retrying playback after ended (0.263017ms)
-✔ moments single-item query aliases the legacy images column (0.079972ms)
+✔ BaseLayout exposes standard and immersive page modes (3.270941ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.441175ms)
+✔ standard banner keeps B3 desktop and mobile heights (0.483505ms)
+✔ standard banner stays readable when the background is disabled (0.414936ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.402643ms)
+✔ shared shell mounts navigation and floating controls for both modes (0.402133ms)
+✔ floating controls proxy existing background settings instead of duplicating them (0.617545ms)
+✔ immersive UI controller owns current shell visibility without touching player business logic (0.384649ms)
+✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.715028ms)
+✔ BaseLayout installs the immersive UI controller only for immersive mode (0.536614ms)
+✖ homepage exposes left, main, and right regions (2.273724ms)
+✖ guestbook uses a wide two-column desktop shell (3.934452ms)
+✔ built immersive page keeps core controls without standard chrome (2.018156ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (2.345318ms)
+✔ base layout installs the background loop guard (0.402273ms)
+✔ player search tolerates imported songs without precomputed searchText (1.238007ms)
+✔ local imports keep active search and tag filters (0.393857ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.455485ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.999991ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.479279ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.446498ms)
+✔ optimized identity assets are used and remain small (1.016673ms)
+✔ rendered background configuration starts with a static image (0.903271ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.351989ms)
+✔ moments page exposes the API hook and local controls (1.396744ms)
+✔ moments publishing UI accepts videos and requires selectable posters (1.527118ms)
+✔ moments video poster generation ignores stale async captures (1.08009ms)
+✔ moments browser code uses the session API client for management (1.354584ms)
+✔ moment delete controls follow the authenticated session (0.64652ms)
+✔ guestbook exposes authenticated message deletion controls (0.306444ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.688628ms)
+✔ moments api preserves distinct 401 auth worker codes (0.351087ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.517899ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.604111ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.311383ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.172903ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.385472ms)
+✔ online playlist imports resolve audio URLs on demand (0.805517ms)
+✔ online playlist imports use a unified Meting-compatible adapter (0.969684ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.141896ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.463237ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.462796ms)
+✔ background videos reload before retrying playback after ended (0.441155ms)
+✔ moments single-item query aliases the legacy images column (0.146003ms)
 ℹ tests 44
 ℹ suites 0
-ℹ pass 41
-ℹ fail 3
+ℹ pass 42
+ℹ fail 2
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 119.301385
+ℹ duration_ms 170.165987
 
 ✖ failing tests:
 
-test at tests/firefly-ui-refresh.test.mjs:95:1
-✖ BaseLayout installs the immersive UI controller only for immersive mode (1.784346ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /ImmersiveUiController/. Input:
-  
-  '---\n' +
-    'interface Props {\n' +
-    '  title?: string;\n' +
-    '  description?: string;\n' +
-    '  showTime?: boolean;\n' +
-    "  layoutMode?: 'standard' | 'immersive';\n" +
-    '  bannerTitle?: string;\n' +
-    '  bannerSubtitle?: string;\n' +
-    '}\n' +
-    '\n' +
-    "const normalizedPath = Astro.url.pathname.replace(/\\/+$/, '');\n" +
-    "const defaultLayoutMode: 'standard' | 'immersive' =\n" +
-    "  normalizedPath === '/player' ? 'immersive' : 'standard';\n" +
-    '\n' +
-    'const {\n' +
-    "  title = '搁浅 的小窝',\n" +
-    "  description = '一个使用 Astro 和 GitHub Pages 搭建的个人博客。',\n" +
-    '  showTime = false,\n' +
-    '  layoutMode = defaultLayoutMode,\n' +
-    '  bannerTitle,\n' +
-    '  bannerSubtitle,\n' +
-    '} = Astro.props;\n' +
-    '\n' +
-    "const isStandard = layoutMode === 'standard';\n" +
-    "const resolvedBannerTitle = bannerTitle ?? title.split('|')[0].trim();\n" +
-    'const resolvedBannerSubtitle = bannerSubtitle ?? description;\n' +
-    '\n' +
-    "import '../styles/global.css';\n" +
-    "import '../styles/firefly-refresh.css';\n" +
-    "import '../styles/immersive-nav.css';\n" +
-    "import ClockDisplay from '../components/ClockDisplay.astro';\n" +
-    "import BlogBanner from '../components/BlogBanner.astro';\n" +
-    "import SiteHeader from '../components/SiteHeader.astro';\n" +
-    "import FloatingControls from '../components/FloatingControls.astro';\n" +
-    "import { ClientRouter } from 'astro:transitions';\n" +
-    "import SekaiPlayer from '../components/SekaiPlayer.astro';\n" +
-    "import HeroSlideshow from '../components/HeroSlideshow.astro';\n" +
-    "import SekaiParticles from '../components/SekaiParticles.astro';\n" +
-    '\n' +
-    "const siteBase = Astro.site ?? new URL('https://lidure22.xyz');\n" +
-    'const canonicalUrl = new URL(Astro.url.pathname, siteBase);\n' +
-    "const socialImageUrl = new URL('/site-icon-512.png', siteBase);\n" +
-    '---\n' +
-    '<!doctype html>\n' +
-    '<html lang="zh-CN">\n' +
-    '  <head>\n' +
-    '    <meta charset="utf-8" />\n' +
-    '    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n' +
-    '    <meta name="referrer" content="same-origin" />\n' +
-    '    <meta name="description" content={description} />\n' +
-    '    <meta name="generator" content={Astro.generator} />\n' +
-    '    <link rel="canonical" href={canonicalUrl} />\n' +
-    '    <meta property="og:type" content="website" />\n' +
-    '    <meta property="og:title" content={title} />\n' +
-    '    <meta property="og:description" content={description} />\n' +
-    '    <meta property="og:url" content={canonicalUrl} />\n' +
-    '    <meta property="og:image" content={socialImageUrl} />\n' +
-    '    <title>{title}</title>\n' +
-    '    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />\n' +
-    '    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />\n' +
-    '    <link rel="preconnect" href="https://fonts.googleapis.com" />\n' +
-    '    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n' +
-    '    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" />\n' +
-    `    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />\n` +
-    '    <noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" /></noscript>\n' +
-    '    <ClientRouter />\n' +
-    '    <script is:inline>\n' +
-    '    (function() {\n' +
-    "      var theme = 'dark';\n" +
-    "      try { theme = localStorage.getItem('theme') || 'dark'; } catch(e) {}\n" +
-    "      document.documentElement.setAttribute('data-theme', theme);\n" +
-    '    })();\n' +
-    '    (function() {\n' +
-    '      try {\n' +
-    "        var s = localStorage.getItem('hero_settings');\n" +
-    '        if (s && JSON.parse(s).enabled === false) {\n' +
-    "          document.documentElement.classList.add('no-hero-bg');\n" +
-    '        }\n' +
-    '      } catch(e) {}\n' +
-    '    })();\n' +
-    '    (function() {\n' +
-    '      if (window.__pageMediaSwapCleanupBound) return;\n' +
-    '      window.__pageMediaSwapCleanupBound = true;\n' +
-    '\n' +
-    "      var pageMediaSelector = 'video[data-page-media], audio[data-page-media]';\n" +
-    '\n' +
-    "      document.addEventListener('astro:before-swap', function() {\n" +
-    '        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n' +
-    "          if (media.matches(':not([data-persistent-media])') === false) return;\n" +
-    '          try { media.pause(); } catch(e) {}\n' +
-    "          media.removeAttribute('src');\n" +
-    "          media.querySelectorAll('source').forEach(function(source) {\n" +
-    "            source.removeAttribute('src');\n" +
-    '          });\n' +
-    '          try { media.load(); } catch(e) {}\n' +
-    '        });\n' +
-    '      });\n' +
-    '    })();\n' +
-    '    (function() {\n' +
-    '      if (window.__busuanziLifecycleBound) return;\n' +
-    '      window.__busuanziLifecycleBound = true;\n' +
-    "      var busuanziRequestUrl = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback';\n" +
-    '\n' +
-    '      function applyBusuanzi(data) {\n' +
-    '        var values = data || {};\n' +
-    "        var pv = document.getElementById('busuanzi_value_site_pv');\n" +
-    "        var uv = document.getElementById('busuanzi_value_site_uv');\n" +
-    '        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n' +
-    '        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n' +
-    '      }\n' +
-    '\n' +
-    '      function refreshBusuanzi() {\n' +
-    "        if (!document.getElementById('busuanzi_value_site_pv')) return;\n" +
-    "        if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {\n" +
-    '          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n' +
-    '          return;\n' +
-    '        }\n' +
-    "        var script = document.getElementById('busuanzi-counter-script');\n" +
-    '        if (!script) {\n' +
-    "          script = document.createElement('script');\n" +
-    "          script.id = 'busuanzi-counter-script';\n" +
-    '          script.async = true;\n' +
-    "          script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';\n" +
-    '          document.head.appendChild(script);\n' +
-    '        }\n' +
-    "        script.addEventListener('load', refreshBusuanzi, { once: true });\n" +
-    '      }\n' +
-    "      document.addEventListener('astro:page-load', refreshBusuanzi);\n" +
-    '      refreshBusuanzi();\n' +
-    '    })();\n' +
-    '    </script>\n' +
-    '    <script>\n' +
-    "      import { installHeroVideoLoopGuard } from '../lib/hero-video-loop-guard.mjs';\n" +
-    '      installHeroVideoLoopGuard();\n' +
-    '    </script>\n' +
-    '  </head>\n' +
-    '  <body class={`layout-${layoutMode}`}>\n' +
-    '    <HeroSlideshow />\n' +
-    '    <SekaiParticles />\n' +
-    '    <SekaiPlayer />\n' +
-    '    <SiteHeader currentPath={Astro.url.pathname} />\n' +
-    '    <FloatingControls />\n' +
-    '\n' +
-    '    {isStandard ? (\n' +
-    '      <>\n' +
-    '        <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />\n' +
-    '        <div class="standard-page-surface">\n' +
-    '          <main class="content-area standard-content">\n' +
-    '            {showTime && <div class="clock-row"><ClockDisplay /></div>}\n' +
-    '            <slot />\n' +
-    '          </main>\n' +
-    '          <footer class="footer">\n' +
-    '            <div class="footer-inner">\n' +
-    '              <p>Built with Astro and GitHub Pages.</p>\n' +
-    '            </div>\n' +
-    '          </footer>\n' +
-    '        </div>\n' +
-    '      </>\n' +
-    '    ) : (\n' +
-    '      <main class="immersive-content"><slot /></main>\n' +
-    '    )}\n' +
-    '  </body>\n' +
-    '</html>\n'
-  
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:97:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1382:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
-      at Test.postRun (node:internal/test_runner/test:1522:19)
-      at Test.run (node:internal/test_runner/test:1447:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: '---\ninterface Props {\n  title?: string;\n  description?: string;\n  showTime?: boolean;\n  layoutMode?: \'standard\' | \'immersive\';\n  bannerTitle?: string;\n  bannerSubtitle?: string;\n}\n\nconst normalizedPath = Astro.url.pathname.replace(/\\/+$/, \'\');\nconst defaultLayoutMode: \'standard\' | \'immersive\' =\n  normalizedPath === \'/player\' ? \'immersive\' : \'standard\';\n\nconst {\n  title = \'搁浅 的小窝\',\n  description = \'一个使用 Astro 和 GitHub Pages 搭建的个人博客。\',\n  showTime = false,\n  layoutMode = defaultLayoutMode,\n  bannerTitle,\n  bannerSubtitle,\n} = Astro.props;\n\nconst isStandard = layoutMode === \'standard\';\nconst resolvedBannerTitle = bannerTitle ?? title.split(\'|\')[0].trim();\nconst resolvedBannerSubtitle = bannerSubtitle ?? description;\n\nimport \'../styles/global.css\';\nimport \'../styles/firefly-refresh.css\';\nimport \'../styles/immersive-nav.css\';\nimport ClockDisplay from \'../components/ClockDisplay.astro\';\nimport BlogBanner from \'../components/BlogBanner.astro\';\nimport SiteHeader from \'../components/SiteHeader.astro\';\nimport FloatingControls from \'../components/FloatingControls.astro\';\nimport { ClientRouter } from \'astro:transitions\';\nimport SekaiPlayer from \'../components/SekaiPlayer.astro\';\nimport HeroSlideshow from \'../components/HeroSlideshow.astro\';\nimport SekaiParticles from \'../components/SekaiParticles.astro\';\n\nconst siteBase = Astro.site ?? new URL(\'https://lidure22.xyz\');\nconst canonicalUrl = new URL(Astro.url.pathname, siteBase);\nconst socialImageUrl = new URL(\'/site-icon-512.png\', siteBase);\n---\n<!doctype html>\n<html lang="zh-CN">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n    <meta name="referrer" content="same-origin" />\n    <meta name="description" content={description} />\n    <meta name="generator" content={Astro.generator} />\n    <link rel="canonical" href={canonicalUrl} />\n    <meta property="og:type" content="website" />\n    <meta property="og:title" content={title} />\n    <meta property="og:description" content={description} />\n    <meta property="og:url" content={canonicalUrl} />\n    <meta property="og:image" content={socialImageUrl} />\n    <title>{title}</title>\n    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />\n    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />\n    <link rel="preconnect" href="https://fonts.googleapis.com" />\n    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" />\n    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'" />\n    <noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" /></noscript>\n    <ClientRouter />\n    <script is:inline>\n    (function() {\n      var theme = \'dark\';\n      try { theme = localStorage.getItem(\'theme\') || \'dark\'; } catch(e) {}\n      document.documentElement.setAttribute(\'data-theme\', theme);\n    })();\n    (function() {\n      try {\n        var s = localStorage.getItem(\'hero_settings\');\n        if (s && JSON.parse(s).enabled === false) {\n          document.documentElement.classList.add(\'no-hero-bg\');\n        }\n      } catch(e) {}\n    })();\n    (function() {\n      if (window.__pageMediaSwapCleanupBound) return;\n      window.__pageMediaSwapCleanupBound = true;\n\n      var pageMediaSelector = \'video[data-page-media], audio[data-page-media]\';\n\n      document.addEventListener(\'astro:before-swap\', function() {\n        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n          if (media.matches(\':not([data-persistent-media])\') === false) return;\n          try { media.pause(); } catch(e) {}\n          media.removeAttribute(\'src\');\n          media.querySelectorAll(\'source\').forEach(function(source) {\n            source.removeAttribute(\'src\');\n          });\n          try { media.load(); } catch(e) {}\n        });\n      });\n    })();\n    (function() {\n      if (window.__busuanziLifecycleBound) return;\n      window.__busuanziLifecycleBound = true;\n      var busuanziRequestUrl = \'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback\';\n\n      function applyBusuanzi(data) {\n        var values = data || {};\n        var pv = document.getElementById(\'busuanzi_value_site_pv\');\n        var uv = document.getElementById(\'busuanzi_value_site_uv\');\n        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n      }\n\n      function refreshBusuanzi() {\n        if (!document.getElementById(\'busuanzi_value_site_pv\')) return;\n        if (window.bszCaller && typeof window.bszCaller.fetch === \'function\') {\n          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n          return;\n        }\n        var script = document.getElementById(\'busuanzi-counter-script\');\n        if (!script) {\n          script = document.createElement(\'script\');\n          script.id = \'busuanzi-counter-script\';\n          script.async = true;\n          script.src = \'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js\';\n          document.head.appendChild(script);\n        }\n        script.addEventListener(\'load\', refreshBusuanzi, { once: true });\n      }\n      document.addEventListener(\'astro:page-load\', refreshBusuanzi);\n      refreshBusuanzi();\n    })();\n    </script>\n    <script>\n      import { installHeroVideoLoopGuard } from \'../lib/hero-video-loop-guard.mjs\';\n      installHeroVideoLoopGuard();\n    </script>\n  </head>\n  <body class={`layout-${layoutMode}`}>\n    <HeroSlideshow />\n    <SekaiParticles />\n    <SekaiPlayer />\n    <SiteHeader currentPath={Astro.url.pathname} />\n    <FloatingControls />\n\n    {isStandard ? (\n      <>\n        <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />\n        <div class="standard-page-surface">\n          <main class="content-area standard-content">\n            {showTime && <div class="clock-row"><ClockDisplay /></div>}\n            <slot />\n          </main>\n          <footer class="footer">\n            <div class="footer-inner">\n              <p>Built with Astro and GitHub Pages.</p>\n            </div>\n          </footer>\n        </div>\n      </>\n    ) : (\n      <main class="immersive-content"><slot /></main>\n    )}\n  </body>\n</html>\n',
-    expected: /ImmersiveUiController/,
-    operator: 'match',
-    diff: 'simple'
-  }
-
 test at tests/firefly-ui-refresh.test.mjs:101:1
-✖ homepage exposes left, main, and right regions (0.444003ms)
+✖ homepage exposes left, main, and right regions (2.273724ms)
   AssertionError [ERR_ASSERTION]: The input did not match the regular expression /HomeLeftSidebar/. Input:
   
   '---\n' +
@@ -563,7 +380,7 @@ test at tests/firefly-ui-refresh.test.mjs:101:1
   }
 
 test at tests/firefly-ui-refresh.test.mjs:109:1
-✖ guestbook uses a wide two-column desktop shell (1.829193ms)
+✖ guestbook uses a wide two-column desktop shell (3.934452ms)
   AssertionError [ERR_ASSERTION]: The input did not match the regular expression /messages-layout/. Input:
   
   '---\n' +
