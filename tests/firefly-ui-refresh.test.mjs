@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const readSource = (path) =>
-  readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-
+const sourceUrl = (path) => new URL(`../${path}`, import.meta.url);
+const sourceExists = (path) => existsSync(sourceUrl(path));
+const readSource = (path) => readFileSync(sourceUrl(path), 'utf8');
 const readBuilt = (path) =>
   readFileSync(new URL(`../dist/${path}`, import.meta.url), 'utf8');
 
@@ -47,15 +47,45 @@ test('site header replaces its global scroll listener after Astro navigation', (
   assert.match(header, /addEventListener\(['"]scroll['"]/);
 });
 
-test('home uses dedicated profile and post-card components', () => {
-  const home = readSource('src/pages/index.astro');
-  assert.match(home, /HomeProfileSidebar/);
-  assert.match(home, /HomePostCard/);
-  assert.doesNotMatch(home, /Sweet Blog Corner|floating-shape-a|class="link-grid"/);
+test('shared shell mounts navigation and floating controls for both modes', () => {
+  const layout = readSource('src/layouts/BaseLayout.astro');
+  assert.match(layout, /<SiteHeader\s+currentPath=/);
+  assert.match(layout, /<FloatingControls\s*\/?>/);
+  assert.doesNotMatch(layout, /isStandard\s*\?\s*\([\s\S]*?<SiteHeader/);
 });
 
-test('built immersive page has no standard banner shell', () => {
+test('immersive hide state uses current shell selectors', () => {
+  const player = readSource('src/pages/player.astro');
+  assert.doesNotMatch(player, /querySelector\(['"]\.topbar['"]\)/);
+  assert.match(player, /querySelector\(['"]\.site-header['"]\)/);
+  assert.match(player, /querySelector\(['"]\.site-floating-controls['"]\)/);
+});
+
+test('homepage exposes left, main, and right regions', () => {
+  const home = readSource('src/pages/index.astro');
+  assert.match(home, /HomeLeftSidebar/);
+  assert.match(home, /home-main-column/);
+  assert.match(home, /HomeRightSidebar/);
+  assert.match(home, /HomePostCard/);
+});
+
+test('guestbook uses a wide two-column desktop shell', () => {
+  const messages = readSource('src/pages/messages.astro');
+  assert.match(messages, /messages-layout/);
+  assert.match(messages, /messages-composer-column/);
+  assert.match(messages, /messages-stream-column/);
+  assert.doesNotMatch(messages, /max-width:\s*760px/);
+});
+
+test('built immersive page keeps core controls without standard chrome', () => {
   const html = readBuilt('player/index.html');
   assert.match(html, /layout-immersive/);
+  assert.match(html, /class="site-header"/);
+  assert.match(html, /id="sekaiPlayerBtn"/);
+  assert.match(html, /id="hero-settings-btn"/);
+  assert.match(html, /class="site-floating-controls"/);
   assert.doesNotMatch(html, /class="blog-banner"/);
+  assert.doesNotMatch(html, /class="footer"/);
 });
+
+export { sourceExists };
