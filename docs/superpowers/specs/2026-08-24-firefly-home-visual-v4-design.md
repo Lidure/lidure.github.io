@@ -73,7 +73,7 @@ Use this order:
 2. Recent Messages
 3. Music
 4. Site statistics
-5. Optional small notice if space remains useful
+5. Existing small notice may remain after statistics if it still fits cleanly; it is not a v4 focus.
 
 The right sidebar should feel like a "site activity" rail rather than a stack of unrelated colorful widgets.
 
@@ -87,11 +87,13 @@ The implementation must be original but follow this visual strategy:
 
 - render an immediate static SVG first frame in HTML so the content boundary is visible before JavaScript starts;
 - hand over to Canvas 2D animation after initialization;
+- keep the SVG visible until the Canvas has rendered its first valid frame, then hide the SVG without a visible jump;
 - keep four wave layers with different vertical offsets, opacity, and movement durations;
-- the wave fill color should match the effective page/content background so the content visually "flows upward" over the wallpaper;
+- the wave fill color should match the effective page/content surface so the content visually "flows upward" over the wallpaper;
+- in fullscreen-home mode, match the effective first content-surface color/alpha rather than forcing an opaque unrelated page color;
 - movement should be slow and soft, not ocean-surf or high-amplitude sine waves.
 
-Recommended default layer motion should be in the same general cadence as Firefly (roughly 8–11 second differentiated cycles) without copying its exact renderer.
+Recommended default layer motion should use four differentiated slow cycles in the same general cadence as Firefly (roughly 8–12 seconds), but not duplicate Firefly's renderer/constants exactly.
 
 ### 4.2 Where waves display
 
@@ -221,7 +223,7 @@ Make media management visually separate from switches:
 - URL entry
 - background library card with media count and chevron
 
-The existing media upload/library/preview business logic remains owned by the existing media/slideshow subsystem.
+The existing media upload/library/preview business logic remains owned by the existing media/slideshow subsystem. Existing critical media-control IDs/interfaces should be retained where practical so the redesign does not rewrite media business logic merely for appearance.
 
 ### 5.5 Effects tab
 
@@ -302,9 +304,14 @@ pinned?: boolean;
 pinnedAt?: number;
 ```
 
-D1 persistence must store the pin state server-side.
+D1 persistence uses non-destructive columns conceptually equivalent to:
 
-Use a migration that adds the required pin columns without destructive table recreation.
+```sql
+pinned INTEGER NOT NULL DEFAULT 0,
+pinned_at INTEGER NULL
+```
+
+`pinned_at` stores epoch milliseconds so it maps directly to the frontend `pinnedAt: number` contract.
 
 ### 6.2 Maximum of three pins
 
@@ -312,34 +319,58 @@ The backend is authoritative.
 
 Pin operation algorithm:
 
-1. If the target is already pinned, do nothing or refresh `pinnedAt` only if the API contract explicitly chooses that behavior. Preferred behavior: no-op.
+1. If the target is already pinned, the operation is a no-op and MUST preserve its existing `pinnedAt`; repeatedly clicking pin must not reorder pinned items.
 2. Count currently pinned Moments.
-3. If fewer than three are pinned, pin the target with current pin timestamp.
+3. If fewer than three are pinned, pin the target with the current epoch-millisecond pin timestamp.
 4. If three are already pinned, find the item with the oldest `pinnedAt`, unpin it, then pin the new target.
-5. Perform the displacement and new pin in one database batch/transaction-equivalent sequence to avoid temporary four-pin state.
+5. Perform the displacement and new pin together using D1 batch/transaction-equivalent semantics so a successful request never leaves four pinned rows.
 
-Unpin simply clears `pinned` and `pinnedAt`.
+Unpin clears `pinned` to false/0 and `pinnedAt`/`pinned_at` to null.
 
 ### 6.3 API
 
-Add an authenticated admin mutation for pin/unpin using the existing Moments auth/session mechanism.
+Add one dedicated authenticated admin mutation:
 
-The exact route can follow the repository's current routing convention, but the client API should expose a dedicated function such as:
+```http
+PATCH /api/moments/:id/pin
+Content-Type: application/json
+Cookie: existing admin session
+
+{ "pinned": true }
+```
+
+Unpin uses the same route with `{ "pinned": false }`.
+
+The route must reuse the existing Moments session/auth requirement.
+
+Frontend client API exposes:
 
 ```ts
 setMomentPinned(momentId, pinned)
 ```
 
+The response returns the updated target item and, when a fourth pin displaced an older pin, enough updated state for the frontend to refresh deterministically. A simple `{ item, displacedId? }` contract is acceptable.
+
 Do not encode pinning as a local-only preference.
 
-### 6.4 Sorting
+### 6.4 Sorting and pagination
 
-All Moments list consumers use this display order:
+Public list behavior is explicitly defined so pins do not break the existing cursor model.
 
-1. pinned Moments first, ordered by `pinnedAt DESC`;
-2. normal Moments after them, ordered by the existing date/id descending behavior.
+First request with no cursor:
 
-Pagination must not duplicate or omit items because of pin ordering. Implementation planning must explicitly account for cursor semantics if the backend list query itself becomes pin-aware.
+1. fetch up to three pinned Moments ordered by `pinned_at DESC`;
+2. fetch unpinned Moments ordered by existing `date DESC, id DESC`;
+3. return pinned items first and fill the remaining requested `limit` with unpinned items;
+4. total returned item count MUST NOT exceed `limit`.
+
+Subsequent requests with a cursor:
+
+- cursor pagination applies only to `pinned = 0` rows;
+- pinned rows are excluded from all cursor pages;
+- keep the existing date/id cursor semantics for the unpinned stream.
+
+This prevents pinned rows from appearing again on page 2 and avoids changing the cursor format solely for pinning.
 
 ### 6.5 UI
 
@@ -351,9 +382,10 @@ Full Moments page:
 
 Homepage Recent Moments:
 
-- prioritizes pinned content;
-- total visible capacity stays limited so pinned content cannot make the widget excessively tall;
-- fill remaining slots with latest unpinned content.
+- keep the existing maximum capacity of three entries;
+- pinned items occupy the first slots in pin order;
+- fill any remaining slots with the latest unpinned items;
+- if three items are pinned, the homepage widget shows those three pinned items and does not expand beyond its current height.
 
 ## 7. Homepage article cards
 
@@ -367,16 +399,16 @@ For posts with a cover:
 - inset cover: about 32–34%;
 - cover has its own rounded corners and margin from card edges;
 - card title remains the dominant text element;
-- metadata sits below title;
-- description clamps to about two lines;
-- bottom can show compact tags and/or reading-time information without becoming dense.
+- metadata directly below title shows published date plus a restrained subset of category/tags available in the current blog model;
+- description clamps to two lines;
+- bottom metadata may show compact reading time and remaining tag information, but should not duplicate the same label in two places.
 
 Hover:
 
 - card rises only slightly;
 - cover scales about 1.04–1.06;
 - cover receives a subtle dark overlay;
-- a restrained enter/chevron indicator may appear over the cover;
+- a restrained enter/chevron indicator appears over the cover;
 - no heavy glow.
 
 Cover selection priority remains exactly the v3 behavior:
@@ -398,7 +430,7 @@ Use a text-first card with a subtle enter area/chevron so the right side does no
 Below the existing mobile breakpoint:
 
 - image moves above copy;
-- use a wide cover ratio (around 16:9 or similar);
+- use a wide cover ratio around 16:9;
 - title/metadata/description/tags flow below;
 - avoid squeezed desktop side-by-side layout.
 
@@ -423,7 +455,12 @@ On desktop pointer hover or keyboard focus within the cover control:
 - fade/scale the central play/pause control in;
 - keep the control fully keyboard accessible.
 
-Mobile must not depend on hover. Provide a touch-accessible equivalent, such as a low-opacity persistent control or tap-to-reveal behavior, while keeping the layout clean.
+On coarse-pointer/mobile devices:
+
+- do not rely on hover or tap-to-reveal state;
+- keep the central play/pause control persistently visible at restrained opacity;
+- tapping the control toggles playback;
+- tapping the non-control cover area keeps the existing open-full-player behavior.
 
 ### 8.3 Playing visual
 
@@ -465,7 +502,7 @@ Do not show on homepage:
 - delete/admin controls;
 - full message composer.
 
-Clicking the preview or footer should lead to `/messages`.
+Each message preview and the widget footer both link to `/messages`.
 
 Loading/error states should be quiet and should not collapse the entire sidebar.
 
@@ -484,11 +521,11 @@ Approved links:
 
 Behavior:
 
-- external links open safely in a new tab/window where appropriate;
-- icon buttons use Firefly-like minimal visual language;
+- both are external links and open safely with appropriate `target`/`rel` handling;
+- icon buttons use Firefly-like minimal visual language, but use original/local icon markup rather than copied Firefly assets;
 - neutral at rest;
 - subtle brand/theme feedback on hover/focus;
-- tooltip or accessible name identifies the service;
+- tooltip and accessible name identify the service;
 - do not display the QQ number as persistent text.
 
 ## 11. Visual language across v4
@@ -543,7 +580,8 @@ Moments API/backend likely touches:
 
 - `src/lib/moments-api.ts`
 - `danmaku-api/src/moments.ts`
-- worker/router entry handling Moments admin mutations
+- `danmaku-api/src/index.ts`
+- generated/deployed Worker counterpart if the repository requires it
 - D1 migration files
 - API tests
 
@@ -554,7 +592,7 @@ Tests likely touch/add:
 - article card structural tests
 - music hover/playing-state tests
 - Recent Messages widget tests
-- Moments pinning backend tests, including fourth-pin displacement
+- Moments pinning backend tests, including fourth-pin displacement, pinned no-op, and cursor behavior
 - responsive/accessibility structural tests
 
 ## 14. Acceptance criteria
@@ -565,16 +603,17 @@ Tests likely touch/add:
 4. Settings panel is visually redesigned with neutral grouped surfaces and no competing multi-color control groups.
 5. Mobile settings behaves as a bottom sheet and remains usable at 390px width.
 6. Up to three Moments can be pinned server-side.
-7. Pinning a fourth Moment automatically unpins the oldest pinned Moment.
-8. Homepage Recent Moments prioritizes pinned items without becoming excessively tall.
-9. Homepage article cards use inset covers on desktop and top covers on mobile; cover fallback order remains intact.
-10. Music play/pause overlay is hidden at desktop rest and appears on cover hover/focus; playing state produces a restrained animated multicolor ring.
-11. Reduced motion freezes the music ring and water waves without removing essential visual boundaries or controls.
-12. Homepage right sidebar shows the latest three public guestbook messages and links to `/messages`.
-13. Profile card shows GitHub and QQ icon links; QQ uses exactly `https://qm.qq.com/q/ujOhar9jQQ`.
-14. Existing wallpaper media library/upload/slideshow, Sakura, guestbook page, comments, reactions, and SEKAI player behavior do not regress.
-15. Full test suite, Astro check, static build, and targeted backend tests pass before merge.
-16. Final manual/browser QA should cover at minimum 390px, ~768px, and desktop ~1440px layouts if a browser-capable execution environment is available.
+7. Pinning a fourth Moment atomically/effectively unpins the oldest pinned Moment; re-pinning an already pinned item is a no-op and does not change order.
+8. First-page Moment list returns pinned-first within the requested limit, while cursor pages contain only unpinned rows with no duplicate pins.
+9. Homepage Recent Moments remains capped at three entries and prioritizes pinned items.
+10. Homepage article cards use inset covers on desktop and top covers on mobile; cover fallback order remains intact.
+11. Music play/pause overlay is hidden at desktop rest and appears on cover hover/focus; mobile keeps a restrained persistent control; playing state produces a restrained animated multicolor ring.
+12. Reduced motion freezes the music ring and water waves without removing essential visual boundaries or controls.
+13. Homepage right sidebar shows the latest three public guestbook messages and links to `/messages`.
+14. Profile card shows GitHub and QQ icon links; QQ uses exactly `https://qm.qq.com/q/ujOhar9jQQ`.
+15. Existing wallpaper media library/upload/slideshow, Sakura, guestbook page, comments, reactions, and SEKAI player behavior do not regress.
+16. Full frontend test suite, Astro check, static build, and targeted backend Moments tests pass before merge.
+17. Final manual/browser QA should cover at minimum 390px, ~768px, and desktop ~1440px layouts if a browser-capable execution environment is available.
 
 ## 15. Delivery / merge policy
 
