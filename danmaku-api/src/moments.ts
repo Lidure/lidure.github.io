@@ -177,7 +177,7 @@ export async function listMoments(
     where: "pinned = 1",
     args: [],
     orderBy: "pinned_at DESC, id DESC",
-    limit: Math.min(3, normalizedLimit) + 1,
+    limit: 3,
   });
   const pinnedItems = pinnedCandidates
     .filter((item) => item.pinned === true)
