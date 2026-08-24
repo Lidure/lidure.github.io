@@ -35,3 +35,17 @@ test('fullscreen cards use wallpaper-aware opacity and theme hue affects the pri
   assert.match(css, /data-card-border="false"/);
   assert.match(css, /data-card-follow-theme="true"/);
 });
+
+test('homepage music widget uses the approved large-cover composition', () => {
+  const music = readSource('src/components/MusicStatusWidget.astro');
+  assert.match(music, /class="music-status-art"/);
+  assert.match(music, /class="music-status-cover-open"/);
+  assert.match(music, /class="music-status-play-overlay/);
+  assert.match(music, /class="music-status-track-title"/);
+  assert.match(music, /id="home-music-prev"/);
+  assert.match(music, /id="home-music-play-pause"/);
+  assert.match(music, /id="home-music-next"/);
+  assert.match(music, /aspect-ratio:\s*1/);
+  assert.match(music, /border-radius:\s*22px/);
+  assert.match(music, /window\.__sekaiOpenPlayer\s*\?\.\(\)/);
+});
