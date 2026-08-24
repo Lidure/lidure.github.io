@@ -56,3 +56,17 @@ test('v4 moments expose authenticated pin controls and preserve server pin order
   assert.match(pins, /await fetchMoments/);
   assert.match(layout, /<MomentsPinControls\s*\/>/);
 });
+
+test('v4 music card reveals play control on fine-pointer hover and flows color while playing', () => {
+  const music = readSource('src/components/MusicStatusWidget.astro');
+
+  assert.match(music, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)/);
+  assert.match(music, /\.music-status-play-overlay\s*\{[\s\S]*?opacity:\s*0/);
+  assert.match(music, /\.music-status-art:hover\s+\.music-status-play-overlay/);
+  assert.match(music, /\.music-status-art:focus-within\s+\.music-status-play-overlay/);
+  assert.match(music, /\.music-status-widget\.is-playing\s+\.music-status-art::before/);
+  assert.match(music, /conic-gradient/);
+  assert.match(music, /@keyframes\s+music-cover-flow/);
+  assert.match(music, /html\[data-reduce-motion="true"\][\s\S]*?animation:\s*none/);
+  assert.match(music, /root\.classList\.toggle\(['"]is-playing['"]/);
+});
