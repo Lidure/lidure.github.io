@@ -1,0 +1,126 @@
+<script is:inline>
+(function () {
+  var stage = 0;
+
+  function getTargets() {
+    return {
+      stage1: [
+        document.querySelector('.site-header'),
+      ].filter(Boolean),
+      stage2: [
+        document.querySelector('.site-floating-controls'),
+        document.querySelector('.sekai-player-btn'),
+        document.querySelector('#hero-settings-btn'),
+        document.querySelector('#hero-settings-panel'),
+        document.querySelector('#media-panel'),
+        document.querySelector('#media-preview'),
+        document.querySelector('#danmakuComposer'),
+      ].filter(Boolean),
+      stage3: [
+        document.querySelector('.immersive-cover'),
+        document.querySelector('#danmakuStage'),
+        document.querySelector('#immersiveVizCanvas'),
+      ].filter(Boolean),
+    };
+  }
+
+  function setVisibility(elements, visible) {
+    elements.forEach(function (element) {
+      element.style.transition = 'opacity 0.4s';
+      element.style.opacity = visible ? '' : '0';
+      element.style.pointerEvents = visible ? '' : 'none';
+    });
+  }
+
+  function syncToggleUi() {
+    var button = document.getElementById('immersiveToggleUI');
+    var switcher = document.getElementById('immersiveVizSwitcher');
+    if (!button) return;
+
+    if (stage === 0) {
+      button.classList.remove('active');
+      button.title = '隐藏界面';
+      if (switcher) {
+        switcher.style.opacity = '';
+        switcher.style.pointerEvents = '';
+      }
+    } else if (stage === 1) {
+      button.classList.add('active');
+      button.title = '继续隐藏';
+      if (switcher) {
+        switcher.style.opacity = '';
+        switcher.style.pointerEvents = '';
+      }
+    } else if (stage === 2) {
+      button.classList.add('active');
+      button.title = '隐藏封面和可视化';
+      if (switcher) {
+        switcher.style.opacity = '0';
+        switcher.style.pointerEvents = 'none';
+      }
+    } else {
+      button.classList.add('active');
+      button.title = '显示界面';
+      if (switcher) {
+        switcher.style.opacity = '0';
+        switcher.style.pointerEvents = 'none';
+      }
+    }
+  }
+
+  function applyStage() {
+    var targets = getTargets();
+
+    if (stage === 0) {
+      setVisibility(targets.stage1, true);
+      setVisibility(targets.stage2, true);
+      setVisibility(targets.stage3, true);
+    } else if (stage === 1) {
+      setVisibility(targets.stage1, false);
+      setVisibility(targets.stage2, true);
+      setVisibility(targets.stage3, true);
+    } else if (stage === 2) {
+      setVisibility(targets.stage1, false);
+      setVisibility(targets.stage2, false);
+      setVisibility(targets.stage3, true);
+    } else {
+      setVisibility(targets.stage1, false);
+      setVisibility(targets.stage2, false);
+      setVisibility(targets.stage3, false);
+    }
+
+    syncToggleUi();
+  }
+
+  function resetUi() {
+    stage = 0;
+    var targets = getTargets();
+    setVisibility(targets.stage1, true);
+    setVisibility(targets.stage2, true);
+    setVisibility(targets.stage3, true);
+    syncToggleUi();
+  }
+
+  function interceptToggle(event) {
+    var target = event.target;
+    var button = target && target.closest ? target.closest('#immersiveToggleUI') : null;
+    if (!button) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    stage = (stage + 1) % 4;
+    applyStage();
+  }
+
+  if (!window.__immersiveUiControllerBound) {
+    window.__immersiveUiControllerBound = true;
+    document.addEventListener('click', interceptToggle, true);
+    document.addEventListener('astro:before-swap', resetUi);
+    document.addEventListener('astro:page-load', function () {
+      if (document.body.classList.contains('layout-immersive')) resetUi();
+    });
+  }
+
+  resetUi();
+})();
+</script>
