@@ -2,15 +2,22 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import HomePostCard from '../components/HomePostCard.astro';
-import HomeProfileSidebar from '../components/HomeProfileSidebar.astro';
-import VisitorCounter from '../components/VisitorCounter.astro';
+import HomeLeftSidebar from '../components/HomeLeftSidebar.astro';
+import HomeRightSidebar from '../components/HomeRightSidebar.astro';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
 const featuredPost = posts.find((post) => post.data.featured) ?? posts[0];
-const latestPosts = posts.slice(0, 5);
-const tagCount = new Set(posts.flatMap((post) => post.data.tags)).size;
+const latestPosts = posts.slice(0, 6);
+const tagCounts = new Map<string, number>();
+posts.forEach((post) => {
+  post.data.tags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1));
+});
+const topTags = [...tagCounts.entries()]
+  .map(([tag, count]) => ({ tag, count }))
+  .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, 'zh-CN'));
+const tagCount = tagCounts.size;
 const featuredHref = featuredPost
   ? `/posts/${featuredPost.id.replace(/\.md$/, '')}`
   : '/posts';
@@ -23,10 +30,37 @@ const featuredHref = featuredPost
   bannerSubtitle="把喜欢的东西，认真地收进小站里。"
   showTime={true}
 >
+  <nav class="home-category-bar" aria-label="首页内容导航">
+    <a class="is-featured" href={featuredHref}>✦ 精选</a>
+    <a href="#latest-posts-title">最新</a>
+    <a href="/tags">标签</a>
+    <a href="/moments">碎碎念</a>
+    <a href="/messages">留言</a>
+  </nav>
+
   <div class="home-layout">
+    <HomeLeftSidebar
+      postCount={posts.length}
+      tagCount={tagCount}
+      featuredHref={featuredHref}
+      topTags={topTags}
+    />
+
     <section class="home-main-column" aria-labelledby="latest-posts-title">
+      {featuredPost && (
+        <a class="home-featured-card" href={featuredHref}>
+          <span class="home-featured-label">FEATURED · 精选</span>
+          <strong>{featuredPost.data.title}</strong>
+          <p>{featuredPost.data.description}</p>
+          <span class="home-featured-link">阅读全文 →</span>
+        </a>
+      )}
+
       <header class="home-section-header">
-        <h2 id="latest-posts-title">最新文章</h2>
+        <div>
+          <span class="home-section-kicker">RECENT POSTS</span>
+          <h2 id="latest-posts-title">最新文章</h2>
+        </div>
         <a href="/posts">全部文章 →</a>
       </header>
       <div class="home-post-list">
@@ -34,15 +68,6 @@ const featuredHref = featuredPost
       </div>
     </section>
 
-    <HomeProfileSidebar
-      postCount={posts.length}
-      tagCount={tagCount}
-      featuredHref={featuredHref}
-    />
-  </div>
-
-  <div class="home-footer-stats">
-    <span class="sekai-note">🎶 NO SONG CAN SET ME FREE · project SEKAI</span>
-    <VisitorCounter />
+    <HomeRightSidebar topTags={topTags} postCount={posts.length} tagCount={tagCount} />
   </div>
 </BaseLayout>
