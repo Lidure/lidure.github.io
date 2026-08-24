@@ -4,7 +4,7 @@
 
 **Goal:** Deliver the approved Firefly-inspired v4 homepage and visual refresh: layered water-wave banner transitions, a redesigned visual settings center, server-side pinned Moments, refined post/music cards, recent guestbook previews, and profile social icons.
 
-**Architecture:** Keep v3's existing Astro layout, `hero_settings` storage, slideshow/media library, Sakura renderer, and SEKAI player as the foundation. Add waves as a small self-contained visual subsystem driven by normalized visual settings, extend Moments pinning through the existing Cloudflare Worker + D1 backend, and keep homepage activity widgets as thin clients over the existing public APIs. Implement each concern behind stable interfaces so the settings panel and homepage components do not duplicate business logic.
+**Architecture:** Keep v3's Astro layout, `hero_settings` storage, slideshow/media library, Sakura renderer, and SEKAI player as the foundation. Add waves as a small self-contained visual subsystem driven by normalized visual settings, extend Moments pinning through the existing Cloudflare Worker + D1 backend, and keep homepage activity widgets as thin clients over existing public APIs. Each task ends with its own RED → GREEN cycle and commit.
 
 **Tech Stack:** Astro 6, TypeScript/JavaScript ES modules, Node built-in test runner, Canvas 2D + SVG, Cloudflare Workers, D1, Vitest, existing CSS architecture.
 
@@ -32,36 +32,35 @@
 ## File / Responsibility Map
 
 ### Visual settings and waves
-- `src/lib/visual-settings.mjs` — normalize/read/write/apply v3 visual settings and root datasets/CSS variables.
-- `src/lib/banner-waves.mjs` — pure wave presets/constants used by the browser renderer and unit tests.
+- `src/lib/visual-settings.mjs` — normalize/read/write/apply v3 visual settings and root datasets.
+- `src/lib/banner-waves.mjs` — pure wave presets/constants.
 - `src/components/BannerWaves.astro` — static SVG first frame, Canvas runtime, lifecycle, reduced-motion handling.
-- `src/layouts/BaseLayout.astro` — early no-flash visual bootstrap and wave placement relative to standard content.
-- `src/components/VisualSettingsPanel.astro` — redesigned Appearance / Background / Effects settings UI.
-- `src/styles/firefly-refresh.css` and `src/styles/firefly-v2.css` — banner boundary geometry and shared v4 surfaces.
+- `src/layouts/BaseLayout.astro` — no-flash visual bootstrap and wave placement.
+- `src/components/VisualSettingsPanel.astro` — redesigned Appearance / Background / Effects UI.
+- `src/styles/firefly-refresh.css`, `src/styles/firefly-v2.css` — v4 banner/card/activity visual rules.
 
 ### Moments pinning
-- `danmaku-api/migrations/0007_add_moment_pins.sql` — non-destructive D1 pin columns/indexes.
-- `danmaku-api/src/moments.ts` — pin data model, list ordering/pagination, pin mutation.
+- `danmaku-api/migrations/0007_add_moment_pins.sql` — non-destructive D1 pin columns/index.
+- `danmaku-api/src/moments.ts` — pin model, list ordering/pagination, pin mutation.
 - `danmaku-api/src/index.ts` — authenticated `PATCH /api/moments/:id/pin` route.
 - `src/lib/moments-api.ts` — frontend pin fields and `setMomentPinned()` client.
-- `src/pages/moments.astro` — pin marker and admin pin/unpin controls.
-- `src/components/RecentMomentsWidget.astro` — preserve three-entry capacity while prioritizing pinned items.
+- `src/pages/moments.astro` — pin marker and admin controls.
+- `src/components/RecentMomentsWidget.astro` — three-entry pin-priority preview.
 
-### Homepage widgets and cards
-- `src/components/HomeLeftSidebar.astro` — profile social icon row.
-- `src/components/RecentMessagesWidget.astro` — homepage-only public guestbook preview.
+### Homepage widgets/cards
+- `src/components/HomeLeftSidebar.astro` — profile social icons.
+- `src/components/RecentMessagesWidget.astro` — latest three guestbook messages.
 - `src/components/HomeRightSidebar.astro` — activity rail ordering.
-- `src/components/HomePostCard.astro` — Firefly-inspired inset-cover article cards.
-- `src/components/MusicStatusWidget.astro` — hover/focus play control and playing ring.
-- `src/styles/firefly-v2.css` / `src/styles/firefly-refresh.css` — harmonized card/rail responsive visuals.
+- `src/components/HomePostCard.astro` — inset-cover article card.
+- `src/components/MusicStatusWidget.astro` — hover/focus play overlay + playing ring.
 
 ### Tests
-- `tests/visual-settings.test.mjs` — visual settings migration/normalization.
-- `tests/banner-waves.test.mjs` — pure wave preset behavior.
-- `tests/firefly-v4.test.mjs` — static integration/accessibility/responsive contracts for v4 UI.
-- `tests/site-build.test.mjs` — built-output integration where needed.
-- `danmaku-api/tests/moments.test.ts` — pin list/pagination/mutation/route behavior.
-- `package.json` — register new frontend test files in `test:site`.
+- `tests/visual-settings.test.mjs`
+- `tests/banner-waves.test.mjs`
+- `tests/firefly-v4.test.mjs`
+- `tests/site-build.test.mjs`
+- `danmaku-api/tests/moments.test.ts`
+- `package.json`
 
 ---
 
@@ -69,34 +68,27 @@
 
 **Files:**
 - Modify: `src/lib/visual-settings.mjs`
-- Modify: `src/layouts/BaseLayout.astro` (early inline bootstrap and root datasets)
+- Modify: `src/layouts/BaseLayout.astro` (early inline visual bootstrap)
 - Modify: `tests/visual-settings.test.mjs`
 - Create: `tests/firefly-v4.test.mjs`
 - Modify: `package.json`
 
 **Interfaces:**
-- Consumes: existing `VISUAL_SETTINGS_KEY`, `normalizeVisualSettings`, `readVisualSettings`, `applyVisualSettingsToDocument`, `writeVisualSettings`.
-- Produces: normalized settings with `version`, `waveEnabled`, `waveStrength`, `waveSpeed`, `waveMobile`; root datasets `data-wave-enabled`, `data-wave-strength`, `data-wave-speed`, `data-wave-mobile`.
+- Consumes: `VISUAL_SETTINGS_KEY`, `normalizeVisualSettings`, `readVisualSettings`, `applyVisualSettingsToDocument`, `writeVisualSettings`.
+- Produces: `version: 3`, `waveEnabled`, `waveStrength`, `waveSpeed`, `waveMobile`, plus root datasets `waveEnabled`, `waveStrength`, `waveSpeed`, `waveMobile`.
 
-- [ ] **Step 1: Add failing normalization/migration tests**
+- [ ] **Step 1: Write failing v3 normalization tests**
 
-Append tests equivalent to:
+Append to `tests/visual-settings.test.mjs`:
 
 ```js
-import {
-  DEFAULT_VISUAL_SETTINGS,
-  normalizeVisualSettings,
-  applyVisualSettingsToDocument,
-} from '../src/lib/visual-settings.mjs';
-
-test('v3 visual defaults include wave controls without dropping legacy keys', () => {
+test('v3 visual defaults add waves while preserving unknown legacy keys', () => {
   const value = normalizeVisualSettings({
     version: 2,
     images: ['legacy-image'],
     waveStrength: 'invalid',
     waveSpeed: 'invalid',
   });
-
   assert.equal(DEFAULT_VISUAL_SETTINGS.version, 3);
   assert.equal(value.version, 3);
   assert.equal(value.waveEnabled, true);
@@ -106,10 +98,10 @@ test('v3 visual defaults include wave controls without dropping legacy keys', ()
   assert.deepEqual(value.images, ['legacy-image']);
 });
 
-test('v3 visual settings apply wave datasets to the document root', () => {
-  const attrs = {};
+test('v3 applies wave datasets to the root element', () => {
+  const dataset = {};
   const root = {
-    dataset: attrs,
+    dataset,
     classList: { toggle() {} },
     style: { setProperty() {} },
   };
@@ -119,54 +111,49 @@ test('v3 visual settings apply wave datasets to the document root', () => {
     waveSpeed: 'fast',
     waveMobile: false,
   }, { documentElement: root });
-
-  assert.equal(attrs.waveEnabled, 'false');
-  assert.equal(attrs.waveStrength, 'strong');
-  assert.equal(attrs.waveSpeed, 'fast');
-  assert.equal(attrs.waveMobile, 'false');
+  assert.equal(dataset.waveEnabled, 'false');
+  assert.equal(dataset.waveStrength, 'strong');
+  assert.equal(dataset.waveSpeed, 'fast');
+  assert.equal(dataset.waveMobile, 'false');
 });
 ```
 
-- [ ] **Step 2: Run the focused test and confirm RED**
-
-Run:
+- [ ] **Step 2: Run the focused test and verify RED**
 
 ```bash
 node --test tests/visual-settings.test.mjs
 ```
 
-Expected: FAIL because current defaults are version 2 and wave fields/datasets do not exist.
+Expected: FAIL because current normalized storage is version 2 and has no wave fields.
 
-- [ ] **Step 3: Implement minimal v3 settings normalization**
+- [ ] **Step 3: Implement v3 defaults and normalization**
 
-Update defaults and normalization with exactly these new fields:
+In `src/lib/visual-settings.mjs` add exactly:
 
 ```js
-export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
-  version: 3,
-  // existing keys unchanged...
-  waveEnabled: true,
-  waveStrength: 'standard',
-  waveSpeed: 'normal',
-  waveMobile: true,
-});
+waveEnabled: true,
+waveStrength: 'standard',
+waveSpeed: 'normal',
+waveMobile: true,
+```
 
+Set `version: 3`. Normalize using:
+
+```js
 const WAVE_STRENGTHS = ['soft', 'standard', 'strong'];
 const WAVE_SPEEDS = ['slow', 'normal', 'fast'];
 
-// in normalizeVisualSettings return:
-version: 3,
 waveEnabled: merged.waveEnabled !== false,
-waveStrength: WAVE_STRENGTHS.includes(merged.waveStrength)
-  ? merged.waveStrength
-  : 'standard',
-waveSpeed: WAVE_SPEEDS.includes(merged.waveSpeed)
-  ? merged.waveSpeed
-  : 'normal',
+waveStrength: WAVE_STRENGTHS.includes(merged.waveStrength) ? merged.waveStrength : 'standard',
+waveSpeed: WAVE_SPEEDS.includes(merged.waveSpeed) ? merged.waveSpeed : 'normal',
 waveMobile: merged.waveMobile !== false,
 ```
 
-Apply root datasets in `applyVisualSettingsToDocument()`:
+Keep the existing `{ ...merged }` pattern so `images`, `posters`, selection fields, and future unknown keys survive reads/writes.
+
+- [ ] **Step 4: Apply wave root datasets**
+
+Add:
 
 ```js
 root.dataset.waveEnabled = String(normalized.waveEnabled);
@@ -175,39 +162,32 @@ root.dataset.waveSpeed = normalized.waveSpeed;
 root.dataset.waveMobile = String(normalized.waveMobile);
 ```
 
-Preserve the existing `{ ...merged }` return pattern so unknown media-library keys survive normalization.
+- [ ] **Step 5: Mirror critical defaults in BaseLayout's synchronous bootstrap**
 
-- [ ] **Step 4: Mirror critical wave defaults in the no-flash inline bootstrap**
-
-In `BaseLayout.astro`'s early inline `hero_settings` bootstrap, add only synchronous critical attributes:
+Add to the existing inline `hero_settings` read:
 
 ```js
 root.dataset.waveEnabled = String(raw.waveEnabled !== false);
-root.dataset.waveStrength = ['soft', 'standard', 'strong'].includes(raw.waveStrength)
-  ? raw.waveStrength
-  : 'standard';
-root.dataset.waveSpeed = ['slow', 'normal', 'fast'].includes(raw.waveSpeed)
-  ? raw.waveSpeed
-  : 'normal';
+root.dataset.waveStrength = ['soft', 'standard', 'strong'].includes(raw.waveStrength) ? raw.waveStrength : 'standard';
+root.dataset.waveSpeed = ['slow', 'normal', 'fast'].includes(raw.waveSpeed) ? raw.waveSpeed : 'normal';
 root.dataset.waveMobile = String(raw.waveMobile !== false);
 ```
 
-Do not introduce another localStorage read or another storage key.
+Do not add another storage key or second localStorage read.
 
-- [ ] **Step 5: Add v4 source-contract smoke test and register it**
+- [ ] **Step 6: Create initial v4 source-contract test and register it**
 
-Create `tests/firefly-v4.test.mjs` with the initial contract:
+Create `tests/firefly-v4.test.mjs`:
 
 ```js
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-
 const readSource = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('v4 early bootstrap exposes wave settings before hydration', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
-  assert.match(layout, /data(?:set)?\.waveEnabled|dataset\.waveEnabled/);
+  assert.match(layout, /dataset\.waveEnabled/);
   assert.match(layout, /dataset\.waveStrength/);
   assert.match(layout, /dataset\.waveSpeed/);
   assert.match(layout, /dataset\.waveMobile/);
@@ -216,17 +196,13 @@ test('v4 early bootstrap exposes wave settings before hydration', () => {
 
 Add `tests/firefly-v4.test.mjs` to `test:site` in `package.json`.
 
-- [ ] **Step 6: Run focused frontend tests and confirm GREEN**
-
-Run:
+- [ ] **Step 7: Run focused tests and verify GREEN**
 
 ```bash
 node --test tests/visual-settings.test.mjs tests/firefly-v4.test.mjs
 ```
 
-Expected: PASS.
-
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add src/lib/visual-settings.mjs src/layouts/BaseLayout.astro tests/visual-settings.test.mjs tests/firefly-v4.test.mjs package.json
@@ -247,8 +223,8 @@ git commit -m "feat: add v4 wave visual settings"
 - Modify: `package.json`
 
 **Interfaces:**
-- Consumes: root datasets from Task 1 and `lidure:visual-settings-change` events.
-- Produces: `resolveWavePreset(settings)` and a `BannerWaves` component with static SVG + Canvas runtime.
+- Consumes: Task 1 root datasets and `lidure:visual-settings-change`.
+- Produces: `resolveWavePreset(settings)` and a `BannerWaves` component with static SVG + Canvas handoff.
 
 - [ ] **Step 1: Write failing pure preset tests**
 
@@ -272,7 +248,7 @@ test('wave presets map strength and speed to bounded multipliers', () => {
   });
 });
 
-test('unknown wave presets fall back to standard/normal', () => {
+test('invalid wave options fall back to standard normal', () => {
   assert.deepEqual(resolveWavePreset({ waveStrength: 'x', waveSpeed: 'y' }), {
     amplitude: 1,
     alpha: 1,
@@ -281,17 +257,15 @@ test('unknown wave presets fall back to standard/normal', () => {
 });
 ```
 
-- [ ] **Step 2: Run test and confirm RED**
+- [ ] **Step 2: Run and verify RED**
 
 ```bash
 node --test tests/banner-waves.test.mjs
 ```
 
-Expected: FAIL because `src/lib/banner-waves.mjs` does not exist.
+- [ ] **Step 3: Implement pure wave constants**
 
-- [ ] **Step 3: Implement pure wave constants/preset resolver**
-
-Create `src/lib/banner-waves.mjs` with original constants, not copied Firefly source:
+Create `src/lib/banner-waves.mjs`:
 
 ```js
 export const WAVE_LAYERS = Object.freeze([
@@ -300,14 +274,12 @@ export const WAVE_LAYERS = Object.freeze([
   { y: 5, alpha: 0.58, duration: 10.1, phase: 0.51 },
   { y: 7, alpha: 0.72, duration: 11.2, phase: 0.76 },
 ]);
-
 const STRENGTH = {
   soft: { amplitude: 0.72, alpha: 0.72 },
   standard: { amplitude: 1, alpha: 1 },
   strong: { amplitude: 1.22, alpha: 1.12 },
 };
 const SPEED = { slow: 0.72, normal: 1, fast: 1.32 };
-
 export function resolveWavePreset(settings = {}) {
   const strength = STRENGTH[settings.waveStrength] || STRENGTH.standard;
   return {
@@ -318,12 +290,12 @@ export function resolveWavePreset(settings = {}) {
 }
 ```
 
-- [ ] **Step 4: Add failing UI contract for static SVG + Canvas handoff**
+- [ ] **Step 4: Add failing component contract**
 
-Append to `tests/firefly-v4.test.mjs`:
+Append:
 
 ```js
-test('v4 waves render a static first frame and Canvas runtime with reduced-motion fallback', () => {
+test('v4 waves provide static SVG first paint and Canvas runtime', () => {
   const waves = readSource('src/components/BannerWaves.astro');
   const layout = readSource('src/layouts/BaseLayout.astro');
   assert.match(waves, /class="banner-waves-static"/);
@@ -335,77 +307,70 @@ test('v4 waves render a static first frame and Canvas runtime with reduced-motio
 });
 ```
 
-Run:
+Run `node --test tests/firefly-v4.test.mjs` and verify RED.
 
-```bash
-node --test tests/firefly-v4.test.mjs
-```
+- [ ] **Step 5: Implement the static first frame**
 
-Expected: FAIL because the component is not present.
-
-- [ ] **Step 5: Implement `BannerWaves.astro`**
-
-The component must contain:
+Create this original four-layer SVG structure in `BannerWaves.astro`:
 
 ```astro
 <div class="banner-waves" id="banner-waves" aria-hidden="true">
   <svg class="banner-waves-static" viewBox="0 0 160 32" preserveAspectRatio="none">
-    <!-- four original gentle paths/uses filled with currentColor/page background -->
+    <path class="wave-layer wave-layer-1" d="M0 15 C20 7 40 23 60 15 S100 7 120 15 S145 22 160 14 V32 H0 Z" />
+    <path class="wave-layer wave-layer-2" d="M0 18 C24 11 42 25 66 17 S108 10 132 18 S150 21 160 17 V32 H0 Z" />
+    <path class="wave-layer wave-layer-3" d="M0 21 C18 16 38 27 62 20 S104 14 126 21 S148 24 160 20 V32 H0 Z" />
+    <path class="wave-layer wave-layer-4" d="M0 24 C22 20 42 29 68 23 S112 18 136 24 S152 26 160 23 V32 H0 Z" />
   </svg>
   <canvas data-wave-canvas></canvas>
 </div>
 ```
 
-Browser script requirements:
+These paths are intentionally original and only encode the approved layered-wave visual strategy.
+
+- [ ] **Step 6: Implement Canvas runtime and lifecycle**
+
+Use:
 
 ```ts
 import { WAVE_LAYERS, resolveWavePreset } from '../lib/banner-waves.mjs';
 ```
 
-Runtime behavior:
-- read settings through `window.__lidureVisualSettings?.read()` when available, otherwise root datasets;
-- hide the entire component when `waveEnabled === false`;
-- hide on coarse mobile only when `waveMobile === false`;
-- derive fill color using `getComputedStyle(document.documentElement).getPropertyValue('--standard-page-bg')` with `--bg` fallback;
-- size canvas with device-pixel-ratio capped at `2`;
-- draw four filled bezier wave bands with differentiated durations/phases;
-- keep the SVG visible until the first successful Canvas draw, then add `.is-canvas-ready`;
-- if reduced motion is active, stop RAF and keep the static SVG visible;
-- pause RAF while `document.hidden`;
-- clean ResizeObserver/RAF/listeners on `astro:before-swap`.
+Runtime must:
+- read normalized settings from `window.__lidureVisualSettings?.read()` with root-dataset fallback;
+- hide when `waveEnabled === false`;
+- hide on mobile when `waveMobile === false`;
+- get the content fill color from `--standard-page-bg`, then `--bg` fallback;
+- cap device pixel ratio at `2`;
+- draw four filled bezier bands with Task 2 layer phases/durations and preset multipliers;
+- keep static SVG visible until first successful Canvas frame, then add `.is-canvas-ready`;
+- on `reduceMotion` or `prefers-reduced-motion`, cancel RAF and show static SVG;
+- pause when `document.hidden`;
+- listen for `lidure:visual-settings-change` and resize;
+- remove RAF/ResizeObserver/listeners on `astro:before-swap`.
 
-- [ ] **Step 6: Mount waves once in the standard layout boundary**
+- [ ] **Step 7: Mount and style waves**
 
-In `BaseLayout.astro`:
+Import/mount `BannerWaves` between `<BlogBanner />` and `.standard-page-surface` in `BaseLayout.astro`.
 
-```astro
-import BannerWaves from '../components/BannerWaves.astro';
-```
-
-Place it between `<BlogBanner ... />` and `.standard-page-surface`, inside a wrapper whose CSS can anchor it to the hero lower edge. Render only for `isStandard`; CSS handles banner/fullscreen-home visibility and `/player` stays excluded because it is immersive.
-
-- [ ] **Step 7: Add responsive/display CSS**
-
-In `firefly-refresh.css`, implement:
-- banner mode: absolute/overlapping wave at hero bottom;
-- fullscreen homepage: wave at the bottom of the first `100vh` hero;
-- fullscreen non-home: `display:none`;
+In `firefly-refresh.css` implement:
+- banner mode wave anchored to hero lower edge;
+- fullscreen homepage wave anchored to the bottom of first `100vh`;
+- fullscreen non-home `display:none`;
 - desktop height `clamp(72px, 13vh, 150px)`;
 - mobile height `clamp(48px, 9vh, 92px)`;
-- `pointer-events:none`, `overflow:hidden`, and no layout shift;
-- static/canvas crossfade only when motion is allowed.
+- `pointer-events:none`, `overflow:hidden`;
+- no layout shift;
+- static SVG remains visible when motion is reduced.
 
-- [ ] **Step 8: Run wave and v4 tests**
+- [ ] **Step 8: Run tests and register wave test**
+
+Add `tests/banner-waves.test.mjs` to `test:site`, then run:
 
 ```bash
 node --test tests/banner-waves.test.mjs tests/firefly-v4.test.mjs
 ```
 
-Expected: PASS.
-
-- [ ] **Step 9: Register wave test and commit**
-
-Add `tests/banner-waves.test.mjs` to `test:site`, then:
+- [ ] **Step 9: Commit**
 
 ```bash
 git add src/lib/banner-waves.mjs src/components/BannerWaves.astro src/layouts/BaseLayout.astro src/styles/firefly-refresh.css tests/banner-waves.test.mjs tests/firefly-v4.test.mjs package.json
@@ -419,18 +384,15 @@ git commit -m "feat: add layered banner waves"
 **Files:**
 - Modify: `src/components/VisualSettingsPanel.astro`
 - Modify: `tests/firefly-v4.test.mjs`
-- Modify: `tests/site-build.test.mjs` only if built-output selectors need coverage.
 
 **Interfaces:**
-- Consumes: `window.__lidureVisualSettings.read/write`, existing media-control IDs, Task 1 wave keys.
-- Produces: accessible three-tab desktop panel and mobile bottom-sheet UI without changing media business logic.
+- Consumes: `window.__lidureVisualSettings.read/write`, existing media IDs, Task 1 wave keys.
+- Produces: neutral three-tab desktop settings panel and mobile bottom sheet.
 
-- [ ] **Step 1: Add failing settings-panel structure tests**
-
-Append:
+- [ ] **Step 1: Write failing panel structure test**
 
 ```js
-test('v4 settings center groups waves under Background and becomes a mobile bottom sheet', () => {
+test('v4 settings center groups wave controls under Background and uses mobile bottom sheet', () => {
   const panel = readSource('src/components/VisualSettingsPanel.astro');
   assert.match(panel, /id="toggle-wave-enabled"/);
   assert.match(panel, /id="wave-strength-soft"/);
@@ -441,22 +403,15 @@ test('v4 settings center groups waves under Background and becomes a mobile bott
   assert.match(panel, /id="wave-speed-fast"/);
   assert.match(panel, /id="toggle-wave-mobile"/);
   assert.match(panel, /Customize your space/);
-  assert.match(panel, /position:\s*fixed[\s\S]*bottom:/);
-  assert.match(panel, /88dvh|86dvh|84dvh|82dvh/);
+  assert.match(panel, /max-height:\s*86dvh/);
 });
 ```
 
-Run:
+Run `node --test tests/firefly-v4.test.mjs` and verify RED.
 
-```bash
-node --test tests/firefly-v4.test.mjs
-```
+- [ ] **Step 2: Rebuild markup around three neutral groups**
 
-Expected: FAIL because wave controls and bottom-sheet styles do not yet exist.
-
-- [ ] **Step 2: Refactor markup into neutral grouped surfaces**
-
-Keep these existing critical IDs intact:
+Retain these critical IDs exactly:
 
 ```text
 toggle-enabled
@@ -473,18 +428,18 @@ media-manage-btn
 media-count
 ```
 
-Use three tab panels with group cards:
+Use:
 - Appearance: theme hue, card opacity, card border, card-follow-theme.
-- Background / Wallpaper: mode, enabled, autoplay, interval, opacity, fullscreen blur/card opacity.
+- Background / Wallpaper: mode, enabled, autoplay, interval, overlay, fullscreen blur/card opacity.
 - Background / Banner effects: banner gradient/title + wave controls.
 - Background / Media: quality + upload/URL + library.
 - Effects: Sakura + reduce motion.
 
-Add header helper text `Customize your space`.
+Add helper line `Customize your space` under `背景与外观`.
 
-- [ ] **Step 3: Bind wave controls to merge-safe writes**
+- [ ] **Step 3: Bind all wave controls to merge-safe writes**
 
-Use the existing panel helpers and write exact patches:
+Exact patches:
 
 ```js
 write({ waveEnabled: checked });
@@ -497,17 +452,27 @@ write({ waveSpeed: 'normal' });
 write({ waveSpeed: 'fast' });
 ```
 
-Synchronize segmented buttons with `aria-pressed` and current normalized settings. Background-tab reset must restore only Background-owned fields including all four wave keys; it must not touch `images`, `posters`, or media-selection keys.
+Synchronize segmented buttons using `aria-pressed`. Background reset restores only Background-owned fields including all four wave keys and must not remove media/library keys.
 
-- [ ] **Step 4: Replace multi-tone settings styling with one neutral system**
+- [ ] **Step 4: Apply one neutral panel color system**
 
-Desktop:
-- width `min(445px, calc(100vw - 40px))`;
-- neutral translucent shell/card backgrounds;
-- one active theme accent for tabs, checked toggles, slider progress, selected segmented buttons;
-- remove decorative per-group pink/cyan/purple/warm surfaces from the panel.
+Desktop shell:
 
-Mobile `@media (max-width: 720px)`:
+```css
+.hero-settings-panel {
+  width: min(445px, calc(100vw - 40px));
+  background: color-mix(in srgb, var(--panel-bg) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: 22px;
+  backdrop-filter: blur(24px) saturate(1.08);
+}
+```
+
+Use theme hue only for active tabs, checked controls, range progress, and selected segmented options. Remove per-group saturated pink/cyan/purple/warm fills inside the panel.
+
+- [ ] **Step 5: Implement mobile bottom sheet**
+
+At `max-width: 720px`:
 
 ```css
 .hero-settings-panel {
@@ -522,30 +487,22 @@ Mobile `@media (max-width: 720px)`:
 }
 ```
 
-Ensure internal `.settings-body` scrolls and the page itself does not gain horizontal overflow.
+Internal body scrolls; no horizontal overflow at 390px.
 
-- [ ] **Step 5: Preserve accessibility behavior**
+- [ ] **Step 6: Preserve accessibility behavior**
 
-Retain/verify:
-- `role="dialog"`, `aria-labelledby`, settings-button `aria-expanded`;
-- proper tablist/tab/tabpanel roles;
-- ArrowLeft/ArrowRight tab navigation;
-- Escape closes and returns focus;
-- visible `:focus-visible` states;
-- segmented wave options keyboard reachable.
+Keep dialog labels, `aria-expanded`, tab roles, ArrowLeft/ArrowRight navigation, Escape-close focus recovery, and visible `:focus-visible`. Wave segmented options remain normal buttons and keyboard reachable.
 
-- [ ] **Step 6: Run focused tests**
+- [ ] **Step 7: Run compatibility tests**
 
 ```bash
 node --test tests/firefly-v3.test.mjs tests/firefly-v4.test.mjs tests/visual-settings.test.mjs
 ```
 
-Expected: PASS, including all v3 compatibility assertions.
-
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
-git add src/components/VisualSettingsPanel.astro tests/firefly-v4.test.mjs tests/site-build.test.mjs
+git add src/components/VisualSettingsPanel.astro tests/firefly-v4.test.mjs
 git commit -m "feat: redesign visual settings center"
 ```
 
@@ -560,55 +517,53 @@ git commit -m "feat: redesign visual settings center"
 - Modify: `danmaku-api/tests/moments.test.ts`
 
 **Interfaces:**
-- Consumes: existing D1 `moments` table and admin session middleware.
-- Produces: `MomentApiItem.pinned`, `MomentApiItem.pinnedAt`, `setMomentPinned(db, id, pinned, options)`, `PATCH /api/moments/:id/pin`.
+- Consumes: current `moments` table and existing admin session middleware.
+- Produces: optional API fields `pinned?: boolean`, `pinnedAt?: number`; `setMomentPinned()`; `PATCH /api/moments/:id/pin`.
 
-- [ ] **Step 1: Add failing list-model tests for pins**
+- [ ] **Step 1: Write failing list tests for pin-first ordering**
 
-Extend test row fixtures with `pinned` and `pinned_at` and add cases that assert:
+Add fixtures with `pinned`/`pinned_at` and assert:
 
 ```ts
 const result = await listMoments(db, 3);
-expect(result.items.map((item) => item.id)).toEqual([
-  'pinned-new',
-  'pinned-old',
-  'normal-new',
-]);
+expect(result.items.map((item) => item.id)).toEqual(['pinned-new', 'pinned-old', 'normal-new']);
 expect(result.items[0]).toMatchObject({ pinned: true, pinnedAt: 3000 });
 ```
 
-Add a cursor case where the mocked SQL expectation verifies the cursor page includes `pinned = 0` and returns no pinned row.
+Add a cursor test that asserts the cursor SQL contains `pinned = 0` and no pinned item is returned on subsequent pages.
 
-- [ ] **Step 2: Add failing pin mutation tests**
+- [ ] **Step 2: Write failing mutation tests**
 
-Import the new function in the test:
+Import:
 
 ```ts
 import { setMomentPinned } from '../src/moments';
 ```
 
-Cover all approved semantics:
+Add these explicit cases using existing `makeDb` / `makeBatchDb`, captured SQL/args, and `now: () => 5000`:
 
 ```ts
-it('pinning an already pinned moment is a no-op and preserves pinnedAt', async () => { /* expect no UPDATE */ });
-it('pinning a fourth moment displaces the oldest pin in one batch', async () => { /* assert two UPDATE statements */ });
-it('unpin clears pinned and pinned_at', async () => { /* assert UPDATE args */ });
+it('re-pinning an already pinned moment is a no-op and preserves pinnedAt', async () => {
+  // mock current item as pinned at 3000; assert no UPDATE statement is executed
+});
+it('pinning a fourth moment displaces the oldest pin in one batch', async () => {
+  // mock three pins; assert batch contains oldest-unpin then target-pin with 5000
+});
+it('unpinning clears pinned and pinned_at', async () => {
+  // assert UPDATE binds 0/null for target
+});
 ```
 
-Use `now: () => 5000` so timestamp assertions are deterministic.
+The comments describe exact assertions, not deferred functionality; implement the test bodies with the repository's existing D1 mock helpers in the same step.
 
-- [ ] **Step 3: Run backend tests and confirm RED**
+- [ ] **Step 3: Run backend test and verify RED**
 
 ```bash
 cd danmaku-api
 npm test -- tests/moments.test.ts
 ```
 
-Expected: FAIL because the model/function/route do not exist.
-
-- [ ] **Step 4: Add D1 migration**
-
-Create `0007_add_moment_pins.sql`:
+- [ ] **Step 4: Add non-destructive D1 migration**
 
 ```sql
 ALTER TABLE moments ADD COLUMN pinned INTEGER NOT NULL DEFAULT 0;
@@ -616,58 +571,55 @@ ALTER TABLE moments ADD COLUMN pinned_at INTEGER;
 CREATE INDEX IF NOT EXISTS idx_moments_pinned_at ON moments(pinned, pinned_at DESC);
 ```
 
-No table recreation or destructive migration.
-
-- [ ] **Step 5: Extend Moments data types and aggregation**
-
-In `danmaku-api/src/moments.ts`:
+- [ ] **Step 5: Extend backend types and both SELECT paths**
 
 ```ts
 export type MomentApiItem = {
-  // existing fields...
-  pinned: boolean;
+  id: string;
+  date: string;
+  category: MomentCategory;
+  text: string;
+  link?: string;
+  images: string[];
+  media: MomentMediaItem[];
+  pinned?: boolean;
   pinnedAt?: number;
 };
 ```
 
-Extend selected/list rows with:
+Extend `MomentListRow`:
 
 ```ts
 pinned: number;
 pinned_at: number | null;
 ```
 
-Map them in aggregation:
+Both list query and `getMomentById()` select `m.pinned, m.pinned_at`.
+
+Aggregation:
 
 ```ts
-pinned: row.pinned === 1,
+...(row.pinned === 1 ? { pinned: true } : {}),
 ...(row.pinned_at != null ? { pinnedAt: row.pinned_at } : {}),
 ```
 
-- [ ] **Step 6: Implement first-page and cursor-page query split**
+Missing `pinned` means false.
 
-`listMoments()` must keep the current return type:
-
-```ts
-Promise<{ items: MomentApiItem[]; nextCursor: string | null }>
-```
+- [ ] **Step 6: Implement list pagination semantics exactly**
 
 No cursor:
-1. query up to three pinned Moment IDs/rows ordered `pinned_at DESC`;
-2. compute `normalLimit = max(0, limit - pinnedCount)`;
-3. query unpinned rows ordered existing `date DESC, id DESC` with `normalLimit + 1` distinct Moments worth of data;
+1. fetch up to three pinned Moments ordered `pinned_at DESC, id DESC`;
+2. `normalLimit = Math.max(0, normalizedLimit - pinnedItems.length)`;
+3. fetch unpinned Moments in existing `date DESC, id DESC` order, enough for `normalLimit + 1` distinct Moments;
 4. return `pinnedItems.concat(normalItems.slice(0, normalLimit))`;
-5. next cursor derives only from the last returned unpinned item and only when an extra unpinned item exists.
+5. emit `nextCursor` only when an extra unpinned Moment exists, derived from the last returned unpinned item.
 
 Cursor present:
-- query only `WHERE pinned = 0 AND (date < ? OR (date = ? AND id < ?))`;
-- never prepend pins.
+- query only `pinned = 0 AND (date < ? OR (date = ? AND id < ?))`;
+- never prepend pinned rows;
+- keep `date|id` cursor format.
 
-Keep media-row aggregation correct when a Moment has multiple media rows.
-
-- [ ] **Step 7: Implement `setMomentPinned()`**
-
-Signature:
+- [ ] **Step 7: Implement pin mutation**
 
 ```ts
 export async function setMomentPinned(
@@ -678,35 +630,24 @@ export async function setMomentPinned(
 ): Promise<{ item: MomentApiItem; displacedId?: string }>
 ```
 
-Behavior:
-- load target pin state first;
-- if target missing, throw an error carrying code `MOMENT_NOT_FOUND`;
-- if target already pinned and requested `true`, return current item with no update;
-- unpin: `UPDATE moments SET pinned = 0, pinned_at = NULL, updated_at = ? WHERE id = ?`;
-- pin with fewer than three current pins: one update to `pinned = 1, pinned_at = now()`;
-- pin with three current pins: select oldest `ORDER BY pinned_at ASC, id ASC LIMIT 1`, then D1 `batch()` the displacement update and target update;
-- return target via existing single-item fetch helper and `displacedId` when used.
+Rules:
+- missing -> `MOMENT_NOT_FOUND`;
+- already pinned + true -> no UPDATE, preserve old `pinnedAt`;
+- unpin -> clear `pinned`/`pinned_at`;
+- fewer than 3 pins -> pin with `now()`;
+- three pins -> select oldest `pinned_at ASC, id ASC`, `db.batch()` unpin + target pin;
+- return target from `getMomentById()` and `displacedId` only on displacement.
 
-- [ ] **Step 8: Add authenticated HTTP route tests**
+- [ ] **Step 8: Write failing route tests**
 
-Test:
+Cover:
+- unauthenticated `PATCH /api/moments/moment-4/pin` -> 401;
+- JSON `{ "pinned": "yes" }` -> 400;
+- authenticated `{ "pinned": true }` -> 200 `{ item, displacedId? }`.
 
-```http
-PATCH https://api.example.com/api/moments/moment-4/pin
-Content-Type: application/json
-{ "pinned": true }
-```
+Reuse existing signed-session pattern used by Moment create/delete tests.
 
-Assertions:
-- unauthenticated request -> 401;
-- malformed body -> 400;
-- authenticated request -> 200 JSON with `{ item, displacedId? }`.
-
-Use the same signed-session test helper/pattern already used by create/delete Moment route tests.
-
-- [ ] **Step 9: Implement route in `danmaku-api/src/index.ts`**
-
-Route detection must run before the generic `/api/moments/:id` DELETE branch:
+- [ ] **Step 9: Implement route before generic Moment DELETE matching**
 
 ```ts
 const pinMatch = url.pathname.match(/^\/api\/moments\/([^/]+)\/pin$/);
@@ -718,22 +659,15 @@ if (pinMatch) {
 }
 ```
 
-Handler requirements:
-- `requireSession()`;
-- JSON body only;
-- `pinned` must be boolean;
-- call `setMomentPinned(env.DB, id, pinned)`;
-- map `MOMENT_NOT_FOUND` to 404 and validation to 400.
+Handler uses `requireSession()`, JSON-only body, boolean `pinned`, `setMomentPinned()`, 404 for `MOMENT_NOT_FOUND`, 400 for invalid input.
 
-- [ ] **Step 10: Run backend checks**
+- [ ] **Step 10: Run backend GREEN checks**
 
 ```bash
 cd danmaku-api
 npm test -- tests/moments.test.ts
 npm run check
 ```
-
-Expected: PASS.
 
 - [ ] **Step 11: Commit**
 
@@ -744,7 +678,7 @@ git commit -m "feat: add pinned moments API"
 
 ---
 
-### Task 5: Wire pinned Moments into the frontend and admin UI
+### Task 5: Wire pinned Moments into frontend/admin UI
 
 **Files:**
 - Modify: `src/lib/moments-api.ts`
@@ -753,15 +687,13 @@ git commit -m "feat: add pinned moments API"
 - Modify: `tests/firefly-v4.test.mjs`
 
 **Interfaces:**
-- Consumes: Task 4 `PATCH /api/moments/:id/pin` and pinned list fields.
-- Produces: `setMomentPinned(momentId, pinned)`, admin pin buttons, pin markers, homepage pin-priority rendering.
+- Consumes: Task 4 list fields and pin route.
+- Produces: `setMomentPinned(momentId, pinned)`, full-page admin controls, three-entry homepage pin preview.
 
-- [ ] **Step 1: Add failing frontend pin contracts**
-
-Append:
+- [ ] **Step 1: Add failing frontend contracts**
 
 ```js
-test('v4 moments frontend exposes authenticated pin controls and homepage pin markers', () => {
+test('v4 moments frontend exposes pin API and admin controls', () => {
   const api = readSource('src/lib/moments-api.ts');
   const page = readSource('src/pages/moments.astro');
   const recent = readSource('src/components/RecentMomentsWidget.astro');
@@ -770,24 +702,15 @@ test('v4 moments frontend exposes authenticated pin controls and homepage pin ma
   assert.match(page, /moment-pin/);
   assert.match(page, /取消置顶|置顶/);
   assert.match(recent, /pinned/);
-  assert.match(recent, /置顶/);
 });
 ```
 
-Run:
+- [ ] **Step 2: Extend frontend API**
 
-```bash
-node --test tests/firefly-v4.test.mjs
-```
-
-Expected: FAIL.
-
-- [ ] **Step 2: Extend frontend API contract**
-
-In `MomentApiItem` add:
+Add optional fields:
 
 ```ts
-pinned: boolean;
+pinned?: boolean;
 pinnedAt?: number;
 ```
 
@@ -807,73 +730,67 @@ export async function setMomentPinned(momentId: string, pinned: boolean) {
 }
 ```
 
-- [ ] **Step 3: Add pin marker and admin button in `/moments` rendering**
+- [ ] **Step 3: Add full-page pin badge/admin control**
 
-For each item:
-- render a small `.moment-pin-badge` when `item.pinned`;
-- in admin mode append a `.moment-pin` button with text `取消置顶` or `置顶`;
-- click calls `setMomentPinned(item.id, !item.pinned)`;
-- after success refresh the list from `fetchMoments()` instead of trying to locally guess displacement order;
-- disable the button while request is active;
-- keep delete/reaction/comment/media behavior unchanged.
+When `item.pinned`, render `.moment-pin-badge` with `置顶`. In admin mode append `.moment-pin` button with `取消置顶` or `置顶`.
 
-- [ ] **Step 4: Update Recent Moments to show pin state without growing beyond three entries**
-
-Continue requesting:
+If the page already has a first-page reload helper, reuse it. Otherwise extract current initial first-page load into:
 
 ```ts
-fetchMoments({ limit: 3 })
+async function refreshMomentsFromFirstPage() {
+  // reset current cursor/list state using the same state variables the page already owns
+  // fetchMoments() from the first page and rerender through the existing render path
+}
 ```
 
-Render `items.slice(0, 3)` exactly as today, but prepend a small pin glyph/text to meta when `item.pinned`:
+The implementation of this helper must be the existing initial-load statements moved into one function, not a new parallel state store.
+
+Pin click:
+
+```ts
+await setMomentPinned(item.id, !item.pinned);
+await refreshMomentsFromFirstPage();
+```
+
+Do not locally guess which old pin was displaced.
+
+- [ ] **Step 4: Preserve Recent Moments capacity**
+
+Keep `fetchMoments({ limit: 3 })`, render `items.slice(0, 3)`, and prefix pinned meta:
 
 ```js
 meta.textContent = `${item.pinned ? '📌 置顶 · ' : ''}${item.category || '日常'} · ${formatDate(item.date)}`;
 ```
 
-The server already supplies pin-first order, so do not resort independently in the widget.
+No independent sorting.
 
-- [ ] **Step 5: Style pin UI minimally**
-
-Use the existing Moment card system:
-- badge uses theme accent soft background;
-- admin pin button matches delete/admin control sizing but not destructive red;
-- no large pinned banner.
-
-- [ ] **Step 6: Run focused frontend tests**
+- [ ] **Step 5: Run tests and commit**
 
 ```bash
 node --test tests/firefly-v4.test.mjs tests/site-build.test.mjs
-```
-
-Expected: PASS.
-
-- [ ] **Step 7: Commit**
-
-```bash
 git add src/lib/moments-api.ts src/pages/moments.astro src/components/RecentMomentsWidget.astro tests/firefly-v4.test.mjs
 git commit -m "feat: add pinned moments UI"
 ```
 
 ---
 
-### Task 6: Add homepage social contacts and Recent Messages activity widget
+### Task 6: Add homepage social contacts and Recent Messages
 
 **Files:**
 - Modify: `src/components/HomeLeftSidebar.astro`
 - Create: `src/components/RecentMessagesWidget.astro`
 - Modify: `src/components/HomeRightSidebar.astro`
+- Modify: `src/styles/firefly-v2.css`
 - Modify: `tests/firefly-v4.test.mjs`
-- Modify: `src/styles/firefly-v2.css` or the existing homepage sidebar style section that owns these classes.
 
 **Interfaces:**
-- Consumes: `fetchGuestMessages()` and `formatPublicTime()` from `src/lib/public-interactions.ts`.
-- Produces: icon-only GitHub/QQ links and three-message homepage preview.
+- Consumes: `fetchGuestMessages()`, `formatPublicTime()`.
+- Produces: icon-only GitHub/QQ contacts and latest-three guestbook preview.
 
-- [ ] **Step 1: Add failing homepage activity/social tests**
+- [ ] **Step 1: Add failing tests**
 
 ```js
-test('v4 homepage profile exposes approved GitHub and QQ icon links', () => {
+test('v4 profile exposes approved GitHub and QQ contacts', () => {
   const left = readSource('src/components/HomeLeftSidebar.astro');
   assert.match(left, /https:\/\/github\.com\/Lidure/);
   assert.match(left, /https:\/\/qm\.qq\.com\/q\/ujOhar9jQQ/);
@@ -881,7 +798,7 @@ test('v4 homepage profile exposes approved GitHub and QQ icon links', () => {
   assert.match(left, /aria-label="QQ"/);
 });
 
-test('v4 right rail includes recent messages between moments and music', () => {
+test('v4 activity rail inserts Recent Messages between Moments and Music', () => {
   const right = readSource('src/components/HomeRightSidebar.astro');
   const messages = readSource('src/components/RecentMessagesWidget.astro');
   assert.match(right, /RecentMessagesWidget/);
@@ -889,40 +806,33 @@ test('v4 right rail includes recent messages between moments and music', () => {
   assert.ok(right.indexOf('RecentMessagesWidget') < right.indexOf('MusicStatusWidget'));
   assert.match(messages, /fetchGuestMessages/);
   assert.match(messages, /slice\(0,\s*3\)/);
-  assert.match(messages, /href="\/messages"|href\s*=\s*['"]\/messages['"]/);
 });
 ```
 
-Run and confirm RED.
-
 - [ ] **Step 2: Add profile social row**
 
-In `HomeLeftSidebar.astro`, define:
+Use small icon-only controls. If the repository already contains suitable local GitHub/QQ brand SVG assets, reuse them. Otherwise use these dependency-free glyph icons, which satisfy the icon-only interaction without copying Firefly assets:
 
 ```ts
 const socialLinks = [
-  { type: 'github', href: 'https://github.com/Lidure', label: 'GitHub' },
-  { type: 'qq', href: 'https://qm.qq.com/q/ujOhar9jQQ', label: 'QQ' },
+  { type: 'github', href: 'https://github.com/Lidure', label: 'GitHub', glyph: 'GH' },
+  { type: 'qq', href: 'https://qm.qq.com/q/ujOhar9jQQ', label: 'QQ', glyph: 'QQ' },
 ];
 ```
-
-Render inside the existing About Me card after stats:
 
 ```astro
 <nav class="profile-social-links" aria-label="联系方式">
   {socialLinks.map((link) => (
     <a href={link.href} target="_blank" rel="noreferrer" aria-label={link.label} title={link.label} class={`profile-social-link is-${link.type}`}>
-      <!-- original inline SVG path for service icon, not copied from Firefly -->
+      <span aria-hidden="true">{link.glyph}</span>
     </a>
   ))}
 </nav>
 ```
 
-Icons are neutral at rest and gain subtle theme/brand feedback on hover/focus.
+The control shape/spacing/tooltip behavior is Firefly-like; the actual glyphs/assets remain local/original.
 
-- [ ] **Step 3: Create `RecentMessagesWidget.astro`**
-
-Markup:
+- [ ] **Step 3: Create RecentMessagesWidget**
 
 ```astro
 <div class="recent-messages-widget" id="recent-messages-widget">
@@ -933,24 +843,15 @@ Markup:
 </div>
 ```
 
-Client script:
+Client imports:
 
 ```ts
 import { fetchGuestMessages, formatPublicTime } from '../lib/public-interactions';
 ```
 
-On init:
-- fetch messages;
-- `messages.slice(0, 3)`;
-- each entry is an `<a href="/messages" class="recent-message-item">`;
-- nickname and formatted time in meta row;
-- text in a child clamped to two lines;
-- empty/error state uses quiet `.sidebar-widget-placeholder`;
-- use an initialized dataset guard compatible with Astro page transitions.
+On init: fetch, render `messages.slice(0, 3)`, each entry links `/messages`, meta = nickname + formatted time, text clamps two lines, quiet empty/error state, lifecycle initialized guard. No comments/composer/admin UI.
 
-- [ ] **Step 4: Insert the widget into the right rail**
-
-In `HomeRightSidebar.astro` order:
+- [ ] **Step 4: Insert right-rail order**
 
 ```astro
 <SidebarWidget title="最近碎碎念" ...><RecentMomentsWidget /></SidebarWidget>
@@ -958,76 +859,58 @@ In `HomeRightSidebar.astro` order:
 <SidebarWidget title="音乐" ...><MusicStatusWidget /></SidebarWidget>
 ```
 
-Keep site statistics after music; existing small notice may remain last.
+Statistics follows music; notice remains last if retained.
 
-- [ ] **Step 5: Harmonize activity-rail styles**
+- [ ] **Step 5: Style and test**
 
-Use one neutral card language for Moments/Messages/Music/Stats:
-- no separate saturated background per widget;
-- 1–2 line clamps;
-- subtle separators;
-- same hover elevation/transition scale;
-- `:focus-visible` outline for message/social links.
-
-- [ ] **Step 6: Run focused tests**
+Use neutral surfaces, subtle hover, visible `:focus-visible`, no saturated full-card fills.
 
 ```bash
 node --test tests/firefly-v4.test.mjs tests/site-build.test.mjs
-```
-
-Expected: PASS.
-
-- [ ] **Step 7: Commit**
-
-```bash
 git add src/components/HomeLeftSidebar.astro src/components/RecentMessagesWidget.astro src/components/HomeRightSidebar.astro src/styles/firefly-v2.css tests/firefly-v4.test.mjs
 git commit -m "feat: add homepage social and guestbook activity"
 ```
 
 ---
 
-### Task 7: Rework homepage article cards toward the approved Firefly list language
+### Task 7: Rework homepage article cards
 
 **Files:**
 - Modify: `src/components/HomePostCard.astro`
-- Modify: `src/styles/firefly-v2.css` and/or `src/styles/firefly-refresh.css` in the existing homepage-card sections.
+- Modify: `src/styles/firefly-v2.css`
+- Modify: `src/styles/firefly-refresh.css`
 - Modify: `tests/firefly-v4.test.mjs`
 - Preserve: `src/lib/post-cover.mjs`
 
 **Interfaces:**
-- Consumes: existing `resolvePostCover()` priority `frontmatter -> first Markdown image -> none`.
-- Produces: desktop inset-cover list card and mobile top-cover card without fake placeholders.
+- Consumes: `resolvePostCover()`.
+- Produces: desktop inset-cover list card and mobile top-cover card; no fake placeholders.
 
-- [ ] **Step 1: Add failing post-card contracts**
+- [ ] **Step 1: Add failing contract**
 
 ```js
-test('v4 homepage posts use inset cover, enter affordance, and mobile top-cover layout', () => {
+test('v4 posts use inset cover and mobile top-cover layout', () => {
   const card = readSource('src/components/HomePostCard.astro');
   const css = readSource('src/styles/firefly-v2.css') + readSource('src/styles/firefly-refresh.css');
   assert.match(card, /home-post-enter/);
-  assert.match(card, /home-post-cover/);
-  assert.match(card, /home-post-reading-time|分钟阅读/);
+  assert.match(card, /home-post-cover-overlay/);
   assert.match(css, /\.home-post-card\.has-cover/);
-  assert.match(css, /32%|33%|34%/);
-  assert.match(css, /\.home-post-cover[\s\S]*?scale\(1\.0[4-6]\)/);
+  assert.match(css, /width:\s*33%/);
+  assert.match(css, /scale\(1\.05\)/);
   assert.match(css, /@media[^\{]*max-width[^\{]*760px[\s\S]*?\.home-post-card\.has-cover/);
 });
 ```
 
-Run and confirm RED for the new enter/layout contracts.
+- [ ] **Step 2: Refine markup without changing cover resolution**
 
-- [ ] **Step 2: Refine component markup while preserving cover resolution**
-
-Keep the existing `resolvePostCover()` call unchanged.
-
-For covered posts, render:
+Keep the current `resolvePostCover()` call unchanged:
 
 ```astro
 <article class:list={['home-post-card', { 'has-cover': !!cover, 'no-cover': !cover }]}>
   <div class="home-post-copy">...</div>
   {cover ? (
     <a class="home-post-cover" href={href} aria-label={`阅读 ${post.data.title}`}>
-      <img ... />
+      <img src={cover} alt="" loading="lazy" decoding="async" />
       <span class="home-post-cover-overlay" aria-hidden="true"></span>
       <span class="home-post-enter" aria-hidden="true">›</span>
     </a>
@@ -1037,92 +920,55 @@ For covered posts, render:
 </article>
 ```
 
-Metadata hierarchy:
-- title dominant;
-- published date and reading time directly below/near title;
-- description exactly two-line clamp on desktop;
-- tags compact and do not duplicate the same metadata elsewhere.
+- [ ] **Step 3: Desktop geometry**
 
-- [ ] **Step 3: Implement desktop inset-cover geometry**
+Covered copy ~67%; right cover `width:33%`; ~15px inset; 15px radius; card hover max `translateY(-2px)`; image `scale(1.05)`; subtle dark overlay + chevron; no heavy glow. No-cover card uses only a right enter affordance.
 
-Desktop rules:
-- `position:relative` card;
-- covered copy width around `66%–68%`;
-- cover absolute/inset on right with `width: 33%` (acceptable 32–34%);
-- cover margins approximately `14–16px` from card edges;
-- cover independent `border-radius: 14–16px`;
-- card hover translate no more than `-2px`;
-- cover hover image `transform: scale(1.05)`;
-- subtle dark overlay + chevron fade in;
-- no heavy glow.
+- [ ] **Step 4: Mobile geometry**
 
-No-cover card gets a narrow right enter affordance but no generated placeholder image.
+At `max-width:760px`: one column, cover in normal flow above copy, `width:100%`, about `16/9`, desktop offsets removed.
 
-- [ ] **Step 4: Implement mobile top-cover geometry**
-
-At `max-width: 760px`:
-- `.home-post-card.has-cover` becomes one-column;
-- `.home-post-cover` returns to normal flow and appears before/above copy visually;
-- `width:100%`, aspect ratio near `16 / 9`;
-- copy uses full width;
-- remove desktop absolute cover offsets;
-- preserve two-line description where space permits.
-
-- [ ] **Step 5: Run cover and v4 regressions**
+- [ ] **Step 5: Run and commit**
 
 ```bash
 node --test tests/post-cover.test.mjs tests/firefly-v4.test.mjs tests/site-build.test.mjs
-```
-
-Expected: PASS; automatic Markdown-first-image cover behavior remains intact.
-
-- [ ] **Step 6: Commit**
-
-```bash
 git add src/components/HomePostCard.astro src/styles/firefly-v2.css src/styles/firefly-refresh.css tests/firefly-v4.test.mjs
 git commit -m "feat: refine homepage article cards"
 ```
 
 ---
 
-### Task 8: Refine the homepage music card hover control and playing ring
+### Task 8: Refine homepage music hover control and playing ring
 
 **Files:**
 - Modify: `src/components/MusicStatusWidget.astro`
 - Modify: `tests/firefly-v4.test.mjs`
-- Preserve: existing SEKAI proxy button IDs and source-of-truth behavior.
 
 **Interfaces:**
-- Consumes: existing `#sekaiPrevBtn`, `#sekaiPlayPauseBtn`, `#sekaiNextBtn`, `#sekaiAudio`, `window.__sekaiOpenPlayer`.
-- Produces: desktop hover/focus-only play overlay, coarse-pointer persistent low-opacity overlay, `.is-playing` animated border state.
+- Consumes: existing SEKAI proxy IDs/audio/open function.
+- Produces: desktop hover/focus-only play overlay, coarse-pointer low-opacity overlay, `.is-playing` animated ring.
 
-- [ ] **Step 1: Add failing music interaction/visual tests**
+- [ ] **Step 1: Add failing contract**
 
 ```js
-test('v4 music overlay is hover/focus driven on desktop and playing state owns the color ring', () => {
+test('v4 music overlay is hover/focus driven and playing state owns a restrained color ring', () => {
   const music = readSource('src/components/MusicStatusWidget.astro');
   assert.match(music, /opacity:\s*0/);
   assert.match(music, /music-status-art:hover[\s\S]*music-status-play-overlay|music-status-art:focus-within/);
-  assert.match(music, /@media\s*\(hover:\s*none\)|pointer:\s*coarse/);
+  assert.match(music, /hover:\s*none|pointer:\s*coarse/);
   assert.match(music, /is-playing[\s\S]*conic-gradient/);
-  assert.match(music, /animation-play-state:\s*paused|animation:\s*none/);
   assert.match(music, /prefers-reduced-motion/);
   assert.match(music, /id="sekaiPlayPauseBtn"/);
 });
 ```
 
-Run and confirm RED.
-
-- [ ] **Step 2: Make desktop play overlay hidden at rest**
-
-Base overlay:
+- [ ] **Step 2: Desktop overlay hidden at rest**
 
 ```css
 .music-status-play-overlay {
   opacity: 0;
   visibility: hidden;
   transform: translate(-50%, -50%) scale(.9);
-  transition: opacity 180ms ease, transform 180ms ease, visibility 180ms ease;
 }
 .music-status-art:hover .music-status-play-overlay,
 .music-status-art:focus-within .music-status-play-overlay {
@@ -1132,9 +978,7 @@ Base overlay:
 }
 ```
 
-Do not remove the button from the DOM or tab order.
-
-- [ ] **Step 3: Add coarse-pointer/mobile persistent low-opacity control**
+- [ ] **Step 3: Coarse pointer stays accessible**
 
 ```css
 @media (hover: none), (pointer: coarse) {
@@ -1146,182 +990,102 @@ Do not remove the button from the DOM or tab order.
 }
 ```
 
-The overlay button toggles playback; the surrounding cover-open button retains full-player behavior.
+- [ ] **Step 4: Add playing ring**
 
-- [ ] **Step 4: Add restrained animated playing ring**
-
-Avoid clipping the ring by moving `overflow:hidden` to an inner cover layer if necessary. Use an art pseudo-element or nested wrapper:
+Use a thin pseudo-element ring with:
 
 ```css
-.music-status-art::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  padding: 2px;
-  background: conic-gradient(from var(--music-ring-angle), #f39ab5, #a899ee, #7fcddd, #efb1a3, #f39ab5);
-  /* mask center out so only a thin ring remains */
-  opacity: 0;
-  pointer-events: none;
-}
-.music-status-widget.is-playing .music-status-art::before {
-  opacity: .82;
-  animation: music-ring-spin 8s linear infinite;
-}
+background: conic-gradient(#f39ab5, #a899ee, #7fcddd, #efb1a3, #f39ab5);
+animation: music-ring-spin 8s linear infinite;
 ```
 
-Implement rotation with a broadly supported transform on a pseudo-element/wrapper if custom-property angle animation would require `@property`; prefer the simpler transform solution.
+Only `.music-status-widget.is-playing` reveals/animates it. Reduced motion keeps the ring static.
 
-When paused, `.is-playing` is removed by existing `sync()` so the animation stops automatically.
+- [ ] **Step 5: Preserve proxy logic**
 
-Reduced motion:
-- keep ring visible while playing;
-- disable rotation animation.
+Keep click targets `sekaiPrevBtn`, `sekaiPlayPauseBtn`, `sekaiNextBtn`, and `window.__sekaiOpenPlayer?.()`. Keep `.is-playing` derived from `audio.src && !audio.paused`.
 
-- [ ] **Step 5: Preserve current player proxy logic**
-
-Do not alter these click paths:
-
-```js
-document.getElementById('sekaiPrevBtn')?.click();
-document.getElementById('sekaiPlayPauseBtn')?.click();
-document.getElementById('sekaiNextBtn')?.click();
-window.__sekaiOpenPlayer?.();
-```
-
-Continue deriving `.is-playing` from `audio.src && !audio.paused`.
-
-- [ ] **Step 6: Run music regressions**
+- [ ] **Step 6: Run and commit**
 
 ```bash
 node --test tests/firefly-v3.test.mjs tests/firefly-v4.test.mjs tests/sekai-player-search.test.mjs
-```
-
-Expected: PASS.
-
-- [ ] **Step 7: Commit**
-
-```bash
 git add src/components/MusicStatusWidget.astro tests/firefly-v4.test.mjs
 git commit -m "feat: refine homepage music interactions"
 ```
 
 ---
 
-### Task 9: Harmonize responsive/accessibility polish across v4 homepage surfaces
+### Task 9: Harmonize responsive/accessibility polish
 
 **Files:**
 - Modify: `src/styles/firefly-v2.css`
 - Modify: `src/styles/firefly-refresh.css`
-- Modify: `src/components/HomeLeftSidebar.astro`
-- Modify: `src/components/HomeRightSidebar.astro`
-- Modify: `src/components/RecentMessagesWidget.astro`
-- Modify: `src/components/RecentMomentsWidget.astro`
-- Modify: `src/components/HomePostCard.astro`
-- Modify: `src/components/MusicStatusWidget.astro`
-- Modify: `src/components/VisualSettingsPanel.astro`
+- Modify only where polish requires tracked changes: homepage/sidebar/music/post/settings components from Tasks 3, 5, 6, 7, 8.
 - Modify: `tests/firefly-v4.test.mjs`
 
 **Interfaces:**
-- Consumes: all prior tasks.
-- Produces: one consistent neutral card system and mobile behavior without new business logic.
+- Consumes: Tasks 1–8.
+- Produces: coherent neutral v4 surfaces; no new business logic.
 
-- [ ] **Step 1: Add failing cross-component accessibility/responsive contracts**
+- [ ] **Step 1: Add failing cross-component tests**
 
 ```js
-test('v4 social activity and article controls expose visible focus and reduced-motion-safe transitions', () => {
+test('v4 social and activity links expose visible focus and reduced-motion-safe styling', () => {
   const css = readSource('src/styles/firefly-v2.css') + readSource('src/styles/firefly-refresh.css');
-  const left = readSource('src/components/HomeLeftSidebar.astro');
-  const messages = readSource('src/components/RecentMessagesWidget.astro');
   assert.match(css, /profile-social-link:focus-visible/);
   assert.match(css, /recent-message-item:focus-visible/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
-  assert.match(left, /aria-label="联系方式"/);
-  assert.match(messages, /recent-message-item/);
-});
-
-test('v4 mobile surfaces do not depend on hover-only access', () => {
-  const music = readSource('src/components/MusicStatusWidget.astro');
-  const panel = readSource('src/components/VisualSettingsPanel.astro');
-  assert.match(music, /hover:\s*none|pointer:\s*coarse/);
-  assert.match(panel, /safe-area-inset-bottom/);
-  assert.match(panel, /100dvh|8[2-8]dvh/);
 });
 ```
 
-Run and confirm any remaining RED assertions.
+- [ ] **Step 2: Normalize surface rules**
 
-- [ ] **Step 2: Normalize shared surface variables/rules**
+Use neutral background variables, one subtle border, restrained shadow, consistent radius, theme hue only for interaction accents, and remove leftover saturated neighboring widget fills.
 
-Ensure profile, side widgets, article cards, and settings groups consistently use:
-- neutral background based on current standard card/page variables;
-- one subtle border;
-- restrained shadow;
-- theme hue for interaction accents only;
-- consistent medium-large radius family;
-- continuous animation only where explicitly approved (waves, Sakura, playing ring).
+- [ ] **Step 3: Manual desktop + 390px check**
 
-Remove leftover saturated per-widget fills that conflict with v4's neutral activity-rail design.
+Verify keyboard reach/focus for contacts, messages, post links, music, settings; Escape focus recovery; wave segmented controls; mobile play visible without hover; no 390px overflow; bottom-sheet safe area.
 
-- [ ] **Step 3: Verify keyboard and touch behavior**
+- [ ] **Step 4: Manual reduced-motion check**
 
-Manual browser checklist at desktop width and 390px width:
-- Tab reaches GitHub, QQ, Recent Messages, post links, music controls, settings controls;
-- focus indicators visible;
-- settings Escape returns focus to gear;
-- wave segmented controls keyboard operable;
-- mobile music play control visible without hover;
-- no horizontal overflow at 390px;
-- bottom sheet respects safe-area padding.
+Verify static visible waves, existing Sakura behavior, static playing ring, minimized card motion with both OS reduce-motion and site `reduceMotion=true`.
 
-- [ ] **Step 4: Verify reduced motion behavior manually**
-
-With OS reduced motion and then with site `reduceMotion=true`:
-- waves stay static but visible;
-- Sakura stops according to existing behavior;
-- music playing ring remains static but visible;
-- hover card transforms/continuous decorative animations are suppressed or minimized.
-
-- [ ] **Step 5: Run all frontend tests**
+- [ ] **Step 5: Run full frontend suite**
 
 ```bash
 npm test
 ```
 
-Expected: Astro check/build succeeds and every registered Node test passes.
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Commit only if Task 9 changed tracked files**
 
 ```bash
-git add src/styles/firefly-v2.css src/styles/firefly-refresh.css src/components/HomeLeftSidebar.astro src/components/HomeRightSidebar.astro src/components/RecentMessagesWidget.astro src/components/RecentMomentsWidget.astro src/components/HomePostCard.astro src/components/MusicStatusWidget.astro src/components/VisualSettingsPanel.astro tests/firefly-v4.test.mjs
+git add -u
 git commit -m "feat: polish v4 responsive visual system"
 ```
+
+Skip this commit when `git status --short` is clean.
 
 ---
 
 ### Task 10: Final integration verification and merge-ready review
 
 **Files:**
-- Modify only if verification exposes a defect.
-- Review: `docs/superpowers/specs/2026-08-24-firefly-home-visual-v4-design.md`
-- Review: this plan.
+- Modify only if verification reveals a defect.
+- Review: design spec and this plan.
 
 **Interfaces:**
 - Consumes: Tasks 1–9.
-- Produces: merge-ready feature branch with fresh frontend and backend evidence.
+- Produces: merge-ready branch with fresh frontend/backend evidence and explicit D1 deployment ordering.
 
-- [ ] **Step 1: Run frontend full verification from repository root**
+- [ ] **Step 1: Frontend full verification**
 
 ```bash
 npm test
 ```
 
-Expected:
-- `astro check`: 0 errors;
-- static build succeeds;
-- all frontend Node tests including `firefly-v4`, `banner-waves`, visual-settings, post-cover and existing v3 regressions pass.
+Expected: Astro check 0 errors, static build succeeds, all registered Node tests pass.
 
-- [ ] **Step 2: Run backend full verification**
+- [ ] **Step 2: Backend full verification**
 
 ```bash
 cd danmaku-api
@@ -1329,54 +1093,42 @@ npm test
 npm run check
 ```
 
-Expected: all Vitest tests pass and TypeScript check is clean.
+- [ ] **Step 3: Inspect built contracts**
 
-- [ ] **Step 3: Inspect built homepage contracts**
+Verify Recent Messages, GitHub/QQ links, v4 article classes, no broken source-relative Markdown covers, and no banner-wave UI in `/player` immersive output.
 
-After `npm test`, inspect `dist/index.html` or use existing `tests/site-build.test.mjs` assertions to verify:
-- Recent Messages widget shell is emitted;
-- GitHub and historical QQ links are emitted;
-- article card classes are present;
-- no broken source-relative Markdown cover URL is emitted;
-- `/player` output does not contain a banner-wave mount in immersive content.
-
-- [ ] **Step 4: Inspect branch diff for accidental scope creep**
+- [ ] **Step 4: Inspect branch diff**
 
 ```bash
 git diff main...HEAD --stat
 git diff main...HEAD -- src/lib/visual-settings.mjs src/components/VisualSettingsPanel.astro src/components/MusicStatusWidget.astro src/components/HomePostCard.astro danmaku-api/src/moments.ts danmaku-api/src/index.ts
 ```
 
-Confirm:
-- no second settings storage key;
-- no second audio/player state;
-- no copied Firefly assets/code;
-- no unintended media-library reset;
-- no `/player` layout regression.
+Confirm no second settings key/audio state, no copied Firefly assets/code, no media reset, no `/player` regression.
 
-- [ ] **Step 5: Review D1 deployment requirement before production merge**
+- [ ] **Step 5: Apply D1 migration before Worker deployment**
 
-Because `api.lidure22.xyz` is deployed from `danmaku-api/src/index.ts` and `wrangler.jsonc` points to `./migrations`, note explicitly in the PR/merge checklist that production must apply migration `0007_add_moment_pins.sql` before or together with deploying the Worker code that queries `pinned` columns.
-
-Do not merge a Worker build that expects pin columns before the D1 migration is applied.
-
-- [ ] **Step 6: Create/update merge-ready PR and request review**
-
-PR summary must list:
-- waves/settings redesign;
-- pinned Moments + D1 migration;
-- homepage messages/social/article/music changes;
-- frontend test result;
-- backend test/check result;
-- migration ordering requirement.
-
-- [ ] **Step 7: Commit any verification-only fixes separately**
-
-If verification required code changes:
+`danmaku-api/wrangler.jsonc` maps `api.lidure22.xyz` to `src/index.ts` and `./migrations`. Production order:
 
 ```bash
-git add <only-fixed-files>
+cd danmaku-api
+npx wrangler d1 migrations apply lidure-danmaku --remote
+npm run deploy
+```
+
+Never deploy Worker code that queries `pinned` before `0007_add_moment_pins.sql` is applied.
+
+- [ ] **Step 6: Create/update merge-ready PR summary**
+
+Include wave/settings redesign, pinned Moments/migration, homepage messages/social/article/music changes, frontend results, backend results, and migration ordering.
+
+- [ ] **Step 7: Commit verification fixes only when present**
+
+After confirming `git status --short` contains only intended tracked fixes:
+
+```bash
+git add -u
 git commit -m "fix: resolve v4 verification issues"
 ```
 
-If no fixes were needed, do not create an empty verification commit.
+Skip when verification caused no tracked changes.
