@@ -1,0 +1,62 @@
+<div class="recent-moments-widget" id="recent-moments-widget">
+  <div class="recent-moments-list" data-moments-list>
+    <p class="sidebar-widget-placeholder">正在读取最近碎碎念…</p>
+  </div>
+  <a class="sidebar-widget-more" href="/moments">查看全部碎碎念 →</a>
+</div>
+
+<script>
+  import { fetchMoments } from '../lib/moments-api';
+
+  function formatDate(value: string) {
+    const date = new Date(value);
+    if (Number.isNaN(date.valueOf())) return value;
+    return date.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' });
+  }
+
+  function initRecentMomentsWidget() {
+    const root = document.getElementById('recent-moments-widget');
+    const list = root?.querySelector('[data-moments-list]');
+    if (!root || !list || root.dataset.initialized === 'true') return;
+    root.dataset.initialized = 'true';
+
+    fetchMoments({ limit: 3 })
+      .then(({ items }) => {
+        list.replaceChildren();
+        if (!items.length) {
+          const empty = document.createElement('p');
+          empty.className = 'sidebar-widget-placeholder';
+          empty.textContent = '最近还没有新的碎碎念。';
+          list.appendChild(empty);
+          return;
+        }
+
+        items.slice(0, 3).forEach((item) => {
+          const link = document.createElement('a');
+          link.className = 'recent-moment-item';
+          link.href = '/moments';
+
+          const meta = document.createElement('span');
+          meta.className = 'recent-moment-meta';
+          meta.textContent = `${item.category || '日常'} · ${formatDate(item.date)}`;
+
+          const text = document.createElement('span');
+          text.className = 'recent-moment-text';
+          text.textContent = item.text.length > 48 ? `${item.text.slice(0, 48)}…` : item.text;
+
+          link.append(meta, text);
+          list.appendChild(link);
+        });
+      })
+      .catch(() => {
+        list.replaceChildren();
+        const error = document.createElement('p');
+        error.className = 'sidebar-widget-placeholder';
+        error.textContent = '碎碎念暂时没有加载出来。';
+        list.appendChild(error);
+      });
+  }
+
+  document.addEventListener('astro:page-load', initRecentMomentsWidget);
+  initRecentMomentsWidget();
+</script>
