@@ -8,9 +8,20 @@ let height = 1;
 let dpr = 1;
 let enabled = false;
 let reducedMotion = false;
+let density = 0.65;
+let speedMultiplier = 1;
 let petals = [];
 let lastTime = performance.now();
 let spawnCarry = 0;
+
+function clamp(value, min, max, fallback) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? Math.min(max, Math.max(min, numeric)) : fallback;
+}
+
+function targetPetalCount() {
+  return Math.max(0, Math.round(MAX_PETALS * density));
+}
 
 function randomBetween(min, max) {
   return min + Math.random() * (max - min);
@@ -35,10 +46,17 @@ function createPetal(spawnInside = false) {
   };
 }
 
+function trimPetals() {
+  const target = targetPetalCount();
+  if (petals.length > target) petals.length = target;
+}
+
 function resetPetals(initial = false) {
   petals = [];
+  spawnCarry = 0;
   if (!enabled || reducedMotion) return;
-  const initialCount = initial ? Math.min(14, MAX_PETALS) : 6;
+  const target = targetPetalCount();
+  const initialCount = initial ? Math.min(Math.round(14 * density), target) : Math.min(6, target);
   for (let i = 0; i < initialCount; i += 1) petals.push(createPetal(true));
 }
 
@@ -72,9 +90,13 @@ function drawPetal(petal) {
 }
 
 function updatePetals(dt, nowSeconds) {
-  const spawnRate = 1.15;
+  const target = targetPetalCount();
+  trimPetals();
+  if (target === 0) return;
+
+  const spawnRate = 1.15 * Math.max(0.15, density);
   spawnCarry += dt * spawnRate;
-  while (spawnCarry >= 1 && petals.length < MAX_PETALS) {
+  while (spawnCarry >= 1 && petals.length < target) {
     spawnCarry -= 1;
     petals.push(createPetal(false));
   }
@@ -82,9 +104,9 @@ function updatePetals(dt, nowSeconds) {
   for (let i = petals.length - 1; i >= 0; i -= 1) {
     const petal = petals[i];
     const breeze = Math.sin(nowSeconds * petal.sway + petal.phase) * petal.wind;
-    petal.x += (petal.drift + breeze) * dt;
-    petal.y += petal.speed * dt;
-    petal.rotation += petal.spin * dt;
+    petal.x += (petal.drift + breeze) * dt * speedMultiplier;
+    petal.y += petal.speed * dt * speedMultiplier;
+    petal.rotation += petal.spin * dt * speedMultiplier;
 
     if (petal.y > height + 90 || petal.x > width + 100 || petal.x < -120) {
       petals.splice(i, 1);
@@ -104,6 +126,14 @@ function renderFrame(now) {
   for (const petal of petals) drawPetal(petal);
 }
 
+function applySettings(data) {
+  if ('enabled' in data) enabled = data.enabled === true;
+  if ('reducedMotion' in data) reducedMotion = data.reducedMotion === true;
+  if ('density' in data) density = clamp(data.density, 0, 1, density);
+  if ('speedMultiplier' in data) speedMultiplier = clamp(data.speedMultiplier, 0.25, 2, speedMultiplier);
+  trimPetals();
+}
+
 setInterval(() => renderFrame(performance.now()), FRAME_MS);
 
 self.onmessage = (event) => {
@@ -111,8 +141,7 @@ self.onmessage = (event) => {
   if (data.type === 'init') {
     canvas = data.canvas;
     ctx = canvas ? canvas.getContext('2d') : null;
-    enabled = data.enabled === true;
-    reducedMotion = data.reducedMotion === true;
+    applySettings(data);
     resize(data.width, data.height, data.dpr);
     resetPetals(true);
     lastTime = performance.now();
@@ -125,9 +154,14 @@ self.onmessage = (event) => {
   }
 
   if (data.type === 'enabled') {
-    enabled = data.enabled === true;
-    reducedMotion = data.reducedMotion === true;
+    applySettings(data);
     resetPetals(enabled);
+    return;
+  }
+
+  if (data.type === 'settings') {
+    applySettings(data);
+    if (enabled && !reducedMotion && petals.length === 0) resetPetals(true);
     return;
   }
 
