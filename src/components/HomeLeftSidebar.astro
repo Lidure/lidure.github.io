@@ -1,0 +1,53 @@
+---
+import SidebarWidget from './SidebarWidget.astro';
+
+interface TagItem {
+  tag: string;
+  count: number;
+}
+
+interface Props {
+  postCount: number;
+  tagCount: number;
+  featuredHref: string;
+  topTags: TagItem[];
+}
+
+const { postCount, tagCount, featuredHref, topTags } = Astro.props;
+---
+
+<aside class="home-left-sidebar" aria-label="站点资料与导航">
+  <SidebarWidget title="关于我" icon="♡" tone="pink" className="profile-widget">
+    <div class="sidebar-profile">
+      <img src="/p0-256.webp" alt="搁浅 的头像" width="88" height="88" />
+      <div class="sidebar-profile-copy">
+        <strong>搁浅</strong>
+        <p>研究生 · PJSK / 游戏 / Vibe coding，偶尔记录项目和日常。</p>
+      </div>
+    </div>
+    <dl class="sidebar-stats-grid">
+      <div><dt>文章</dt><dd>{postCount}</dd></div>
+      <div><dt>标签</dt><dd>{tagCount}</dd></div>
+    </dl>
+  </SidebarWidget>
+
+  <SidebarWidget title="快速入口" icon="⌁" tone="purple">
+    <nav class="sidebar-link-list" aria-label="首页快速入口">
+      <a href={featuredHref}><span>精选文章</span><span>→</span></a>
+      <a href="/posts"><span>文章归档</span><span>→</span></a>
+      <a href="/moments"><span>碎碎念</span><span>→</span></a>
+      <a href="/messages"><span>留言板</span><span>→</span></a>
+    </nav>
+  </SidebarWidget>
+
+  <SidebarWidget title="常用标签" icon="#" tone="cyan">
+    <div class="sidebar-tag-cloud">
+      {topTags.slice(0, 7).map((item) => (
+        <a href={`/tags/${encodeURIComponent(item.tag)}`}>
+          <span>#{item.tag}</span><small>{item.count}</small>
+        </a>
+      ))}
+    </div>
+    <a class="sidebar-widget-more" href="/tags">查看全部标签 →</a>
+  </SidebarWidget>
+</aside>
