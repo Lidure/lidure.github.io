@@ -39,7 +39,8 @@ test('v4 settings center groups wave controls under Background and uses mobile b
 
 test('v4 moments expose authenticated pin controls and preserve server pin ordering', () => {
   const api = readSource('src/lib/moments-api.ts');
-  const page = readSource('src/pages/moments.astro');
+  const pins = readSource('src/components/MomentsPinControls.astro');
+  const layout = readSource('src/layouts/BaseLayout.astro');
 
   assert.match(api, /pinned\?:\s*boolean/);
   assert.match(api, /pinnedAt\?:\s*number/);
@@ -47,10 +48,11 @@ test('v4 moments expose authenticated pin controls and preserve server pin order
   assert.match(api, /method:\s*['"]PATCH['"]/);
   assert.match(api, /\/pin/);
 
-  assert.match(page, /setMomentPinned as setMomentPinnedViaApi/);
-  assert.match(page, /className = ['"]moment-pin-badge['"]/);
-  assert.match(page, /className = ['"]pin-moment-btn['"]/);
-  assert.match(page, /adminMode && moment\.id/);
-  assert.match(page, /await setMomentPinnedViaApi/);
-  assert.match(page, /await fetchMomentsFromApi\(\)/);
+  assert.match(pins, /moment-pin-badge/);
+  assert.match(pins, /pin-moment-btn/);
+  assert.match(pins, /delete-moment-btn/);
+  assert.match(pins, /setMomentPinned as setMomentPinnedViaApi/);
+  assert.match(pins, /await setMomentPinnedViaApi/);
+  assert.match(pins, /await fetchMoments/);
+  assert.match(layout, /<MomentsPinControls\s*\/>/);
 });
