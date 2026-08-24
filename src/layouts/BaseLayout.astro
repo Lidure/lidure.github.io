@@ -37,6 +37,7 @@ import FloatingControls from '../components/FloatingControls.astro';
 import ImmersiveUiController from '../components/ImmersiveUiController.astro';
 import { ClientRouter } from 'astro:transitions';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
+import VisualSettingsPanel from '../components/VisualSettingsPanel.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
 import SekaiParticles from '../components/SekaiParticles.astro';
 
@@ -185,6 +186,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     </script>
   </head>
   <body class={`layout-${layoutMode}`}>
+    <VisualSettingsPanel />
     <HeroSlideshow />
     <SekaiParticles />
     <SekaiPlayer />
