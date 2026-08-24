@@ -8,12 +8,12 @@
 > astro check && astro build
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m02:52:40[22m [34m[content][39m Syncing content
+[2m03:01:34[22m [34m[content][39m Syncing content
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
-[2m02:52:41[22m [34m[content][39m Synced content
-[2m02:52:41[22m [34m[types][39m Generated [2m1.58s[22m
-[2m02:52:41[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[2m03:01:34[22m [34m[content][39m Synced content
+[2m03:01:34[22m [34m[types][39m Generated [2m1.28s[22m
+[2m03:01:34[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
 [96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
 
 [7m14[0m     draft: z.boolean().default(false),
@@ -201,313 +201,119 @@ Result (46 files):
 - 41 hints
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m02:52:50[22m [34m[content][39m Syncing content
-[2m02:52:50[22m [34m[content][39m Synced content
-[2m02:52:50[22m [34m[types][39m Generated [2m517ms[22m
-[2m02:52:50[22m [34m[build][39m output: [34m"static"[39m
-[2m02:52:50[22m [34m[build][39m mode: [34m"static"[39m
-[2m02:52:50[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
-[2m02:52:50[22m [34m[build][39m Collecting build info...
-[2m02:52:50[22m [34m[build][39m [32m✓ Completed in 542ms.[39m
-[2m02:52:50[22m [34m[build][39m Building static entrypoints...
-[2m02:52:52[22m [34m[vite][39m [32m✓ built in 2.43s[39m
-[2m02:52:53[22m [34m[vite][39m [32m✓ built in 559ms[39m
-[2m02:52:53[22m [34m[build][39m Rearranging server assets...
+[2m03:01:42[22m [34m[content][39m Syncing content
+[2m03:01:42[22m [34m[content][39m Synced content
+[2m03:01:42[22m [34m[types][39m Generated [2m472ms[22m
+[2m03:01:42[22m [34m[build][39m output: [34m"static"[39m
+[2m03:01:42[22m [34m[build][39m mode: [34m"static"[39m
+[2m03:01:42[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m03:01:42[22m [34m[build][39m Collecting build info...
+[2m03:01:42[22m [34m[build][39m [32m✓ Completed in 514ms.[39m
+[2m03:01:42[22m [34m[build][39m Building static entrypoints...
+[2m03:01:44[22m [34m[vite][39m [32m✓ built in 2.23s[39m
+[2m03:01:45[22m [34m[vite][39m [32m✓ built in 896ms[39m
+[2m03:01:45[22m [34m[build][39m Rearranging server assets...
 
 [42m[30m generating static routes [39m[49m
-[2m02:52:53[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+15ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+5ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+9ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+3ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+231ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/rss.xml[22m [2m(+25ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
-[2m02:52:53[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
-[2m02:52:53[22m [32m✓ Completed in 366ms.
+[2m03:01:45[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+13ms)[22m 
+[2m03:01:45[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+4ms)[22m 
+[2m03:01:45[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
+[2m03:01:45[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+8ms)[22m 
+[2m03:01:45[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+6ms)[22m 
+[2m03:01:45[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+4ms)[22m 
+[2m03:01:45[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+3ms)[22m 
+[2m03:01:45[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+305ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/rss.xml[22m [2m(+31ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+4ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+3ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+3ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+3ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+3ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+3ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m03:01:46[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
+[2m03:01:46[22m [32m✓ Completed in 452ms.
 [39m
 [42m[30m generating optimized images [39m[49m
-[2m02:52:53[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+70ms)[22m [2m(1/4)[22m
-[2m02:52:53[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+79ms)[22m [2m(2/4)[22m
-[2m02:52:53[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+82ms)[22m [2m(3/4)[22m
-[2m02:52:53[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+332ms)[22m [2m(4/4)[22m
-[2m02:52:53[22m [32m✓ Completed in 333ms.
+[2m03:01:46[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+76ms)[22m [2m(1/4)[22m
+[2m03:01:46[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+87ms)[22m [2m(2/4)[22m
+[2m03:01:46[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+99ms)[22m [2m(3/4)[22m
+[2m03:01:46[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+332ms)[22m [2m(4/4)[22m
+[2m03:01:46[22m [32m✓ Completed in 333ms.
 [39m
-[2m02:52:53[22m [34m[build][39m [32m✓ Completed in 3.74s.[39m
-[2m02:52:53[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
-[2m02:52:53[22m [34m[build][39m 23 page(s) built in [1m4.29s[22m
-[2m02:52:53[22m [34m[build][39m [1mComplete![22m
+[2m03:01:46[22m [34m[build][39m [32m✓ Completed in 3.97s.[39m
+[2m03:01:46[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m03:01:46[22m [34m[build][39m 23 page(s) built in [1m4.49s[22m
+[2m03:01:46[22m [34m[build][39m [1mComplete![22m
 
 > lidure-github-io@0.0.1 test:site
 > node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
 
-✔ BaseLayout exposes standard and immersive page modes (2.074156ms)
-✔ player route defaults to immersive layout with trailing slash tolerance (0.49647ms)
-✔ standard banner keeps B3 desktop and mobile heights (0.493245ms)
-✔ standard banner stays readable when the background is disabled (0.492173ms)
-✔ site header replaces its global scroll listener after Astro navigation (0.543147ms)
-✔ shared shell mounts navigation and floating controls for both modes (0.430479ms)
-✔ floating controls proxy existing background settings instead of duplicating them (0.616614ms)
-✖ immersive hide state uses current shell selectors (3.408932ms)
-✖ immersive stage one keeps player and background controls visible (2.766852ms)
-✖ homepage exposes left, main, and right regions (1.519768ms)
-✖ guestbook uses a wide two-column desktop shell (2.163242ms)
-✔ built immersive page keeps core controls without standard chrome (2.216881ms)
-✔ background loop guard detects a wrap and reuses the player recovery handler (2.341102ms)
-✔ base layout installs the background loop guard (0.578042ms)
-✔ player search tolerates imported songs without precomputed searchText (1.133432ms)
-✔ local imports keep active search and tag filters (0.311287ms)
-✔ search embeds parseable post data without a runtime jsonData reference (2.624216ms)
-✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.98651ms)
-✔ source configuration uses configured public domains and no stale publishing defaults (2.629897ms)
-✔ optical-flow article has one h1 and no unparsed inline delimiters (2.454101ms)
-✔ optimized identity assets are used and remain small (1.00283ms)
-✔ rendered background configuration starts with a static image (0.887195ms)
-✔ rendered moments management controls keep the publish panel closed by default (1.421667ms)
-✔ moments page exposes the API hook and local controls (1.377294ms)
-✔ moments publishing UI accepts videos and requires selectable posters (1.612621ms)
-✔ moments video poster generation ignores stale async captures (1.011666ms)
-✔ moments browser code uses the session API client for management (1.282409ms)
-✔ moment delete controls follow the authenticated session (0.644075ms)
-✔ guestbook exposes authenticated message deletion controls (0.408818ms)
-✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.688126ms)
-✔ moments api preserves distinct 401 auth worker codes (0.226219ms)
-✔ Astro swaps clean page-scoped media while preserving persistent background media (0.497693ms)
-✔ persistent layout scripts initialize through astro page-load with data guards (0.708043ms)
-✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.278426ms)
-✔ sakura particles use the approved flowers and natural drift parameters (0.171538ms)
-✔ QQ playlist imports normalize ids and report unavailable audio links (1.390509ms)
-✔ online playlist imports resolve audio URLs on demand (0.808309ms)
-✔ online playlist imports use a unified Meting-compatible adapter (0.982111ms)
-✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.146672ms)
-✔ background video degrades safely on navigation visibility and reduced motion (0.511138ms)
-✔ background videos recover playback when browsers emit ended despite loop (0.481653ms)
-✔ background videos reload before retrying playback after ended (0.453511ms)
-✔ moments single-item query aliases the legacy images column (0.150739ms)
-ℹ tests 43
+✔ BaseLayout exposes standard and immersive page modes (2.528786ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.500916ms)
+✔ standard banner keeps B3 desktop and mobile heights (0.436201ms)
+✔ standard banner stays readable when the background is disabled (0.416097ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.354736ms)
+✔ shared shell mounts navigation and floating controls for both modes (0.389451ms)
+✔ floating controls proxy existing background settings instead of duplicating them (0.482181ms)
+✖ immersive UI controller owns current shell visibility without touching player business logic (1.148857ms)
+✖ immersive stage one hides only navigation and restores persistent controls before navigation (0.848325ms)
+✖ BaseLayout installs the immersive UI controller only for immersive mode (2.994162ms)
+✖ homepage exposes left, main, and right regions (1.505642ms)
+✖ guestbook uses a wide two-column desktop shell (2.871247ms)
+✔ built immersive page keeps core controls without standard chrome (1.798022ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (2.455165ms)
+✔ base layout installs the background loop guard (0.377773ms)
+✔ player search tolerates imported songs without precomputed searchText (1.265361ms)
+✔ local imports keep active search and tag filters (0.422138ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.323682ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (1.043717ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.618715ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.781562ms)
+✔ optimized identity assets are used and remain small (1.108546ms)
+✔ rendered background configuration starts with a static image (1.032848ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.288702ms)
+✔ moments page exposes the API hook and local controls (1.718179ms)
+✔ moments publishing UI accepts videos and requires selectable posters (1.765328ms)
+✔ moments video poster generation ignores stale async captures (1.103083ms)
+✔ moments browser code uses the session API client for management (1.322636ms)
+✔ moment delete controls follow the authenticated session (0.705652ms)
+✔ guestbook exposes authenticated message deletion controls (0.394785ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.714421ms)
+✔ moments api preserves distinct 401 auth worker codes (0.327997ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.565599ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.716415ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.291658ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.119742ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.444254ms)
+✔ online playlist imports resolve audio URLs on demand (0.92885ms)
+✔ online playlist imports use a unified Meting-compatible adapter (1.096547ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.118928ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.471797ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.479941ms)
+✔ background videos reload before retrying playback after ended (0.464777ms)
+✔ moments single-item query aliases the legacy images column (0.123932ms)
+ℹ tests 44
 ℹ suites 0
 ℹ pass 39
-ℹ fail 4
+ℹ fail 5
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 177.923357
+ℹ duration_ms 173.840299
 
 ✖ failing tests:
 
 test at tests/firefly-ui-refresh.test.mjs:70:1
-✖ immersive hide state uses current shell selectors (3.408932ms)
-  AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /querySelector\(['"]\.topbar['"]\)/. Input:
-  
-  '---\n' +
-    "import BaseLayout from '../layouts/BaseLayout.astro';\n" +
-    "const defaultApiBase = 'https://api.lidure22.xyz/api';\n" +
-    "const apiBase = (import.meta.env.PUBLIC_MOMENTS_API || defaultApiBase).replace(/\\/$/, '');\n" +
-    'const danmakuApiUrl = `${apiBase}/danmaku`;\n' +
-    '---\n' +
-    '<BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">\n' +
-    '  <div class="player-hint" id="playerHint">\n' +
-    '    <div class="player-hint-content">\n' +
-    '      <div class="player-hint-icon">\n' +
-    '        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjHintGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjHintGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n' +
-    '      </div>\n' +
-    '      <div class="player-hint-text">\n' +
-    '        <span class="player-hint-title">点击右下角唱片</span>\n' +
-    '        <span class="player-hint-sub">听 PJSK 的歌，发弹幕</span>\n' +
-    '      </div>\n' +
-    '      <div class="player-hint-arrow">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>\n' +
-    '      </div>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '  <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>\n' +
-    '  <div class="immersive-spacer" aria-hidden="true"></div>\n' +
-    '  <div class="immersive-cover" id="immersiveCover">\n' +
-    '    <img id="immersiveCoverImg" src="" alt="" style="display:none" />\n' +
-    '    <div class="immersive-cover-fallback">\n' +
-    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '  <div class="danmaku-stage" id="danmakuStage" aria-hidden="true"></div>\n' +
-    '\n' +
-    '  <div class="immersive-controls" id="immersiveControls">\n' +
-    '    <button id="immersiveToggleUI" class="immersive-ctrl-btn" title="隐藏界面" aria-label="隐藏界面">\n' +
-    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>\n' +
-    '    </button>\n' +
-    '    <button id="danmakuToggleBtn" class="immersive-ctrl-btn active" title="弹幕" aria-label="弹幕" aria-pressed="true">\n' +
-    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>\n' +
-    '    </button>\n' +
-    '    <div class="immersive-viz-switcher" id="immersiveVizSwitcher">\n' +
-    '      <button class="immersive-viz-mode active" data-mode="circle" title="圆形频谱">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n' +
-    '      </button>\n' +
-    '      <button class="immersive-viz-mode" data-mode="bars" title="频谱柱">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10" y="8" width="3" height="12" rx="1"/><rect x="16" y="4" width="3" height="16" rx="1"/></svg>\n' +
-    '      </button>\n' +
-    '      <button class="immersive-viz-mode" data-mode="wave" title="波形">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 12c1-3 3-5 5-5s4 4 5 4 3-4 5-4 4 2 5 5"/></svg>\n' +
-    '      </button>\n' +
-    '      <button class="immersive-viz-mode" data-mode="spectrum" title="频谱分析仪">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="14" width="2" height="6" rx="1"/><rect x="7" y="10" width="2" height="10" rx="1"/><rect x="11" y="6" width="2" height="14" rx="1"/><rect x="15" y="2" width="2" height="18" rx="1"/><rect x="19" y="8" width="2" height="12" rx="1"/></svg>\n' +
-    '      </button>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '  <form class="danmaku-composer" id="danmakuComposer" autocomplete="off">\n' +
-    '    <div class="danmaku-composer-inner">\n' +
-    '      <svg class="danmaku-composer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>\n' +
-    '      <input id="danmakuInput" type="text" maxlength="60" placeholder="说点什么吧..." aria-label="发送弹幕" />\n' +
-    '      <span class="danmaku-counter" id="danmakuCounter">0/60</span>\n' +
-    '      <button type="submit" aria-label="发送" id="danmakuSendBtn">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>\n' +
-    '      </button>\n' +
-    '    </div>\n' +
-    '    <div class="danmaku-colors" id="danmakuColors">\n' +
-    '      <button type="button" class="danmaku-color-dot active" data-color="" style="background:#fff" title="默认白"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#FF5252" style="background:#FF5252" title="红"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#448AFF" style="background:#448AFF" title="蓝"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#69F0AE" style="background:#69F0AE" title="绿"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#FFD740" style="background:#FFD740" title="黄"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#FF80AB" style="background:#FF80AB" title="粉"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#B388FF" style="background:#B388FF" title="紫"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#FFAB40" style="background:#FFAB40" title="橙"></button>\n' +
-    '    </div>\n' +
-    '    <div class="danmaku-send-flash" id="danmakuSendFlash"></div>\n' +
-    '  </form>\n' +
-    '  <div class="danmaku-total-count" id="danmakuTotalCount"></div>\n' +
-    '\n' +
-    '  <style>\n' +
-    '    /* Canvas full viewport */\n' +
-    '    .immersive-viz-canvas {\n' +
-    '      position: fixed;\n' +
-    '      inset: 0;\n' +
-    '      width: 100vw;\n' +
-    '      height: var(--immersive-stable-height, 100vh);\n' +
-    '      pointer-events: none;\n' +
-    '      z-index: 0;\n' +
-    '    }\n' +
-    '\n' +
-    '    .immersive-spacer {\n' +
-    '      min-height: var(--immersive-stable-height, 100vh);\n' +
-    '      pointer-events: none;\n' +
-    '    }\n' +
-    '\n' +
-    '    /* Cover centered */\n' +
-    '    .immersive-cover {\n' +
-    '      position: fixed;\n' +
-    '      top: calc(var(--immersive-stable-height, 100vh) / 2);\n' +
-    '      left: 50%;\n' +
-    '      transform: translate(-50%, -50%);\n' +
-    '      z-index: 1;\n' +
-    '      width: 200px;\n' +
-    '      height: 200px;\n' +
-    '      border-radius: 50%;\n' +
-    '      overflow: hidden;\n' +
-    '      background: rgba(26, 20, 48, 0.5);\n' +
-    '      border: 2px solid rgba(255, 255, 255, 0.1);\n' +
-    '      display: flex;\n' +
-    '      align-items: center;\n' +
-    '      justify-content: center;\n' +
-    '      transition: opacity 0.4s;\n' +
-    '    }\n' +
-    '    .immersive-cover img { width: 100%; height: 100%; object-fit: cover; }\n' +
-    '    .immersive-cover.spinning img { animation: cover-spin 8s linear infinite; }\n' +
-    '    @keyframes cover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\n' +
-    '    .immersive-cover-fallback { color: var(--accent); opacity: 0.3; }\n' +
-    '    .immersive-cover-fallback svg { width: 64px; height: 64px; }\n' +
-    '    .danmaku-stage {\n' +
-    '      position: fixed;\n' +
-    '      inset: 72px 0 96px;\n' +
-    '      z-index: 2;\n' +
-    '      pointer-events: none;\n' +
-    '      overflow: hidden;\n' +
-    '      opacity: 1;\n' +
-    '      transition: opacity 0.3s ease;\n' +
-    '    }\n' +
-    '    .danmaku-stage.is-off {\n' +
-    '      opacity: 0;\n' +
-    '    }\n' +
-    '    .danmaku-composer {\n' +
-    '      position: fixed;\n' +
-    '      left: 50%;\n' +
-    '      bottom: calc(24px + env(safe-area-inset-bottom, 0px));\n' +
-    '      z-index: 99998;\n' +
-    '      width: min(480px, calc(100vw - 200px));\n' +
-    '      transform: translateX(-50%);\n' +
-    '      transition: opacity 0.3s ease, transform 0.3s ease;\n' +
-    '    }\n' +
-    '    [data-theme="light"] .danmaku-composer {\n' +
-    '      filter: none;\n' +
-    '    }\n' +
-    '    .danmaku-composer.is-hidden {\n' +
-    '      opacity: 0;\n' +
-    '      pointer-events: none;\n' +
-    '      transform: translateX(-50%) translateY(12px);\n' +
-    '    }\n' +
-    '    .danmaku-composer-inner {\n' +
-    '      display: flex;\n' +
-    '      align-items: center;\n' +
-    '      gap: 6px;\n' +
-    '      padding: 6px 6px 6px 14px;\n' +
-    '      border-radius: 999px;\n' +
-    '      border: 1px solid rgba(255,255,255,0.12);\n' +
-    '      background: rgba(12, 10, 28, 0.55);\n' +
-    '      backdrop-filter: blur(24px) saturate(1.4);\n' +
-    '      -webkit-backdrop-filter: blur(24px) saturate(1.4);\n' +
-    '      box-shadow:\n' +
-    '        0 2px 16px rgba(0,0,0,0.25),\n' +
-    '        0 0 0 0 rgba(var(--accent-rgb), 0),\n' +
-    '        inset 0 1px 0 rgba(255,255,255,0.06);\n' +
-    '      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;\n' +
-    '      position: relative;\n' +
-    '      overflow: hidden;\n' +
-    '    }\n' +
-    '    .danmaku-composer-inner::before {\n' +
-    "      content: '';\n" +
-    '      position: absolute;\n' +
-    '      inset: -1px;\n' +
-    '      border-radius: inherit;\n' +
-    '      padding: 1px;\n' +
-    '      background: linear-gradient(135deg, rgba(var(--accent-rgb),0), rgba(var(--accent-rgb),0));\n' +
-    '      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);\n' +
-    '      -webkit-mask-composite: xor;\n' +
-    '      mask-composite: exclude;\n' +
-    '      pointer-events: none;\n' +
-    '      transition: background 0.4s;\n' +
-    '    }\n' +
-    '    .danmaku-composer-inner:focus-within {\n' +
-    '      border-color: rgba(var(--accent-rgb), 0.35);\n' +
-    '      box-shadow:\n' +
-    '        0 4px 24px rgba(0,0,0,0.3),\n' +
-    '        0 0 20px rgba(var(--accent-rgb), 0.12),\n' +
-    '        inset 0 1px 0 rgba(255,255,255,0.08);\n' +
-    '      background: rgba(12, 10, 28, 0.7);\n' +
-    '    }\n' +
-    '    .danmaku-composer-inner:focus-within::before {\n' +
-    '      background: linear-gradient(135deg, rgba(var(--accent-rgb),0.4), rgba(var(--accent-3-rgb, var(--accent-rgb)),0.2), rgba(var(--accent-rgb),0.1));\n' +
-    '    }\n' +
-    '    [data-theme="light"] .danmaku-composer-inner {\n' +
-    '      border-color: rgba(200,80,150,0.14);\n' +
-    '      background: rgba(255,255,255,0.55);\n' +
-    '      box-shadow: 0 2px 16px rgba(0,0,0,0.08);\n' +
-    '    }\n' +
-    '    [data-theme="light"] .danmaku-composer-inner:focus-within {\n' +
-    '      ba'... 59154 more characters
-  
+✖ immersive UI controller owns current shell visibility without touching player business logic (1.148857ms)
+  AssertionError [ERR_ASSERTION]: ImmersiveUiController.astro must exist
       at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:72:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1382:25)
@@ -515,213 +321,201 @@ test at tests/firefly-ui-refresh.test.mjs:70:1
       at Test.postRun (node:internal/test_runner/test:1522:19)
       at Test.run (node:internal/test_runner/test:1447:12)
       at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
+    generatedMessage: false,
     code: 'ERR_ASSERTION',
-    actual: '---\nimport BaseLayout from \'../layouts/BaseLayout.astro\';\nconst defaultApiBase = \'https://api.lidure22.xyz/api\';\nconst apiBase = (import.meta.env.PUBLIC_MOMENTS_API || defaultApiBase).replace(/\\/$/, \'\');\nconst danmakuApiUrl = `${apiBase}/danmaku`;\n---\n<BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">\n  <div class="player-hint" id="playerHint">\n    <div class="player-hint-content">\n      <div class="player-hint-icon">\n        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjHintGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjHintGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n      </div>\n      <div class="player-hint-text">\n        <span class="player-hint-title">点击右下角唱片</span>\n        <span class="player-hint-sub">听 PJSK 的歌，发弹幕</span>\n      </div>\n      <div class="player-hint-arrow">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>\n      </div>\n    </div>\n  </div>\n  <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>\n  <div class="immersive-spacer" aria-hidden="true"></div>\n  <div class="immersive-cover" id="immersiveCover">\n    <img id="immersiveCoverImg" src="" alt="" style="display:none" />\n    <div class="immersive-cover-fallback">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>\n    </div>\n  </div>\n  <div class="danmaku-stage" id="danmakuStage" aria-hidden="true"></div>\n\n  <div class="immersive-controls" id="immersiveControls">\n    <button id="immersiveToggleUI" class="immersive-ctrl-btn" title="隐藏界面" aria-label="隐藏界面">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>\n    </button>\n    <button id="danmakuToggleBtn" class="immersive-ctrl-btn active" title="弹幕" aria-label="弹幕" aria-pressed="true">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>\n    </button>\n    <div class="immersive-viz-switcher" id="immersiveVizSwitcher">\n      <button class="immersive-viz-mode active" data-mode="circle" title="圆形频谱">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="bars" title="频谱柱">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10" y="8" width="3" height="12" rx="1"/><rect x="16" y="4" width="3" height="16" rx="1"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="wave" title="波形">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 12c1-3 3-5 5-5s4 4 5 4 3-4 5-4 4 2 5 5"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="spectrum" title="频谱分析仪">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="14" width="2" height="6" rx="1"/><rect x="7" y="10" width="2" height="10" rx="1"/><rect x="11" y="6" width="2" height="14" rx="1"/><rect x="15" y="2" width="2" height="18" rx="1"/><rect x="19" y="8" width="2" height="12" rx="1"/></svg>\n      </button>\n    </div>\n  </div>\n  <form class="danmaku-composer" id="danmakuComposer" autocomplete="off">\n    <div class="danmaku-composer-inner">\n      <svg class="danmaku-composer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>\n      <input id="danmakuInput" type="text" maxlength="60" placeholder="说点什么吧..." aria-label="发送弹幕" />\n      <span class="danmaku-counter" id="danmakuCounter">0/60</span>\n      <button type="submit" aria-label="发送" id="danmakuSendBtn">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>\n      </button>\n    </div>\n    <div class="danmaku-colors" id="danmakuColors">\n      <button type="button" class="danmaku-color-dot active" data-color="" style="background:#fff" title="默认白"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FF5252" style="background:#FF5252" title="红"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#448AFF" style="background:#448AFF" title="蓝"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#69F0AE" style="background:#69F0AE" title="绿"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FFD740" style="background:#FFD740" title="黄"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FF80AB" style="background:#FF80AB" title="粉"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#B388FF" style="background:#B388FF" title="紫"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FFAB40" style="background:#FFAB40" title="橙"></button>\n    </div>\n    <div class="danmaku-send-flash" id="danmakuSendFlash"></div>\n  </form>\n  <div class="danmaku-total-count" id="danmakuTotalCount"></div>\n\n  <style>\n    /* Canvas full viewport */\n    .immersive-viz-canvas {\n      position: fixed;\n      inset: 0;\n      width: 100vw;\n      height: var(--immersive-stable-height, 100vh);\n      pointer-events: none;\n      z-index: 0;\n    }\n\n    .immersive-spacer {\n      min-height: var(--immersive-stable-height, 100vh);\n      pointer-events: none;\n    }\n\n    /* Cover centered */\n    .immersive-cover {\n      position: fixed;\n      top: calc(var(--immersive-stable-height, 100vh) / 2);\n      left: 50%;\n      transform: translate(-50%, -50%);\n      z-index: 1;\n      width: 200px;\n      height: 200px;\n      border-radius: 50%;\n      overflow: hidden;\n      background: rgba(26, 20, 48, 0.5);\n      border: 2px solid rgba(255, 255, 255, 0.1);\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      transition: opacity 0.4s;\n    }\n    .immersive-cover img { width: 100%; height: 100%; object-fit: cover; }\n    .immersive-cover.spinning img { animation: cover-spin 8s linear infinite; }\n    @keyframes cover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\n    .immersive-cover-fallback { color: var(--accent); opacity: 0.3; }\n    .immersive-cover-fallback svg { width: 64px; height: 64px; }\n    .danmaku-stage {\n      position: fixed;\n      inset: 72px 0 96px;\n      z-index: 2;\n      pointer-events: none;\n      overflow: hidden;\n      opacity: 1;\n      transition: opacity 0.3s ease;\n    }\n    .danmaku-stage.is-off {\n      opacity: 0;\n    }\n    .danmaku-composer {\n      position: fixed;\n      left: 50%;\n      bottom: calc(24px + env(safe-area-inset-bottom, 0px));\n      z-index: 99998;\n      width: min(480px, calc(100vw - 200px));\n      transform: translateX(-50%);\n      transition: opacity 0.3s ease, transform 0.3s ease;\n    }\n    [data-theme="light"] .danmaku-composer {\n      filter: none;\n    }\n    .danmaku-composer.is-hidden {\n      opacity: 0;\n      pointer-events: none;\n      transform: translateX(-50%) translateY(12px);\n    }\n    .danmaku-composer-inner {\n      display: flex;\n      align-items: center;\n      gap: 6px;\n      padding: 6px 6px 6px 14px;\n      border-radius: 999px;\n      border: 1px solid rgba(255,255,255,0.12);\n      background: rgba(12, 10, 28, 0.55);\n      backdrop-filter: blur(24px) saturate(1.4);\n      -webkit-backdrop-filter: blur(24px) saturate(1.4);\n      box-shadow:\n        0 2px 16px rgba(0,0,0,0.25),\n        0 0 0 0 rgba(var(--accent-rgb), 0),\n        inset 0 1px 0 rgba(255,255,255,0.06);\n      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;\n      position: relative;\n      overflow: hidden;\n    }\n    .danmaku-composer-inner::before {\n      content: \'\';\n      position: absolute;\n      inset: -1px;\n      border-radius: inherit;\n      padding: 1px;\n      background: linear-gradient(135deg, rgba(var(--accent-rgb),0), rgba(var(--accent-rgb),0));\n      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);\n      -webkit-mask-composite: xor;\n      mask-composite: exclude;\n      pointer-events: none;\n      transition: background 0.4s;\n    }\n    .danmaku-composer-inner:focus-within {\n      border-color: rgba(var(--accent-rgb), 0.35);\n      box-shadow:\n        0 4px 24px rgba(0,0,0,0.3),\n        0 0 20px rgba(var(--accent-rgb), 0.12),\n        inset 0 1px 0 rgba(255,255,255,0.08);\n      background: rgba(12, 10, 28, 0.7);\n    }\n    .danmaku-composer-inner:focus-within::before {\n      background: linear-gradient(135deg, rgba(var(--accent-rgb),0.4), rgba(var(--accent-3-rgb, var(--accent-rgb)),0.2), rgba(var(--accent-rgb),0.1));\n    }\n    [data-theme="light"] .danmaku-composer-inner {\n      border-color: rgba(200,80,150,0.14);\n      background: rgba(255,255,255,0.55);\n      box-shadow: 0 2px 16px rgba(0,0,0,0.08);\n    }\n    [data-theme="light"] .danmaku-composer-inner:focus-within {\n      ba'... 59154 more characters,
-    expected: /querySelector\(['"]\.topbar['"]\)/,
-    operator: 'doesNotMatch',
+    actual: false,
+    expected: true,
+    operator: '==',
     diff: 'simple'
   }
 
-test at tests/firefly-ui-refresh.test.mjs:77:1
-✖ immersive stage one keeps player and background controls visible (2.766852ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /stage1:\s*\[\s*document\.querySelector\(['"]\.site-header['"]\)/. Input:
+test at tests/firefly-ui-refresh.test.mjs:85:1
+✖ immersive stage one hides only navigation and restores persistent controls before navigation (0.848325ms)
+  AssertionError [ERR_ASSERTION]: ImmersiveUiController.astro must exist
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:87:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests/firefly-ui-refresh.test.mjs:95:1
+✖ BaseLayout installs the immersive UI controller only for immersive mode (2.994162ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /ImmersiveUiController/. Input:
   
   '---\n' +
-    "import BaseLayout from '../layouts/BaseLayout.astro';\n" +
-    "const defaultApiBase = 'https://api.lidure22.xyz/api';\n" +
-    "const apiBase = (import.meta.env.PUBLIC_MOMENTS_API || defaultApiBase).replace(/\\/$/, '');\n" +
-    'const danmakuApiUrl = `${apiBase}/danmaku`;\n' +
+    'interface Props {\n' +
+    '  title?: string;\n' +
+    '  description?: string;\n' +
+    '  showTime?: boolean;\n' +
+    "  layoutMode?: 'standard' | 'immersive';\n" +
+    '  bannerTitle?: string;\n' +
+    '  bannerSubtitle?: string;\n' +
+    '}\n' +
+    '\n' +
+    "const normalizedPath = Astro.url.pathname.replace(/\\/+$/, '');\n" +
+    "const defaultLayoutMode: 'standard' | 'immersive' =\n" +
+    "  normalizedPath === '/player' ? 'immersive' : 'standard';\n" +
+    '\n' +
+    'const {\n' +
+    "  title = '搁浅 的小窝',\n" +
+    "  description = '一个使用 Astro 和 GitHub Pages 搭建的个人博客。',\n" +
+    '  showTime = false,\n' +
+    '  layoutMode = defaultLayoutMode,\n' +
+    '  bannerTitle,\n' +
+    '  bannerSubtitle,\n' +
+    '} = Astro.props;\n' +
+    '\n' +
+    "const isStandard = layoutMode === 'standard';\n" +
+    "const resolvedBannerTitle = bannerTitle ?? title.split('|')[0].trim();\n" +
+    'const resolvedBannerSubtitle = bannerSubtitle ?? description;\n' +
+    '\n' +
+    "import '../styles/global.css';\n" +
+    "import '../styles/firefly-refresh.css';\n" +
+    "import '../styles/immersive-nav.css';\n" +
+    "import ClockDisplay from '../components/ClockDisplay.astro';\n" +
+    "import BlogBanner from '../components/BlogBanner.astro';\n" +
+    "import SiteHeader from '../components/SiteHeader.astro';\n" +
+    "import FloatingControls from '../components/FloatingControls.astro';\n" +
+    "import { ClientRouter } from 'astro:transitions';\n" +
+    "import SekaiPlayer from '../components/SekaiPlayer.astro';\n" +
+    "import HeroSlideshow from '../components/HeroSlideshow.astro';\n" +
+    "import SekaiParticles from '../components/SekaiParticles.astro';\n" +
+    '\n' +
+    "const siteBase = Astro.site ?? new URL('https://lidure22.xyz');\n" +
+    'const canonicalUrl = new URL(Astro.url.pathname, siteBase);\n' +
+    "const socialImageUrl = new URL('/site-icon-512.png', siteBase);\n" +
     '---\n' +
-    '<BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">\n' +
-    '  <div class="player-hint" id="playerHint">\n' +
-    '    <div class="player-hint-content">\n' +
-    '      <div class="player-hint-icon">\n' +
-    '        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjHintGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjHintGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n' +
-    '      </div>\n' +
-    '      <div class="player-hint-text">\n' +
-    '        <span class="player-hint-title">点击右下角唱片</span>\n' +
-    '        <span class="player-hint-sub">听 PJSK 的歌，发弹幕</span>\n' +
-    '      </div>\n' +
-    '      <div class="player-hint-arrow">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>\n' +
-    '      </div>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '  <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>\n' +
-    '  <div class="immersive-spacer" aria-hidden="true"></div>\n' +
-    '  <div class="immersive-cover" id="immersiveCover">\n' +
-    '    <img id="immersiveCoverImg" src="" alt="" style="display:none" />\n' +
-    '    <div class="immersive-cover-fallback">\n' +
-    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '  <div class="danmaku-stage" id="danmakuStage" aria-hidden="true"></div>\n' +
+    '<!doctype html>\n' +
+    '<html lang="zh-CN">\n' +
+    '  <head>\n' +
+    '    <meta charset="utf-8" />\n' +
+    '    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n' +
+    '    <meta name="referrer" content="same-origin" />\n' +
+    '    <meta name="description" content={description} />\n' +
+    '    <meta name="generator" content={Astro.generator} />\n' +
+    '    <link rel="canonical" href={canonicalUrl} />\n' +
+    '    <meta property="og:type" content="website" />\n' +
+    '    <meta property="og:title" content={title} />\n' +
+    '    <meta property="og:description" content={description} />\n' +
+    '    <meta property="og:url" content={canonicalUrl} />\n' +
+    '    <meta property="og:image" content={socialImageUrl} />\n' +
+    '    <title>{title}</title>\n' +
+    '    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />\n' +
+    '    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />\n' +
+    '    <link rel="preconnect" href="https://fonts.googleapis.com" />\n' +
+    '    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n' +
+    '    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" />\n' +
+    `    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />\n` +
+    '    <noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" /></noscript>\n' +
+    '    <ClientRouter />\n' +
+    '    <script is:inline>\n' +
+    '    (function() {\n' +
+    "      var theme = 'dark';\n" +
+    "      try { theme = localStorage.getItem('theme') || 'dark'; } catch(e) {}\n" +
+    "      document.documentElement.setAttribute('data-theme', theme);\n" +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      try {\n' +
+    "        var s = localStorage.getItem('hero_settings');\n" +
+    '        if (s && JSON.parse(s).enabled === false) {\n' +
+    "          document.documentElement.classList.add('no-hero-bg');\n" +
+    '        }\n' +
+    '      } catch(e) {}\n' +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      if (window.__pageMediaSwapCleanupBound) return;\n' +
+    '      window.__pageMediaSwapCleanupBound = true;\n' +
     '\n' +
-    '  <div class="immersive-controls" id="immersiveControls">\n' +
-    '    <button id="immersiveToggleUI" class="immersive-ctrl-btn" title="隐藏界面" aria-label="隐藏界面">\n' +
-    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>\n' +
-    '    </button>\n' +
-    '    <button id="danmakuToggleBtn" class="immersive-ctrl-btn active" title="弹幕" aria-label="弹幕" aria-pressed="true">\n' +
-    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>\n' +
-    '    </button>\n' +
-    '    <div class="immersive-viz-switcher" id="immersiveVizSwitcher">\n' +
-    '      <button class="immersive-viz-mode active" data-mode="circle" title="圆形频谱">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n' +
-    '      </button>\n' +
-    '      <button class="immersive-viz-mode" data-mode="bars" title="频谱柱">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10" y="8" width="3" height="12" rx="1"/><rect x="16" y="4" width="3" height="16" rx="1"/></svg>\n' +
-    '      </button>\n' +
-    '      <button class="immersive-viz-mode" data-mode="wave" title="波形">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 12c1-3 3-5 5-5s4 4 5 4 3-4 5-4 4 2 5 5"/></svg>\n' +
-    '      </button>\n' +
-    '      <button class="immersive-viz-mode" data-mode="spectrum" title="频谱分析仪">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="14" width="2" height="6" rx="1"/><rect x="7" y="10" width="2" height="10" rx="1"/><rect x="11" y="6" width="2" height="14" rx="1"/><rect x="15" y="2" width="2" height="18" rx="1"/><rect x="19" y="8" width="2" height="12" rx="1"/></svg>\n' +
-    '      </button>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '  <form class="danmaku-composer" id="danmakuComposer" autocomplete="off">\n' +
-    '    <div class="danmaku-composer-inner">\n' +
-    '      <svg class="danmaku-composer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>\n' +
-    '      <input id="danmakuInput" type="text" maxlength="60" placeholder="说点什么吧..." aria-label="发送弹幕" />\n' +
-    '      <span class="danmaku-counter" id="danmakuCounter">0/60</span>\n' +
-    '      <button type="submit" aria-label="发送" id="danmakuSendBtn">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>\n' +
-    '      </button>\n' +
-    '    </div>\n' +
-    '    <div class="danmaku-colors" id="danmakuColors">\n' +
-    '      <button type="button" class="danmaku-color-dot active" data-color="" style="background:#fff" title="默认白"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#FF5252" style="background:#FF5252" title="红"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#448AFF" style="background:#448AFF" title="蓝"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#69F0AE" style="background:#69F0AE" title="绿"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#FFD740" style="background:#FFD740" title="黄"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#FF80AB" style="background:#FF80AB" title="粉"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#B388FF" style="background:#B388FF" title="紫"></button>\n' +
-    '      <button type="button" class="danmaku-color-dot" data-color="#FFAB40" style="background:#FFAB40" title="橙"></button>\n' +
-    '    </div>\n' +
-    '    <div class="danmaku-send-flash" id="danmakuSendFlash"></div>\n' +
-    '  </form>\n' +
-    '  <div class="danmaku-total-count" id="danmakuTotalCount"></div>\n' +
+    "      var pageMediaSelector = 'video[data-page-media], audio[data-page-media]';\n" +
     '\n' +
-    '  <style>\n' +
-    '    /* Canvas full viewport */\n' +
-    '    .immersive-viz-canvas {\n' +
-    '      position: fixed;\n' +
-    '      inset: 0;\n' +
-    '      width: 100vw;\n' +
-    '      height: var(--immersive-stable-height, 100vh);\n' +
-    '      pointer-events: none;\n' +
-    '      z-index: 0;\n' +
-    '    }\n' +
+    "      document.addEventListener('astro:before-swap', function() {\n" +
+    '        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n' +
+    "          if (media.matches(':not([data-persistent-media])') === false) return;\n" +
+    '          try { media.pause(); } catch(e) {}\n' +
+    "          media.removeAttribute('src');\n" +
+    "          media.querySelectorAll('source').forEach(function(source) {\n" +
+    "            source.removeAttribute('src');\n" +
+    '          });\n' +
+    '          try { media.load(); } catch(e) {}\n' +
+    '        });\n' +
+    '      });\n' +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      if (window.__busuanziLifecycleBound) return;\n' +
+    '      window.__busuanziLifecycleBound = true;\n' +
+    "      var busuanziRequestUrl = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback';\n" +
     '\n' +
-    '    .immersive-spacer {\n' +
-    '      min-height: var(--immersive-stable-height, 100vh);\n' +
-    '      pointer-events: none;\n' +
-    '    }\n' +
+    '      function applyBusuanzi(data) {\n' +
+    '        var values = data || {};\n' +
+    "        var pv = document.getElementById('busuanzi_value_site_pv');\n" +
+    "        var uv = document.getElementById('busuanzi_value_site_uv');\n" +
+    '        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n' +
+    '        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n' +
+    '      }\n' +
     '\n' +
-    '    /* Cover centered */\n' +
-    '    .immersive-cover {\n' +
-    '      position: fixed;\n' +
-    '      top: calc(var(--immersive-stable-height, 100vh) / 2);\n' +
-    '      left: 50%;\n' +
-    '      transform: translate(-50%, -50%);\n' +
-    '      z-index: 1;\n' +
-    '      width: 200px;\n' +
-    '      height: 200px;\n' +
-    '      border-radius: 50%;\n' +
-    '      overflow: hidden;\n' +
-    '      background: rgba(26, 20, 48, 0.5);\n' +
-    '      border: 2px solid rgba(255, 255, 255, 0.1);\n' +
-    '      display: flex;\n' +
-    '      align-items: center;\n' +
-    '      justify-content: center;\n' +
-    '      transition: opacity 0.4s;\n' +
-    '    }\n' +
-    '    .immersive-cover img { width: 100%; height: 100%; object-fit: cover; }\n' +
-    '    .immersive-cover.spinning img { animation: cover-spin 8s linear infinite; }\n' +
-    '    @keyframes cover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\n' +
-    '    .immersive-cover-fallback { color: var(--accent); opacity: 0.3; }\n' +
-    '    .immersive-cover-fallback svg { width: 64px; height: 64px; }\n' +
-    '    .danmaku-stage {\n' +
-    '      position: fixed;\n' +
-    '      inset: 72px 0 96px;\n' +
-    '      z-index: 2;\n' +
-    '      pointer-events: none;\n' +
-    '      overflow: hidden;\n' +
-    '      opacity: 1;\n' +
-    '      transition: opacity 0.3s ease;\n' +
-    '    }\n' +
-    '    .danmaku-stage.is-off {\n' +
-    '      opacity: 0;\n' +
-    '    }\n' +
-    '    .danmaku-composer {\n' +
-    '      position: fixed;\n' +
-    '      left: 50%;\n' +
-    '      bottom: calc(24px + env(safe-area-inset-bottom, 0px));\n' +
-    '      z-index: 99998;\n' +
-    '      width: min(480px, calc(100vw - 200px));\n' +
-    '      transform: translateX(-50%);\n' +
-    '      transition: opacity 0.3s ease, transform 0.3s ease;\n' +
-    '    }\n' +
-    '    [data-theme="light"] .danmaku-composer {\n' +
-    '      filter: none;\n' +
-    '    }\n' +
-    '    .danmaku-composer.is-hidden {\n' +
-    '      opacity: 0;\n' +
-    '      pointer-events: none;\n' +
-    '      transform: translateX(-50%) translateY(12px);\n' +
-    '    }\n' +
-    '    .danmaku-composer-inner {\n' +
-    '      display: flex;\n' +
-    '      align-items: center;\n' +
-    '      gap: 6px;\n' +
-    '      padding: 6px 6px 6px 14px;\n' +
-    '      border-radius: 999px;\n' +
-    '      border: 1px solid rgba(255,255,255,0.12);\n' +
-    '      background: rgba(12, 10, 28, 0.55);\n' +
-    '      backdrop-filter: blur(24px) saturate(1.4);\n' +
-    '      -webkit-backdrop-filter: blur(24px) saturate(1.4);\n' +
-    '      box-shadow:\n' +
-    '        0 2px 16px rgba(0,0,0,0.25),\n' +
-    '        0 0 0 0 rgba(var(--accent-rgb), 0),\n' +
-    '        inset 0 1px 0 rgba(255,255,255,0.06);\n' +
-    '      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;\n' +
-    '      position: relative;\n' +
-    '      overflow: hidden;\n' +
-    '    }\n' +
-    '    .danmaku-composer-inner::before {\n' +
-    "      content: '';\n" +
-    '      position: absolute;\n' +
-    '      inset: -1px;\n' +
-    '      border-radius: inherit;\n' +
-    '      padding: 1px;\n' +
-    '      background: linear-gradient(135deg, rgba(var(--accent-rgb),0), rgba(var(--accent-rgb),0));\n' +
-    '      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);\n' +
-    '      -webkit-mask-composite: xor;\n' +
-    '      mask-composite: exclude;\n' +
-    '      pointer-events: none;\n' +
-    '      transition: background 0.4s;\n' +
-    '    }\n' +
-    '    .danmaku-composer-inner:focus-within {\n' +
-    '      border-color: rgba(var(--accent-rgb), 0.35);\n' +
-    '      box-shadow:\n' +
-    '        0 4px 24px rgba(0,0,0,0.3),\n' +
-    '        0 0 20px rgba(var(--accent-rgb), 0.12),\n' +
-    '        inset 0 1px 0 rgba(255,255,255,0.08);\n' +
-    '      background: rgba(12, 10, 28, 0.7);\n' +
-    '    }\n' +
-    '    .danmaku-composer-inner:focus-within::before {\n' +
-    '      background: linear-gradient(135deg, rgba(var(--accent-rgb),0.4), rgba(var(--accent-3-rgb, var(--accent-rgb)),0.2), rgba(var(--accent-rgb),0.1));\n' +
-    '    }\n' +
-    '    [data-theme="light"] .danmaku-composer-inner {\n' +
-    '      border-color: rgba(200,80,150,0.14);\n' +
-    '      background: rgba(255,255,255,0.55);\n' +
-    '      box-shadow: 0 2px 16px rgba(0,0,0,0.08);\n' +
-    '    }\n' +
-    '    [data-theme="light"] .danmaku-composer-inner:focus-within {\n' +
-    '      ba'... 59154 more characters
+    '      function refreshBusuanzi() {\n' +
+    "        if (!document.getElementById('busuanzi_value_site_pv')) return;\n" +
+    "        if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {\n" +
+    '          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n' +
+    '          return;\n' +
+    '        }\n' +
+    "        var script = document.getElementById('busuanzi-counter-script');\n" +
+    '        if (!script) {\n' +
+    "          script = document.createElement('script');\n" +
+    "          script.id = 'busuanzi-counter-script';\n" +
+    '          script.async = true;\n' +
+    "          script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';\n" +
+    '          document.head.appendChild(script);\n' +
+    '        }\n' +
+    "        script.addEventListener('load', refreshBusuanzi, { once: true });\n" +
+    '      }\n' +
+    "      document.addEventListener('astro:page-load', refreshBusuanzi);\n" +
+    '      refreshBusuanzi();\n' +
+    '    })();\n' +
+    '    </script>\n' +
+    '    <script>\n' +
+    "      import { installHeroVideoLoopGuard } from '../lib/hero-video-loop-guard.mjs';\n" +
+    '      installHeroVideoLoopGuard();\n' +
+    '    </script>\n' +
+    '  </head>\n' +
+    '  <body class={`layout-${layoutMode}`}>\n' +
+    '    <HeroSlideshow />\n' +
+    '    <SekaiParticles />\n' +
+    '    <SekaiPlayer />\n' +
+    '    <SiteHeader currentPath={Astro.url.pathname} />\n' +
+    '    <FloatingControls />\n' +
+    '\n' +
+    '    {isStandard ? (\n' +
+    '      <>\n' +
+    '        <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />\n' +
+    '        <div class="standard-page-surface">\n' +
+    '          <main class="content-area standard-content">\n' +
+    '            {showTime && <div class="clock-row"><ClockDisplay /></div>}\n' +
+    '            <slot />\n' +
+    '          </main>\n' +
+    '          <footer class="footer">\n' +
+    '            <div class="footer-inner">\n' +
+    '              <p>Built with Astro and GitHub Pages.</p>\n' +
+    '            </div>\n' +
+    '          </footer>\n' +
+    '        </div>\n' +
+    '      </>\n' +
+    '    ) : (\n' +
+    '      <main class="immersive-content"><slot /></main>\n' +
+    '    )}\n' +
+    '  </body>\n' +
+    '</html>\n'
   
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:79:10)
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:97:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1382:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
@@ -730,14 +524,14 @@ test at tests/firefly-ui-refresh.test.mjs:77:1
       at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
     generatedMessage: true,
     code: 'ERR_ASSERTION',
-    actual: '---\nimport BaseLayout from \'../layouts/BaseLayout.astro\';\nconst defaultApiBase = \'https://api.lidure22.xyz/api\';\nconst apiBase = (import.meta.env.PUBLIC_MOMENTS_API || defaultApiBase).replace(/\\/$/, \'\');\nconst danmakuApiUrl = `${apiBase}/danmaku`;\n---\n<BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">\n  <div class="player-hint" id="playerHint">\n    <div class="player-hint-content">\n      <div class="player-hint-icon">\n        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjHintGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjHintGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n      </div>\n      <div class="player-hint-text">\n        <span class="player-hint-title">点击右下角唱片</span>\n        <span class="player-hint-sub">听 PJSK 的歌，发弹幕</span>\n      </div>\n      <div class="player-hint-arrow">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>\n      </div>\n    </div>\n  </div>\n  <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>\n  <div class="immersive-spacer" aria-hidden="true"></div>\n  <div class="immersive-cover" id="immersiveCover">\n    <img id="immersiveCoverImg" src="" alt="" style="display:none" />\n    <div class="immersive-cover-fallback">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>\n    </div>\n  </div>\n  <div class="danmaku-stage" id="danmakuStage" aria-hidden="true"></div>\n\n  <div class="immersive-controls" id="immersiveControls">\n    <button id="immersiveToggleUI" class="immersive-ctrl-btn" title="隐藏界面" aria-label="隐藏界面">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>\n    </button>\n    <button id="danmakuToggleBtn" class="immersive-ctrl-btn active" title="弹幕" aria-label="弹幕" aria-pressed="true">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>\n    </button>\n    <div class="immersive-viz-switcher" id="immersiveVizSwitcher">\n      <button class="immersive-viz-mode active" data-mode="circle" title="圆形频谱">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="bars" title="频谱柱">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10" y="8" width="3" height="12" rx="1"/><rect x="16" y="4" width="3" height="16" rx="1"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="wave" title="波形">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 12c1-3 3-5 5-5s4 4 5 4 3-4 5-4 4 2 5 5"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="spectrum" title="频谱分析仪">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="14" width="2" height="6" rx="1"/><rect x="7" y="10" width="2" height="10" rx="1"/><rect x="11" y="6" width="2" height="14" rx="1"/><rect x="15" y="2" width="2" height="18" rx="1"/><rect x="19" y="8" width="2" height="12" rx="1"/></svg>\n      </button>\n    </div>\n  </div>\n  <form class="danmaku-composer" id="danmakuComposer" autocomplete="off">\n    <div class="danmaku-composer-inner">\n      <svg class="danmaku-composer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>\n      <input id="danmakuInput" type="text" maxlength="60" placeholder="说点什么吧..." aria-label="发送弹幕" />\n      <span class="danmaku-counter" id="danmakuCounter">0/60</span>\n      <button type="submit" aria-label="发送" id="danmakuSendBtn">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>\n      </button>\n    </div>\n    <div class="danmaku-colors" id="danmakuColors">\n      <button type="button" class="danmaku-color-dot active" data-color="" style="background:#fff" title="默认白"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FF5252" style="background:#FF5252" title="红"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#448AFF" style="background:#448AFF" title="蓝"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#69F0AE" style="background:#69F0AE" title="绿"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FFD740" style="background:#FFD740" title="黄"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FF80AB" style="background:#FF80AB" title="粉"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#B388FF" style="background:#B388FF" title="紫"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FFAB40" style="background:#FFAB40" title="橙"></button>\n    </div>\n    <div class="danmaku-send-flash" id="danmakuSendFlash"></div>\n  </form>\n  <div class="danmaku-total-count" id="danmakuTotalCount"></div>\n\n  <style>\n    /* Canvas full viewport */\n    .immersive-viz-canvas {\n      position: fixed;\n      inset: 0;\n      width: 100vw;\n      height: var(--immersive-stable-height, 100vh);\n      pointer-events: none;\n      z-index: 0;\n    }\n\n    .immersive-spacer {\n      min-height: var(--immersive-stable-height, 100vh);\n      pointer-events: none;\n    }\n\n    /* Cover centered */\n    .immersive-cover {\n      position: fixed;\n      top: calc(var(--immersive-stable-height, 100vh) / 2);\n      left: 50%;\n      transform: translate(-50%, -50%);\n      z-index: 1;\n      width: 200px;\n      height: 200px;\n      border-radius: 50%;\n      overflow: hidden;\n      background: rgba(26, 20, 48, 0.5);\n      border: 2px solid rgba(255, 255, 255, 0.1);\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      transition: opacity 0.4s;\n    }\n    .immersive-cover img { width: 100%; height: 100%; object-fit: cover; }\n    .immersive-cover.spinning img { animation: cover-spin 8s linear infinite; }\n    @keyframes cover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\n    .immersive-cover-fallback { color: var(--accent); opacity: 0.3; }\n    .immersive-cover-fallback svg { width: 64px; height: 64px; }\n    .danmaku-stage {\n      position: fixed;\n      inset: 72px 0 96px;\n      z-index: 2;\n      pointer-events: none;\n      overflow: hidden;\n      opacity: 1;\n      transition: opacity 0.3s ease;\n    }\n    .danmaku-stage.is-off {\n      opacity: 0;\n    }\n    .danmaku-composer {\n      position: fixed;\n      left: 50%;\n      bottom: calc(24px + env(safe-area-inset-bottom, 0px));\n      z-index: 99998;\n      width: min(480px, calc(100vw - 200px));\n      transform: translateX(-50%);\n      transition: opacity 0.3s ease, transform 0.3s ease;\n    }\n    [data-theme="light"] .danmaku-composer {\n      filter: none;\n    }\n    .danmaku-composer.is-hidden {\n      opacity: 0;\n      pointer-events: none;\n      transform: translateX(-50%) translateY(12px);\n    }\n    .danmaku-composer-inner {\n      display: flex;\n      align-items: center;\n      gap: 6px;\n      padding: 6px 6px 6px 14px;\n      border-radius: 999px;\n      border: 1px solid rgba(255,255,255,0.12);\n      background: rgba(12, 10, 28, 0.55);\n      backdrop-filter: blur(24px) saturate(1.4);\n      -webkit-backdrop-filter: blur(24px) saturate(1.4);\n      box-shadow:\n        0 2px 16px rgba(0,0,0,0.25),\n        0 0 0 0 rgba(var(--accent-rgb), 0),\n        inset 0 1px 0 rgba(255,255,255,0.06);\n      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;\n      position: relative;\n      overflow: hidden;\n    }\n    .danmaku-composer-inner::before {\n      content: \'\';\n      position: absolute;\n      inset: -1px;\n      border-radius: inherit;\n      padding: 1px;\n      background: linear-gradient(135deg, rgba(var(--accent-rgb),0), rgba(var(--accent-rgb),0));\n      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);\n      -webkit-mask-composite: xor;\n      mask-composite: exclude;\n      pointer-events: none;\n      transition: background 0.4s;\n    }\n    .danmaku-composer-inner:focus-within {\n      border-color: rgba(var(--accent-rgb), 0.35);\n      box-shadow:\n        0 4px 24px rgba(0,0,0,0.3),\n        0 0 20px rgba(var(--accent-rgb), 0.12),\n        inset 0 1px 0 rgba(255,255,255,0.08);\n      background: rgba(12, 10, 28, 0.7);\n    }\n    .danmaku-composer-inner:focus-within::before {\n      background: linear-gradient(135deg, rgba(var(--accent-rgb),0.4), rgba(var(--accent-3-rgb, var(--accent-rgb)),0.2), rgba(var(--accent-rgb),0.1));\n    }\n    [data-theme="light"] .danmaku-composer-inner {\n      border-color: rgba(200,80,150,0.14);\n      background: rgba(255,255,255,0.55);\n      box-shadow: 0 2px 16px rgba(0,0,0,0.08);\n    }\n    [data-theme="light"] .danmaku-composer-inner:focus-within {\n      ba'... 59154 more characters,
-    expected: /stage1:\s*\[\s*document\.querySelector\(['"]\.site-header['"]\)/,
+    actual: '---\ninterface Props {\n  title?: string;\n  description?: string;\n  showTime?: boolean;\n  layoutMode?: \'standard\' | \'immersive\';\n  bannerTitle?: string;\n  bannerSubtitle?: string;\n}\n\nconst normalizedPath = Astro.url.pathname.replace(/\\/+$/, \'\');\nconst defaultLayoutMode: \'standard\' | \'immersive\' =\n  normalizedPath === \'/player\' ? \'immersive\' : \'standard\';\n\nconst {\n  title = \'搁浅 的小窝\',\n  description = \'一个使用 Astro 和 GitHub Pages 搭建的个人博客。\',\n  showTime = false,\n  layoutMode = defaultLayoutMode,\n  bannerTitle,\n  bannerSubtitle,\n} = Astro.props;\n\nconst isStandard = layoutMode === \'standard\';\nconst resolvedBannerTitle = bannerTitle ?? title.split(\'|\')[0].trim();\nconst resolvedBannerSubtitle = bannerSubtitle ?? description;\n\nimport \'../styles/global.css\';\nimport \'../styles/firefly-refresh.css\';\nimport \'../styles/immersive-nav.css\';\nimport ClockDisplay from \'../components/ClockDisplay.astro\';\nimport BlogBanner from \'../components/BlogBanner.astro\';\nimport SiteHeader from \'../components/SiteHeader.astro\';\nimport FloatingControls from \'../components/FloatingControls.astro\';\nimport { ClientRouter } from \'astro:transitions\';\nimport SekaiPlayer from \'../components/SekaiPlayer.astro\';\nimport HeroSlideshow from \'../components/HeroSlideshow.astro\';\nimport SekaiParticles from \'../components/SekaiParticles.astro\';\n\nconst siteBase = Astro.site ?? new URL(\'https://lidure22.xyz\');\nconst canonicalUrl = new URL(Astro.url.pathname, siteBase);\nconst socialImageUrl = new URL(\'/site-icon-512.png\', siteBase);\n---\n<!doctype html>\n<html lang="zh-CN">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n    <meta name="referrer" content="same-origin" />\n    <meta name="description" content={description} />\n    <meta name="generator" content={Astro.generator} />\n    <link rel="canonical" href={canonicalUrl} />\n    <meta property="og:type" content="website" />\n    <meta property="og:title" content={title} />\n    <meta property="og:description" content={description} />\n    <meta property="og:url" content={canonicalUrl} />\n    <meta property="og:image" content={socialImageUrl} />\n    <title>{title}</title>\n    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />\n    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />\n    <link rel="preconnect" href="https://fonts.googleapis.com" />\n    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" />\n    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'" />\n    <noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" /></noscript>\n    <ClientRouter />\n    <script is:inline>\n    (function() {\n      var theme = \'dark\';\n      try { theme = localStorage.getItem(\'theme\') || \'dark\'; } catch(e) {}\n      document.documentElement.setAttribute(\'data-theme\', theme);\n    })();\n    (function() {\n      try {\n        var s = localStorage.getItem(\'hero_settings\');\n        if (s && JSON.parse(s).enabled === false) {\n          document.documentElement.classList.add(\'no-hero-bg\');\n        }\n      } catch(e) {}\n    })();\n    (function() {\n      if (window.__pageMediaSwapCleanupBound) return;\n      window.__pageMediaSwapCleanupBound = true;\n\n      var pageMediaSelector = \'video[data-page-media], audio[data-page-media]\';\n\n      document.addEventListener(\'astro:before-swap\', function() {\n        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n          if (media.matches(\':not([data-persistent-media])\') === false) return;\n          try { media.pause(); } catch(e) {}\n          media.removeAttribute(\'src\');\n          media.querySelectorAll(\'source\').forEach(function(source) {\n            source.removeAttribute(\'src\');\n          });\n          try { media.load(); } catch(e) {}\n        });\n      });\n    })();\n    (function() {\n      if (window.__busuanziLifecycleBound) return;\n      window.__busuanziLifecycleBound = true;\n      var busuanziRequestUrl = \'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback\';\n\n      function applyBusuanzi(data) {\n        var values = data || {};\n        var pv = document.getElementById(\'busuanzi_value_site_pv\');\n        var uv = document.getElementById(\'busuanzi_value_site_uv\');\n        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n      }\n\n      function refreshBusuanzi() {\n        if (!document.getElementById(\'busuanzi_value_site_pv\')) return;\n        if (window.bszCaller && typeof window.bszCaller.fetch === \'function\') {\n          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n          return;\n        }\n        var script = document.getElementById(\'busuanzi-counter-script\');\n        if (!script) {\n          script = document.createElement(\'script\');\n          script.id = \'busuanzi-counter-script\';\n          script.async = true;\n          script.src = \'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js\';\n          document.head.appendChild(script);\n        }\n        script.addEventListener(\'load\', refreshBusuanzi, { once: true });\n      }\n      document.addEventListener(\'astro:page-load\', refreshBusuanzi);\n      refreshBusuanzi();\n    })();\n    </script>\n    <script>\n      import { installHeroVideoLoopGuard } from \'../lib/hero-video-loop-guard.mjs\';\n      installHeroVideoLoopGuard();\n    </script>\n  </head>\n  <body class={`layout-${layoutMode}`}>\n    <HeroSlideshow />\n    <SekaiParticles />\n    <SekaiPlayer />\n    <SiteHeader currentPath={Astro.url.pathname} />\n    <FloatingControls />\n\n    {isStandard ? (\n      <>\n        <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />\n        <div class="standard-page-surface">\n          <main class="content-area standard-content">\n            {showTime && <div class="clock-row"><ClockDisplay /></div>}\n            <slot />\n          </main>\n          <footer class="footer">\n            <div class="footer-inner">\n              <p>Built with Astro and GitHub Pages.</p>\n            </div>\n          </footer>\n        </div>\n      </>\n    ) : (\n      <main class="immersive-content"><slot /></main>\n    )}\n  </body>\n</html>\n',
+    expected: /ImmersiveUiController/,
     operator: 'match',
     diff: 'simple'
   }
 
-test at tests/firefly-ui-refresh.test.mjs:85:1
-✖ homepage exposes left, main, and right regions (1.519768ms)
+test at tests/firefly-ui-refresh.test.mjs:101:1
+✖ homepage exposes left, main, and right regions (1.505642ms)
   AssertionError [ERR_ASSERTION]: The input did not match the regular expression /HomeLeftSidebar/. Input:
   
   '---\n' +
@@ -789,7 +583,7 @@ test at tests/firefly-ui-refresh.test.mjs:85:1
     '  </div>\n' +
     '</BaseLayout>\n'
   
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:87:10)
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:103:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1382:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
@@ -804,8 +598,8 @@ test at tests/firefly-ui-refresh.test.mjs:85:1
     diff: 'simple'
   }
 
-test at tests/firefly-ui-refresh.test.mjs:93:1
-✖ guestbook uses a wide two-column desktop shell (2.163242ms)
+test at tests/firefly-ui-refresh.test.mjs:109:1
+✖ guestbook uses a wide two-column desktop shell (2.871247ms)
   AssertionError [ERR_ASSERTION]: The input did not match the regular expression /messages-layout/. Input:
   
   '---\n' +
@@ -1196,7 +990,7 @@ test at tests/firefly-ui-refresh.test.mjs:93:1
     "  form?.addEventListener('submit', async (event) => {\n" +
     '  '... 764 more characters
   
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:95:10)
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:111:10)
       at Test.runInAsyncScope (node:async_hooks:227:14)
       at Test.run (node:internal/test_runner/test:1382:25)
       at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
