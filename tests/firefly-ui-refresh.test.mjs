@@ -54,8 +54,9 @@ test('home uses dedicated profile and post-card components', () => {
   assert.doesNotMatch(home, /Sweet Blog Corner|floating-shape-a|class="link-grid"/);
 });
 
-test('built immersive page has no standard banner shell', () => {
+test('built immersive page keeps navigation without standard banner shell', () => {
   const html = readBuilt('player/index.html');
   assert.match(html, /layout-immersive/);
+  assert.match(html, /class="site-header"/);
   assert.doesNotMatch(html, /class="blog-banner"/);
 });
