@@ -1,6 +1,7 @@
 ---
 import SidebarWidget from './SidebarWidget.astro';
 import RecentMomentsWidget from './RecentMomentsWidget.astro';
+import RecentMessagesWidget from './RecentMessagesWidget.astro';
 import MusicStatusWidget from './MusicStatusWidget.astro';
 import VisitorCounter from './VisitorCounter.astro';
 
@@ -33,6 +34,10 @@ const { topTags, postCount, tagCount } = Astro.props;
 
   <SidebarWidget title="最近碎碎念" icon="✎" tone="pink">
     <RecentMomentsWidget />
+  </SidebarWidget>
+
+  <SidebarWidget title="最近留言" icon="☏" tone="cyan">
+    <RecentMessagesWidget />
   </SidebarWidget>
 
   <SidebarWidget title="音乐" icon="♫" tone="purple" className="music-widget-shell">
