@@ -54,11 +54,32 @@ test('shared shell mounts navigation and floating controls for both modes', () =
   assert.doesNotMatch(layout, /isStandard\s*\?\s*\([\s\S]*?<SiteHeader/);
 });
 
+test('floating controls proxy existing background settings instead of duplicating them', () => {
+  const path = 'src/components/FloatingControls.astro';
+  assert.ok(sourceExists(path), 'FloatingControls.astro must exist');
+  const controls = readSource(path);
+  assert.match(controls, /id="floating-background-btn"/);
+  assert.match(controls, /getElementById\(['"]hero-settings-btn['"]\)/);
+  assert.match(controls, /\.click\(\)/);
+  assert.match(controls, /<ThemeToggle\s*\/?>/);
+  assert.match(controls, /id="floating-back-to-top"/);
+  assert.match(controls, /window\.__floatingControlsScrollHandler/);
+  assert.doesNotMatch(controls, /sekaiPlayerPanel|sekaiAudio|fetchMoments/);
+});
+
 test('immersive hide state uses current shell selectors', () => {
   const player = readSource('src/pages/player.astro');
   assert.doesNotMatch(player, /querySelector\(['"]\.topbar['"]\)/);
   assert.match(player, /querySelector\(['"]\.site-header['"]\)/);
   assert.match(player, /querySelector\(['"]\.site-floating-controls['"]\)/);
+});
+
+test('immersive stage one keeps player and background controls visible', () => {
+  const player = readSource('src/pages/player.astro');
+  assert.match(player, /stage1:\s*\[\s*document\.querySelector\(['"]\.site-header['"]\)/);
+  assert.match(player, /stage2:\s*\[[\s\S]*?document\.querySelector\(['"]\.site-floating-controls['"]\)/);
+  assert.match(player, /document\.querySelector\(['"]\.sekai-player-btn['"]\)/);
+  assert.match(player, /hideStage === 1[\s\S]*?setOpacity\(t\.stage1, '0'\)[\s\S]*?setOpacity\(t\.stage2, ''\)/);
 });
 
 test('homepage exposes left, main, and right regions', () => {
