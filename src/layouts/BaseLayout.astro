@@ -136,10 +136,10 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     <HeroSlideshow />
     <SekaiParticles />
     <SekaiPlayer />
+    <SiteHeader currentPath={Astro.url.pathname} />
 
     {isStandard ? (
       <>
-        <SiteHeader currentPath={Astro.url.pathname} />
         <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
         <div class="standard-page-surface">
           <main class="content-area standard-content">
