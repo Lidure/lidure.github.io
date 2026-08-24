@@ -1,0 +1,321 @@
+<div class="banner-waves" id="banner-waves" aria-hidden="true">
+  <svg class="banner-waves-static" viewBox="0 0 160 32" preserveAspectRatio="none">
+    <path class="wave-layer wave-layer-1" d="M0 15 C20 7 40 23 60 15 S100 7 120 15 S145 22 160 14 V32 H0 Z" />
+    <path class="wave-layer wave-layer-2" d="M0 18 C24 11 42 25 66 17 S108 10 132 18 S150 21 160 17 V32 H0 Z" />
+    <path class="wave-layer wave-layer-3" d="M0 21 C18 16 38 27 62 20 S104 14 126 21 S148 24 160 20 V32 H0 Z" />
+    <path class="wave-layer wave-layer-4" d="M0 24 C22 20 42 29 68 23 S112 18 136 24 S152 26 160 23 V32 H0 Z" />
+  </svg>
+  <canvas data-wave-canvas></canvas>
+</div>
+
+<style is:global>
+  body.layout-standard .banner-waves {
+    --banner-wave-height: clamp(72px, 13vh, 150px);
+    position: relative;
+    z-index: 4;
+    width: 100%;
+    height: var(--banner-wave-height);
+    margin-top: calc(-1 * (var(--blog-banner-overlap, 56px) + var(--banner-wave-height)));
+    color: var(--standard-page-bg);
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  body.layout-standard .banner-waves-static,
+  body.layout-standard .banner-waves canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  body.layout-standard .banner-waves-static {
+    z-index: 1;
+    transition: opacity 220ms ease;
+  }
+
+  body.layout-standard .banner-waves canvas {
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 220ms ease;
+  }
+
+  body.layout-standard .banner-waves.is-canvas-ready canvas {
+    opacity: 1;
+  }
+
+  body.layout-standard .banner-waves.is-canvas-ready .banner-waves-static {
+    opacity: 0;
+  }
+
+  body.layout-standard .banner-waves .wave-layer {
+    fill: currentColor;
+  }
+
+  body.layout-standard .banner-waves .wave-layer-1 { opacity: 0.22; }
+  body.layout-standard .banner-waves .wave-layer-2 { opacity: 0.42; }
+  body.layout-standard .banner-waves .wave-layer-3 { opacity: 0.58; }
+  body.layout-standard .banner-waves .wave-layer-4 { opacity: 0.72; }
+
+  html[data-wave-strength="soft"] body.layout-standard .banner-waves {
+    transform: scaleY(0.84);
+    transform-origin: bottom;
+  }
+
+  html[data-wave-strength="strong"] body.layout-standard .banner-waves {
+    transform: scaleY(1.08);
+    transform-origin: bottom;
+  }
+
+  html[data-wave-enabled="true"]:not(.no-hero-bg) body.layout-standard .banner-waves + .standard-page-surface {
+    margin-top: 0;
+  }
+
+  html[data-wave-enabled="false"] body.layout-standard .banner-waves,
+  html.no-hero-bg body.layout-standard .banner-waves {
+    display: none;
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .banner-waves {
+    margin-top: calc(-1 * var(--banner-wave-height));
+    color: color-mix(in srgb, var(--standard-page-bg) 70%, transparent);
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard:not(.is-home) .banner-waves {
+    display: none;
+  }
+
+  @media (max-width: 720px) {
+    body.layout-standard .banner-waves {
+      --banner-wave-height: clamp(48px, 9vh, 92px);
+      margin-top: calc(-1 * (var(--blog-banner-overlap, 28px) + var(--banner-wave-height)));
+    }
+
+    html[data-wave-mobile="false"] body.layout-standard .banner-waves {
+      display: none;
+    }
+
+    html[data-wave-mobile="false"] body.layout-standard .banner-waves + .standard-page-surface {
+      margin-top: calc(-1 * var(--blog-banner-overlap, 28px));
+    }
+
+    html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .banner-waves {
+      margin-top: calc(-1 * var(--banner-wave-height));
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body.layout-standard .banner-waves-static,
+    body.layout-standard .banner-waves canvas {
+      transition: none;
+    }
+  }
+
+  html[data-reduce-motion="true"] body.layout-standard .banner-waves-static,
+  html[data-reduce-motion="true"] body.layout-standard .banner-waves canvas {
+    transition: none;
+  }
+</style>
+
+<script>
+  import { WAVE_LAYERS, resolveWavePreset } from '../lib/banner-waves.mjs';
+
+  type WaveSettings = {
+    waveEnabled: boolean;
+    waveStrength: 'soft' | 'standard' | 'strong';
+    waveSpeed: 'slow' | 'normal' | 'fast';
+    waveMobile: boolean;
+    reduceMotion: boolean;
+  };
+
+  const waveWindow = window as typeof window & {
+    __lidureVisualSettings?: { read?: () => Partial<WaveSettings> };
+    __bannerWavesCleanup?: () => void;
+    __bannerWavesLifecycleBound?: boolean;
+  };
+
+  function settingsFromRoot(): WaveSettings {
+    const root = document.documentElement;
+    return {
+      waveEnabled: root.dataset.waveEnabled !== 'false',
+      waveStrength: root.dataset.waveStrength === 'soft' || root.dataset.waveStrength === 'strong'
+        ? root.dataset.waveStrength
+        : 'standard',
+      waveSpeed: root.dataset.waveSpeed === 'slow' || root.dataset.waveSpeed === 'fast'
+        ? root.dataset.waveSpeed
+        : 'normal',
+      waveMobile: root.dataset.waveMobile !== 'false',
+      reduceMotion: root.dataset.reduceMotion === 'true',
+    };
+  }
+
+  function readSettings(): WaveSettings {
+    const fallback = settingsFromRoot();
+    const read = waveWindow.__lidureVisualSettings?.read;
+    if (typeof read !== 'function') return fallback;
+    try {
+      return { ...fallback, ...read() } as WaveSettings;
+    } catch {
+      return fallback;
+    }
+  }
+
+  function contentFillColor() {
+    const surface = document.querySelector<HTMLElement>('.standard-page-surface');
+    if (surface) {
+      const background = getComputedStyle(surface).backgroundColor;
+      if (background && background !== 'rgba(0, 0, 0, 0)') return background;
+    }
+    const bodyStyle = getComputedStyle(document.body);
+    const pageBackground = bodyStyle.getPropertyValue('--standard-page-bg').trim();
+    if (pageBackground) return pageBackground;
+    const rootStyle = getComputedStyle(document.documentElement);
+    return rootStyle.getPropertyValue('--bg').trim() || '#15151a';
+  }
+
+  function initBannerWaves() {
+    waveWindow.__bannerWavesCleanup?.();
+
+    const root = document.getElementById('banner-waves');
+    const canvas = root?.querySelector<HTMLCanvasElement>('[data-wave-canvas]');
+    if (!root || !canvas) return;
+
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const mobileQuery = window.matchMedia('(max-width: 720px)');
+    let raf = 0;
+    let width = 0;
+    let height = 0;
+    let settings = readSettings();
+    let firstFrameDrawn = false;
+
+    function motionReduced() {
+      return settings.reduceMotion || motionQuery.matches;
+    }
+
+    function shouldRender() {
+      return settings.waveEnabled && !(mobileQuery.matches && !settings.waveMobile);
+    }
+
+    function stopAnimation() {
+      if (raf) cancelAnimationFrame(raf);
+      raf = 0;
+    }
+
+    function resize() {
+      const rect = root.getBoundingClientRect();
+      const nextWidth = Math.max(1, Math.round(rect.width));
+      const nextHeight = Math.max(1, Math.round(rect.height));
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      if (nextWidth === width && nextHeight === height && canvas.width === Math.round(nextWidth * dpr)) return;
+      width = nextWidth;
+      height = nextHeight;
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
+      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function draw(now: number) {
+      resize();
+      context.clearRect(0, 0, width, height);
+      const preset = resolveWavePreset(settings);
+      const fill = contentFillColor();
+      const baseAmplitude = Math.max(5, height * 0.105) * preset.amplitude;
+
+      WAVE_LAYERS.forEach((layer, index) => {
+        const phase = (now / 1000) * ((Math.PI * 2) / layer.duration) * preset.speed + layer.phase * Math.PI * 2;
+        const baseline = height * (0.36 + index * 0.075) + layer.y * 0.25;
+        const period = Math.max(180, width * (0.62 + index * 0.08));
+        const secondaryPeriod = period * 0.47;
+
+        context.beginPath();
+        context.moveTo(0, height);
+        context.lineTo(0, baseline);
+        for (let x = 0; x <= width + 8; x += 8) {
+          const y = baseline
+            + Math.sin((x / period) * Math.PI * 2 + phase) * baseAmplitude
+            + Math.sin((x / secondaryPeriod) * Math.PI * 2 - phase * 0.62) * baseAmplitude * 0.22;
+          context.lineTo(x, y);
+        }
+        context.lineTo(width, height);
+        context.closePath();
+        context.globalAlpha = Math.min(1, layer.alpha * preset.alpha);
+        context.fillStyle = fill;
+        context.fill();
+      });
+      context.globalAlpha = 1;
+
+      if (!firstFrameDrawn) {
+        firstFrameDrawn = true;
+        root.classList.add('is-canvas-ready');
+      }
+    }
+
+    function frame(now: number) {
+      if (!shouldRender() || motionReduced() || document.hidden) {
+        stopAnimation();
+        root.classList.remove('is-canvas-ready');
+        return;
+      }
+      draw(now);
+      raf = requestAnimationFrame(frame);
+    }
+
+    function refresh() {
+      settings = readSettings();
+      const active = shouldRender();
+      root.hidden = !active;
+      stopAnimation();
+      firstFrameDrawn = false;
+      root.classList.remove('is-canvas-ready');
+      if (!active) return;
+      resize();
+      if (motionReduced()) return;
+      raf = requestAnimationFrame(frame);
+    }
+
+    function onVisibilityChange() {
+      if (document.hidden) {
+        stopAnimation();
+      } else {
+        refresh();
+      }
+    }
+
+    const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
+    resizeObserver?.observe(root);
+    const onSettingsChange = () => refresh();
+    const onMediaChange = () => refresh();
+    document.addEventListener('lidure:visual-settings-change', onSettingsChange);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+    window.addEventListener('resize', resize);
+    motionQuery.addEventListener?.('change', onMediaChange);
+    mobileQuery.addEventListener?.('change', onMediaChange);
+
+    waveWindow.__bannerWavesCleanup = () => {
+      stopAnimation();
+      resizeObserver?.disconnect();
+      document.removeEventListener('lidure:visual-settings-change', onSettingsChange);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      window.removeEventListener('resize', resize);
+      motionQuery.removeEventListener?.('change', onMediaChange);
+      mobileQuery.removeEventListener?.('change', onMediaChange);
+      root.classList.remove('is-canvas-ready');
+    };
+
+    refresh();
+  }
+
+  if (!waveWindow.__bannerWavesLifecycleBound) {
+    waveWindow.__bannerWavesLifecycleBound = true;
+    document.addEventListener('astro:page-load', initBannerWaves);
+    document.addEventListener('astro:before-swap', () => waveWindow.__bannerWavesCleanup?.());
+  }
+
+  initBannerWaves();
+</script>
