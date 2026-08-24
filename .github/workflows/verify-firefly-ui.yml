@@ -1,0 +1,32 @@
+name: Verify Firefly UI Refresh
+
+on:
+  push:
+    branches: [feat/firefly-ui-refresh]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run complete test suite
+        env:
+          PUBLIC_MOMENTS_API: https://api.lidure22.xyz/api
+          PUBLIC_MEDIA_BASE_URL: https://api.lidure22.xyz/media
+          PUBLIC_METING_API: https://meting.mikus.ink/api
+        run: npm test
