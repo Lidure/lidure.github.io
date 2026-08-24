@@ -1,15 +1,92 @@
-<button class="music-status-widget" id="home-music-status" type="button" aria-label="打开 SEKAI 播放器">
-  <span class="music-status-cover" aria-hidden="true">
-    <img data-music-cover alt="" />
-    <span data-music-fallback>♪</span>
-  </span>
-  <span class="music-status-copy">
-    <small data-music-state>音乐待机</small>
-    <strong data-music-title>SEKAI Player</strong>
-    <span data-music-artist>点击打开播放器</span>
-  </span>
-  <span class="music-status-open" aria-hidden="true">↗</span>
-</button>
+<div class="music-status-widget" id="home-music-status" aria-label="SEKAI 播放器快捷控制">
+  <button class="music-status-main" id="home-music-open" type="button" aria-label="打开 SEKAI 播放器">
+    <span class="music-status-cover" aria-hidden="true">
+      <img data-music-cover alt="" />
+      <span data-music-fallback>♪</span>
+    </span>
+    <span class="music-status-copy">
+      <small data-music-state>音乐待机</small>
+      <strong data-music-title>SEKAI Player</strong>
+      <span data-music-artist>点击打开播放器</span>
+    </span>
+    <span class="music-status-open" aria-hidden="true">↗</span>
+  </button>
+
+  <div class="music-status-controls" aria-label="音乐快捷控制">
+    <button id="home-music-prev" class="music-status-control" type="button" aria-label="上一首" title="上一首">‹</button>
+    <button id="home-music-play-pause" class="music-status-control is-play" type="button" aria-label="播放/暂停" title="播放">▶</button>
+    <button id="home-music-next" class="music-status-control" type="button" aria-label="下一首" title="下一首">›</button>
+  </div>
+</div>
+
+<style is:global>
+  body.layout-standard .music-status-widget {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    cursor: default;
+  }
+
+  body.layout-standard .music-status-main {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 10px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  body.layout-standard .music-status-main:hover .music-status-copy strong {
+    color: var(--standard-purple);
+  }
+
+  body.layout-standard .music-status-controls {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+    padding-top: 9px;
+    border-top: 1px solid var(--standard-line);
+  }
+
+  body.layout-standard .music-status-control {
+    min-width: 0;
+    height: 30px;
+    border: 1px solid color-mix(in srgb, var(--standard-purple) 18%, var(--standard-line));
+    border-radius: 8px;
+    background: var(--standard-purple-soft);
+    color: var(--standard-purple);
+    font: inherit;
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+  }
+
+  body.layout-standard .music-status-control:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--standard-purple) 42%, var(--standard-line));
+    background: color-mix(in srgb, var(--standard-purple-soft) 72%, var(--standard-card-bg));
+  }
+
+  body.layout-standard .music-status-control.is-play {
+    color: var(--standard-accent);
+    border-color: color-mix(in srgb, var(--standard-accent) 24%, var(--standard-line));
+    background: var(--standard-accent-soft);
+    font-size: 0.76rem;
+    font-weight: 800;
+  }
+
+  body.layout-standard .music-status-widget.is-playing .music-status-control.is-play {
+    color: var(--standard-cyan);
+    border-color: color-mix(in srgb, var(--standard-cyan) 28%, var(--standard-line));
+    background: var(--standard-cyan-soft);
+  }
+</style>
 
 <script is:inline>
 (function () {
@@ -35,6 +112,10 @@
     root.dataset.initialized = 'true';
     cleanupMusicStatus();
 
+    var open = document.getElementById('home-music-open');
+    var prev = document.getElementById('home-music-prev');
+    var playPause = document.getElementById('home-music-play-pause');
+    var next = document.getElementById('home-music-next');
     var state = root.querySelector('[data-music-state]');
     var title = root.querySelector('[data-music-title]');
     var artist = root.querySelector('[data-music-artist]');
@@ -54,6 +135,11 @@
       if (artist) artist.textContent = hasTrack ? (currentArtist || '未知艺术家') : '点击打开播放器';
       if (state) state.textContent = audio && audio.src && !audio.paused ? '正在播放' : (hasTrack ? '已暂停' : '音乐待机');
       root.classList.toggle('is-playing', !!(audio && audio.src && !audio.paused));
+      if (playPause) {
+        playPause.textContent = audio && audio.src ? (audio.paused ? '▶' : '❚❚') : '▶';
+        playPause.title = audio && audio.src && !audio.paused ? '暂停' : '播放';
+        playPause.setAttribute('aria-label', playPause.title);
+      }
 
       var coverSrc = sourceCover && (sourceCover.currentSrc || sourceCover.src) ? (sourceCover.currentSrc || sourceCover.src) : '';
       if (cover && coverSrc) {
@@ -67,9 +153,23 @@
       }
     }
 
-    root.addEventListener('click', function () {
-      var playerButton = document.getElementById('sekaiPlayerBtn');
-      if (playerButton) playerButton.click();
+    open?.addEventListener('click', function () {
+      window.__sekaiOpenPlayer?.();
+    });
+
+    prev?.addEventListener('click', function () {
+      var target = document.getElementById('sekaiPrevBtn');
+      if (target) target.click();
+    });
+
+    playPause?.addEventListener('click', function () {
+      var target = document.getElementById('sekaiPlayPauseBtn');
+      if (target) target.click();
+    });
+
+    next?.addEventListener('click', function () {
+      var target = document.getElementById('sekaiNextBtn');
+      if (target) target.click();
     });
 
     var observer = new MutationObserver(sync);
