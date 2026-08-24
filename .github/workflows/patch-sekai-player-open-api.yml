@@ -24,25 +24,27 @@ jobs:
           from pathlib import Path
           path = Path('src/components/SekaiPlayer.astro')
           text = path.read_text(encoding='utf-8')
-          old = """  function togglePanel() {
-            panel.classList.toggle('hidden');
-            if (!panel.classList.contains('hidden')) ensureCatalog().catch(function() {});
-          }
-"""
-          new = """  function openPanel() {
-            panel.classList.remove('hidden');
-            ensureCatalog().catch(function() {});
-          }
-
-          function togglePanel() {
-            if (panel.classList.contains('hidden')) openPanel();
-            else panel.classList.add('hidden');
-          }
-
-          window.__sekaiOpenPlayer = function() {
-            openPanel();
-          };
-"""
+          old = (
+              "  function togglePanel() {\n"
+              "    panel.classList.toggle('hidden');\n"
+              "    if (!panel.classList.contains('hidden')) ensureCatalog().catch(function() {});\n"
+              "  }\n"
+          )
+          new = (
+              "  function openPanel() {\n"
+              "    panel.classList.remove('hidden');\n"
+              "    ensureCatalog().catch(function() {});\n"
+              "  }\n"
+              "\n"
+              "  function togglePanel() {\n"
+              "    if (panel.classList.contains('hidden')) openPanel();\n"
+              "    else panel.classList.add('hidden');\n"
+              "  }\n"
+              "\n"
+              "  window.__sekaiOpenPlayer = function() {\n"
+              "    openPanel();\n"
+              "  };\n"
+          )
           if text.count(old) != 1:
               raise SystemExit(f'Expected exactly one togglePanel block, found {text.count(old)}')
           path.write_text(text.replace(old, new, 1), encoding='utf-8')
