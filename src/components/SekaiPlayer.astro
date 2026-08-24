@@ -3708,10 +3708,19 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
     } catch(e) {}
   })();
 
-  function togglePanel() {
-    panel.classList.toggle('hidden');
-    if (!panel.classList.contains('hidden')) ensureCatalog().catch(function() {});
+  function openPanel() {
+    panel.classList.remove('hidden');
+    ensureCatalog().catch(function() {});
   }
+
+  function togglePanel() {
+    if (panel.classList.contains('hidden')) openPanel();
+    else panel.classList.add('hidden');
+  }
+
+  window.__sekaiOpenPlayer = function() {
+    openPanel();
+  };
 
   btn.addEventListener('pointerdown', function(e) {
     if (e.button !== 0 && e.pointerType === 'mouse') return;

@@ -114,8 +114,27 @@ test('homepage widgets consume real tag, moments, player, and visitor sources', 
   assert.match(right, /topTags/);
   assert.match(right, /VisitorCounter/);
   assert.match(moments, /fetchMoments\(\{\s*limit:\s*3\s*\}\)/);
-  assert.match(music, /getElementById\(['"]sekaiPlayerBtn['"]\)/);
+  assert.match(music, /__sekaiOpenPlayer/);
   assert.match(music, /getElementById\(['"]sekaiTrackTitle['"]\)/);
+});
+
+test('home music card uses the player public open API instead of simulating the draggable dock click', () => {
+  const player = readSource('src/components/SekaiPlayer.astro');
+  const music = readSource('src/components/MusicStatusWidget.astro');
+  assert.match(player, /window\.__sekaiOpenPlayer\s*=\s*function/);
+  assert.match(music, /window\.__sekaiOpenPlayer\s*\?\.\(\)/);
+  assert.doesNotMatch(music, /getElementById\(['"]sekaiPlayerBtn['"]\)[\s\S]*?\.click\(\)/);
+});
+
+test('home music card proxies previous, play-pause, and next to the existing player controls', () => {
+  const music = readSource('src/components/MusicStatusWidget.astro');
+  assert.match(music, /id="home-music-prev"/);
+  assert.match(music, /id="home-music-play-pause"/);
+  assert.match(music, /id="home-music-next"/);
+  assert.match(music, /getElementById\(['"]sekaiPrevBtn['"]\)/);
+  assert.match(music, /getElementById\(['"]sekaiPlayPauseBtn['"]\)/);
+  assert.match(music, /getElementById\(['"]sekaiNextBtn['"]\)/);
+  assert.match(music, /audio\.paused\s*\?\s*['"]▶['"]\s*:\s*['"]❚❚['"]/);
 });
 
 test('v2 visual layer defines semantic colors and responsive Firefly grid', () => {
