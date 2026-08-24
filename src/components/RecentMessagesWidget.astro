@@ -24,6 +24,8 @@
     border: 1px solid transparent;
     border-radius: 9px;
     background: transparent;
+    color: inherit;
+    text-decoration: none;
     transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
   }
 
@@ -31,6 +33,13 @@
     transform: translateY(-1px);
     border-color: color-mix(in srgb, var(--standard-cyan) 18%, var(--standard-line));
     background: color-mix(in srgb, var(--standard-cyan-soft) 60%, transparent);
+  }
+
+  body.layout-standard .recent-message-item:focus-visible {
+    outline: 2px solid var(--standard-cyan);
+    outline-offset: 2px;
+    border-color: color-mix(in srgb, var(--standard-cyan) 24%, var(--standard-line));
+    background: color-mix(in srgb, var(--standard-cyan-soft) 54%, transparent);
   }
 
   body.layout-standard .recent-message-meta {
@@ -101,6 +110,7 @@
     const root = document.getElementById('recent-messages-widget');
     const list = root?.querySelector<HTMLElement>('[data-message-list]');
     if (!root || !list) return;
+    const messageList = list;
 
     let disposed = false;
 
@@ -108,7 +118,7 @@
       const placeholder = document.createElement('p');
       placeholder.className = 'sidebar-widget-placeholder';
       placeholder.textContent = text;
-      list.replaceChildren(placeholder);
+      messageList.replaceChildren(placeholder);
     }
 
     function renderMessages(items: Awaited<ReturnType<typeof fetchGuestMessages>>) {
@@ -120,8 +130,10 @@
 
       const fragment = document.createDocumentFragment();
       recent.forEach((item) => {
-        const article = document.createElement('article');
-        article.className = 'recent-message-item';
+        const link = document.createElement('a');
+        link.className = 'recent-message-item';
+        link.href = '/messages';
+        link.setAttribute('aria-label', `查看 ${item.userId || '访客'} 的留言`);
 
         const meta = document.createElement('div');
         meta.className = 'recent-message-meta';
@@ -140,11 +152,11 @@
         text.textContent = item.text;
 
         meta.append(user, time);
-        article.append(meta, text);
-        fragment.appendChild(article);
+        link.append(meta, text);
+        fragment.appendChild(link);
       });
 
-      list.replaceChildren(fragment);
+      messageList.replaceChildren(fragment);
     }
 
     fetchGuestMessages()
