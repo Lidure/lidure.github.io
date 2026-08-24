@@ -104,6 +104,28 @@ test('homepage exposes left, main, and right regions', () => {
   assert.match(home, /home-main-column/);
   assert.match(home, /HomeRightSidebar/);
   assert.match(home, /HomePostCard/);
+  assert.match(home, /home-category-bar/);
+});
+
+test('homepage widgets consume real tag, moments, player, and visitor sources', () => {
+  const right = readSource('src/components/HomeRightSidebar.astro');
+  const moments = readSource('src/components/RecentMomentsWidget.astro');
+  const music = readSource('src/components/MusicStatusWidget.astro');
+  assert.match(right, /topTags/);
+  assert.match(right, /VisitorCounter/);
+  assert.match(moments, /fetchMoments\(\{\s*limit:\s*3\s*\}\)/);
+  assert.match(music, /getElementById\(['"]sekaiPlayerBtn['"]\)/);
+  assert.match(music, /getElementById\(['"]sekaiTrackTitle['"]\)/);
+});
+
+test('v2 visual layer defines semantic colors and responsive Firefly grid', () => {
+  const css = readSource('src/styles/firefly-v2.css');
+  assert.match(css, /--standard-purple:/);
+  assert.match(css, /--standard-cyan:/);
+  assert.match(css, /--standard-warm:/);
+  assert.match(css, /grid-template-columns:\s*232px\s+minmax\(0,\s*1fr\)\s+286px/);
+  assert.match(css, /@media \(max-width:\s*1199px\) and \(min-width:\s*850px\)/);
+  assert.match(css, /@media \(max-width:\s*849px\)/);
 });
 
 test('guestbook uses a wide two-column desktop shell', () => {
@@ -111,7 +133,19 @@ test('guestbook uses a wide two-column desktop shell', () => {
   assert.match(messages, /messages-layout/);
   assert.match(messages, /messages-composer-column/);
   assert.match(messages, /messages-stream-column/);
+  assert.match(messages, /width:\s*min\(100%,\s*1220px\)/);
+  assert.match(messages, /grid-template-columns:\s*minmax\(340px,\s*370px\)\s+minmax\(0,\s*1fr\)/);
   assert.doesNotMatch(messages, /max-width:\s*760px/);
+});
+
+test('ordinary pages load the v2 cohesion layer', () => {
+  const layout = readSource('src/layouts/BaseLayout.astro');
+  const css = readSource('src/styles/firefly-v2-pages.css');
+  assert.match(layout, /firefly-v2-pages\.css/);
+  assert.match(css, /\.timeline-item::before/);
+  assert.match(css, /\.tag-pill:nth-child/);
+  assert.match(css, /\.moments-shell/);
+  assert.match(css, /\.post-shell/);
 });
 
 test('built immersive page keeps core controls without standard chrome', () => {
