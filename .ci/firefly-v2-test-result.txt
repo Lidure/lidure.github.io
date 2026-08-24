@@ -8,12 +8,12 @@
 > astro check && astro build
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m03:09:15[22m [34m[content][39m Syncing content
+[2m03:10:05[22m [34m[content][39m Syncing content
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
-[2m03:09:16[22m [34m[content][39m Synced content
-[2m03:09:16[22m [34m[types][39m Generated [2m1.43s[22m
-[2m03:09:16[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[2m03:10:06[22m [34m[content][39m Synced content
+[2m03:10:06[22m [34m[types][39m Generated [2m1.41s[22m
+[2m03:10:06[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
 [96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
 
 [7m14[0m     draft: z.boolean().default(false),
@@ -201,521 +201,112 @@ Result (52 files):
 - 41 hints
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m03:09:25[22m [34m[content][39m Syncing content
-[2m03:09:25[22m [34m[content][39m Synced content
-[2m03:09:25[22m [34m[types][39m Generated [2m494ms[22m
-[2m03:09:25[22m [34m[build][39m output: [34m"static"[39m
-[2m03:09:25[22m [34m[build][39m mode: [34m"static"[39m
-[2m03:09:25[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
-[2m03:09:25[22m [34m[build][39m Collecting build info...
-[2m03:09:25[22m [34m[build][39m [32m✓ Completed in 516ms.[39m
-[2m03:09:25[22m [34m[build][39m Building static entrypoints...
-[2m03:09:27[22m [34m[vite][39m [32m✓ built in 2.39s[39m
-[2m03:09:28[22m [34m[vite][39m [32m✓ built in 501ms[39m
-[2m03:09:28[22m [34m[build][39m Rearranging server assets...
+[2m03:10:16[22m [34m[content][39m Syncing content
+[2m03:10:16[22m [34m[content][39m Synced content
+[2m03:10:16[22m [34m[types][39m Generated [2m485ms[22m
+[2m03:10:16[22m [34m[build][39m output: [34m"static"[39m
+[2m03:10:16[22m [34m[build][39m mode: [34m"static"[39m
+[2m03:10:16[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m03:10:16[22m [34m[build][39m Collecting build info...
+[2m03:10:16[22m [34m[build][39m [32m✓ Completed in 541ms.[39m
+[2m03:10:16[22m [34m[build][39m Building static entrypoints...
+[2m03:10:18[22m [34m[vite][39m [32m✓ built in 2.47s[39m
+[2m03:10:19[22m [34m[vite][39m [32m✓ built in 523ms[39m
+[2m03:10:19[22m [34m[build][39m Rearranging server assets...
 
 [42m[30m generating static routes [39m[49m
-[2m03:09:28[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+14ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+4ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+8ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+4ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+183ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/rss.xml[22m [2m(+29ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
-[2m03:09:28[22m   [34m├─[39m [2m/index.html[22m [2m(+5ms)[22m 
-[2m03:09:28[22m [32m✓ Completed in 321ms.
+[2m03:10:19[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+15ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+5ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/player/index.html[22m [2m(+6ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+9ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+4ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+4ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+184ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/rss.xml[22m [2m(+25ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m03:10:19[22m   [34m├─[39m [2m/index.html[22m [2m(+5ms)[22m 
+[2m03:10:19[22m [32m✓ Completed in 324ms.
 [39m
 [42m[30m generating optimized images [39m[49m
-[2m03:09:28[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+69ms)[22m [2m(1/4)[22m
-[2m03:09:28[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+78ms)[22m [2m(2/4)[22m
-[2m03:09:28[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+78ms)[22m [2m(3/4)[22m
-[2m03:09:28[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+344ms)[22m [2m(4/4)[22m
-[2m03:09:28[22m [32m✓ Completed in 345ms.
+[2m03:10:19[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+74ms)[22m [2m(1/4)[22m
+[2m03:10:19[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+83ms)[22m [2m(2/4)[22m
+[2m03:10:19[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+83ms)[22m [2m(3/4)[22m
+[2m03:10:19[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+354ms)[22m [2m(4/4)[22m
+[2m03:10:19[22m [32m✓ Completed in 355ms.
 [39m
-[2m03:09:28[22m [34m[build][39m [32m✓ Completed in 3.61s.[39m
-[2m03:09:28[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
-[2m03:09:28[22m [34m[build][39m 23 page(s) built in [1m4.13s[22m
-[2m03:09:28[22m [34m[build][39m [1mComplete![22m
+[2m03:10:19[22m [34m[build][39m [32m✓ Completed in 3.73s.[39m
+[2m03:10:19[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m03:10:19[22m [34m[build][39m 23 page(s) built in [1m4.28s[22m
+[2m03:10:19[22m [34m[build][39m [1mComplete![22m
 
 > lidure-github-io@0.0.1 test:site
 > node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
 
-✔ BaseLayout exposes standard and immersive page modes (2.514945ms)
-✔ player route defaults to immersive layout with trailing slash tolerance (0.315595ms)
-✔ standard banner keeps B3 desktop and mobile heights (0.400953ms)
-✔ standard banner stays readable when the background is disabled (0.308975ms)
-✔ site header replaces its global scroll listener after Astro navigation (0.381804ms)
-✔ shared shell mounts navigation and floating controls for both modes (0.28577ms)
-✔ floating controls proxy existing background settings instead of duplicating them (0.470698ms)
-✔ immersive UI controller owns current shell visibility without touching player business logic (0.310738ms)
-✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.504499ms)
-✔ BaseLayout installs the immersive UI controller only for immersive mode (0.676839ms)
-✔ homepage exposes left, main, and right regions (0.249956ms)
-✖ guestbook uses a wide two-column desktop shell (3.877917ms)
-✔ built immersive page keeps core controls without standard chrome (1.372195ms)
-✔ background loop guard detects a wrap and reuses the player recovery handler (2.069495ms)
-✔ base layout installs the background loop guard (0.422076ms)
-✔ player search tolerates imported songs without precomputed searchText (1.205965ms)
-✔ local imports keep active search and tag filters (0.383808ms)
-✔ search embeds parseable post data without a runtime jsonData reference (2.347062ms)
-✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.964131ms)
-✔ source configuration uses configured public domains and no stale publishing defaults (2.69767ms)
-✔ optical-flow article has one h1 and no unparsed inline delimiters (2.461194ms)
-✔ optimized identity assets are used and remain small (1.019134ms)
-✔ rendered background configuration starts with a static image (0.864301ms)
-✔ rendered moments management controls keep the publish panel closed by default (1.432916ms)
-✔ moments page exposes the API hook and local controls (1.390292ms)
-✔ moments publishing UI accepts videos and requires selectable posters (1.550333ms)
-✔ moments video poster generation ignores stale async captures (0.909819ms)
-✔ moments browser code uses the session API client for management (1.231073ms)
-✔ moment delete controls follow the authenticated session (0.662517ms)
-✔ guestbook exposes authenticated message deletion controls (0.326041ms)
-✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.687355ms)
-✔ moments api preserves distinct 401 auth worker codes (0.25256ms)
-✔ Astro swaps clean page-scoped media while preserving persistent background media (0.496527ms)
-✔ persistent layout scripts initialize through astro page-load with data guards (0.649317ms)
-✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.282876ms)
-✔ sakura particles use the approved flowers and natural drift parameters (0.143576ms)
-✔ QQ playlist imports normalize ids and report unavailable audio links (1.355931ms)
-✔ online playlist imports resolve audio URLs on demand (0.765903ms)
-✔ online playlist imports use a unified Meting-compatible adapter (0.956951ms)
-✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.140402ms)
-✔ background video degrades safely on navigation visibility and reduced motion (0.478841ms)
-✔ background videos recover playback when browsers emit ended despite loop (0.466031ms)
-✔ background videos reload before retrying playback after ended (0.431269ms)
-✔ moments single-item query aliases the legacy images column (0.150086ms)
+✔ BaseLayout exposes standard and immersive page modes (2.369473ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.397639ms)
+✔ standard banner keeps B3 desktop and mobile heights (0.423839ms)
+✔ standard banner stays readable when the background is disabled (0.402327ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.34337ms)
+✔ shared shell mounts navigation and floating controls for both modes (0.282589ms)
+✔ floating controls proxy existing background settings instead of duplicating them (0.435086ms)
+✔ immersive UI controller owns current shell visibility without touching player business logic (0.302018ms)
+✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.422226ms)
+✔ BaseLayout installs the immersive UI controller only for immersive mode (0.483837ms)
+✔ homepage exposes left, main, and right regions (0.250201ms)
+✔ guestbook uses a wide two-column desktop shell (0.318683ms)
+✔ built immersive page keeps core controls without standard chrome (1.475758ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (2.046444ms)
+✔ base layout installs the background loop guard (0.412752ms)
+✔ player search tolerates imported songs without precomputed searchText (1.217565ms)
+✔ local imports keep active search and tag filters (0.409307ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.437996ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.996577ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.641647ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.517784ms)
+✔ optimized identity assets are used and remain small (1.005231ms)
+✔ rendered background configuration starts with a static image (0.868127ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.410081ms)
+✔ moments page exposes the API hook and local controls (1.384884ms)
+✔ moments publishing UI accepts videos and requires selectable posters (4.746328ms)
+✔ moments video poster generation ignores stale async captures (0.90426ms)
+✔ moments browser code uses the session API client for management (1.278626ms)
+✔ moment delete controls follow the authenticated session (0.629443ms)
+✔ guestbook exposes authenticated message deletion controls (0.367705ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.693399ms)
+✔ moments api preserves distinct 401 auth worker codes (0.287716ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.480973ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.669763ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.247037ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.138566ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.520465ms)
+✔ online playlist imports resolve audio URLs on demand (0.814287ms)
+✔ online playlist imports use a unified Meting-compatible adapter (1.009517ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.150513ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.444939ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.502395ms)
+✔ background videos reload before retrying playback after ended (0.41816ms)
+✔ moments single-item query aliases the legacy images column (0.189481ms)
 ℹ tests 44
 ℹ suites 0
-ℹ pass 43
-ℹ fail 1
+ℹ pass 44
+ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 172.626293
+ℹ duration_ms 181.078491
 
-✖ failing tests:
-
-test at tests/firefly-ui-refresh.test.mjs:109:1
-✖ guestbook uses a wide two-column desktop shell (3.877917ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /messages-layout/. Input:
-  
-  '---\n' +
-    "import BaseLayout from '../layouts/BaseLayout.astro';\n" +
-    '---\n' +
-    '\n' +
-    '<BaseLayout\n' +
-    '  title="留言板 | 搁浅 的小窝"\n' +
-    '  description="给博客留下想说的话。"\n' +
-    '  bannerTitle="留言板"\n' +
-    '  bannerSubtitle="路过也可以留下一句话。"\n' +
-    '>\n' +
-    '  <section class="messages-shell">\n' +
-    '    <p class="messages-intro">自设一个 ID 就能留言和评论，不需要密钥。</p>\n' +
-    '\n' +
-    '    <section class="message-admin" id="message-admin">\n' +
-    '      <div class="message-admin-row">\n' +
-    '        <span id="message-session-status">检查登录状态中...</span>\n' +
-    '        <button type="button" id="message-logout" hidden>退出登录</button>\n' +
-    '      </div>\n' +
-    '      <div id="message-login" hidden>\n' +
-    '        <input type="password" id="message-login-password" placeholder="管理员密码" autocomplete="current-password" />\n' +
-    '        <button type="button" id="message-login-submit">登录</button>\n' +
-    '      </div>\n' +
-    '    </section>\n' +
-    '\n' +
-    '    <form class="message-form" id="message-form">\n' +
-    '      <label>\n' +
-    '        <span>你的 ID</span>\n' +
-    '        <input type="text" name="userId" id="message-user-id" maxlength="32" placeholder="例如：路过的旅人" required />\n' +
-    '      </label>\n' +
-    '      <label>\n' +
-    '        <span>留言</span>\n' +
-    '        <textarea name="text" id="message-text" maxlength="800" rows="4" placeholder="写点什么..." required></textarea>\n' +
-    '      </label>\n' +
-    '      <div class="form-actions">\n' +
-    '        <p id="message-status" aria-live="polite"></p>\n' +
-    '        <button type="submit" id="message-submit">发送留言</button>\n' +
-    '      </div>\n' +
-    '    </form>\n' +
-    '\n' +
-    '    <div class="messages-list" id="messages-list">\n' +
-    '      <div class="message-loading">留言加载中...</div>\n' +
-    '    </div>\n' +
-    '  </section>\n' +
-    '</BaseLayout>\n' +
-    '\n' +
-    '<style is:global>\n' +
-    '  .messages-shell {\n' +
-    '    max-width: 760px;\n' +
-    '    margin: 0 auto;\n' +
-    '  }\n' +
-    '\n' +
-    '  .messages-intro {\n' +
-    '    margin: 0 0 18px;\n' +
-    '    color: var(--muted);\n' +
-    '    line-height: 1.7;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-form,\n' +
-    '  .message-card,\n' +
-    '  .message-admin {\n' +
-    '    border: 1px solid var(--panel-border);\n' +
-    '    background: var(--panel-gradient);\n' +
-    '    box-shadow: var(--shadow-soft);\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-form {\n' +
-    '    display: grid;\n' +
-    '    gap: 14px;\n' +
-    '    padding: 20px 22px;\n' +
-    '    margin-bottom: 20px;\n' +
-    '    border-radius: var(--radius-lg);\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-form label {\n' +
-    '    display: grid;\n' +
-    '    gap: 7px;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-form span {\n' +
-    '    color: var(--muted);\n' +
-    '    font-size: 0.84rem;\n' +
-    '    font-weight: 700;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-form input,\n' +
-    '  .message-form textarea,\n' +
-    '  #message-login input {\n' +
-    '    width: 100%;\n' +
-    '    box-sizing: border-box;\n' +
-    '    border: 1px solid var(--panel-border);\n' +
-    '    border-radius: 10px;\n' +
-    '    background: var(--bg);\n' +
-    '    color: var(--text);\n' +
-    '    font: inherit;\n' +
-    '    padding: 11px 13px;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-form textarea {\n' +
-    '    resize: vertical;\n' +
-    '    min-height: 106px;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-form input:focus,\n' +
-    '  .message-form textarea:focus,\n' +
-    '  #message-login input:focus {\n' +
-    '    outline: none;\n' +
-    '    border-color: var(--accent);\n' +
-    '  }\n' +
-    '\n' +
-    '  .form-actions {\n' +
-    '    display: flex;\n' +
-    '    justify-content: space-between;\n' +
-    '    align-items: center;\n' +
-    '    gap: 12px;\n' +
-    '  }\n' +
-    '\n' +
-    '  #message-status {\n' +
-    '    min-height: 20px;\n' +
-    '    margin: 0;\n' +
-    '    color: var(--muted);\n' +
-    '    font-size: 0.86rem;\n' +
-    '  }\n' +
-    '\n' +
-    '  #message-status.error {\n' +
-    '    color: #d94040;\n' +
-    '  }\n' +
-    '\n' +
-    '  #message-submit {\n' +
-    '    border: none;\n' +
-    '    border-radius: 10px;\n' +
-    '    background: var(--accent);\n' +
-    '    color: #fff;\n' +
-    '    cursor: pointer;\n' +
-    '    font: inherit;\n' +
-    '    font-weight: 700;\n' +
-    '    padding: 11px 18px;\n' +
-    '  }\n' +
-    '\n' +
-    '  #message-submit:disabled {\n' +
-    '    opacity: 0.6;\n' +
-    '    cursor: wait;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-admin {\n' +
-    '    margin: 0 0 18px;\n' +
-    '    padding: 0.75rem 1rem;\n' +
-    '    border-radius: 12px;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-admin-row,\n' +
-    '  #message-login {\n' +
-    '    display: flex;\n' +
-    '    align-items: center;\n' +
-    '    gap: 0.6rem;\n' +
-    '  }\n' +
-    '\n' +
-    '  #message-login {\n' +
-    '    margin-top: 0.6rem;\n' +
-    '  }\n' +
-    '\n' +
-    '  #message-login input {\n' +
-    '    flex: 1;\n' +
-    '    min-width: 0;\n' +
-    '  }\n' +
-    '\n' +
-    '  #message-logout,\n' +
-    '  #message-login-submit,\n' +
-    '  .message-delete {\n' +
-    '    border: 0;\n' +
-    '    border-radius: 8px;\n' +
-    '    padding: 0.35rem 0.75rem;\n' +
-    '    color: inherit;\n' +
-    '    background: rgba(255, 255, 255, 0.12);\n' +
-    '    cursor: pointer;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-delete {\n' +
-    '    margin-left: auto;\n' +
-    '    color: #ffc1cb;\n' +
-    '    background: rgba(255, 92, 122, 0.14);\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-delete:disabled {\n' +
-    '    opacity: 0.6;\n' +
-    '    cursor: wait;\n' +
-    '  }\n' +
-    '\n' +
-    '  .messages-list {\n' +
-    '    display: grid;\n' +
-    '    gap: 14px;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-card {\n' +
-    '    border-radius: var(--radius-lg);\n' +
-    '    padding: 18px 20px;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-meta {\n' +
-    '    display: flex;\n' +
-    '    justify-content: space-between;\n' +
-    '    gap: 12px;\n' +
-    '    margin-bottom: 10px;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-meta strong {\n' +
-    '    color: var(--text);\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-meta time {\n' +
-    '    color: var(--muted);\n' +
-    '    font-size: 0.8rem;\n' +
-    '    white-space: nowrap;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-text {\n' +
-    '    margin: 0;\n' +
-    '    color: var(--text);\n' +
-    '    line-height: 1.75;\n' +
-    '    white-space: pre-wrap;\n' +
-    '  }\n' +
-    '\n' +
-    '  .message-loading,\n' +
-    '  .message-empty {\n' +
-    '    padding: 34px 18px;\n' +
-    '    text-align: center;\n' +
-    '    color: var(--muted);\n' +
-    '  }\n' +
-    '\n' +
-    '  @media (max-width: 640px) {\n' +
-    '    .form-actions,\n' +
-    '    .message-meta {\n' +
-    '      align-items: flex-start;\n' +
-    '      flex-direction: column;\n' +
-    '    }\n' +
-    '\n' +
-    '    #message-submit {\n' +
-    '      width: 100%;\n' +
-    '    }\n' +
-    '  }\n' +
-    '</style>\n' +
-    '\n' +
-    '<script>\n' +
-    '  import {\n' +
-    '    createCommentsWidget,\n' +
-    '    createGuestMessage,\n' +
-    '    deleteGuestMessage,\n' +
-    '    fetchGuestMessages,\n' +
-    '    formatPublicTime,\n' +
-    '    getStoredUserId,\n' +
-    '    normalizeUserId,\n' +
-    '    setStoredUserId,\n' +
-    '    type GuestMessage,\n' +
-    "  } from '../lib/public-interactions';\n" +
-    "  import { getSession, login, logout } from '../lib/moments-api';\n" +
-    '\n' +
-    "  const form = document.getElementById('message-form') as HTMLFormElement | null;\n" +
-    "  const userInput = document.getElementById('message-user-id') as HTMLInputElement | null;\n" +
-    "  const textInput = document.getElementById('message-text') as HTMLTextAreaElement | null;\n" +
-    "  const submit = document.getElementById('message-submit') as HTMLButtonElement | null;\n" +
-    "  const status = document.getElementById('message-status');\n" +
-    "  const list = document.getElementById('messages-list');\n" +
-    "  const sessionStatus = document.getElementById('message-session-status');\n" +
-    "  const loginBox = document.getElementById('message-login');\n" +
-    "  const loginPassword = document.getElementById('message-login-password') as HTMLInputElement | null;\n" +
-    "  const loginSubmit = document.getElementById('message-login-submit') as HTMLButtonElement | null;\n" +
-    "  const logoutButton = document.getElementById('message-logout') as HTMLButtonElement | null;\n" +
-    '  let adminMode = false;\n' +
-    '  let currentMessages: GuestMessage[] = [];\n' +
-    '\n' +
-    '  if (userInput) userInput.value = getStoredUserId();\n' +
-    '\n' +
-    '  function setStatus(text: string, error = false) {\n' +
-    '    if (!status) return;\n' +
-    '    status.textContent = text;\n' +
-    "    status.className = error ? 'error' : '';\n" +
-    '  }\n' +
-    '\n' +
-    "  function updateSessionUi(authenticated: boolean, message = '') {\n" +
-    '    adminMode = authenticated;\n' +
-    "    if (sessionStatus) sessionStatus.textContent = message || (authenticated ? '已登录，可以删除留言。' : '管理员登录后可删除留言。');\n" +
-    '    if (loginBox) loginBox.hidden = authenticated;\n' +
-    '    if (logoutButton) logoutButton.hidden = !authenticated;\n' +
-    '    if (currentMessages.length > 0) renderMessages(currentMessages);\n' +
-    '  }\n' +
-    '\n' +
-    '  function renderMessages(messages: GuestMessage[]) {\n' +
-    '    if (!list) return;\n' +
-    '    currentMessages = messages;\n' +
-    "    list.innerHTML = '';\n" +
-    '\n' +
-    '    if (!messages.length) {\n' +
-    "      const empty = document.createElement('p');\n" +
-    "      empty.className = 'message-empty';\n" +
-    "      empty.textContent = '还没有留言，来写第一条吧。';\n" +
-    '      list.appendChild(empty);\n' +
-    '      return;\n' +
-    '    }\n' +
-    '\n' +
-    '    messages.forEach((message) => {\n' +
-    "      const card = document.createElement('article');\n" +
-    "      card.className = 'message-card';\n" +
-    "      const meta = document.createElement('div');\n" +
-    "      meta.className = 'message-meta';\n" +
-    "      const user = document.createElement('strong');\n" +
-    '      user.textContent = message.userId;\n' +
-    "      const time = document.createElement('time');\n" +
-    '      time.dateTime = new Date(message.createdAt).toISOString();\n' +
-    '      time.textContent = formatPublicTime(message.createdAt);\n' +
-    '      meta.append(user, time);\n' +
-    '      if (adminMode) {\n' +
-    "        const deleteButton = document.createElement('button');\n" +
-    "        deleteButton.type = 'button';\n" +
-    "        deleteButton.className = 'message-delete';\n" +
-    "        deleteButton.textContent = '删除';\n" +
-    "        deleteButton.title = '删除这条留言';\n" +
-    "        deleteButton.addEventListener('click', async () => {\n" +
-    "          if (!window.confirm('确定删除这条留言吗？删除后不可恢复。')) return;\n" +
-    '          deleteButton.disabled = true;\n' +
-    '          try {\n' +
-    '            await deleteGuestMessage(message.id);\n' +
-    '            currentMessages = currentMessages.filter((item) => item.id !== message.id);\n' +
-    '            renderMessages(currentMessages);\n' +
-    '          } catch (err) {\n' +
-    '            deleteButton.disabled = false;\n' +
-    "            setStatus(err instanceof Error ? err.message : '删除失败', true);\n" +
-    '          }\n' +
-    '        });\n' +
-    '        meta.appendChild(deleteButton);\n' +
-    '      }\n' +
-    '\n' +
-    "      const text = document.createElement('p');\n" +
-    "      text.className = 'message-text';\n" +
-    '      text.textContent = message.text;\n' +
-    "      card.append(meta, text, createCommentsWidget('message', message.id, message.commentCount));\n" +
-    '      list.appendChild(card);\n' +
-    '    });\n' +
-    '  }\n' +
-    '\n' +
-    '  async function refreshSession() {\n' +
-    '    try {\n' +
-    '      const state = await getSession();\n' +
-    '      updateSessionUi(state.authenticated);\n' +
-    '    } catch (err) {\n' +
-    "      updateSessionUi(false, err instanceof Error ? err.message : '登录状态检查失败');\n" +
-    '    }\n' +
-    '  }\n' +
-    '\n' +
-    "  loginSubmit?.addEventListener('click', async () => {\n" +
-    "    const password = loginPassword?.value.trim() || '';\n" +
-    "    if (!password) return updateSessionUi(false, '请输入管理员密码');\n" +
-    '    loginSubmit.disabled = true;\n' +
-    '    try {\n' +
-    '      const state = await login(password);\n' +
-    "      if (loginPassword) loginPassword.value = '';\n" +
-    '      updateSessionUi(state.authenticated);\n' +
-    '    } catch (err) {\n' +
-    "      updateSessionUi(false, err instanceof Error ? err.message : '登录失败，请重试');\n" +
-    '    } finally {\n' +
-    '      loginSubmit.disabled = false;\n' +
-    '    }\n' +
-    '  });\n' +
-    '\n' +
-    "  loginPassword?.addEventListener('keydown', (event) => {\n" +
-    "    if (event.key === 'Enter') loginSubmit?.click();\n" +
-    '  });\n' +
-    '\n' +
-    "  logoutButton?.addEventListener('click', async () => {\n" +
-    '    logoutButton.disabled = true;\n' +
-    '    try {\n' +
-    '      await logout();\n' +
-    "      updateSessionUi(false, '已退出登录');\n" +
-    '    } finally {\n' +
-    '      logoutButton.disabled = false;\n' +
-    '    }\n' +
-    '  });\n' +
-    '\n' +
-    '  async function refreshMessages() {\n' +
-    '    if (!list) return;\n' +
-    '    try {\n' +
-    '      renderMessages(await fetchGuestMessages());\n' +
-    '    } catch (err) {\n' +
-    `      list.innerHTML = '<p class="message-empty">留言加载失败，请稍后再试。</p>';\n` +
-    '    }\n' +
-    '  }\n' +
-    '\n' +
-    "  form?.addEventListener('submit', async (event) => {\n" +
-    '  '... 764 more characters
-  
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:111:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1382:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
-      at Test.postRun (node:internal/test_runner/test:1522:19)
-      at Test.run (node:internal/test_runner/test:1447:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: `---\nimport BaseLayout from '../layouts/BaseLayout.astro';\n---\n\n<BaseLayout\n  title="留言板 | 搁浅 的小窝"\n  description="给博客留下想说的话。"\n  bannerTitle="留言板"\n  bannerSubtitle="路过也可以留下一句话。"\n>\n  <section class="messages-shell">\n    <p class="messages-intro">自设一个 ID 就能留言和评论，不需要密钥。</p>\n\n    <section class="message-admin" id="message-admin">\n      <div class="message-admin-row">\n        <span id="message-session-status">检查登录状态中...</span>\n        <button type="button" id="message-logout" hidden>退出登录</button>\n      </div>\n      <div id="message-login" hidden>\n        <input type="password" id="message-login-password" placeholder="管理员密码" autocomplete="current-password" />\n        <button type="button" id="message-login-submit">登录</button>\n      </div>\n    </section>\n\n    <form class="message-form" id="message-form">\n      <label>\n        <span>你的 ID</span>\n        <input type="text" name="userId" id="message-user-id" maxlength="32" placeholder="例如：路过的旅人" required />\n      </label>\n      <label>\n        <span>留言</span>\n        <textarea name="text" id="message-text" maxlength="800" rows="4" placeholder="写点什么..." required></textarea>\n      </label>\n      <div class="form-actions">\n        <p id="message-status" aria-live="polite"></p>\n        <button type="submit" id="message-submit">发送留言</button>\n      </div>\n    </form>\n\n    <div class="messages-list" id="messages-list">\n      <div class="message-loading">留言加载中...</div>\n    </div>\n  </section>\n</BaseLayout>\n\n<style is:global>\n  .messages-shell {\n    max-width: 760px;\n    margin: 0 auto;\n  }\n\n  .messages-intro {\n    margin: 0 0 18px;\n    color: var(--muted);\n    line-height: 1.7;\n  }\n\n  .message-form,\n  .message-card,\n  .message-admin {\n    border: 1px solid var(--panel-border);\n    background: var(--panel-gradient);\n    box-shadow: var(--shadow-soft);\n  }\n\n  .message-form {\n    display: grid;\n    gap: 14px;\n    padding: 20px 22px;\n    margin-bottom: 20px;\n    border-radius: var(--radius-lg);\n  }\n\n  .message-form label {\n    display: grid;\n    gap: 7px;\n  }\n\n  .message-form span {\n    color: var(--muted);\n    font-size: 0.84rem;\n    font-weight: 700;\n  }\n\n  .message-form input,\n  .message-form textarea,\n  #message-login input {\n    width: 100%;\n    box-sizing: border-box;\n    border: 1px solid var(--panel-border);\n    border-radius: 10px;\n    background: var(--bg);\n    color: var(--text);\n    font: inherit;\n    padding: 11px 13px;\n  }\n\n  .message-form textarea {\n    resize: vertical;\n    min-height: 106px;\n  }\n\n  .message-form input:focus,\n  .message-form textarea:focus,\n  #message-login input:focus {\n    outline: none;\n    border-color: var(--accent);\n  }\n\n  .form-actions {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    gap: 12px;\n  }\n\n  #message-status {\n    min-height: 20px;\n    margin: 0;\n    color: var(--muted);\n    font-size: 0.86rem;\n  }\n\n  #message-status.error {\n    color: #d94040;\n  }\n\n  #message-submit {\n    border: none;\n    border-radius: 10px;\n    background: var(--accent);\n    color: #fff;\n    cursor: pointer;\n    font: inherit;\n    font-weight: 700;\n    padding: 11px 18px;\n  }\n\n  #message-submit:disabled {\n    opacity: 0.6;\n    cursor: wait;\n  }\n\n  .message-admin {\n    margin: 0 0 18px;\n    padding: 0.75rem 1rem;\n    border-radius: 12px;\n  }\n\n  .message-admin-row,\n  #message-login {\n    display: flex;\n    align-items: center;\n    gap: 0.6rem;\n  }\n\n  #message-login {\n    margin-top: 0.6rem;\n  }\n\n  #message-login input {\n    flex: 1;\n    min-width: 0;\n  }\n\n  #message-logout,\n  #message-login-submit,\n  .message-delete {\n    border: 0;\n    border-radius: 8px;\n    padding: 0.35rem 0.75rem;\n    color: inherit;\n    background: rgba(255, 255, 255, 0.12);\n    cursor: pointer;\n  }\n\n  .message-delete {\n    margin-left: auto;\n    color: #ffc1cb;\n    background: rgba(255, 92, 122, 0.14);\n  }\n\n  .message-delete:disabled {\n    opacity: 0.6;\n    cursor: wait;\n  }\n\n  .messages-list {\n    display: grid;\n    gap: 14px;\n  }\n\n  .message-card {\n    border-radius: var(--radius-lg);\n    padding: 18px 20px;\n  }\n\n  .message-meta {\n    display: flex;\n    justify-content: space-between;\n    gap: 12px;\n    margin-bottom: 10px;\n  }\n\n  .message-meta strong {\n    color: var(--text);\n  }\n\n  .message-meta time {\n    color: var(--muted);\n    font-size: 0.8rem;\n    white-space: nowrap;\n  }\n\n  .message-text {\n    margin: 0;\n    color: var(--text);\n    line-height: 1.75;\n    white-space: pre-wrap;\n  }\n\n  .message-loading,\n  .message-empty {\n    padding: 34px 18px;\n    text-align: center;\n    color: var(--muted);\n  }\n\n  @media (max-width: 640px) {\n    .form-actions,\n    .message-meta {\n      align-items: flex-start;\n      flex-direction: column;\n    }\n\n    #message-submit {\n      width: 100%;\n    }\n  }\n</style>\n\n<script>\n  import {\n    createCommentsWidget,\n    createGuestMessage,\n    deleteGuestMessage,\n    fetchGuestMessages,\n    formatPublicTime,\n    getStoredUserId,\n    normalizeUserId,\n    setStoredUserId,\n    type GuestMessage,\n  } from '../lib/public-interactions';\n  import { getSession, login, logout } from '../lib/moments-api';\n\n  const form = document.getElementById('message-form') as HTMLFormElement | null;\n  const userInput = document.getElementById('message-user-id') as HTMLInputElement | null;\n  const textInput = document.getElementById('message-text') as HTMLTextAreaElement | null;\n  const submit = document.getElementById('message-submit') as HTMLButtonElement | null;\n  const status = document.getElementById('message-status');\n  const list = document.getElementById('messages-list');\n  const sessionStatus = document.getElementById('message-session-status');\n  const loginBox = document.getElementById('message-login');\n  const loginPassword = document.getElementById('message-login-password') as HTMLInputElement | null;\n  const loginSubmit = document.getElementById('message-login-submit') as HTMLButtonElement | null;\n  const logoutButton = document.getElementById('message-logout') as HTMLButtonElement | null;\n  let adminMode = false;\n  let currentMessages: GuestMessage[] = [];\n\n  if (userInput) userInput.value = getStoredUserId();\n\n  function setStatus(text: string, error = false) {\n    if (!status) return;\n    status.textContent = text;\n    status.className = error ? 'error' : '';\n  }\n\n  function updateSessionUi(authenticated: boolean, message = '') {\n    adminMode = authenticated;\n    if (sessionStatus) sessionStatus.textContent = message || (authenticated ? '已登录，可以删除留言。' : '管理员登录后可删除留言。');\n    if (loginBox) loginBox.hidden = authenticated;\n    if (logoutButton) logoutButton.hidden = !authenticated;\n    if (currentMessages.length > 0) renderMessages(currentMessages);\n  }\n\n  function renderMessages(messages: GuestMessage[]) {\n    if (!list) return;\n    currentMessages = messages;\n    list.innerHTML = '';\n\n    if (!messages.length) {\n      const empty = document.createElement('p');\n      empty.className = 'message-empty';\n      empty.textContent = '还没有留言，来写第一条吧。';\n      list.appendChild(empty);\n      return;\n    }\n\n    messages.forEach((message) => {\n      const card = document.createElement('article');\n      card.className = 'message-card';\n      const meta = document.createElement('div');\n      meta.className = 'message-meta';\n      const user = document.createElement('strong');\n      user.textContent = message.userId;\n      const time = document.createElement('time');\n      time.dateTime = new Date(message.createdAt).toISOString();\n      time.textContent = formatPublicTime(message.createdAt);\n      meta.append(user, time);\n      if (adminMode) {\n        const deleteButton = document.createElement('button');\n        deleteButton.type = 'button';\n        deleteButton.className = 'message-delete';\n        deleteButton.textContent = '删除';\n        deleteButton.title = '删除这条留言';\n        deleteButton.addEventListener('click', async () => {\n          if (!window.confirm('确定删除这条留言吗？删除后不可恢复。')) return;\n          deleteButton.disabled = true;\n          try {\n            await deleteGuestMessage(message.id);\n            currentMessages = currentMessages.filter((item) => item.id !== message.id);\n            renderMessages(currentMessages);\n          } catch (err) {\n            deleteButton.disabled = false;\n            setStatus(err instanceof Error ? err.message : '删除失败', true);\n          }\n        });\n        meta.appendChild(deleteButton);\n      }\n\n      const text = document.createElement('p');\n      text.className = 'message-text';\n      text.textContent = message.text;\n      card.append(meta, text, createCommentsWidget('message', message.id, message.commentCount));\n      list.appendChild(card);\n    });\n  }\n\n  async function refreshSession() {\n    try {\n      const state = await getSession();\n      updateSessionUi(state.authenticated);\n    } catch (err) {\n      updateSessionUi(false, err instanceof Error ? err.message : '登录状态检查失败');\n    }\n  }\n\n  loginSubmit?.addEventListener('click', async () => {\n    const password = loginPassword?.value.trim() || '';\n    if (!password) return updateSessionUi(false, '请输入管理员密码');\n    loginSubmit.disabled = true;\n    try {\n      const state = await login(password);\n      if (loginPassword) loginPassword.value = '';\n      updateSessionUi(state.authenticated);\n    } catch (err) {\n      updateSessionUi(false, err instanceof Error ? err.message : '登录失败，请重试');\n    } finally {\n      loginSubmit.disabled = false;\n    }\n  });\n\n  loginPassword?.addEventListener('keydown', (event) => {\n    if (event.key === 'Enter') loginSubmit?.click();\n  });\n\n  logoutButton?.addEventListener('click', async () => {\n    logoutButton.disabled = true;\n    try {\n      await logout();\n      updateSessionUi(false, '已退出登录');\n    } finally {\n      logoutButton.disabled = false;\n    }\n  });\n\n  async function refreshMessages() {\n    if (!list) return;\n    try {\n      renderMessages(await fetchGuestMessages());\n    } catch (err) {\n      list.innerHTML = '<p class="message-empty">留言加载失败，请稍后再试。</p>';\n    }\n  }\n\n  form?.addEventListener('submit', async (event) => {\n  `... 764 more characters,
-    expected: /messages-layout/,
-    operator: 'match',
-    diff: 'simple'
-  }
-
-__EXIT_CODE__=1
+__EXIT_CODE__=0
