@@ -269,23 +269,26 @@ test('persistent layout scripts initialize through astro page-load with data gua
   assert.doesNotMatch(greeting, /DOMContentLoaded/);
 });
 
-test('layout mounts the sakura particle layer and uses visible flower glyphs', () => {
+test('layout mounts the canvas sakura particle layer', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
   const particles = readSource('src/components/SekaiParticles.astro');
 
   assert.match(layout, /import SekaiParticles from ['"]\.\.\/components\/SekaiParticles\.astro['"]/);
   assert.match(layout, /<SekaiParticles\s*\/>/);
-  assert.match(particles, /var emojis = \['🌸'/);
-  assert.match(particles, /'🌺'\]/);
+  assert.match(particles, /<canvas[^>]*id="sakura-canvas"/);
+  assert.match(particles, /transferControlToOffscreen/);
 });
 
-test('sakura particles use the approved flowers and natural drift parameters', () => {
+test('sakura particles use drawn petal drift with a worker fallback', () => {
   const particles = readSource('src/components/SekaiParticles.astro');
+  const worker = readSource('src/workers/sakura.worker.js');
 
-  assert.match(particles, /var emojis = \['\\u\{1F338\}', '\\u\{1F4AE\}', '❀'\]/);
-  assert.match(particles, /windAmplitude/);
-  assert.match(particles, /rotateStart/);
-  assert.match(particles, /MAX_PETALS = 24/);
+  assert.match(worker, /MAX_PETALS = 24/);
+  assert.match(worker, /bezierCurveTo/);
+  assert.match(worker, /wind/);
+  assert.match(worker, /sway/);
+  assert.match(particles, /getContext\(['"]2d['"]\)/);
+  assert.match(particles, /prefers-reduced-motion/);
 });
 
 test('QQ playlist imports normalize ids and report unavailable audio links', () => {
