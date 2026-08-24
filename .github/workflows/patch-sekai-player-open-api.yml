@@ -1,0 +1,58 @@
+name: Patch SEKAI player open API
+
+on:
+  push:
+    branches: [fix/home-music-controls]
+    paths:
+      - '.ci/patch-sekai-player-trigger.txt'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/home-music-controls
+          fetch-depth: 0
+      - name: Add public open API with exact replacement
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/components/SekaiPlayer.astro')
+          text = path.read_text(encoding='utf-8')
+          old = """  function togglePanel() {
+            panel.classList.toggle('hidden');
+            if (!panel.classList.contains('hidden')) ensureCatalog().catch(function() {});
+          }
+"""
+          new = """  function openPanel() {
+            panel.classList.remove('hidden');
+            ensureCatalog().catch(function() {});
+          }
+
+          function togglePanel() {
+            if (panel.classList.contains('hidden')) openPanel();
+            else panel.classList.add('hidden');
+          }
+
+          window.__sekaiOpenPlayer = function() {
+            openPanel();
+          };
+"""
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected exactly one togglePanel block, found {text.count(old)}')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/components/SekaiPlayer.astro
+          git commit -m 'fix: expose SEKAI player open API'
+          git pull --rebase origin fix/home-music-controls
+          git push origin HEAD:fix/home-music-controls
