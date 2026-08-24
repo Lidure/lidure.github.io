@@ -10,6 +10,7 @@ on:
 permissions:
   contents: write
 
+# One-shot exact patch for the large player page; remove this workflow after it commits.
 jobs:
   patch:
     runs-on: ubuntu-latest
