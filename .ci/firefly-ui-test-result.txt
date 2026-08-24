@@ -27,12 +27,12 @@ npm warn allow-scripts Run `npm approve-scripts --allow-scripts-pending` to revi
 > astro check && astro build
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m01:14:54[22m [34m[content][39m Syncing content
+[2m01:17:31[22m [34m[content][39m Syncing content
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
-[2m01:14:55[22m [34m[content][39m Synced content
-[2m01:14:55[22m [34m[types][39m Generated [2m1.43s[22m
-[2m01:14:55[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[2m01:17:32[22m [34m[content][39m Synced content
+[2m01:17:32[22m [34m[types][39m Generated [2m1.50s[22m
+[2m01:17:32[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
 [96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
 
 [7m14[0m     draft: z.boolean().default(false),
@@ -220,400 +220,106 @@ Result (45 files):
 - 41 hints
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m01:15:04[22m [34m[content][39m Syncing content
-[2m01:15:04[22m [34m[content][39m Synced content
-[2m01:15:04[22m [34m[types][39m Generated [2m533ms[22m
-[2m01:15:04[22m [34m[build][39m output: [34m"static"[39m
-[2m01:15:04[22m [34m[build][39m mode: [34m"static"[39m
-[2m01:15:04[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
-[2m01:15:04[22m [34m[build][39m Collecting build info...
-[2m01:15:04[22m [34m[build][39m [32m✓ Completed in 567ms.[39m
-[2m01:15:04[22m [34m[build][39m Building static entrypoints...
-[2m01:15:07[22m [34m[vite][39m [32m✓ built in 2.52s[39m
-[2m01:15:07[22m [34m[vite][39m [32m✓ built in 526ms[39m
-[2m01:15:07[22m [34m[build][39m Rearranging server assets...
+[2m01:17:41[22m [34m[content][39m Syncing content
+[2m01:17:41[22m [34m[content][39m Synced content
+[2m01:17:41[22m [34m[types][39m Generated [2m502ms[22m
+[2m01:17:41[22m [34m[build][39m output: [34m"static"[39m
+[2m01:17:41[22m [34m[build][39m mode: [34m"static"[39m
+[2m01:17:41[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m01:17:41[22m [34m[build][39m Collecting build info...
+[2m01:17:41[22m [34m[build][39m [32m✓ Completed in 556ms.[39m
+[2m01:17:41[22m [34m[build][39m Building static entrypoints...
+[2m01:17:44[22m [34m[vite][39m [32m✓ built in 2.50s[39m
+[2m01:17:45[22m [34m[vite][39m [32m✓ built in 524ms[39m
+[2m01:17:45[22m [34m[build][39m Rearranging server assets...
 
 [42m[30m generating static routes [39m[49m
-[2m01:15:07[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+15ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+5ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+9ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+4ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+4ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+228ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/rss.xml[22m [2m(+26ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+3ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
-[2m01:15:07[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
-[2m01:15:07[22m [32m✓ Completed in 371ms.
+[2m01:17:45[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+15ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+5ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/player/index.html[22m [2m(+8ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+9ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+4ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+4ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+188ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/rss.xml[22m [2m(+30ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m01:17:45[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
+[2m01:17:45[22m [32m✓ Completed in 335ms.
 [39m
 [42m[30m generating optimized images [39m[49m
-[2m01:15:08[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+65ms)[22m [2m(1/4)[22m
-[2m01:15:08[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+80ms)[22m [2m(2/4)[22m
-[2m01:15:08[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+89ms)[22m [2m(3/4)[22m
-[2m01:15:08[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+350ms)[22m [2m(4/4)[22m
-[2m01:15:08[22m [32m✓ Completed in 350ms.
+[2m01:17:45[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+73ms)[22m [2m(1/4)[22m
+[2m01:17:45[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+77ms)[22m [2m(2/4)[22m
+[2m01:17:45[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+82ms)[22m [2m(3/4)[22m
+[2m01:17:45[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+358ms)[22m [2m(4/4)[22m
+[2m01:17:45[22m [32m✓ Completed in 359ms.
 [39m
-[2m01:15:08[22m [34m[build][39m [32m✓ Completed in 3.82s.[39m
-[2m01:15:08[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
-[2m01:15:08[22m [34m[build][39m 23 page(s) built in [1m4.40s[22m
-[2m01:15:08[22m [34m[build][39m [1mComplete![22m
+[2m01:17:45[22m [34m[build][39m [32m✓ Completed in 3.78s.[39m
+[2m01:17:45[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m01:17:45[22m [34m[build][39m 23 page(s) built in [1m4.34s[22m
+[2m01:17:45[22m [34m[build][39m [1mComplete![22m
 
 > lidure-github-io@0.0.1 test:site
 > node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
 
-✔ BaseLayout exposes standard and immersive page modes (1.784652ms)
-✔ player route defaults to immersive layout with trailing slash tolerance (0.509564ms)
-✔ standard banner keeps B3 desktop and mobile heights (1.906591ms)
-✔ standard banner stays readable when the background is disabled (0.635801ms)
-✔ site header replaces its global scroll listener after Astro navigation (0.399027ms)
-✔ home uses dedicated profile and post-card components (0.434313ms)
-✔ built immersive page has no standard banner shell (2.019122ms)
-✔ background loop guard detects a wrap and reuses the player recovery handler (2.068724ms)
-✔ base layout installs the background loop guard (0.35245ms)
-✔ player search tolerates imported songs without precomputed searchText (1.650642ms)
-✔ local imports keep active search and tag filters (0.429464ms)
-✔ search embeds parseable post data without a runtime jsonData reference (2.485966ms)
-✔ public URLs use the configured lidure22.xyz domain and include social metadata (1.00336ms)
-✔ source configuration uses configured public domains and no stale publishing defaults (2.661274ms)
-✔ optical-flow article has one h1 and no unparsed inline delimiters (2.575093ms)
-✔ optimized identity assets are used and remain small (1.05185ms)
-✔ rendered background configuration starts with a static image (0.960418ms)
-✖ rendered moments management controls are hidden by default (2.118839ms)
-✔ moments page exposes the API hook and local controls (1.402066ms)
-✔ moments publishing UI accepts videos and requires selectable posters (1.615185ms)
-✔ moments video poster generation ignores stale async captures (1.237287ms)
-✔ moments browser code uses the session API client for management (1.429728ms)
-✔ moment delete controls follow the authenticated session (0.622095ms)
-✔ guestbook exposes authenticated message deletion controls (0.354924ms)
-✖ hero slideshow uses explicit saved video posters instead of black canvas fallback (1.36166ms)
-✔ moments api preserves distinct 401 auth worker codes (0.280706ms)
-✔ Astro swaps clean page-scoped media while preserving persistent background media (0.621955ms)
-✔ persistent layout scripts initialize through astro page-load with data guards (0.665386ms)
-✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.233397ms)
-✔ sakura particles use the approved flowers and natural drift parameters (0.189294ms)
-✔ QQ playlist imports normalize ids and report unavailable audio links (1.463901ms)
-✔ online playlist imports resolve audio URLs on demand (0.81665ms)
-✔ online playlist imports use a unified Meting-compatible adapter (0.99848ms)
-✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.147706ms)
-✔ background video degrades safely on navigation visibility and reduced motion (0.463298ms)
-✔ background videos recover playback when browsers emit ended despite loop (0.511948ms)
-✔ background videos reload before retrying playback after ended (0.462696ms)
-✔ moments single-item query aliases the legacy images column (0.164698ms)
+✔ BaseLayout exposes standard and immersive page modes (1.588245ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.566754ms)
+✔ standard banner keeps B3 desktop and mobile heights (3.026549ms)
+✔ standard banner stays readable when the background is disabled (0.540134ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.411806ms)
+✔ home uses dedicated profile and post-card components (0.317106ms)
+✔ built immersive page has no standard banner shell (1.806927ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (2.442481ms)
+✔ base layout installs the background loop guard (0.40118ms)
+✔ player search tolerates imported songs without precomputed searchText (1.114669ms)
+✔ local imports keep active search and tag filters (0.388161ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.435621ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.99957ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.796582ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.668002ms)
+✔ optimized identity assets are used and remain small (1.044966ms)
+✔ rendered background configuration starts with a static image (0.878982ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.487286ms)
+✔ moments page exposes the API hook and local controls (1.407549ms)
+✔ moments publishing UI accepts videos and requires selectable posters (1.47573ms)
+✔ moments video poster generation ignores stale async captures (0.906232ms)
+✔ moments browser code uses the session API client for management (1.281644ms)
+✔ moment delete controls follow the authenticated session (0.683044ms)
+✔ guestbook exposes authenticated message deletion controls (0.331277ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.710034ms)
+✔ moments api preserves distinct 401 auth worker codes (0.298178ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.505864ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.678027ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.265471ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.139925ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.483791ms)
+✔ online playlist imports resolve audio URLs on demand (0.824252ms)
+✔ online playlist imports use a unified Meting-compatible adapter (1.055722ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.14993ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.46259ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.515798ms)
+✔ background videos reload before retrying playback after ended (0.442861ms)
+✔ moments single-item query aliases the legacy images column (0.182448ms)
 ℹ tests 38
 ℹ suites 0
-ℹ pass 36
-ℹ fail 2
+ℹ pass 38
+ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 183.730598
+ℹ duration_ms 181.446679
 
-✖ failing tests:
-
-test at tests/site-build.test.mjs:94:1
-✖ rendered moments management controls are hidden by default (2.118839ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /data-admin-only/. Input:
-  
-  '<button class="fab" id="publish-toggle" aria-label="发布新动态" data-astro-cid-ovd5htye>'
-  
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/site-build.test.mjs:100:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1382:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
-      at Test.postRun (node:internal/test_runner/test:1522:19)
-      at Test.run (node:internal/test_runner/test:1447:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: '<button class="fab" id="publish-toggle" aria-label="发布新动态" data-astro-cid-ovd5htye>',
-    expected: /data-admin-only/,
-    operator: 'match',
-    diff: 'simple'
-  }
-
-test at tests/site-build.test.mjs:211:1
-✖ hero slideshow uses explicit saved video posters instead of black canvas fallback (1.36166ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /crossOrigin\s*=\s*'anonymous'/. Input:
-  
-  '---\n' +
-    '/**\n' +
-    ' * HeroSlideshow — Homepage background slideshow with settings panel\n' +
-    ' *\n' +
-    ' * HOW TO ADD DEFAULT IMAGES (always available):\n' +
-    ' *   Add paths or URLs to the defaultImages array below.\n' +
-    ' *\n' +
-    ' * Examples:\n' +
-    " *   '/hero1.jpg'                        → public/hero1.jpg\n" +
-    " *   '/images/bg.png'                    → public/images/bg.png\n" +
-    " *   'https://example.com/wallpaper.jpg' → online URL\n" +
-    " *   '/hero.mp4'                         → public/hero.mp4 (video)\n" +
-    ' */\n' +
-    'const defaultImages: string[] = [\n' +
-    '  // 填入 R2 图床 URL，例如：\n' +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/953c5e02532e4eeb9ec758e7fd7e8ad3.jpg',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/miku_star.mp4',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/1b87e2c5880511ebb6edd017c2d2eca2.png',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/wallhaven-1p9z61.jpg',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_1(1).png',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_2.jpg',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/shizuku.jpg',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/B292469EBE40CB0DE50A866C73C61F81.jpg',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/miku_ying1.mp4',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/3dmiku1.mp4',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/snow.mp4',\n" +
-    "  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/output.mp4'\n" +
-    '];\n' +
-    '\n' +
-    'const DEFAULT_INTERVAL = 15000;\n' +
-    'const DEFAULT_OPACITY = 0.45;\n' +
-    '---\n' +
-    '\n' +
-    '<div\n' +
-    '  class="hero-slideshow"\n' +
-    '  id="hero-slideshow"\n' +
-    '  transition:persist\n' +
-    '  data-defaults={JSON.stringify(defaultImages)}\n' +
-    '  data-default-interval={String(DEFAULT_INTERVAL)}\n' +
-    '  data-default-opacity={String(DEFAULT_OPACITY)}\n' +
-    '>\n' +
-    '  <div class="slideshow-layer" aria-hidden="true"></div>\n' +
-    '  <canvas class="slideshow-canvas" aria-hidden="true"></canvas>\n' +
-    '  <video class="slideshow-video" id="slideshowVideo" data-persistent-media muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true" tabindex="-1" disablepictureinpicture disableRemotePlayback></video>\n' +
-    '  <div class="slideshow-overlay" aria-hidden="true"></div>\n' +
-    '</div>\n' +
-    '\n' +
-    '<button\n' +
-    '  class="hero-settings-btn"\n' +
-    '  id="hero-settings-btn"\n' +
-    '  transition:persist\n' +
-    '  type="button"\n' +
-    '  aria-label="背景设置"\n' +
-    '  title="背景设置"\n' +
-    '>\n' +
-    '  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n' +
-    '    <circle cx="12" cy="12" r="3"/>\n' +
-    '    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>\n' +
-    '  </svg>\n' +
-    '</button>\n' +
-    '\n' +
-    '<div class="hero-settings-panel" id="hero-settings-panel" transition:persist>\n' +
-    '  <div class="settings-header">\n' +
-    '    <span class="settings-title">背景设置</span>\n' +
-    '    <button class="settings-close" id="settings-close" type="button" aria-label="关闭">\n' +
-    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>\n' +
-    '    </button>\n' +
-    '  </div>\n' +
-    '\n' +
-    '  <div class="settings-body">\n' +
-    '    <div class="setting-row">\n' +
-    '      <span class="setting-label">启用背景</span>\n' +
-    '      <label class="toggle-switch">\n' +
-    '        <input type="checkbox" id="toggle-enabled" checked />\n' +
-    '        <span class="toggle-track"></span>\n' +
-    '      </label>\n' +
-    '    </div>\n' +
-    '\n' +
-    '    <div class="setting-row">\n' +
-    '      <span class="setting-label">自动轮播</span>\n' +
-    '      <label class="toggle-switch">\n' +
-    '        <input type="checkbox" id="toggle-autoplay" checked />\n' +
-    '        <span class="toggle-track"></span>\n' +
-    '      </label>\n' +
-    '    </div>\n' +
-    '\n' +
-    '    <div class="setting-row">\n' +
-    '      <span class="setting-label">樱花粒子</span>\n' +
-    '      <label class="toggle-switch">\n' +
-    '        <input type="checkbox" id="toggle-sakura" />\n' +
-    '        <span class="toggle-track"></span>\n' +
-    '      </label>\n' +
-    '    </div>\n' +
-    '\n' +
-    '    <div class="setting-group">\n' +
-    '      <span class="setting-label">切换间隔</span>\n' +
-    '      <div class="range-row">\n' +
-    '        <input type="range" id="interval-range" min="2" max="20" step="1" value="15" />\n' +
-    '        <span class="range-value" id="interval-val">15s</span>\n' +
-    '      </div>\n' +
-    '    </div>\n' +
-    '\n' +
-    '    <div class="setting-group">\n' +
-    '      <span class="setting-label">遮罩透明度</span>\n' +
-    '      <div class="range-row">\n' +
-    '        <input type="range" id="opacity-range" min="0" max="80" step="5" value="45" />\n' +
-    '        <span class="range-value" id="opacity-val">45%</span>\n' +
-    '      </div>\n' +
-    '    </div>\n' +
-    '\n' +
-    '    <div class="setting-group">\n' +
-    '      <span class="setting-label">上传画质</span>\n' +
-    '      <select class="quality-select" id="quality-select">\n' +
-    '        <option value="high">高质量 (JPEG 95%)</option>\n' +
-    '        <option value="medium">中等 (JPEG 75%)</option>\n' +
-    '        <option value="original">原始画质 (不压缩)</option>\n' +
-    '      </select>\n' +
-    '    </div>\n' +
-    '\n' +
-    '    <div class="setting-group">\n' +
-    '      <span class="setting-label">添加图片/视频</span>\n' +
-    '      <label class="upload-zone" id="upload-zone">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>\n' +
-    '        <span>点击上传或拖入图片/视频</span>\n' +
-    '        <input type="file" accept="image/*" multiple id="file-input" hidden />\n' +
-    '      </label>\n' +
-    '      <div class="url-row">\n' +
-    '        <input type="url" id="url-input" placeholder="粘贴图片/视频 URL 后回车" />\n' +
-    '        <button class="url-add-btn" id="url-add-btn" type="button">添加</button>\n' +
-    '      </div>\n' +
-    '    </div>\n' +
-    '\n' +
-    '    <div class="setting-group">\n' +
-    '      <button class="media-manage-btn" id="media-manage-btn" type="button">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>\n' +
-    '        <span>背景管理</span>\n' +
-    '        <span class="media-count" id="media-count">0</span>\n' +
-    '      </button>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '</div>\n' +
-    '\n' +
-    '<div class="media-panel" id="media-panel" transition:persist>\n' +
-    '  <div class="media-panel-inner">\n' +
-    '    <div class="media-panel-header">\n' +
-    '      <button class="media-panel-back" id="media-panel-back" type="button" aria-label="返回">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>\n' +
-    '      </button>\n' +
-    '      <span class="media-panel-title">背景库</span>\n' +
-    '      <button class="media-panel-add" id="media-panel-add" type="button" aria-label="添加">\n' +
-    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>\n' +
-    '      </button>\n' +
-    '    </div>\n' +
-    '    <div class="media-panel-body" id="media-panel-body">\n' +
-    '      <div class="media-panel-empty">暂无媒体，点击右上角 + 添加</div>\n' +
-    '    </div>\n' +
-    '  </div>\n' +
-    '</div>\n' +
-    '\n' +
-    '<div class="media-preview" id="media-preview" transition:persist aria-hidden="true">\n' +
-    '  <button class="media-preview-close" id="media-preview-close" type="button" aria-label="关闭">&times;</button>\n' +
-    '  <div class="media-preview-stage" id="media-preview-stage">\n' +
-    '    <img class="media-preview-img" id="media-preview-img" src="" alt="" />\n' +
-    '    <video class="media-preview-video" id="media-preview-video" data-page-media src="" muted loop playsinline webkit-playsinline controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableRemotePlayback></video>\n' +
-    '  </div>\n' +
-    '</div>\n' +
-    '\n' +
-    '<style>\n' +
-    '  /* ===== Slideshow Container ===== */\n' +
-    '  .hero-slideshow {\n' +
-    '    position: fixed;\n' +
-    '    inset: 0;\n' +
-    '    z-index: 0;\n' +
-    '    overflow: hidden;\n' +
-    '    pointer-events: none;\n' +
-    '  }\n' +
-    '\n' +
-    '  .slideshow-layer {\n' +
-    '    position: absolute;\n' +
-    '    inset: 0;\n' +
-    '    background-size: cover;\n' +
-    '    background-position: center;\n' +
-    '    background-repeat: no-repeat;\n' +
-    '    opacity: 0;\n' +
-    '    transition: opacity 1.5s ease-in-out;\n' +
-    '  }\n' +
-    '\n' +
-    '  .slideshow-layer.visible {\n' +
-    '    opacity: 1;\n' +
-    '  }\n' +
-    '\n' +
-    '  .slideshow-canvas {\n' +
-    '    position: absolute;\n' +
-    '    inset: 0;\n' +
-    '    width: 100%;\n' +
-    '    height: 100%;\n' +
-    '    object-fit: cover;\n' +
-    '    opacity: 0;\n' +
-    '    transition: opacity 1.5s ease-in-out;\n' +
-    '    z-index: 1;\n' +
-    '    pointer-events: none;\n' +
-    '  }\n' +
-    '\n' +
-    '  .slideshow-canvas.visible {\n' +
-    '    opacity: 1;\n' +
-    '  }\n' +
-    '\n' +
-    '  .poster-needed-placeholder {\n' +
-    '    position: absolute;\n' +
-    '    inset: 0;\n' +
-    '    display: grid;\n' +
-    '    place-items: center;\n' +
-    '    padding: 24px;\n' +
-    '    color: rgba(255, 255, 255, 0.86);\n' +
-    '    text-align: center;\n' +
-    '    background:\n' +
-    '      radial-gradient(circle at 30% 30%, rgba(117, 135, 255, 0.28), transparent 34%),\n' +
-    '      linear-gradient(135deg, rgba(20, 24, 42, 0.82), rgba(5, 8, 18, 0.92));\n' +
-    '    opacity: 0;\n' +
-    '    transition: opacity 1.5s ease-in-out;\n' +
-    '    pointer-events: none;\n' +
-    '    z-index: 1;\n' +
-    '  }\n' +
-    '\n' +
-    '  .poster-needed-placeholder.visible {\n' +
-    '    opacity: 1;\n' +
-    '  }\n' +
-    '\n' +
-    '  .slideshow-video {\n' +
-    '    position: absolute;\n' +
-    '    width: 1px;\n' +
-    '    height: 1px;\n' +
-    '    left: -9999px;\n' +
-    '    top: -9999px;\n' +
-    '    opacity: 0 !important;\n' +
-    '    visibility: hidden !important;\n' +
-    '    pointer-events: none;\n' +
-    '    z-index: -1;\n' +
-    '  }\n' +
-    '\n' +
-    '  .slideshow-video.visible {\n' +
-    '    opacity: 0 !important;\n' +
-    '    visibility: hidden !important;\n' +
-    '  }\n' +
-    '\n' +
-    '  .slideshow-overlay {\n' +
-    '    position: absolute;\n' +
-    '    inset: 0;\n' +
-    '    background: linear-gradient(\n' +
-    '      180deg,\n' +
-    '      rgba(0, 0, 0, var(--slideshow-overlay, 0.45)) '... 60535 more characters
-  
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/site-build.test.mjs:214:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1382:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
-      at Test.postRun (node:internal/test_runner/test:1522:19)
-      at Test.run (node:internal/test_runner/test:1447:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: `---\n/**\n * HeroSlideshow — Homepage background slideshow with settings panel\n *\n * HOW TO ADD DEFAULT IMAGES (always available):\n *   Add paths or URLs to the defaultImages array below.\n *\n * Examples:\n *   '/hero1.jpg'                        → public/hero1.jpg\n *   '/images/bg.png'                    → public/images/bg.png\n *   'https://example.com/wallpaper.jpg' → online URL\n *   '/hero.mp4'                         → public/hero.mp4 (video)\n */\nconst defaultImages: string[] = [\n  // 填入 R2 图床 URL，例如：\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/953c5e02532e4eeb9ec758e7fd7e8ad3.jpg',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/miku_star.mp4',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/1b87e2c5880511ebb6edd017c2d2eca2.png',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/wallhaven-1p9z61.jpg',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_1(1).png',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_2.jpg',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/shizuku.jpg',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/B292469EBE40CB0DE50A866C73C61F81.jpg',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/miku_ying1.mp4',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/3dmiku1.mp4',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/snow.mp4',\n  'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/output.mp4'\n];\n\nconst DEFAULT_INTERVAL = 15000;\nconst DEFAULT_OPACITY = 0.45;\n---\n\n<div\n  class="hero-slideshow"\n  id="hero-slideshow"\n  transition:persist\n  data-defaults={JSON.stringify(defaultImages)}\n  data-default-interval={String(DEFAULT_INTERVAL)}\n  data-default-opacity={String(DEFAULT_OPACITY)}\n>\n  <div class="slideshow-layer" aria-hidden="true"></div>\n  <canvas class="slideshow-canvas" aria-hidden="true"></canvas>\n  <video class="slideshow-video" id="slideshowVideo" data-persistent-media muted loop playsinline webkit-playsinline preload="metadata" aria-hidden="true" tabindex="-1" disablepictureinpicture disableRemotePlayback></video>\n  <div class="slideshow-overlay" aria-hidden="true"></div>\n</div>\n\n<button\n  class="hero-settings-btn"\n  id="hero-settings-btn"\n  transition:persist\n  type="button"\n  aria-label="背景设置"\n  title="背景设置"\n>\n  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n    <circle cx="12" cy="12" r="3"/>\n    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>\n  </svg>\n</button>\n\n<div class="hero-settings-panel" id="hero-settings-panel" transition:persist>\n  <div class="settings-header">\n    <span class="settings-title">背景设置</span>\n    <button class="settings-close" id="settings-close" type="button" aria-label="关闭">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>\n    </button>\n  </div>\n\n  <div class="settings-body">\n    <div class="setting-row">\n      <span class="setting-label">启用背景</span>\n      <label class="toggle-switch">\n        <input type="checkbox" id="toggle-enabled" checked />\n        <span class="toggle-track"></span>\n      </label>\n    </div>\n\n    <div class="setting-row">\n      <span class="setting-label">自动轮播</span>\n      <label class="toggle-switch">\n        <input type="checkbox" id="toggle-autoplay" checked />\n        <span class="toggle-track"></span>\n      </label>\n    </div>\n\n    <div class="setting-row">\n      <span class="setting-label">樱花粒子</span>\n      <label class="toggle-switch">\n        <input type="checkbox" id="toggle-sakura" />\n        <span class="toggle-track"></span>\n      </label>\n    </div>\n\n    <div class="setting-group">\n      <span class="setting-label">切换间隔</span>\n      <div class="range-row">\n        <input type="range" id="interval-range" min="2" max="20" step="1" value="15" />\n        <span class="range-value" id="interval-val">15s</span>\n      </div>\n    </div>\n\n    <div class="setting-group">\n      <span class="setting-label">遮罩透明度</span>\n      <div class="range-row">\n        <input type="range" id="opacity-range" min="0" max="80" step="5" value="45" />\n        <span class="range-value" id="opacity-val">45%</span>\n      </div>\n    </div>\n\n    <div class="setting-group">\n      <span class="setting-label">上传画质</span>\n      <select class="quality-select" id="quality-select">\n        <option value="high">高质量 (JPEG 95%)</option>\n        <option value="medium">中等 (JPEG 75%)</option>\n        <option value="original">原始画质 (不压缩)</option>\n      </select>\n    </div>\n\n    <div class="setting-group">\n      <span class="setting-label">添加图片/视频</span>\n      <label class="upload-zone" id="upload-zone">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>\n        <span>点击上传或拖入图片/视频</span>\n        <input type="file" accept="image/*" multiple id="file-input" hidden />\n      </label>\n      <div class="url-row">\n        <input type="url" id="url-input" placeholder="粘贴图片/视频 URL 后回车" />\n        <button class="url-add-btn" id="url-add-btn" type="button">添加</button>\n      </div>\n    </div>\n\n    <div class="setting-group">\n      <button class="media-manage-btn" id="media-manage-btn" type="button">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>\n        <span>背景管理</span>\n        <span class="media-count" id="media-count">0</span>\n      </button>\n    </div>\n  </div>\n</div>\n\n<div class="media-panel" id="media-panel" transition:persist>\n  <div class="media-panel-inner">\n    <div class="media-panel-header">\n      <button class="media-panel-back" id="media-panel-back" type="button" aria-label="返回">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>\n      </button>\n      <span class="media-panel-title">背景库</span>\n      <button class="media-panel-add" id="media-panel-add" type="button" aria-label="添加">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>\n      </button>\n    </div>\n    <div class="media-panel-body" id="media-panel-body">\n      <div class="media-panel-empty">暂无媒体，点击右上角 + 添加</div>\n    </div>\n  </div>\n</div>\n\n<div class="media-preview" id="media-preview" transition:persist aria-hidden="true">\n  <button class="media-preview-close" id="media-preview-close" type="button" aria-label="关闭">&times;</button>\n  <div class="media-preview-stage" id="media-preview-stage">\n    <img class="media-preview-img" id="media-preview-img" src="" alt="" />\n    <video class="media-preview-video" id="media-preview-video" data-page-media src="" muted loop playsinline webkit-playsinline controls controlslist="nodownload noplaybackrate noremoteplayback" disablepictureinpicture disableRemotePlayback></video>\n  </div>\n</div>\n\n<style>\n  /* ===== Slideshow Container ===== */\n  .hero-slideshow {\n    position: fixed;\n    inset: 0;\n    z-index: 0;\n    overflow: hidden;\n    pointer-events: none;\n  }\n\n  .slideshow-layer {\n    position: absolute;\n    inset: 0;\n    background-size: cover;\n    background-position: center;\n    background-repeat: no-repeat;\n    opacity: 0;\n    transition: opacity 1.5s ease-in-out;\n  }\n\n  .slideshow-layer.visible {\n    opacity: 1;\n  }\n\n  .slideshow-canvas {\n    position: absolute;\n    inset: 0;\n    width: 100%;\n    height: 100%;\n    object-fit: cover;\n    opacity: 0;\n    transition: opacity 1.5s ease-in-out;\n    z-index: 1;\n    pointer-events: none;\n  }\n\n  .slideshow-canvas.visible {\n    opacity: 1;\n  }\n\n  .poster-needed-placeholder {\n    position: absolute;\n    inset: 0;\n    display: grid;\n    place-items: center;\n    padding: 24px;\n    color: rgba(255, 255, 255, 0.86);\n    text-align: center;\n    background:\n      radial-gradient(circle at 30% 30%, rgba(117, 135, 255, 0.28), transparent 34%),\n      linear-gradient(135deg, rgba(20, 24, 42, 0.82), rgba(5, 8, 18, 0.92));\n    opacity: 0;\n    transition: opacity 1.5s ease-in-out;\n    pointer-events: none;\n    z-index: 1;\n  }\n\n  .poster-needed-placeholder.visible {\n    opacity: 1;\n  }\n\n  .slideshow-video {\n    position: absolute;\n    width: 1px;\n    height: 1px;\n    left: -9999px;\n    top: -9999px;\n    opacity: 0 !important;\n    visibility: hidden !important;\n    pointer-events: none;\n    z-index: -1;\n  }\n\n  .slideshow-video.visible {\n    opacity: 0 !important;\n    visibility: hidden !important;\n  }\n\n  .slideshow-overlay {\n    position: absolute;\n    inset: 0;\n    background: linear-gradient(\n      180deg,\n      rgba(0, 0, 0, var(--slideshow-overlay, 0.45)) `... 60535 more characters,
-    expected: /crossOrigin\s*=\s*'anonymous'/,
-    operator: 'match',
-    diff: 'simple'
-  }
-
-__EXIT_CODE__=1
+__EXIT_CODE__=0
