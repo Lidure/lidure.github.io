@@ -19,70 +19,6 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - name: Apply exact immersive selector patch when needed
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          path = Path('src/pages/player.astro')
-          text = path.read_text(encoding='utf-8')
-          old = """    // Toggle UI
-    var hideTargets = null;
-
-    function getTargets() {
-      if (hideTargets) return hideTargets;
-      hideTargets = {
-        stage1: [
-          document.querySelector('.topbar'),
-          document.querySelector('.footer'),
-        ].filter(Boolean),
-        stage2: [],
-        stage3: [
-          document.querySelector('.immersive-cover'),
-          document.querySelector('#danmakuStage'),
-          canvas,
-        ].filter(Boolean),
-      };
-      document.querySelectorAll('.sekai-player-btn, #hero-settings-btn, #hero-settings-panel').forEach(function(el) {
-        hideTargets.stage2.push(el);
-      });
-      if (danmakuComposer) hideTargets.stage2.push(danmakuComposer);
-      return hideTargets;
-    }
-"""
-          new = """    // Toggle UI
-    var hideTargets = null;
-
-    function getTargets() {
-      if (hideTargets) return hideTargets;
-      hideTargets = {
-        stage1: [
-          document.querySelector('.site-header'),
-        ].filter(Boolean),
-        stage2: [
-          document.querySelector('.site-floating-controls'),
-          document.querySelector('.sekai-player-btn'),
-          document.querySelector('#hero-settings-panel'),
-          document.querySelector('#media-panel'),
-          document.querySelector('#media-preview'),
-          danmakuComposer,
-        ].filter(Boolean),
-        stage3: [
-          document.querySelector('.immersive-cover'),
-          document.querySelector('#danmakuStage'),
-          canvas,
-        ].filter(Boolean),
-      };
-      return hideTargets;
-    }
-"""
-          if old in text:
-              if text.count(old) != 1:
-                  raise SystemExit(f'Expected exactly one old block, found {text.count(old)}')
-              path.write_text(text.replace(old, new, 1), encoding='utf-8')
-          elif new not in text:
-              raise SystemExit('Neither expected old nor new getTargets block found; refusing broad edit')
-          PY
       - run: npm ci
       - name: Run tests and record result
         shell: bash
@@ -98,11 +34,11 @@ jobs:
             exit "$code"
           } > .ci/firefly-v2-test-result.txt 2>&1
         continue-on-error: true
-      - name: Commit source patch and result
+      - name: Commit result
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/pages/player.astro .ci/firefly-v2-test-result.txt
-          git commit -m 'ci: apply immersive patch and record verification' || exit 0
+          git add .ci/firefly-v2-test-result.txt
+          git commit -m 'ci: record Firefly v2 verification' || exit 0
           git push
