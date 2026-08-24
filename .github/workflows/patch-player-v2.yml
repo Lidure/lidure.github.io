@@ -1,0 +1,90 @@
+name: Patch player v2 selectors
+
+on:
+  push:
+    branches: [feat/firefly-ui-refresh-v2]
+    paths:
+      - '.github/workflows/patch-player-v2.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/firefly-ui-refresh-v2
+      - name: Replace immersive target groups exactly once
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/pages/player.astro')
+          text = path.read_text(encoding='utf-8')
+          old = """    // Toggle UI
+    var hideTargets = null;
+
+    function getTargets() {
+      if (hideTargets) return hideTargets;
+      hideTargets = {
+        stage1: [
+          document.querySelector('.topbar'),
+          document.querySelector('.footer'),
+        ].filter(Boolean),
+        stage2: [],
+        stage3: [
+          document.querySelector('.immersive-cover'),
+          document.querySelector('#danmakuStage'),
+          canvas,
+        ].filter(Boolean),
+      };
+      document.querySelectorAll('.sekai-player-btn, #hero-settings-btn, #hero-settings-panel').forEach(function(el) {
+        hideTargets.stage2.push(el);
+      });
+      if (danmakuComposer) hideTargets.stage2.push(danmakuComposer);
+      return hideTargets;
+    }
+"""
+          new = """    // Toggle UI
+    var hideTargets = null;
+
+    function getTargets() {
+      if (hideTargets) return hideTargets;
+      hideTargets = {
+        stage1: [
+          document.querySelector('.site-header'),
+        ].filter(Boolean),
+        stage2: [
+          document.querySelector('.site-floating-controls'),
+          document.querySelector('.sekai-player-btn'),
+          document.querySelector('#hero-settings-panel'),
+          document.querySelector('#media-panel'),
+          document.querySelector('#media-preview'),
+          danmakuComposer,
+        ].filter(Boolean),
+        stage3: [
+          document.querySelector('.immersive-cover'),
+          document.querySelector('#danmakuStage'),
+          canvas,
+        ].filter(Boolean),
+      };
+      return hideTargets;
+    }
+"""
+          if old not in text:
+              raise SystemExit('Expected old getTargets block not found; refusing broad edit')
+          if text.count(old) != 1:
+              raise SystemExit(f'Expected exactly one old block, found {text.count(old)}')
+          path.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit patch
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/pages/player.astro
+          git commit -m 'fix: align immersive hide states with shared shell'
+          git push
