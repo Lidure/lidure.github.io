@@ -133,14 +133,15 @@
 
     const list = document.getElementById('moments-list');
     if (!list) return;
+    const listRoot = list;
 
     const controller = new AbortController();
     const { signal } = controller;
     let items: MomentApiItem[] = [];
     let decorateQueued = false;
 
-    const cards = () => Array.from(list.querySelectorAll<HTMLElement>('.moment-card'));
-    const adminControlsVisible = () => Boolean(list.querySelector('.delete-moment-btn'));
+    const cards = () => Array.from(listRoot.querySelectorAll<HTMLElement>('.moment-card'));
+    const adminControlsVisible = () => Boolean(listRoot.querySelector('.delete-moment-btn'));
 
     function itemForCard(card: HTMLElement, index: number) {
       const id = card.dataset.id;
@@ -222,7 +223,7 @@
 
       ordered.forEach((card, index) => {
         card.style.setProperty('--delay', `${index * 40}ms`);
-        list.appendChild(card);
+        listRoot.appendChild(card);
       });
     }
 
@@ -256,7 +257,7 @@
       }
     }
 
-    list.addEventListener('click', (event) => {
+    listRoot.addEventListener('click', (event) => {
       const target = event.target as HTMLElement | null;
       const button = target?.closest<HTMLButtonElement>('.pin-moment-btn');
       if (!button) return;
@@ -266,7 +267,7 @@
     }, { signal });
 
     const observer = new MutationObserver(() => queueDecorate());
-    observer.observe(list, { childList: true, subtree: true });
+    observer.observe(listRoot, { childList: true, subtree: true });
 
     void refreshItems().catch(() => {
       // The moments page already owns its primary loading/error UI. Pin controls
