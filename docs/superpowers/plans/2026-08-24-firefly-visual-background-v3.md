@@ -4,7 +4,7 @@
 
 **Goal:** Build the approved Firefly-inspired v3 visual/background system: broader banner transition, banner/fullscreen wallpaper modes, compatible appearance/background/effects settings, automatic homepage article covers, large-cover music widget, and a performant real-petal sakura renderer without replacing the existing media library or SEKAI player.
 
-**Architecture:** Keep `BaseLayout` page mode (`standard|immersive`) separate from standard-page wallpaper mode (`banner|fullscreen`). Add one pure `visual-settings` module around the existing `hero_settings` localStorage object, move the visible settings UI out of the already-large `HeroSlideshow` while preserving the legacy DOM IDs that its media business logic binds to, and drive layout appearance through `<html>` data attributes/CSS variables. Replace the DOM/emoji sakura renderer with a worker-first canvas implementation; homepage article covers and music controls remain consumers of existing content/player state.
+**Architecture:** Keep `BaseLayout` page mode (`standard|immersive`) separate from standard-page wallpaper mode (`banner|fullscreen`). Add one pure visual-settings module around the existing `hero_settings` object and expose one browser bridge (`window.__lidureVisualSettings`) so old background controls and new appearance controls merge into the same stored object instead of overwriting each other. Move the visible settings DOM **and its scoped styles** out of the already-large `HeroSlideshow`, while keeping media-library/preview/slideshow business logic there; drive page appearance through `<html>` attributes and CSS variables. Replace the DOM/emoji sakura renderer with a worker-first canvas implementation; homepage article covers and music controls remain consumers of existing content/player state.
 
 **Tech Stack:** Astro 6, TypeScript/ES modules, CSS, localStorage, CustomEvent, Canvas 2D, OffscreenCanvas/Web Worker with main-thread fallback, Node built-in test runner.
 
@@ -14,6 +14,7 @@
 
 - Keep `hero_settings` as the single persisted visual/background settings object.
 - Preserve existing `enabled`, `autoplay`, `interval`, `opacity`, `quality`, and `sakura` values when new fields are absent.
+- Every future write to `hero_settings` must merge with existing values; legacy background controls must not overwrite new v2 fields.
 - Do not rewrite background media upload, URL add, preview, library, slideshow order, autoplay, or selected-media business logic.
 - Do not replace the existing SEKAI audio/player/playlist state.
 - `BaseLayout.layoutMode` remains only `standard|immersive`; wallpaper mode is `banner|fullscreen` inside standard pages.
@@ -32,9 +33,9 @@
 ### New focused units
 
 - `src/lib/visual-settings.mjs` — defaults, normalization, persistence, document attributes/CSS variables, settings event dispatch.
-- `src/components/VisualSettingsPanel.astro` — visible `外观 / 背景 / 特效` panel; preserves legacy background-control IDs required by `HeroSlideshow`.
+- `src/components/VisualSettingsPanel.astro` — visible `外观 / 背景 / 特效` panel **plus the moved settings-panel/button styles**; preserves legacy background-control IDs required by `HeroSlideshow`.
 - `src/lib/post-cover.mjs` — pure Markdown first-image extraction and asset-key resolution.
-- `src/lib/sakura-physics.mjs` — deterministic-ish petal creation/update helpers shared by worker and fallback renderer.
+- `src/lib/sakura-physics.mjs` — petal creation/update helpers shared by worker and fallback renderer.
 - `src/workers/sakura.worker.ts` — OffscreenCanvas renderer/lifecycle.
 - `src/components/SakuraEffect.astro` — browser feature detection, worker orchestration, main-thread fallback, settings/lifecycle handling.
 - `public/sakura-petal.svg` — actual petal artwork used by both render paths.
@@ -44,8 +45,8 @@
 
 ### Existing units modified
 
-- `src/layouts/BaseLayout.astro` — early wallpaper bootstrap, `is-home` body class, mount `VisualSettingsPanel` before `HeroSlideshow`, replace `SekaiParticles` with `SakuraEffect`.
-- `src/components/HeroSlideshow.astro` — remove visible settings shell moved to `VisualSettingsPanel`; keep slideshow/media panel/preview/business script and legacy ID bindings.
+- `src/layouts/BaseLayout.astro` — early wallpaper bootstrap, browser settings bridge, `is-home` body class, mount `VisualSettingsPanel` before `HeroSlideshow`, replace `SekaiParticles` with `SakuraEffect`.
+- `src/components/HeroSlideshow.astro` — remove visible settings shell/styles moved to `VisualSettingsPanel`; keep slideshow/media panel/preview/business script; change all `hero_settings` persistence to merge writes through the browser bridge.
 - `src/components/HomePostCard.astro` — resolve cover using explicit frontmatter or first Markdown image.
 - `src/components/MusicStatusWidget.astro` — large-cover approved composition while retaining existing proxy logic.
 - `src/styles/firefly-refresh.css` — banner/fullscreen geometry, fade/overlap, responsive dimensions.
@@ -56,7 +57,7 @@
 
 ---
 
-### Task 1: Establish the `hero_settings` v2 compatibility layer
+### Task 1: Establish the `hero_settings` v2 compatibility layer and browser bridge
 
 **Files:**
 - Create: `src/lib/visual-settings.mjs`
@@ -66,8 +67,9 @@
 
 **Interfaces:**
 - Produces: `VISUAL_SETTINGS_KEY`, `DEFAULT_VISUAL_SETTINGS`, `normalizeVisualSettings(raw)`, `readVisualSettings(storage)`, `applyVisualSettingsToDocument(settings, doc)`, `writeVisualSettings(patch, options)`.
+- Browser bridge: `window.__lidureVisualSettings.read()` and `window.__lidureVisualSettings.write(patch)`.
 - Emits: `lidure:visual-settings-change` with `detail: { settings, changedKeys }`.
-- Later tasks consume the exact data attributes `data-wallpaper-mode`, `data-banner-gradient`, `data-banner-title`, `data-card-border`, `data-card-follow-theme`, `data-reduce-motion` and CSS variables `--wallpaper-overlay`, `--wallpaper-blur`, `--card-opacity`, `--theme-hue`.
+- Later tasks consume the exact attributes `data-wallpaper-mode`, `data-banner-gradient`, `data-banner-title`, `data-card-border`, `data-card-follow-theme`, `data-reduce-motion` and CSS variables `--wallpaper-overlay`, `--wallpaper-blur`, `--card-opacity`, `--card-opacity-percent`, `--theme-hue`.
 
 - [ ] **Step 1: Write failing unit tests for old-setting preservation and new defaults**
 
@@ -107,14 +109,9 @@ test('normalization preserves old hero settings and fills v2 defaults', () => {
 
 test('invalid v2 values are clamped or replaced', () => {
   const result = normalizeVisualSettings({
-    wallpaperMode: 'broken',
-    opacity: 4,
-    backgroundBlur: -8,
-    cardOpacity: 0,
-    sakuraDensity: 9,
-    sakuraSpeed: -2,
+    wallpaperMode: 'broken', opacity: 4, backgroundBlur: -8,
+    cardOpacity: 0, sakuraDensity: 9, sakuraSpeed: -2,
   });
-
   assert.equal(result.wallpaperMode, 'banner');
   assert.equal(result.opacity, 1);
   assert.equal(result.backgroundBlur, 0);
@@ -130,8 +127,6 @@ Update `package.json` so `test:site` includes `tests/visual-settings.test.mjs`.
 
 - [ ] **Step 2: Run the new unit test and verify RED**
 
-Run:
-
 ```bash
 node --test tests/visual-settings.test.mjs
 ```
@@ -140,11 +135,10 @@ Expected: FAIL because `src/lib/visual-settings.mjs` does not exist.
 
 - [ ] **Step 3: Implement the pure settings module**
 
-Create `src/lib/visual-settings.mjs` with these exact defaults and bounded normalization:
+Create `src/lib/visual-settings.mjs`:
 
 ```js
 export const VISUAL_SETTINGS_KEY = 'hero_settings';
-
 export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
   version: 2,
   enabled: true,
@@ -196,8 +190,7 @@ export function normalizeVisualSettings(raw = {}) {
 
 export function readVisualSettings(storage) {
   try {
-    const parsed = JSON.parse(storage?.getItem(VISUAL_SETTINGS_KEY) || '{}');
-    return normalizeVisualSettings(parsed);
+    return normalizeVisualSettings(JSON.parse(storage?.getItem(VISUAL_SETTINGS_KEY) || '{}'));
   } catch {
     return normalizeVisualSettings({});
   }
@@ -215,6 +208,7 @@ export function applyVisualSettingsToDocument(settings, doc) {
   root.style.setProperty('--wallpaper-overlay', String(settings.opacity));
   root.style.setProperty('--wallpaper-blur', `${settings.backgroundBlur}px`);
   root.style.setProperty('--card-opacity', String(settings.cardOpacity));
+  root.style.setProperty('--card-opacity-percent', `${Math.round(settings.cardOpacity * 100)}%`);
   root.style.setProperty('--theme-hue', String(settings.themeHue));
 }
 
@@ -230,9 +224,11 @@ export function writeVisualSettings(patch, { storage, doc, target } = {}) {
 }
 ```
 
+The spread of `current` before `patch` is the compatibility guarantee: unknown legacy/media-adjacent values survive writes.
+
 - [ ] **Step 4: Add early first-paint bootstrap in `BaseLayout.astro`**
 
-Replace the current `hero_settings.enabled`-only inline bootstrap with a compact pre-paint bootstrap that applies stored mode and key CSS values before body rendering:
+Replace the current `enabled`-only bootstrap with:
 
 ```js
 (function() {
@@ -254,14 +250,47 @@ Replace the current `hero_settings.enabled`-only inline bootstrap with a compact
     root.style.setProperty('--wallpaper-overlay', String(opacity));
     root.style.setProperty('--wallpaper-blur', blur + 'px');
     root.style.setProperty('--card-opacity', String(cardOpacity));
+    root.style.setProperty('--card-opacity-percent', Math.round(cardOpacity * 100) + '%');
     root.style.setProperty('--theme-hue', String(hue));
   } catch (_) {}
 })();
 ```
 
-- [ ] **Step 5: Run unit + existing shell tests and verify GREEN**
+- [ ] **Step 5: Install one Astro-navigation-safe browser bridge**
 
-Run:
+Add a normal bundled script in `BaseLayout`:
+
+```js
+import {
+  applyVisualSettingsToDocument,
+  readVisualSettings,
+  writeVisualSettings,
+} from '../lib/visual-settings.mjs';
+
+function installVisualSettingsBridge() {
+  window.__lidureVisualSettings = {
+    read() {
+      return readVisualSettings(window.localStorage);
+    },
+    write(patch) {
+      return writeVisualSettings(patch, {
+        storage: window.localStorage,
+        doc: document,
+        target: document,
+      });
+    },
+  };
+  applyVisualSettingsToDocument(window.__lidureVisualSettings.read(), document);
+}
+
+if (!window.__lidureVisualSettingsLifecycleBound) {
+  window.__lidureVisualSettingsLifecycleBound = true;
+  document.addEventListener('astro:page-load', installVisualSettingsBridge);
+}
+installVisualSettingsBridge();
+```
+
+- [ ] **Step 6: Run unit + existing shell tests and verify GREEN**
 
 ```bash
 node --test tests/visual-settings.test.mjs tests/firefly-ui-refresh.test.mjs
@@ -269,7 +298,7 @@ node --test tests/visual-settings.test.mjs tests/firefly-ui-refresh.test.mjs
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add src/lib/visual-settings.mjs src/layouts/BaseLayout.astro tests/visual-settings.test.mjs package.json
@@ -278,7 +307,7 @@ git commit -m "feat: add compatible visual settings state"
 
 ---
 
-### Task 2: Extract the visible background settings shell into `VisualSettingsPanel`
+### Task 2: Extract visible settings DOM/styles and make legacy writes merge-safe
 
 **Files:**
 - Create: `src/components/VisualSettingsPanel.astro`
@@ -287,16 +316,16 @@ git commit -m "feat: add compatible visual settings state"
 - Modify: `tests/firefly-ui-refresh.test.mjs`
 
 **Interfaces:**
-- Preserves these existing DOM IDs for `HeroSlideshow` business logic: `hero-settings-btn`, `settings-close`, `toggle-enabled`, `toggle-autoplay`, `toggle-sakura`, `interval-range`, `interval-val`, `opacity-range`, `opacity-val`, `quality-select`, `file-input`, `url-input`, `url-add-btn`, `media-manage-btn`, `media-count`.
+- Preserves legacy IDs used by existing background business logic: `hero-settings-btn`, `settings-close`, `toggle-enabled`, `toggle-autoplay`, `toggle-sakura`, `interval-range`, `interval-val`, `opacity-range`, `opacity-val`, `quality-select`, `file-input`, `url-input`, `url-add-btn`, `media-manage-btn`, `media-count`.
 - Adds v3 controls: `visual-tab-appearance`, `visual-tab-background`, `visual-tab-effects`, `wallpaper-mode-banner`, `wallpaper-mode-fullscreen`, `background-blur-range`, `card-opacity-range`, `theme-hue-range`, `toggle-card-border`, `toggle-card-follow-theme`, `toggle-banner-gradient`, `toggle-banner-title`, `sakura-density-range`, `sakura-speed-range`, `toggle-reduce-motion`.
 - `HeroSlideshow` retains `media-panel`, `media-preview`, slideshow canvas/video/layer and all media-management behavior.
 
 - [ ] **Step 1: Add failing source-contract tests**
 
-Append to `tests/firefly-ui-refresh.test.mjs`:
+Append:
 
 ```js
-test('visual settings panel owns the visible settings shell and preserves legacy media control ids', () => {
+test('visual settings panel owns visible settings DOM and scoped styles', () => {
   const panel = readSource('src/components/VisualSettingsPanel.astro');
   const hero = readSource('src/components/HeroSlideshow.astro');
   const layout = readSource('src/layouts/BaseLayout.astro');
@@ -308,33 +337,40 @@ test('visual settings panel owns the visible settings shell and preserves legacy
   assert.match(panel, /id="toggle-enabled"/);
   assert.match(panel, /id="media-manage-btn"/);
   assert.match(panel, /id="wallpaper-mode-banner"/);
-  assert.match(panel, /id="wallpaper-mode-fullscreen"/);
+  assert.match(panel, /\.hero-settings-panel/);
+  assert.match(panel, /\.hero-settings-btn/);
   assert.doesNotMatch(hero, /id="hero-settings-btn"/);
   assert.match(hero, /id="media-panel"/);
   assert.match(layout, /<VisualSettingsPanel\s*\/>[\s\S]*?<HeroSlideshow\s*\/>/);
 });
+
+test('legacy HeroSlideshow settings persist through merge-safe visual settings bridge', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+  assert.match(hero, /__lidureVisualSettings/);
+  assert.doesNotMatch(hero, /localStorage\.setItem\(\s*['"]hero_settings['"]/);
+});
 ```
 
-- [ ] **Step 2: Run the single contract and verify RED**
-
-Run:
+- [ ] **Step 2: Run and verify RED**
 
 ```bash
 node --test tests/firefly-ui-refresh.test.mjs
 ```
 
-Expected: FAIL because `VisualSettingsPanel.astro` does not exist and `HeroSlideshow` still owns the settings shell.
+Expected: FAIL because the panel/styles are still inside `HeroSlideshow` and old persistence still writes directly.
 
-- [ ] **Step 3: Move the existing visible settings markup without changing legacy IDs**
+- [ ] **Step 3: Move the settings button, settings panel, controls, and their styles together**
 
-Create `VisualSettingsPanel.astro` and move, rather than duplicate, the existing settings button/panel controls from `HeroSlideshow`. Render the panel before `HeroSlideshow` in `BaseLayout`:
+Create `VisualSettingsPanel.astro`. Move, rather than duplicate, the existing visible settings markup **and every CSS rule that styles `.hero-settings-btn`, `.hero-settings-panel`, `.settings-*`, `.toggle-*`, range/select/upload/url controls** from `HeroSlideshow`. Leave `.media-panel`, `.media-preview`, slideshow, video/canvas and their styles in `HeroSlideshow`.
+
+Render in this order so the old Hero script can query the preserved IDs when it initializes:
 
 ```astro
 <VisualSettingsPanel />
 <HeroSlideshow />
 ```
 
-The visible shell must use this tab structure:
+Use this visible structure:
 
 ```astro
 <button id="hero-settings-btn" class="hero-settings-btn" type="button" aria-label="背景与外观" title="背景与外观">…</button>
@@ -349,34 +385,37 @@ The visible shell must use this tab structure:
     <button id="visual-tab-effects" role="tab" aria-selected="false">特效</button>
   </div>
   <div class="settings-body">
-    <section data-visual-panel="appearance">…</section>
-    <section data-visual-panel="background" hidden>…legacy background controls…</section>
+    <section data-visual-panel="appearance">…v3 appearance controls…</section>
+    <section data-visual-panel="background" hidden>…legacy background controls + wallpaper-mode controls…</section>
     <section data-visual-panel="effects" hidden>…toggle-sakura + v3 effect controls…</section>
   </div>
 </div>
 ```
 
-Keep `media-panel` and `media-preview` in `HeroSlideshow`; do not move them.
+- [ ] **Step 4: Replace every `hero_settings` overwrite in `HeroSlideshow` with patch writes**
 
-- [ ] **Step 4: Bind only the new v3 controls in `VisualSettingsPanel`**
-
-Use the exact settings API from Task 1:
+For each legacy control handler, keep the existing media/display side effect but replace persistence with the browser bridge. Examples:
 
 ```js
-import { readVisualSettings, writeVisualSettings } from '../lib/visual-settings.mjs';
-
-function update(patch) {
-  return writeVisualSettings(patch, {
-    storage: window.localStorage,
-    doc: document,
-    target: document,
-  });
-}
+window.__lidureVisualSettings?.write({ enabled: toggleEnabled.checked });
+window.__lidureVisualSettings?.write({ autoplay: toggleAutoplay.checked });
+window.__lidureVisualSettings?.write({ interval: Number(intervalRange.value) * 1000 });
+window.__lidureVisualSettings?.write({ opacity: Number(opacityRange.value) / 100 });
+window.__lidureVisualSettings?.write({ quality: qualitySelect.value });
+window.__lidureVisualSettings?.write({ sakura: toggleSakura.checked });
 ```
 
-Map controls exactly:
+Delete direct `localStorage.setItem('hero_settings', ...)` writes from this component. Media-library persistence keys other than `hero_settings` are untouched.
+
+- [ ] **Step 5: Bind only new v3 controls in `VisualSettingsPanel`**
+
+Use the bridge:
 
 ```js
+function update(patch) {
+  return window.__lidureVisualSettings?.write(patch);
+}
+
 wallpaperBanner.addEventListener('click', () => update({ wallpaperMode: 'banner' }));
 wallpaperFullscreen.addEventListener('click', () => update({ wallpaperMode: 'fullscreen' }));
 blurRange.addEventListener('input', () => update({ backgroundBlur: Number(blurRange.value) }));
@@ -391,13 +430,13 @@ sakuraSpeed.addEventListener('input', () => update({ sakuraSpeed: Number(sakuraS
 reduceMotion.addEventListener('change', () => update({ reduceMotion: reduceMotion.checked }));
 ```
 
-Do **not** replace the legacy `HeroSlideshow` listeners for enable/autoplay/interval/opacity/quality/upload/URL/library in this task; those controls keep the same IDs and continue to be owned by the existing script.
+The panel reads initial values from `window.__lidureVisualSettings.read()` on `astro:page-load`.
 
-- [ ] **Step 5: Make tab lifecycle Astro-navigation safe**
+- [ ] **Step 6: Make tab lifecycle Astro-navigation safe**
 
-Use one `astro:page-load` initializer and remove/rebind any global listener stored on `window.__visualSettingsPanelHandler` before adding a replacement. Tabs use `aria-selected`, `[hidden]`, and keyboard `ArrowLeft/ArrowRight` switching.
+Store the global keyboard/tab handler on `window.__visualSettingsPanelHandler`; remove the previous listener before adding a replacement. Tabs update `aria-selected`, `tabindex`, `[hidden]`, and support `ArrowLeft/ArrowRight`.
 
-- [ ] **Step 6: Run source contracts**
+- [ ] **Step 7: Run contracts**
 
 ```bash
 node --test tests/firefly-ui-refresh.test.mjs tests/visual-settings.test.mjs
@@ -405,7 +444,7 @@ node --test tests/firefly-ui-refresh.test.mjs tests/visual-settings.test.mjs
 
 Expected: PASS.
 
-- [ ] **Step 7: Commit**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add src/components/VisualSettingsPanel.astro src/layouts/BaseLayout.astro src/components/HeroSlideshow.astro tests/firefly-ui-refresh.test.mjs
@@ -424,27 +463,24 @@ git commit -m "feat: add integrated visual settings panel"
 - Modify: `tests/firefly-ui-refresh.test.mjs`
 
 **Interfaces:**
-- Consumes: `<html data-wallpaper-mode="banner|fullscreen">`, `--wallpaper-overlay`, `--wallpaper-blur`, `--card-opacity`, `data-banner-gradient`, `data-banner-title` from Task 1.
-- Produces: body class `is-home` only when normalized pathname is `/`.
+- Consumes Task 1 attributes/variables.
+- Produces body class `is-home` only when normalized pathname is `/`.
 
 - [ ] **Step 1: Add failing geometry/mode contracts**
-
-Append:
 
 ```js
 test('v3 wallpaper modes define approved banner geometry and fullscreen home behavior', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
   const css = readSource('src/styles/firefly-refresh.css');
-
   assert.match(layout, /isHome/);
   assert.match(layout, /is-home/);
   assert.match(css, /--blog-banner-height:\s*62vh/);
   assert.match(css, /min-height:\s*360px/);
-  assert.match(css, /margin-top:\s*-56px/);
+  assert.match(css, /--blog-banner-overlap:\s*56px/);
   assert.match(css, /data-wallpaper-mode="fullscreen"/);
   assert.match(css, /body\.layout-standard\.is-home[\s\S]*?100vh/);
   assert.match(css, /--wallpaper-blur/);
-  assert.match(css, /--card-opacity/);
+  assert.match(css, /--card-opacity-percent/);
 });
 ```
 
@@ -454,11 +490,9 @@ test('v3 wallpaper modes define approved banner geometry and fullscreen home beh
 node --test tests/firefly-ui-refresh.test.mjs
 ```
 
-Expected: FAIL on `62vh`, `-56px`, fullscreen selectors.
+Expected: FAIL on `62vh`, `56px`, and fullscreen selectors.
 
 - [ ] **Step 3: Add the home marker in `BaseLayout`**
-
-Use the already-normalized path:
 
 ```astro
 const isHome = normalizedPath === '' || normalizedPath === '/';
@@ -466,18 +500,15 @@ const isHome = normalizedPath === '' || normalizedPath === '/';
 <body class:list={[`layout-${layoutMode}`, { 'is-home': isHome }]}>
 ```
 
-Do not change the `standard|immersive` layout decision.
+Do not change the `standard|immersive` decision.
 
 - [ ] **Step 4: Implement banner-mode geometry and fade**
-
-In `firefly-refresh.css`, replace the old `50vh/36vh` contract with:
 
 ```css
 body.layout-standard {
   --blog-banner-height: 62vh;
   --blog-banner-overlap: 56px;
 }
-
 body.layout-standard .hero-slideshow {
   position: absolute;
   inset: 0 0 auto;
@@ -485,16 +516,13 @@ body.layout-standard .hero-slideshow {
   height: var(--blog-banner-height);
   min-height: 360px;
 }
-
 html[data-wallpaper-mode="banner"] body.layout-standard .blog-banner {
   height: var(--blog-banner-height);
   min-height: 360px;
 }
-
 html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {
   margin-top: calc(-1 * var(--blog-banner-overlap));
 }
-
 html[data-wallpaper-mode="banner"][data-banner-gradient="true"] body.layout-standard .blog-banner::after {
   content: '';
   position: absolute;
@@ -507,7 +535,7 @@ html[data-wallpaper-mode="banner"][data-banner-gradient="true"] body.layout-stan
 }
 ```
 
-Responsive overrides:
+Responsive values:
 
 ```css
 @media (max-width: 1199px) and (min-width: 721px) {
@@ -515,7 +543,6 @@ Responsive overrides:
   body.layout-standard .hero-slideshow,
   html[data-wallpaper-mode="banner"] body.layout-standard .blog-banner { min-height: 320px; }
 }
-
 @media (max-width: 720px) {
   body.layout-standard { --blog-banner-height: 42vh; --blog-banner-overlap: 28px; }
   body.layout-standard .hero-slideshow,
@@ -524,8 +551,6 @@ Responsive overrides:
 ```
 
 - [ ] **Step 5: Implement fullscreen standard-page presentation**
-
-Use CSS only for the presentation switch:
 
 ```css
 html[data-wallpaper-mode="fullscreen"] body.layout-standard .hero-slideshow {
@@ -537,38 +562,40 @@ html[data-wallpaper-mode="fullscreen"] body.layout-standard .hero-slideshow {
   filter: blur(var(--wallpaper-blur, 6px));
   transform: scale(1.02);
 }
-
 html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner {
   height: 100vh;
   min-height: 100vh;
 }
-
-html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .standard-page-surface {
-  margin-top: 0;
-}
-
-html[data-wallpaper-mode="fullscreen"] body.layout-standard:not(.is-home) .blog-banner {
-  display: none;
-}
-
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .standard-page-surface { margin-top: 0; }
+html[data-wallpaper-mode="fullscreen"] body.layout-standard:not(.is-home) .blog-banner { display: none; }
 html[data-wallpaper-mode="fullscreen"] body.layout-standard:not(.is-home) .standard-page-surface {
   margin-top: 64px;
   min-height: calc(100vh - 64px);
 }
 ```
 
-In `firefly-v2.css`, make normal cards respect `--card-opacity` only in fullscreen mode, e.g. `background: color-mix(in srgb, var(--standard-card-bg) calc(var(--card-opacity) * 100%), transparent)`; apply `backdrop-filter: blur(14px)` to the standard content cards/sidebar widgets, not to every decorative element.
+For fullscreen cards/sidebar widgets use:
 
-- [ ] **Step 6: Honor banner-title and card-border settings**
+```css
+background: color-mix(in srgb, var(--standard-card-bg) var(--card-opacity-percent, 92%), transparent);
+backdrop-filter: blur(14px);
+-webkit-backdrop-filter: blur(14px);
+```
+
+Do not apply glass to every decorative child.
+
+- [ ] **Step 6: Honor banner-title/card appearance settings**
 
 ```css
 html[data-banner-title="false"] body.layout-standard .blog-banner-copy { visibility: hidden; }
 html[data-card-border="false"] body.layout-standard .home-post-card,
 html[data-card-border="false"] body.layout-standard .sidebar-widget,
 html[data-card-border="false"] body.layout-standard .card { border-color: transparent; }
+html[data-card-follow-theme="true"] body.layout-standard .sidebar-widget,
+html[data-card-follow-theme="true"] body.layout-standard .home-post-card {
+  box-shadow: inset 0 0 0 1px hsl(var(--theme-hue, 340) 70% 65% / 0.08);
+}
 ```
-
-Card-follow-theme should tint only the card surface slightly using `hsl(var(--theme-hue) ...)`; it must not create saturated gradients.
 
 - [ ] **Step 7: Run contracts and build**
 
@@ -577,7 +604,7 @@ node --test tests/firefly-ui-refresh.test.mjs
 npm run build
 ```
 
-Expected: tests pass; Astro check/build exits `0`.
+Expected: all pass; Astro check/build exits `0`.
 
 - [ ] **Step 8: Commit**
 
@@ -599,32 +626,25 @@ git commit -m "feat: add banner and fullscreen wallpaper modes"
 
 **Interfaces:**
 - Produces: `extractFirstMarkdownImage(body) -> string|null`, `resolvePostCover({ cover, body, postId, assets }) -> string|null`.
-- `assets` is a map whose keys match `../content/blog/<path>` and values are browser URLs from `import.meta.glob`.
+- `assets` keys match `../content/blog/<path>` and values are browser URLs from `import.meta.glob`.
 
 - [ ] **Step 1: Write failing parser tests, including nested parentheses**
-
-Create `tests/post-cover.test.mjs`:
 
 ```js
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { extractFirstMarkdownImage, resolvePostCover } from '../src/lib/post-cover.mjs';
 
-test('extracts the first Markdown image even when filename contains parentheses', () => {
+test('extracts first Markdown image when filename contains parentheses', () => {
   const body = 'text\n![alt](131770967_p0_master1200(1)(1).png)\n![later](image.png)';
   assert.equal(extractFirstMarkdownImage(body), '131770967_p0_master1200(1)(1).png');
 });
 
 test('explicit cover wins over Markdown image', () => {
-  assert.equal(resolvePostCover({
-    cover: '/cover.jpg',
-    body: '![x](image.png)',
-    postId: 'hello-world.md',
-    assets: { '../content/blog/image.png': '/_astro/image.hash.png' },
-  }), '/cover.jpg');
+  assert.equal(resolvePostCover({ cover: '/cover.jpg', body: '![x](image.png)', postId: 'hello-world.md', assets: {} }), '/cover.jpg');
 });
 
-test('relative Markdown image resolves through the build asset map', () => {
+test('relative Markdown image resolves through build asset map', () => {
   assert.equal(resolvePostCover({
     body: '![x](image.png)',
     postId: '视觉光流.md',
@@ -633,7 +653,7 @@ test('relative Markdown image resolves through the build asset map', () => {
 });
 ```
 
-Update `test:site` to include `tests/post-cover.test.mjs`.
+Add `tests/post-cover.test.mjs` to `test:site`.
 
 - [ ] **Step 2: Run and verify RED**
 
@@ -643,13 +663,11 @@ node --test tests/post-cover.test.mjs
 
 Expected: FAIL because module does not exist.
 
-- [ ] **Step 3: Implement a balanced-parenthesis Markdown image parser**
+- [ ] **Step 3: Implement a balanced-parenthesis Markdown destination parser**
 
-Do not use a naive `(.+?)` regex because the repository already contains `131770967_p0_master1200(1)(1).png`.
+Do not use a naive lazy regex because the repository already contains `131770967_p0_master1200(1)(1).png`. `extractFirstMarkdownImage` must locate `![`, find the matching `](`, then scan the destination character-by-character, incrementing depth on nested `(` and decrementing on `)`. At depth `0`, whitespace begins an optional Markdown title and the outer `)` ends the destination. Strip `<...>` wrappers.
 
-Implement `extractFirstMarkdownImage` by locating `![`, then `](`, then walking characters while maintaining nested `(`/`)` depth until the outer destination closes. Strip optional angle brackets and stop before a Markdown title only when whitespace occurs at depth `0`.
-
-`resolvePostCover` rules:
+`resolvePostCover`:
 
 ```js
 export function resolvePostCover({ cover, body, postId, assets }) {
@@ -657,11 +675,8 @@ export function resolvePostCover({ cover, body, postId, assets }) {
   const ref = extractFirstMarkdownImage(body);
   if (!ref) return null;
   if (/^(?:https?:|data:|blob:)/i.test(ref) || ref.startsWith('/')) return ref;
-
   const normalizedId = String(postId || '').replace(/\\/g, '/');
-  const baseDir = normalizedId.includes('/')
-    ? normalizedId.slice(0, normalizedId.lastIndexOf('/') + 1)
-    : '';
+  const baseDir = normalizedId.includes('/') ? normalizedId.slice(0, normalizedId.lastIndexOf('/') + 1) : '';
   const absolute = new URL(ref, `https://content.local/${baseDir}`).pathname.slice(1);
   const key = `../content/blog/${decodeURIComponent(absolute)}`;
   return assets[key] || null;
@@ -670,30 +685,19 @@ export function resolvePostCover({ cover, body, postId, assets }) {
 
 - [ ] **Step 4: Use a Vite asset map in `HomePostCard.astro`**
 
-At component module scope:
-
 ```js
 import { resolvePostCover } from '../lib/post-cover.mjs';
-
 const blogAssets = import.meta.glob('../content/blog/**/*.{png,jpg,jpeg,webp,gif,avif}', {
   eager: true,
   query: '?url',
   import: 'default',
 });
-
-const coverSrc = resolvePostCover({
-  cover: post.data.cover,
-  body: post.body ?? '',
-  postId: post.id,
-  assets: blogAssets,
-});
+const coverSrc = resolvePostCover({ cover: post.data.cover, body: post.body ?? '', postId: post.id, assets: blogAssets });
 ```
 
-Render `coverSrc` instead of only `post.data.cover` and set `has-cover` from `!!coverSrc`.
+Render `coverSrc`; set `has-cover` from `!!coverSrc`.
 
-- [ ] **Step 5: Adjust the approved card proportions**
-
-Desktop:
+- [ ] **Step 5: Apply approved proportions**
 
 ```css
 body.layout-standard .home-post-cover {
@@ -705,7 +709,7 @@ body.layout-standard .home-post-cover {
 }
 ```
 
-Keep `object-fit: cover`. On `max-width:620px`, render cover first with `width:100%`, `height:auto`, `aspect-ratio:16/9`, then copy.
+On `max-width:620px`, image is above copy, `width:100%`, `min-width:0`, `height:auto`, `aspect-ratio:16/9`.
 
 - [ ] **Step 6: Run parser, shell tests, and build**
 
@@ -714,7 +718,7 @@ node --test tests/post-cover.test.mjs tests/firefly-ui-refresh.test.mjs
 npm run build
 ```
 
-Expected: all pass and built homepage contains image URLs for posts with usable first images.
+Expected: all pass; built homepage includes images for posts with resolvable first images.
 
 - [ ] **Step 7: Commit**
 
@@ -725,20 +729,20 @@ git commit -m "feat: show article images on homepage"
 
 ---
 
-### Task 5: Redesign the homepage music widget to the approved large-cover composition
+### Task 5: Redesign homepage music widget to the approved large-cover composition
 
 **Files:**
 - Modify: `src/components/MusicStatusWidget.astro`
 - Modify: `tests/firefly-ui-refresh.test.mjs`
 
 **Interfaces:**
-- Consumes unchanged existing player IDs/API: `sekaiAudio`, `sekaiTrackTitle`, `sekaiDockCover|sekaiCover`, `sekaiPrevBtn`, `sekaiPlayPauseBtn`, `sekaiNextBtn`, `window.__sekaiOpenPlayer()`.
+- Consumes unchanged: `sekaiAudio`, `sekaiTrackTitle`, `sekaiDockCover|sekaiCover`, `sekaiPrevBtn`, `sekaiPlayPauseBtn`, `sekaiNextBtn`, `window.__sekaiOpenPlayer()`.
 - Keeps homepage IDs: `home-music-open`, `home-music-prev`, `home-music-play-pause`, `home-music-next`.
 
 - [ ] **Step 1: Add failing composition contract**
 
 ```js
-test('home music widget uses large cover with central play and separate prev/next controls', () => {
+test('home music widget uses large cover with central play and separate prev next controls', () => {
   const music = readSource('src/components/MusicStatusWidget.astro');
   assert.match(music, /music-status-cover-shell/);
   assert.match(music, /music-status-cover-open/);
@@ -757,11 +761,9 @@ test('home music widget uses large cover with central play and separate prev/nex
 node --test tests/firefly-ui-refresh.test.mjs
 ```
 
-Expected: FAIL because current widget is the compact information layout.
+Expected: FAIL because current widget is compact/info-heavy.
 
-- [ ] **Step 3: Replace markup while retaining existing proxy logic**
-
-Use this hierarchy; do not nest buttons:
+- [ ] **Step 3: Replace markup without nested buttons**
 
 ```astro
 <div class="music-status-widget" id="home-music-status">
@@ -780,11 +782,9 @@ Use this hierarchy; do not nest buttons:
 </div>
 ```
 
-Remove artist/state text synchronization but keep cover/title/play-state observation. Central button continues to proxy `sekaiPlayPauseBtn`; it does not open the panel. Cover/title open action calls `window.__sekaiOpenPlayer?.()`.
+Keep cover/title/play-state observation. Center button proxies `sekaiPlayPauseBtn`; cover/title calls `window.__sekaiOpenPlayer?.()`.
 
 - [ ] **Step 4: Apply screenshot-like styling**
-
-Required visual rules:
 
 ```css
 .music-status-cover-shell { position: relative; width: min(100%, 238px); margin: 0 auto; aspect-ratio: 1; }
@@ -796,15 +796,15 @@ Required visual rules:
 .music-status-track-title { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
 ```
 
-Use restrained translucent surfaces; no heavy glow.
+Use restrained translucency; no heavy glow.
 
-- [ ] **Step 5: Run the music regressions**
+- [ ] **Step 5: Run music regressions**
 
 ```bash
 node --test tests/firefly-ui-refresh.test.mjs
 ```
 
-Expected: existing player-open/control tests and new composition test all pass.
+Expected: existing player-open/control contracts and new composition contract pass.
 
 - [ ] **Step 6: Commit**
 
@@ -829,25 +829,16 @@ git commit -m "feat: redesign homepage music widget"
 
 **Interfaces:**
 - Physics: `createPetal(width, height, speedScale, random=Math.random)`, `stepPetal(petal, width, height, dt, speedScale)`.
-- Worker messages:
-  - `{ type:'init', canvas, width, height, dpr, settings }`
-  - `{ type:'settings', settings }`
-  - `{ type:'resize', width, height, dpr }`
-  - `{ type:'pause' }`
-  - `{ type:'resume' }`
-  - `{ type:'destroy' }`
+- Worker messages: `init`, `settings`, `resize`, `pause`, `resume`, `destroy` with the exact payloads from the spec/plan below.
 - `SakuraEffect` consumes `lidure:visual-settings-change` and legacy `lidure:sakura-setting`.
 
-- [ ] **Step 1: Write failing physics and source-contract tests**
-
-Create `tests/sakura-effect.test.mjs`:
+- [ ] **Step 1: Write failing physics/source contracts**
 
 ```js
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createPetal, stepPetal } from '../src/lib/sakura-physics.mjs';
 import { readFileSync } from 'node:fs';
-
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
 test('petal physics produces finite movable petals', () => {
@@ -867,8 +858,8 @@ test('sakura effect is worker-first with fallback and no emoji renderer', () => 
   assert.match(component, /getContext\(['"]2d['"]\)/);
   assert.match(component, /lidure:visual-settings-change/);
   assert.match(component, /prefers-reduced-motion/);
-  assert.match(worker, /type === ['"]pause['"]/);
-  assert.match(worker, /type === ['"]resume['"]/);
+  assert.match(worker, /['"]pause['"]/);
+  assert.match(worker, /['"]resume['"]/);
   assert.doesNotMatch(component, /🌸|🌷|🌹|🌺|❀/);
 });
 ```
@@ -881,11 +872,11 @@ Add `tests/sakura-effect.test.mjs` to `test:site`.
 node --test tests/sakura-effect.test.mjs
 ```
 
-Expected: FAIL because the new modules do not exist.
+Expected: FAIL because new modules do not exist.
 
-- [ ] **Step 3: Add real petal SVG artwork**
+- [ ] **Step 3: Add real petal artwork**
 
-Create `public/sakura-petal.svg` as a compact two-lobed pink petal with transparent background, for example:
+Create `public/sakura-petal.svg`:
 
 ```svg
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
@@ -895,70 +886,52 @@ Create `public/sakura-petal.svg` as a compact two-lobed pink petal with transpar
 </svg>
 ```
 
-- [ ] **Step 4: Implement shared petal physics**
+- [ ] **Step 4: Implement shared physics**
 
-Each petal stores `x,y,size,rotation,rotationSpeed,vy,vx,phase,phaseSpeed,opacity`. `stepPetal` returns a new updated object; when `y > height + size` or `x` leaves a generous horizontal margin, reset it above/right using the same creation helper.
-
-Density mapping used by renderer:
+Petal fields: `x,y,size,rotation,rotationSpeed,vy,vx,phase,phaseSpeed,opacity`. `stepPetal` returns a new object. Density mapping:
 
 ```js
-const desktopCount = Math.round(20 + settings.sakuraDensity * 16); // 20..36
-const mobileCount = Math.round(10 + settings.sakuraDensity * 8);   // 10..18
+const desktopCount = Math.round(20 + settings.sakuraDensity * 16);
+const mobileCount = Math.round(10 + settings.sakuraDensity * 8);
 ```
 
-Reduced motion count is `0` for continuous animation.
+Reduced-motion continuous count is `0`.
 
 - [ ] **Step 5: Implement worker renderer**
 
-`src/workers/sakura.worker.ts` receives the transferred canvas, fetches `/sakura-petal.svg`, converts the blob via `createImageBitmap`, creates a 2D context, and draws the active petal array using `drawImage` with translate/rotate/globalAlpha. `pause` cancels the rAF/timeout loop, `resume` restarts it, `resize` updates dimensions/DPR, and `destroy` cancels loops and clears references.
+Worker message shapes:
 
-- [ ] **Step 6: Implement `SakuraEffect.astro` orchestration and fallback**
+```ts
+type SakuraMessage =
+  | { type: 'init'; canvas: OffscreenCanvas; width: number; height: number; dpr: number; settings: SakuraSettings }
+  | { type: 'settings'; settings: SakuraSettings }
+  | { type: 'resize'; width: number; height: number; dpr: number }
+  | { type: 'pause' }
+  | { type: 'resume' }
+  | { type: 'destroy' };
+```
 
-Render one canvas:
+Fetch `/sakura-petal.svg`, convert via `createImageBitmap`, draw with translate/rotate/globalAlpha. Animation scheduling uses worker `requestAnimationFrame` when available and a `setTimeout(..., 16)` fallback otherwise. `pause/destroy` cancel whichever scheduler is active.
+
+- [ ] **Step 6: Implement `SakuraEffect.astro` orchestration and main-thread fallback**
 
 ```astro
 <canvas id="sakura-canvas" aria-hidden="true"></canvas>
 ```
 
-Use `position:fixed; inset:0; pointer-events:none; z-index` below interactive overlays.
-
-Initialization logic:
+Feature detection:
 
 ```js
 const canUseWorker = 'Worker' in window && 'OffscreenCanvas' in window && 'transferControlToOffscreen' in HTMLCanvasElement.prototype;
 ```
 
-If true, transfer once and start the worker. Otherwise use the same `sakura-physics.mjs` helpers and an `Image('/sakura-petal.svg')` on the main thread with Canvas 2D.
+Worker path transfers once. Fallback path loads `new Image()` from `/sakura-petal.svg`, uses the shared physics helpers and Canvas 2D. Both paths listen to settings, `visibilitychange`, resize, and `astro:before-swap`. System reduced-motion OR stored `reduceMotion` stops continuous petals. Canvas is fixed, pointer-events none, and below interactive overlays.
 
-Listen to:
+If worker petal image initialization fails, terminate the worker and start the main-thread fallback; do not leave a blank-but-running worker.
 
-- `lidure:visual-settings-change` — apply `sakura`, density, speed, reduceMotion.
-- `lidure:sakura-setting` — compatibility enable/disable bridge.
-- `visibilitychange` — pause when hidden; resume when visible.
-- `resize` — rAF-throttled resize.
-- `astro:before-swap` — clean listeners/worker/canvas state so no duplicates survive navigation.
+- [ ] **Step 7: Swap component and delete old renderer**
 
-System `matchMedia('(prefers-reduced-motion: reduce)')` OR stored `reduceMotion` disables continuous petals.
-
-- [ ] **Step 7: Swap the component in `BaseLayout` and remove the old renderer**
-
-Replace:
-
-```astro
-import SekaiParticles from '../components/SekaiParticles.astro';
-...
-<SekaiParticles />
-```
-
-with:
-
-```astro
-import SakuraEffect from '../components/SakuraEffect.astro';
-...
-<SakuraEffect />
-```
-
-After all sakura tests pass, delete `src/components/SekaiParticles.astro`.
+Replace `SekaiParticles` import/render with `SakuraEffect`, then `git rm src/components/SekaiParticles.astro` after tests are GREEN.
 
 - [ ] **Step 8: Run tests and build**
 
@@ -967,7 +940,7 @@ node --test tests/sakura-effect.test.mjs tests/visual-settings.test.mjs tests/fi
 npm run build
 ```
 
-Expected: all pass, Astro build exits `0`.
+Expected: all pass; Astro build exits `0`.
 
 - [ ] **Step 9: Commit**
 
@@ -979,7 +952,7 @@ git commit -m "feat: upgrade sakura effect renderer"
 
 ---
 
-### Task 7: Integrate responsive/accessibility/state details and regression contracts
+### Task 7: Finish responsive, accessibility, and integrated regression contracts
 
 **Files:**
 - Modify: `src/components/VisualSettingsPanel.astro`
@@ -988,12 +961,9 @@ git commit -m "feat: upgrade sakura effect renderer"
 - Modify: `tests/firefly-ui-refresh.test.mjs`
 - Modify: `tests/site-build.test.mjs`
 
-**Interfaces:**
-- Consumes all previous task interfaces; creates no new business state.
+**Interfaces:** consumes all previous task interfaces and adds no business state.
 
-- [ ] **Step 1: Add failing end-to-end source/build contracts**
-
-Add assertions that built homepage has the standard shell/settings/music and built player keeps immersive chrome separation:
+- [ ] **Step 1: Add failing built-page contracts**
 
 ```js
 test('built homepage exposes visual settings and wallpaper-aware shell', () => {
@@ -1013,33 +983,29 @@ test('immersive player remains independent of standard wallpaper presentation', 
 });
 ```
 
-- [ ] **Step 2: Verify RED if any final integration is missing**
-
-Run:
+- [ ] **Step 2: Run build/contracts and verify any missing integration fails specifically**
 
 ```bash
 npm run build && node --test tests/firefly-ui-refresh.test.mjs tests/site-build.test.mjs
 ```
 
-Expected before cleanup: any missing built contract fails specifically.
+- [ ] **Step 3: Finish responsive panel/fullscreen card rules**
 
-- [ ] **Step 3: Finish responsive panel and fullscreen card rules**
+Implement exactly:
 
-Requirements:
+- panel desktop width `clamp(420px, 34vw, 480px)`;
+- mobile max width `calc(100vw - 20px)` with bottom/center sheet behavior;
+- segmented wallpaper buttons at least `44px` high;
+- visible range-value labels;
+- no horizontal overflow below `850px`;
+- fullscreen cards maintain readable contrast at `cardOpacity=0.2` using backdrop blur plus minimal border/shadow;
+- floating controls remain below media preview/modal layers.
 
-- settings panel desktop width `clamp(420px, 34vw, 480px)`;
-- mobile `max-width: calc(100vw - 20px)` and bottom/center sheet behavior;
-- wallpaper segmented buttons minimum 44px touch height;
-- range controls have visible value labels;
-- no horizontal overflow at `<850px`;
-- fullscreen cards maintain readable contrast at `cardOpacity=0.2` by pairing backdrop blur with text colors and a minimal border/shadow;
-- floating controls remain above the standard content but below modal/media-preview layers.
+- [ ] **Step 4: Finish keyboard/focus/motion behavior**
 
-- [ ] **Step 4: Finish keyboard/focus and motion behavior**
+Settings tabs use `role=tablist/tab/tabpanel`, `aria-controls`, `aria-selected`, and visible `:focus-visible`. Mode buttons/music controls/close/media buttons get visible focus. Reduced motion disables decorative hover movement and continuous sakura only; background video is not automatically disabled.
 
-Add visible `:focus-visible` styles to settings tabs, segmented mode, music controls, close/media buttons. Use `role=tablist/tab/tabpanel` relationships with `aria-controls`. Reduced-motion data/system preference disables banner hover motion and sakura continuous motion, but does not disable background video.
-
-- [ ] **Step 5: Run complete local verification**
+- [ ] **Step 5: Run complete verification**
 
 ```bash
 npm test
@@ -1062,40 +1028,24 @@ git commit -m "test: lock Firefly v3 visual regressions"
 - Temporary only if local verification is unavailable: `.github/workflows/verify-firefly-v3.yml`, `.ci/firefly-v3-result.txt`
 - No permanent production-file changes unless verification finds a defect.
 
-**Interfaces:**
-- Produces final merge evidence only.
+**Interfaces:** produces final merge evidence only.
 
-- [ ] **Step 1: Re-run the full test suite from the final source tree**
+- [ ] **Step 1: Re-run full suite from final source tree**
 
 ```bash
 npm ci
 npm test
 ```
 
-Expected: exit code `0`; Astro check `0 errors`; all tests pass.
+Expected: exit `0`; Astro check `0 errors`; all tests pass.
 
 - [ ] **Step 2: Inspect built contracts explicitly**
 
-Check `dist/index.html` contains:
+`dist/index.html` must contain `hero-settings-btn`, `visual-tab-background`, `wallpaper-mode-fullscreen`, `home-music-play-pause`, and image markup for posts whose cover resolves.
 
-- `hero-settings-btn`
-- `visual-tab-background`
-- `wallpaper-mode-fullscreen`
-- `home-music-play-pause`
-- homepage post cards with rendered image markup when a cover is resolvable.
+`dist/player/index.html` must contain `layout-immersive`, `site-header`, `sekaiPlayerBtn`, `hero-settings-btn`, and must not contain `blog-banner` or `standard-page-surface`.
 
-Check `dist/player/index.html` contains:
-
-- `layout-immersive`
-- `site-header`
-- `sekaiPlayerBtn`
-- `hero-settings-btn`
-
-and does **not** contain `blog-banner` or `standard-page-surface`.
-
-- [ ] **Step 3: If the execution environment cannot install/run locally, use one clean temporary GitHub Actions verifier**
-
-The temporary workflow runs exactly:
+- [ ] **Step 3: If local execution is unavailable, use one clean temporary GitHub Actions verifier**
 
 ```yaml
 - uses: actions/checkout@v4
@@ -1107,18 +1057,18 @@ The temporary workflow runs exactly:
 - run: npm test
 ```
 
-Record the exit/result on the feature branch, inspect it, then delete both the workflow and recorded result before final diff review. Do not merge temporary CI artifacts.
+Record the result on the feature branch, inspect it, then delete the workflow/result before final diff review. Never merge temporary CI artifacts.
 
-- [ ] **Step 4: Review final diff against `main`**
+- [ ] **Step 4: Review final diff**
 
 ```bash
 git diff --stat main...HEAD
 git diff --check main...HEAD
 ```
 
-Verify there are no temporary `.ci` files/workflows, no duplicate `hero-settings-btn`, no import of `SekaiParticles`, and no unrelated content/media changes.
+Verify no temporary `.ci` files/workflows, no duplicate `hero-settings-btn`, no import of `SekaiParticles`, no direct `localStorage.setItem('hero_settings', ...)` in `HeroSlideshow`, and no unrelated content/media changes.
 
-- [ ] **Step 5: Final commit only if cleanup changed tracked files**
+- [ ] **Step 5: Final cleanup commit only if needed**
 
 ```bash
 git add -A
