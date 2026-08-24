@@ -66,3 +66,40 @@ test('sakura effect renders drawn petals through canvas worker with a safe fallb
   assert.doesNotMatch(particles, /createElement\(['"]div['"]\)/);
   assert.doesNotMatch(particles, /🌸|🌷|🌹|🌺|❀/);
 });
+
+test('visual settings panel exposes dialog state, escape recovery, visible focus, and mobile viewport safety', () => {
+  const panel = readSource('src/components/VisualSettingsPanel.astro');
+
+  assert.match(panel, /aria-controls="hero-settings-panel"/);
+  assert.match(panel, /aria-expanded="false"/);
+  assert.match(panel, /role="dialog"/);
+  assert.match(panel, /aria-labelledby="visual-settings-title"/);
+  assert.match(panel, /id="visual-settings-title"/);
+  assert.match(panel, /event\.key\s*===\s*['"]Escape['"]/);
+  assert.match(panel, /aria-expanded/);
+  assert.match(panel, /\.toggle-switch input:focus-visible \+ \.toggle-track/);
+  assert.match(panel, /100dvh/);
+  assert.match(panel, /safe-area-inset-bottom/);
+});
+
+test('music shortcuts keep keyboard focus visible and suppress decorative motion when requested', () => {
+  const music = readSource('src/components/MusicStatusWidget.astro');
+
+  assert.match(music, /music-status-cover-open:focus-visible/);
+  assert.match(music, /music-status-play-overlay:focus-visible/);
+  assert.match(music, /music-status-control:focus-visible/);
+  assert.match(music, /prefers-reduced-motion:\s*reduce/);
+  assert.match(music, /data-reduce-motion="true"/);
+});
+
+test('worker sakura keeps density and speed controls functional after the renderer migration', () => {
+  const particles = readSource('src/components/SekaiParticles.astro');
+  const worker = readSource('src/workers/sakura.worker.js');
+
+  assert.match(particles, /sakuraDensity/);
+  assert.match(particles, /sakuraSpeed/);
+  assert.match(particles, /lidure:visual-settings-change/);
+  assert.match(worker, /density/);
+  assert.match(worker, /speedMultiplier/);
+  assert.match(worker, /MAX_PETALS\s*\*\s*density/);
+});
