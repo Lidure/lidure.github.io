@@ -177,9 +177,11 @@ export async function listMoments(
     where: "pinned = 1",
     args: [],
     orderBy: "pinned_at DESC, id DESC",
-    limit: Math.min(3, normalizedLimit),
+    limit: Math.min(3, normalizedLimit) + 1,
   });
-  const pinnedItems = pinnedCandidates.filter((item) => item.pinned === true).slice(0, normalizedLimit);
+  const pinnedItems = pinnedCandidates
+    .filter((item) => item.pinned === true)
+    .slice(0, Math.min(3, normalizedLimit));
   const normalLimit = Math.max(0, normalizedLimit - pinnedItems.length);
   if (normalLimit === 0) {
     return { items: pinnedItems, nextCursor: null };
