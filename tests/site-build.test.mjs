@@ -18,16 +18,16 @@ test('search embeds parseable post data without a runtime jsonData reference', (
   assert.ok(posts.some((post) => post.title.includes('光流')));
 });
 
-test('public URLs use the final domain and include social metadata', () => {
+test('public URLs use the configured lidure22.xyz domain and include social metadata', () => {
   const sitemap = read('sitemap-index.xml');
   const home = read('index.html');
 
-  assert.match(sitemap, /https:\/\/lidure\.xyz\/sitemap-0\.xml/);
-  assert.match(home, /rel="canonical" href="https:\/\/lidure\.xyz\/"/);
+  assert.match(sitemap, /https:\/\/lidure22\.xyz\/sitemap-0\.xml/);
+  assert.match(home, /rel="canonical" href="https:\/\/lidure22\.xyz\/"/);
   assert.match(home, /property="og:title"/);
 });
 
-test('source configuration uses final public domains and no stale publishing defaults', () => {
+test('source configuration uses configured public domains and no stale publishing defaults', () => {
   const files = [
     'astro.config.mjs',
     'src/layouts/BaseLayout.astro',
@@ -48,14 +48,15 @@ test('source configuration uses final public domains and no stale publishing def
   assert.equal(
     envExample,
     [
-      'PUBLIC_MOMENTS_API=https://api.lidure.xyz/api',
-      'PUBLIC_MEDIA_BASE_URL=https://media.lidure.xyz',
+      'PUBLIC_MOMENTS_API=https://api.lidure22.xyz/api',
+      'PUBLIC_MEDIA_BASE_URL=https://api.lidure22.xyz/media',
+      'PUBLIC_METING_API=https://meting.mikus.ink/api',
     ].join('\n'),
   );
-  assert.doesNotMatch(combined, /danmaku\.lidure22\.xyz|PUBLIC_R2_|PUBLIC_DANMAKU_API|lidure22\.xyz/);
-  assert.match(combined, /https:\/\/lidure\.xyz/);
-  assert.match(combined, /https:\/\/api\.lidure\.xyz\/api/);
-  assert.match(combined, /https:\/\/media\.lidure\.xyz/);
+  assert.doesNotMatch(combined, /danmaku\.lidure22\.xyz|PUBLIC_R2_|PUBLIC_DANMAKU_API/);
+  assert.match(combined, /https:\/\/lidure22\.xyz/);
+  assert.match(combined, /https:\/\/api\.lidure22\.xyz\/api/);
+  assert.match(combined, /https:\/\/api\.lidure22\.xyz\/media/);
   assert.match(combined, /PUBLIC_MOMENTS_API/);
   assert.match(combined, /PUBLIC_MEDIA_BASE_URL/);
 });
