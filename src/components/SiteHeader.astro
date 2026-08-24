@@ -1,6 +1,4 @@
 ---
-import ThemeToggle from './ThemeToggle.astro';
-
 interface Props {
   currentPath: string;
 }
@@ -54,7 +52,6 @@ const isActive = (href: string) =>
             {link.label}
           </a>
         ))}
-        <ThemeToggle />
       </div>
     </div>
   </div>
