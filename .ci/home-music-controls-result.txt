@@ -8,12 +8,12 @@
 > astro check && astro build
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m04:12:38[22m [34m[content][39m Syncing content
+[2m04:16:12[22m [34m[content][39m Syncing content
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
-[2m04:12:39[22m [34m[content][39m Synced content
-[2m04:12:39[22m [34m[types][39m Generated [2m911ms[22m
-[2m04:12:39[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[2m04:16:12[22m [34m[content][39m Synced content
+[2m04:16:12[22m [34m[types][39m Generated [2m1.42s[22m
+[2m04:16:12[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
 [96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
 
 [7m14[0m     draft: z.boolean().default(false),
@@ -89,25 +89,25 @@ Add the `is:inline` directive explicitly to silence this hint.
 [7m1321[0m     function cacheGetVideo(url) {
 [7m    [0m [93m             ~~~~~~~~~~~~~[0m
 
-[96msrc/components/SekaiPlayer.astro[0m:[93m4332[0m:[93m25[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+[96msrc/components/SekaiPlayer.astro[0m:[93m4341[0m:[93m25[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
 
-[7m4332[0m       }).catch(function(e) {
+[7m4341[0m       }).catch(function(e) {
 [7m    [0m [93m                        ~[0m
-[96msrc/components/SekaiPlayer.astro[0m:[93m4261[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchQQUrlsLegacy' is declared but its value is never read.
+[96msrc/components/SekaiPlayer.astro[0m:[93m4270[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchQQUrlsLegacy' is declared but its value is never read.
 
-[7m4261[0m   function fetchQQUrlsLegacy(tracks, callback) {
+[7m4270[0m   function fetchQQUrlsLegacy(tracks, callback) {
 [7m    [0m [93m           ~~~~~~~~~~~~~~~~~[0m
-[96msrc/components/SekaiPlayer.astro[0m:[93m4247[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchQQPlaylistLegacy' is declared but its value is never read.
+[96msrc/components/SekaiPlayer.astro[0m:[93m4256[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchQQPlaylistLegacy' is declared but its value is never read.
 
-[7m4247[0m   function fetchQQPlaylistLegacy(playlistId, callback) {
+[7m4256[0m   function fetchQQPlaylistLegacy(playlistId, callback) {
 [7m    [0m [93m           ~~~~~~~~~~~~~~~~~~~~~[0m
-[96msrc/components/SekaiPlayer.astro[0m:[93m4208[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchNeteasePlaylistLegacy' is declared but its value is never read.
+[96msrc/components/SekaiPlayer.astro[0m:[93m4217[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchNeteasePlaylistLegacy' is declared but its value is never read.
 
-[7m4208[0m   function fetchNeteasePlaylistLegacy(playlistId, callback) {
+[7m4217[0m   function fetchNeteasePlaylistLegacy(playlistId, callback) {
 [7m    [0m [93m           ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
-[96msrc/components/SekaiPlayer.astro[0m:[93m3769[0m:[93m50[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+[96msrc/components/SekaiPlayer.astro[0m:[93m3778[0m:[93m50[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
 
-[7m3769[0m   btn.addEventListener('pointercancel', function(e) {
+[7m3778[0m   btn.addEventListener('pointercancel', function(e) {
 [7m    [0m [93m                                                 ~[0m
 [96msrc/components/SekaiPlayer.astro[0m:[93m3228[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'tickParticles' is declared but its value is never read.
 
@@ -201,266 +201,117 @@ Result (52 files):
 - 41 hints
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m04:12:44[22m [34m[content][39m Syncing content
-[2m04:12:44[22m [34m[content][39m Synced content
-[2m04:12:44[22m [34m[types][39m Generated [2m292ms[22m
-[2m04:12:44[22m [34m[build][39m output: [34m"static"[39m
-[2m04:12:44[22m [34m[build][39m mode: [34m"static"[39m
-[2m04:12:44[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
-[2m04:12:44[22m [34m[build][39m Collecting build info...
-[2m04:12:44[22m [34m[build][39m [32m✓ Completed in 304ms.[39m
-[2m04:12:44[22m [34m[build][39m Building static entrypoints...
-[2m04:12:45[22m [34m[vite][39m [32m✓ built in 1.32s[39m
-[2m04:12:46[22m [34m[vite][39m [32m✓ built in 739ms[39m
-[2m04:12:46[22m [34m[build][39m Rearranging server assets...
+[2m04:16:22[22m [34m[content][39m Syncing content
+[2m04:16:22[22m [34m[content][39m Synced content
+[2m04:16:22[22m [34m[types][39m Generated [2m511ms[22m
+[2m04:16:22[22m [34m[build][39m output: [34m"static"[39m
+[2m04:16:22[22m [34m[build][39m mode: [34m"static"[39m
+[2m04:16:22[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m04:16:22[22m [34m[build][39m Collecting build info...
+[2m04:16:22[22m [34m[build][39m [32m✓ Completed in 536ms.[39m
+[2m04:16:22[22m [34m[build][39m Building static entrypoints...
+[2m04:16:24[22m [34m[vite][39m [32m✓ built in 2.46s[39m
+[2m04:16:25[22m [34m[vite][39m [32m✓ built in 511ms[39m
+[2m04:16:25[22m [34m[build][39m Rearranging server assets...
 
 [42m[30m generating static routes [39m[49m
-[2m04:12:46[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+8ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+3ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/player/index.html[22m [2m(+3ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+5ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+2ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+2ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+2ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+280ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+2ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/rss.xml[22m [2m(+14ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/search/index.html[22m [2m(+2ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+2ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+2ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+1ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+1ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+1ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+1ms)[22m 
-[2m04:12:46[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+1ms)[22m 
-[2m04:12:47[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+1ms)[22m 
-[2m04:12:47[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+1ms)[22m 
-[2m04:12:47[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+1ms)[22m 
-[2m04:12:47[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+2ms)[22m 
-[2m04:12:47[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
-[2m04:12:47[22m [32m✓ Completed in 362ms.
+[2m04:16:25[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+17ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+5ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+8ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+4ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+215ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/rss.xml[22m [2m(+29ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+3ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+3ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m04:16:25[22m   [34m├─[39m [2m/index.html[22m [2m(+5ms)[22m 
+[2m04:16:25[22m [32m✓ Completed in 358ms.
 [39m
 [42m[30m generating optimized images [39m[49m
-[2m04:12:47[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+46ms)[22m [2m(1/4)[22m
-[2m04:12:47[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+47ms)[22m [2m(2/4)[22m
-[2m04:12:47[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+49ms)[22m [2m(3/4)[22m
-[2m04:12:47[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+207ms)[22m [2m(4/4)[22m
-[2m04:12:47[22m [32m✓ Completed in 207ms.
+[2m04:16:25[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+74ms)[22m [2m(1/4)[22m
+[2m04:16:25[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+75ms)[22m [2m(2/4)[22m
+[2m04:16:25[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+83ms)[22m [2m(3/4)[22m
+[2m04:16:25[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+350ms)[22m [2m(4/4)[22m
+[2m04:16:25[22m [32m✓ Completed in 351ms.
 [39m
-[2m04:12:47[22m [34m[build][39m [32m✓ Completed in 2.66s.[39m
-[2m04:12:47[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
-[2m04:12:47[22m [34m[build][39m 23 page(s) built in [1m2.97s[22m
-[2m04:12:47[22m [34m[build][39m [1mComplete![22m
+[2m04:16:25[22m [34m[build][39m [32m✓ Completed in 3.73s.[39m
+[2m04:16:25[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m04:16:25[22m [34m[build][39m 23 page(s) built in [1m4.28s[22m
+[2m04:16:25[22m [34m[build][39m [1mComplete![22m
 
 > lidure-github-io@0.0.1 test:site
 > node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
 
-✔ BaseLayout exposes standard and immersive page modes (1.693539ms)
-✔ player route defaults to immersive layout with trailing slash tolerance (0.237319ms)
-✔ standard banner keeps B3 desktop and mobile heights (0.322087ms)
-✔ standard banner stays readable when the background is disabled (0.267555ms)
-✔ site header replaces its global scroll listener after Astro navigation (0.293554ms)
-✔ shared shell mounts navigation and floating controls for both modes (0.218751ms)
-✔ floating controls proxy existing background settings instead of duplicating them (0.413565ms)
-✔ immersive UI controller owns current shell visibility without touching player business logic (0.209867ms)
-✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.511023ms)
-✔ BaseLayout installs the immersive UI controller only for immersive mode (0.294595ms)
-✔ homepage exposes left, main, and right regions (0.160172ms)
-✔ homepage widgets consume real tag, moments, player, and visitor sources (1.089407ms)
-✖ home music card uses the player public open API instead of simulating the draggable dock click (2.889928ms)
-✔ home music card proxies previous, play-pause, and next to the existing player controls (0.238901ms)
-✔ v2 visual layer defines semantic colors and responsive Firefly grid (0.201074ms)
-✔ guestbook uses a wide two-column desktop shell (0.207534ms)
-✔ ordinary pages load the v2 cohesion layer (0.471433ms)
-✔ built immersive page keeps core controls without standard chrome (1.081595ms)
-✔ background loop guard detects a wrap and reuses the player recovery handler (1.413827ms)
-✔ base layout installs the background loop guard (0.273754ms)
-✔ player search tolerates imported songs without precomputed searchText (0.5819ms)
-✔ local imports keep active search and tag filters (0.219372ms)
-✔ search embeds parseable post data without a runtime jsonData reference (1.397332ms)
-✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.602391ms)
-✔ source configuration uses configured public domains and no stale publishing defaults (1.549592ms)
-✔ optical-flow article has one h1 and no unparsed inline delimiters (1.557794ms)
-✔ optimized identity assets are used and remain small (0.607508ms)
-✔ rendered background configuration starts with a static image (0.515589ms)
-✔ rendered moments management controls keep the publish panel closed by default (0.895614ms)
-✔ moments page exposes the API hook and local controls (0.894692ms)
-✔ moments publishing UI accepts videos and requires selectable posters (0.903465ms)
-✔ moments video poster generation ignores stale async captures (0.596952ms)
-✔ moments browser code uses the session API client for management (0.800269ms)
-✔ moment delete controls follow the authenticated session (0.401086ms)
-✔ guestbook exposes authenticated message deletion controls (0.199171ms)
-✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.428949ms)
-✔ moments api preserves distinct 401 auth worker codes (0.118329ms)
-✔ Astro swaps clean page-scoped media while preserving persistent background media (0.267845ms)
-✔ persistent layout scripts initialize through astro page-load with data guards (0.372803ms)
-✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.180002ms)
-✔ sakura particles use the approved flowers and natural drift parameters (0.070447ms)
-✔ QQ playlist imports normalize ids and report unavailable audio links (0.950277ms)
-✔ online playlist imports resolve audio URLs on demand (0.443991ms)
-✔ online playlist imports use a unified Meting-compatible adapter (0.57619ms)
-✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.063707ms)
-✔ background video degrades safely on navigation visibility and reduced motion (0.226622ms)
-✔ background videos recover playback when browsers emit ended despite loop (0.261165ms)
-✔ background videos reload before retrying playback after ended (0.232892ms)
-✔ moments single-item query aliases the legacy images column (0.06588ms)
+✔ BaseLayout exposes standard and immersive page modes (2.805896ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.343189ms)
+✔ standard banner keeps B3 desktop and mobile heights (0.408025ms)
+✔ standard banner stays readable when the background is disabled (0.313765ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.326133ms)
+✔ shared shell mounts navigation and floating controls for both modes (0.284932ms)
+✔ floating controls proxy existing background settings instead of duplicating them (0.51291ms)
+✔ immersive UI controller owns current shell visibility without touching player business logic (0.274126ms)
+✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.451689ms)
+✔ BaseLayout installs the immersive UI controller only for immersive mode (0.433943ms)
+✔ homepage exposes left, main, and right regions (0.246865ms)
+✔ homepage widgets consume real tag, moments, player, and visitor sources (0.387013ms)
+✔ home music card uses the player public open API instead of simulating the draggable dock click (2.374998ms)
+✔ home music card proxies previous, play-pause, and next to the existing player controls (0.298753ms)
+✔ v2 visual layer defines semantic colors and responsive Firefly grid (0.295357ms)
+✔ guestbook uses a wide two-column desktop shell (0.340915ms)
+✔ ordinary pages load the v2 cohesion layer (0.247917ms)
+✔ built immersive page keeps core controls without standard chrome (1.422537ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (2.098819ms)
+✔ base layout installs the background loop guard (0.448054ms)
+✔ player search tolerates imported songs without precomputed searchText (1.377681ms)
+✔ local imports keep active search and tag filters (0.405601ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.350832ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.990598ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.540142ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.479413ms)
+✔ optimized identity assets are used and remain small (1.032159ms)
+✔ rendered background configuration starts with a static image (0.909528ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.412362ms)
+✔ moments page exposes the API hook and local controls (1.397991ms)
+✔ moments publishing UI accepts videos and requires selectable posters (4.69862ms)
+✔ moments video poster generation ignores stale async captures (0.860936ms)
+✔ moments browser code uses the session API client for management (1.210773ms)
+✔ moment delete controls follow the authenticated session (0.689261ms)
+✔ guestbook exposes authenticated message deletion controls (0.32437ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.684004ms)
+✔ moments api preserves distinct 401 auth worker codes (0.254597ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.507923ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.617064ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.263821ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.1352ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.415097ms)
+✔ online playlist imports resolve audio URLs on demand (0.776891ms)
+✔ online playlist imports use a unified Meting-compatible adapter (0.963077ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.141289ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.476275ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.469666ms)
+✔ background videos reload before retrying playback after ended (0.446061ms)
+✔ moments single-item query aliases the legacy images column (0.151444ms)
 ℹ tests 49
 ℹ suites 0
-ℹ pass 48
-ℹ fail 1
+ℹ pass 49
+ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 103.601069
+ℹ duration_ms 176.635948
 
-✖ failing tests:
-
-test at tests/firefly-ui-refresh.test.mjs:121:1
-✖ home music card uses the player public open API instead of simulating the draggable dock click (2.889928ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /window\.__sekaiOpenPlayer\s*=\s*function/. Input:
-  
-  '---\n' +
-    "const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink/api';\n" +
-    '---\n' +
-    '\n' +
-    '<button id="sekaiPlayerBtn" class="sekai-player-btn" data-meting-api={metingApi} title="SEKAI 播放器" aria-label="打开 SEKAI 播放器" transition:persist transition:name="sekai-btn">\n' +
-    '  <img id="sekaiDockCover" class="sekai-dock-cover" src="" alt="" aria-hidden="true" />\n' +
-    '  <canvas id="sekaiDockVisualizer" class="sekai-dock-visualizer" aria-hidden="true"></canvas>\n' +
-    '  <span id="sekaiDockIcon" class="sekai-dock-icon">\n' +
-    '    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n' +
-    '  </span>\n' +
-    '</button>\n' +
-    '\n' +
-    '<div id="sekaiPlayerPanel" class="sekai-player-panel hidden" role="dialog" aria-label="SEKAI 播放器" transition:persist transition:name="sekai-panel">\n' +
-    '  <div class="sekai-mobile-bg" id="sekaiMobileBg" aria-hidden="true"></div>\n' +
-    '  <div class="sekai-player-header">\n' +
-    '    <div class="sekai-heading">\n' +
-    '      <span class="sekai-player-title">PJSK CD</span>\n' +
-    '      <span id="sekaiSourceStatus" class="sekai-status">未加载</span>\n' +
-    '    </div>\n' +
-    '    <div class="sekai-header-tools">\n' +
-    '      <div class="sekai-header-toggle sekai-header-mode" aria-label="音频版本">\n' +
-    '        <button id="sekaiLongBtn" class="sekai-header-btn active" type="button" title="完整版">\n' +
-    '          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>\n' +
-    '        </button>\n' +
-    '        <button id="sekaiShortBtn" class="sekai-header-btn" type="button" title="片段版">\n' +
-    '          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="4" height="12" rx="1"/><rect x="8" y="4" width="4" height="16" rx="1"/><rect x="14" y="8" width="4" height="8" rx="1"/></svg>\n' +
-    '        </button>\n' +
-    '      </div>\n' +
-    '      <div class="sekai-header-toggle sekai-header-order" aria-label="播放顺序">\n' +
-    '        <button id="sekaiSequenceBtn" class="sekai-header-btn active" type="button" title="顺序播放">\n' +
-    '          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>\n' +
-    '        </button>\n' +
-    '        <button id="sekaiShuffleBtn" class="sekai-header-btn" type="button" title="随机播放">\n' +
-    '          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>\n' +
-    '        </button>\n' +
-    '      </div>\n' +
-    '      <div class="sekai-header-toggle sekai-header-visual" aria-label="可视化">\n' +
-    '        <button id="sekaiVizOffBtn" class="sekai-header-btn active" type="button" title="关闭可视化" aria-pressed="true">\n' +
-    '          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>\n' +
-    '        </button>\n' +
-    '        <button id="sekaiVizCdBtn" class="sekai-header-btn" type="button" title="环形可视化" aria-pressed="false">\n' +
-    '          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n' +
-    '        </button>\n' +
-    '        <button id="sekaiVizDockBtn" class="sekai-header-btn" type="button" title="悬浮可视化" aria-pressed="false">\n' +
-    '          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg>\n' +
-    '        </button>\n' +
-    '        <button id="sekaiVizPageBtn" class="sekai-header-btn" type="button" title="背景可视化" aria-pressed="false">\n' +
-    '          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>\n' +
-    '        </button>\n' +
-    '      </div>\n' +
-    '    </div>\n' +
-    '    <button id="sekaiPlayerCloseBtn" class="sekai-player-close" title="关闭" aria-label="关闭">×</button>\n' +
-    '  </div>\n' +
-    '\n' +
-    '  <div class="sekai-player-body">\n' +
-    '    <aside class="sekai-library-pane">\n' +
-    '      <button class="sekai-lib-close" title="关闭歌单" aria-label="关闭歌单">&times;</button>\n' +
-    '      <div class="sekai-library-controls">\n' +
-    '        <input id="sekaiSearchInput" class="sekai-search" type="search" placeholder="搜索曲名 / 作曲 / 版本" autocomplete="off" />\n' +
-    '        <div class="sekai-dropdown sekai-tag-dropdown" id="sekaiTagDropdown">\n' +
-    '          <button id="sekaiTagButton" class="sekai-dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false">\n' +
-    '            <span class="sekai-dropdown-kicker">UNIT</span>\n' +
-    '            <span id="sekaiTagLabel" class="sekai-dropdown-value">全部</span>\n' +
-    '          </button>\n' +
-    '          <div id="sekaiTagMenu" class="sekai-dropdown-menu" role="listbox"></div>\n' +
-    '        </div>\n' +
-    '      </div>\n' +
-    '\n' +
-    '      <div class="sekai-import-bar">\n' +
-    '        <button id="sekaiLocalImport" class="sekai-import-btn" type="button" title="添加本地音乐">\n' +
-    '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>\n' +
-    '          <span>本地音乐</span>\n' +
-    '        </button>\n' +
-    '        <input type="file" id="sekaiLocalFileInput" accept="audio/*" multiple hidden />\n' +
-    '        <button id="sekaiOnlineImport" class="sekai-import-btn" type="button" title="导入在线歌单">\n' +
-    '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>\n' +
-    '          <span>在线歌单</span>\n' +
-    '        </button>\n' +
-    '        <button id="sekaiClearImported" class="sekai-import-btn sekai-import-clear" type="button" title="清空所有导入歌曲">\n' +
-    '          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>\n' +
-    '          <span>清空</span>\n' +
-    '        </button>\n' +
-    '      </div>\n' +
-    '\n' +
-    '      <div id="sekaiOnlinePanel" class="sekai-online-panel" style="display:none">\n' +
-    '        <div class="sekai-online-tabs">\n' +
-    '          <button class="sekai-online-tab active" data-platform="netease">网易云</button>\n' +
-    '          <button class="sekai-online-tab" data-platform="qq">QQ音乐</button>\n' +
-    '        </div>\n' +
-    '        <div id="sekaiNeteaseCookieRow" class="sekai-qq-cookie-row" style="display:none">\n' +
-    '          <input id="sekaiNeteaseCookie" class="sekai-online-input" type="text" placeholder="粘贴网易云 cookie（含 MUSIC_U，私密歌单必填）" autocomplete="off" />\n' +
-    '          <button id="sekaiNeteaseCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>\n' +
-    '        </div>\n' +
-    '        <div id="sekaiQQCookieRow" class="sekai-qq-cookie-row" style="display:none">\n' +
-    '          <input id="sekaiQQCookie" class="sekai-online-input" type="text" placeholder="粘贴QQ音乐 cookie（含 qqmusic_key）" autocomplete="off" />\n' +
-    '          <button id="sekaiQQCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>\n' +
-    '        </div>\n' +
-    '        <div class="sekai-online-input-row">\n' +
-    '          <input id="sekaiPlaylistUrl" class="sekai-online-input" type="text" placeholder="粘贴歌单链接或ID" autocomplete="off" />\n' +
-    '          <button id="sekaiPlaylistFetch" class="sekai-online-fetch" type="button">导入</button>\n' +
-    '        </div>\n' +
-    '        <div id="sekaiOnlineStatus" class="sekai-online-status"></div>\n' +
-    '        <button id="sekaiOnlineClose" class="sekai-online-close" type="button">收起</button>\n' +
-    '      </div>\n' +
-    '\n' +
-    '      <div class="sekai-playlist-label">\n' +
-    '        <span>播放列表</span>\n' +
-    '        <span id="sekaiTrackCount">0</span>\n' +
-    '      </div>\n' +
-    '      <div class="sekai-playlist" id="sekaiPlaylist"></div>\n' +
-    '    </aside>\n' +
-    '\n' +
-    '    <section class="sekai-main-pane">\n' +
-    '      <div class="sekai-top-section">\n' +
-    '        <div class="sekai-cover-wrap">\n' +
-    '          <div class="sekai-cd paused" id="sekaiCd">\n' +
-    '            <canvas id="sekaiCdVisualizer" class="sekai-cd-visualizer" aria-hidden="true"></canvas>\n' +
-    '            <img class="sekai-cover" id="sekaiCover" src="" alt="封面" style="display:none;" />\n' +
-    '            <div class="sekai-cover-fallback" id="sekaiCoverFallback">♪</div>\n' +
-    '          </div>\n' +
-    '        </div>\n' +
-    '      </div>\n' +
-    '\n' +
-    '        <div class="sekai-now-playing">\n' +
-    '          <div class="sekai-track-title" id="sekaiTrackTitle">选择一首歌曲</div>\n' +
-    '          <div class="sekai-track-artist" id="sekaiTrackArtist">Project SEKAI</div>\n' +
-    '          <div class="sekai-prog'... 137627 more characters
-  
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:124:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1382:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
-      at Test.postRun (node:internal/test_runner/test:1522:19)
-      at Test.run (node:internal/test_runner/test:1447:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: `---\nconst metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink/api';\n---\n\n<button id="sekaiPlayerBtn" class="sekai-player-btn" data-meting-api={metingApi} title="SEKAI 播放器" aria-label="打开 SEKAI 播放器" transition:persist transition:name="sekai-btn">\n  <img id="sekaiDockCover" class="sekai-dock-cover" src="" alt="" aria-hidden="true" />\n  <canvas id="sekaiDockVisualizer" class="sekai-dock-visualizer" aria-hidden="true"></canvas>\n  <span id="sekaiDockIcon" class="sekai-dock-icon">\n    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n  </span>\n</button>\n\n<div id="sekaiPlayerPanel" class="sekai-player-panel hidden" role="dialog" aria-label="SEKAI 播放器" transition:persist transition:name="sekai-panel">\n  <div class="sekai-mobile-bg" id="sekaiMobileBg" aria-hidden="true"></div>\n  <div class="sekai-player-header">\n    <div class="sekai-heading">\n      <span class="sekai-player-title">PJSK CD</span>\n      <span id="sekaiSourceStatus" class="sekai-status">未加载</span>\n    </div>\n    <div class="sekai-header-tools">\n      <div class="sekai-header-toggle sekai-header-mode" aria-label="音频版本">\n        <button id="sekaiLongBtn" class="sekai-header-btn active" type="button" title="完整版">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>\n        </button>\n        <button id="sekaiShortBtn" class="sekai-header-btn" type="button" title="片段版">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="4" height="12" rx="1"/><rect x="8" y="4" width="4" height="16" rx="1"/><rect x="14" y="8" width="4" height="8" rx="1"/></svg>\n        </button>\n      </div>\n      <div class="sekai-header-toggle sekai-header-order" aria-label="播放顺序">\n        <button id="sekaiSequenceBtn" class="sekai-header-btn active" type="button" title="顺序播放">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>\n        </button>\n        <button id="sekaiShuffleBtn" class="sekai-header-btn" type="button" title="随机播放">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>\n        </button>\n      </div>\n      <div class="sekai-header-toggle sekai-header-visual" aria-label="可视化">\n        <button id="sekaiVizOffBtn" class="sekai-header-btn active" type="button" title="关闭可视化" aria-pressed="true">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>\n        </button>\n        <button id="sekaiVizCdBtn" class="sekai-header-btn" type="button" title="环形可视化" aria-pressed="false">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n        </button>\n        <button id="sekaiVizDockBtn" class="sekai-header-btn" type="button" title="悬浮可视化" aria-pressed="false">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg>\n        </button>\n        <button id="sekaiVizPageBtn" class="sekai-header-btn" type="button" title="背景可视化" aria-pressed="false">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>\n        </button>\n      </div>\n    </div>\n    <button id="sekaiPlayerCloseBtn" class="sekai-player-close" title="关闭" aria-label="关闭">×</button>\n  </div>\n\n  <div class="sekai-player-body">\n    <aside class="sekai-library-pane">\n      <button class="sekai-lib-close" title="关闭歌单" aria-label="关闭歌单">&times;</button>\n      <div class="sekai-library-controls">\n        <input id="sekaiSearchInput" class="sekai-search" type="search" placeholder="搜索曲名 / 作曲 / 版本" autocomplete="off" />\n        <div class="sekai-dropdown sekai-tag-dropdown" id="sekaiTagDropdown">\n          <button id="sekaiTagButton" class="sekai-dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false">\n            <span class="sekai-dropdown-kicker">UNIT</span>\n            <span id="sekaiTagLabel" class="sekai-dropdown-value">全部</span>\n          </button>\n          <div id="sekaiTagMenu" class="sekai-dropdown-menu" role="listbox"></div>\n        </div>\n      </div>\n\n      <div class="sekai-import-bar">\n        <button id="sekaiLocalImport" class="sekai-import-btn" type="button" title="添加本地音乐">\n          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>\n          <span>本地音乐</span>\n        </button>\n        <input type="file" id="sekaiLocalFileInput" accept="audio/*" multiple hidden />\n        <button id="sekaiOnlineImport" class="sekai-import-btn" type="button" title="导入在线歌单">\n          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>\n          <span>在线歌单</span>\n        </button>\n        <button id="sekaiClearImported" class="sekai-import-btn sekai-import-clear" type="button" title="清空所有导入歌曲">\n          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>\n          <span>清空</span>\n        </button>\n      </div>\n\n      <div id="sekaiOnlinePanel" class="sekai-online-panel" style="display:none">\n        <div class="sekai-online-tabs">\n          <button class="sekai-online-tab active" data-platform="netease">网易云</button>\n          <button class="sekai-online-tab" data-platform="qq">QQ音乐</button>\n        </div>\n        <div id="sekaiNeteaseCookieRow" class="sekai-qq-cookie-row" style="display:none">\n          <input id="sekaiNeteaseCookie" class="sekai-online-input" type="text" placeholder="粘贴网易云 cookie（含 MUSIC_U，私密歌单必填）" autocomplete="off" />\n          <button id="sekaiNeteaseCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>\n        </div>\n        <div id="sekaiQQCookieRow" class="sekai-qq-cookie-row" style="display:none">\n          <input id="sekaiQQCookie" class="sekai-online-input" type="text" placeholder="粘贴QQ音乐 cookie（含 qqmusic_key）" autocomplete="off" />\n          <button id="sekaiQQCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>\n        </div>\n        <div class="sekai-online-input-row">\n          <input id="sekaiPlaylistUrl" class="sekai-online-input" type="text" placeholder="粘贴歌单链接或ID" autocomplete="off" />\n          <button id="sekaiPlaylistFetch" class="sekai-online-fetch" type="button">导入</button>\n        </div>\n        <div id="sekaiOnlineStatus" class="sekai-online-status"></div>\n        <button id="sekaiOnlineClose" class="sekai-online-close" type="button">收起</button>\n      </div>\n\n      <div class="sekai-playlist-label">\n        <span>播放列表</span>\n        <span id="sekaiTrackCount">0</span>\n      </div>\n      <div class="sekai-playlist" id="sekaiPlaylist"></div>\n    </aside>\n\n    <section class="sekai-main-pane">\n      <div class="sekai-top-section">\n        <div class="sekai-cover-wrap">\n          <div class="sekai-cd paused" id="sekaiCd">\n            <canvas id="sekaiCdVisualizer" class="sekai-cd-visualizer" aria-hidden="true"></canvas>\n            <img class="sekai-cover" id="sekaiCover" src="" alt="封面" style="display:none;" />\n            <div class="sekai-cover-fallback" id="sekaiCoverFallback">♪</div>\n          </div>\n        </div>\n      </div>\n\n        <div class="sekai-now-playing">\n          <div class="sekai-track-title" id="sekaiTrackTitle">选择一首歌曲</div>\n          <div class="sekai-track-artist" id="sekaiTrackArtist">Project SEKAI</div>\n          <div class="sekai-prog`... 137627 more characters,
-    expected: /window\.__sekaiOpenPlayer\s*=\s*function/,
-    operator: 'match',
-    diff: 'simple'
-  }
-
-__EXIT_CODE__=1
+__EXIT_CODE__=0
