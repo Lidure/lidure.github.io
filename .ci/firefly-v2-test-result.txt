@@ -1,0 +1,1337 @@
+=== npm test ===
+
+> lidure-github-io@0.0.1 test
+> npm run build && npm run test:site
+
+
+> lidure-github-io@0.0.1 build
+> astro check && astro build
+
+[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
+[2m02:45:35[22m [34m[content][39m Syncing content
+[Shiki] The language "conf" doesn't exist, falling back to "plaintext".
+[Shiki] The language "conf" doesn't exist, falling back to "plaintext".
+[2m02:45:36[22m [34m[content][39m Synced content
+[2m02:45:36[22m [34m[types][39m Generated [2m1.32s[22m
+[2m02:45:36[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m14[0m     draft: z.boolean().default(false),
+[7m  [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m13[0m:[93m15[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m13[0m     featured: z.boolean().default(false),
+[7m  [0m [93m              ~[0m
+[96msrc/content.config.ts[0m:[93m12[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m12[0m     cover: z.string().optional(),
+[7m  [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m11[0m:[93m19[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m11[0m     tags: z.array(z.string()).default([]),
+[7m  [0m [93m                  ~[0m
+[96msrc/content.config.ts[0m:[93m11[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m11[0m     tags: z.array(z.string()).default([]),
+[7m  [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m10[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m10[0m     updatedDate: z.coerce.date().optional(),
+[7m  [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m9[0m:[93m14[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m9[0m     pubDate: z.coerce.date(),
+[7m [0m [93m             ~[0m
+[96msrc/content.config.ts[0m:[93m8[0m:[93m18[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m8[0m     description: z.string(),
+[7m [0m [93m                 ~[0m
+[96msrc/content.config.ts[0m:[93m7[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m7[0m     title: z.string(),
+[7m [0m [93m           ~[0m
+[96msrc/content.config.ts[0m:[93m6[0m:[93m11[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m6[0m   schema: z.object({
+[7m [0m [93m          ~[0m
+[96msrc/content.config.ts[0m:[93m1[0m:[93m28[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
+
+[7m1[0m import { defineCollection, z } from 'astro:content';
+[7m [0m [93m                           ~[0m
+
+[96msrc/components/Comments.astro[0m:[93m37[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m37[0m <script define:vars={{ repo, repoId, category, categoryId, mapping, lang }}>
+[7m  [0m [93m        ~~~~~~~~~~~[0m
+
+[96msrc/components/HeroSlideshow.astro[0m:[93m1407[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1407[0m     function captureVideoPoster(src) {
+[7m    [0m [93m             ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/HeroSlideshow.astro[0m:[93m1372[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1372[0m     function resolveVideoSource(url) {
+[7m    [0m [93m             ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/HeroSlideshow.astro[0m:[93m1348[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1348[0m     function fetchVideoCached(url) {
+[7m    [0m [93m             ~~~~~~~~~~~~~~~~[0m
+[96msrc/components/HeroSlideshow.astro[0m:[93m1333[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1333[0m     function cachePutVideo(url, blob) {
+[7m    [0m [93m             ~~~~~~~~~~~~~[0m
+[96msrc/components/HeroSlideshow.astro[0m:[93m1321[0m:[93m14[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m1321[0m     function cacheGetVideo(url) {
+[7m    [0m [93m             ~~~~~~~~~~~~~[0m
+
+[96msrc/components/SekaiPlayer.astro[0m:[93m4332[0m:[93m25[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+
+[7m4332[0m       }).catch(function(e) {
+[7m    [0m [93m                        ~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m4261[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchQQUrlsLegacy' is declared but its value is never read.
+
+[7m4261[0m   function fetchQQUrlsLegacy(tracks, callback) {
+[7m    [0m [93m           ~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m4247[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchQQPlaylistLegacy' is declared but its value is never read.
+
+[7m4247[0m   function fetchQQPlaylistLegacy(playlistId, callback) {
+[7m    [0m [93m           ~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m4208[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchNeteasePlaylistLegacy' is declared but its value is never read.
+
+[7m4208[0m   function fetchNeteasePlaylistLegacy(playlistId, callback) {
+[7m    [0m [93m           ~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3769[0m:[93m50[0m - [93mwarning[0m[90m ts(6133): [0m'e' is declared but its value is never read.
+
+[7m3769[0m   btn.addEventListener('pointercancel', function(e) {
+[7m    [0m [93m                                                 ~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3228[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'tickParticles' is declared but its value is never read.
+
+[7m3228[0m   function tickParticles(pool, ctx) {
+[7m    [0m [93m           ~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3223[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'spawnParticle' is declared but its value is never read.
+
+[7m3223[0m   function spawnParticle(pool, x, y, vx, vy, life, size, hue) {
+[7m    [0m [93m           ~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3221[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'pageParticles' is declared but its value is never read.
+
+[7m3221[0m   var pageParticles = [];
+[7m    [0m [93m      ~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3220[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'dockParticles' is declared but its value is never read.
+
+[7m3220[0m   var dockParticles = [];
+[7m    [0m [93m      ~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3219[0m:[93m7[0m - [93mwarning[0m[90m ts(6133): [0m'cdParticles' is declared but its value is never read.
+
+[7m3219[0m   var cdParticles = [];
+[7m    [0m [93m      ~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m3203[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'sampleWave' is declared but its value is never read.
+
+[7m3203[0m   function sampleWave(position) {
+[7m    [0m [93m           ~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m2714[0m:[93m7[0m - [93mwarning[0m[90m ts(7027): [0mUnreachable code detected.
+
+[7m2714[0m       return Promise.resolve({ songId: songId, url: '', error: '请先保存完整的 QQ Cookie（需包含 uin/euin 和 qm_keyst/qqmusic_key）' });
+[7m    [0m [93m      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m2704[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'fetchOnlineSongUrlLegacy' is declared but its value is never read.
+
+[7m2704[0m   function fetchOnlineSongUrlLegacy(song) {
+[7m    [0m [93m           ~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[96msrc/components/SekaiPlayer.astro[0m:[93m2093[0m:[93m12[0m - [93mwarning[0m[90m ts(80006): [0mThis may be converted to an async function.
+
+[7m2093[0m   function fetchJson(name) {
+[7m    [0m [93m           ~~~~~~~~~[0m
+
+[96msrc/components/ThemeToggle.astro[0m:[93m51[0m:[93m12[0m - [93mwarning[0m[90m ts(6133): [0m'getSystemTheme' is declared but its value is never read.
+
+[7m51[0m   function getSystemTheme() {
+[7m  [0m [93m           ~~~~~~~~~~~~~~[0m
+
+[96msrc/layouts/BaseLayout.astro[0m:[93m62[0m:[93m191[0m - [93mwarning[0m[90m ts(6133): [0m'media' is declared but its value is never read.
+
+[7m62[0m     <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+[7m  [0m [93m                                                                                                                                                                                              ~~~~~[0m
+
+[96msrc/pages/moments.astro[0m:[93m2416[0m:[93m14[0m - [93mwarning[0m[90m ts(6133): [0m'handleFiles' is declared but its value is never read.
+
+[7m2416[0m     function handleFiles(files: File[]) {
+[7m    [0m [93m             ~~~~~~~~~~~[0m
+[96msrc/pages/moments.astro[0m:[93m2394[0m:[93m20[0m - [93mwarning[0m[90m ts(6133): [0m'uploadImagesToR2' is declared but its value is never read.
+
+[7m2394[0m     async function uploadImagesToR2() {
+[7m    [0m [93m                   ~~~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/player.astro[0m:[93m1670[0m:[93m48[0m - [93mwarning[0m[90m ts(6133): [0m'bass' is declared but its value is never read.
+
+[7m1670[0m     function drawSpectrum(ctx, w, h, freqData, bass) {
+[7m    [0m [93m                                               ~~~~[0m
+[96msrc/pages/player.astro[0m:[93m1271[0m:[93m48[0m - [93mwarning[0m[90m ts(2568): [0mProperty 'webkitAudioContext' may not exist on type 'Window & typeof globalThis'. Did you mean 'AudioContext'?
+
+[7m1271[0m         var AC = window.AudioContext || window.webkitAudioContext;
+[7m    [0m [93m                                               ~~~~~~~~~~~~~~~~~~[0m
+[96msrc/pages/player.astro[0m:[93m733[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'danmakuLane' is declared but its value is never read.
+
+[7m733[0m     var danmakuLane = 0;
+[7m   [0m [93m        ~~~~~~~~~~~[0m
+[96msrc/pages/player.astro[0m:[93m727[0m:[93m27[0m - [93mwarning[0m[90m ts(2570): [0mCould not find name 'danmakuApiUrl'. Did you mean 'DANMAKU_API_URL'?
+
+[7m727[0m     var DANMAKU_API_URL = danmakuApiUrl;
+[7m   [0m [93m                          ~~~~~~~~~~~~~[0m
+[96msrc/pages/player.astro[0m:[93m677[0m:[93m9[0m - [93mwarning[0m[90m ts(6133): [0m'danmakuSendBtn' is declared but its value is never read.
+
+[7m677[0m     var danmakuSendBtn = document.getElementById('danmakuSendBtn');
+[7m   [0m [93m        ~~~~~~~~~~~~~~[0m
+
+[96msrc/pages/search.astro[0m:[93m38[0m:[93m9[0m - [93mwarning[0m[90m astro(4000): [0mThis script will be treated as if it has the `is:inline` directive because it contains an attribute. Therefore, features that require processing (e.g. using TypeScript or npm packages in the script) are unavailable.
+
+See docs for more details: https://docs.astro.build/en/guides/client-side-scripts/#script-processing.
+
+Add the `is:inline` directive explicitly to silence this hint.
+
+[7m38[0m <script id="__SEARCH_DATA" type="application/json" set:html={jsonData}></script>
+[7m  [0m [93m        ~~[0m
+
+Result (45 files): 
+- 0 errors
+- 0 warnings
+- 41 hints
+
+[astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
+[2m02:45:44[22m [34m[content][39m Syncing content
+[2m02:45:44[22m [34m[content][39m Synced content
+[2m02:45:44[22m [34m[types][39m Generated [2m476ms[22m
+[2m02:45:44[22m [34m[build][39m output: [34m"static"[39m
+[2m02:45:44[22m [34m[build][39m mode: [34m"static"[39m
+[2m02:45:44[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m02:45:44[22m [34m[build][39m Collecting build info...
+[2m02:45:44[22m [34m[build][39m [32m✓ Completed in 497ms.[39m
+[2m02:45:44[22m [34m[build][39m Building static entrypoints...
+[2m02:45:47[22m [34m[vite][39m [32m✓ built in 2.31s[39m
+[2m02:45:47[22m [34m[vite][39m [32m✓ built in 532ms[39m
+[2m02:45:47[22m [34m[build][39m Rearranging server assets...
+
+[42m[30m generating static routes [39m[49m
+[2m02:45:47[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+14ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+5ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+8ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+174ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+2ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/rss.xml[22m [2m(+24ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/search/index.html[22m [2m(+4ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+3ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+3ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m02:45:47[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
+[2m02:45:47[22m [32m✓ Completed in 303ms.
+[39m
+[42m[30m generating optimized images [39m[49m
+[2m02:45:47[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+74ms)[22m [2m(1/4)[22m
+[2m02:45:47[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+75ms)[22m [2m(2/4)[22m
+[2m02:45:47[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+79ms)[22m [2m(3/4)[22m
+[2m02:45:48[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+343ms)[22m [2m(4/4)[22m
+[2m02:45:48[22m [32m✓ Completed in 344ms.
+[39m
+[2m02:45:48[22m [34m[build][39m [32m✓ Completed in 3.54s.[39m
+[2m02:45:48[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m02:45:48[22m [34m[build][39m 23 page(s) built in [1m4.05s[22m
+[2m02:45:48[22m [34m[build][39m [1mComplete![22m
+
+> lidure-github-io@0.0.1 test:site
+> node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
+
+✔ BaseLayout exposes standard and immersive page modes (1.420226ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (1.102977ms)
+✔ standard banner keeps B3 desktop and mobile heights (0.389475ms)
+✔ standard banner stays readable when the background is disabled (0.341845ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.31153ms)
+✖ shared shell mounts navigation and floating controls for both modes (1.71432ms)
+✖ immersive hide state uses current shell selectors (1.568965ms)
+✖ homepage exposes left, main, and right regions (0.396556ms)
+✖ guestbook uses a wide two-column desktop shell (2.476264ms)
+✖ built immersive page keeps core controls without standard chrome (1.581223ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (2.089102ms)
+✔ base layout installs the background loop guard (0.403616ms)
+✔ player search tolerates imported songs without precomputed searchText (1.408919ms)
+✔ local imports keep active search and tag filters (0.382154ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.334465ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.925256ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.538706ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.468653ms)
+✔ optimized identity assets are used and remain small (0.971754ms)
+✔ rendered background configuration starts with a static image (0.849434ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.360878ms)
+✔ moments page exposes the API hook and local controls (1.37624ms)
+✔ moments publishing UI accepts videos and requires selectable posters (1.487585ms)
+✔ moments video poster generation ignores stale async captures (0.900249ms)
+✔ moments browser code uses the session API client for management (1.231727ms)
+✔ moment delete controls follow the authenticated session (0.62332ms)
+✔ guestbook exposes authenticated message deletion controls (0.343256ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.686894ms)
+✔ moments api preserves distinct 401 auth worker codes (0.245271ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.475472ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.671081ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.276929ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.17596ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.343483ms)
+✔ online playlist imports resolve audio URLs on demand (0.761644ms)
+✔ online playlist imports use a unified Meting-compatible adapter (0.972605ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.14209ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.436604ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.477615ms)
+✔ background videos reload before retrying playback after ended (0.413751ms)
+✔ moments single-item query aliases the legacy images column (0.166245ms)
+ℹ tests 41
+ℹ suites 0
+ℹ pass 36
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 167.543696
+
+✖ failing tests:
+
+test at tests/firefly-ui-refresh.test.mjs:50:1
+✖ shared shell mounts navigation and floating controls for both modes (1.71432ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /<FloatingControls\s*\/?>/. Input:
+  
+  '---\n' +
+    'interface Props {\n' +
+    '  title?: string;\n' +
+    '  description?: string;\n' +
+    '  showTime?: boolean;\n' +
+    "  layoutMode?: 'standard' | 'immersive';\n" +
+    '  bannerTitle?: string;\n' +
+    '  bannerSubtitle?: string;\n' +
+    '}\n' +
+    '\n' +
+    "const normalizedPath = Astro.url.pathname.replace(/\\/+$/, '');\n" +
+    "const defaultLayoutMode: 'standard' | 'immersive' =\n" +
+    "  normalizedPath === '/player' ? 'immersive' : 'standard';\n" +
+    '\n' +
+    'const {\n' +
+    "  title = '搁浅 的小窝',\n" +
+    "  description = '一个使用 Astro 和 GitHub Pages 搭建的个人博客。',\n" +
+    '  showTime = false,\n' +
+    '  layoutMode = defaultLayoutMode,\n' +
+    '  bannerTitle,\n' +
+    '  bannerSubtitle,\n' +
+    '} = Astro.props;\n' +
+    '\n' +
+    "const isStandard = layoutMode === 'standard';\n" +
+    "const resolvedBannerTitle = bannerTitle ?? title.split('|')[0].trim();\n" +
+    'const resolvedBannerSubtitle = bannerSubtitle ?? description;\n' +
+    '\n' +
+    "import '../styles/global.css';\n" +
+    "import '../styles/firefly-refresh.css';\n" +
+    "import ClockDisplay from '../components/ClockDisplay.astro';\n" +
+    "import BlogBanner from '../components/BlogBanner.astro';\n" +
+    "import SiteHeader from '../components/SiteHeader.astro';\n" +
+    "import { ClientRouter } from 'astro:transitions';\n" +
+    "import SekaiPlayer from '../components/SekaiPlayer.astro';\n" +
+    "import HeroSlideshow from '../components/HeroSlideshow.astro';\n" +
+    "import SekaiParticles from '../components/SekaiParticles.astro';\n" +
+    '\n' +
+    "const siteBase = Astro.site ?? new URL('https://lidure.xyz');\n" +
+    'const canonicalUrl = new URL(Astro.url.pathname, siteBase);\n' +
+    "const socialImageUrl = new URL('/site-icon-512.png', siteBase);\n" +
+    '---\n' +
+    '<!doctype html>\n' +
+    '<html lang="zh-CN">\n' +
+    '  <head>\n' +
+    '    <meta charset="utf-8" />\n' +
+    '    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n' +
+    '    <meta name="referrer" content="same-origin" />\n' +
+    '    <meta name="description" content={description} />\n' +
+    '    <meta name="generator" content={Astro.generator} />\n' +
+    '    <link rel="canonical" href={canonicalUrl} />\n' +
+    '    <meta property="og:type" content="website" />\n' +
+    '    <meta property="og:title" content={title} />\n' +
+    '    <meta property="og:description" content={description} />\n' +
+    '    <meta property="og:url" content={canonicalUrl} />\n' +
+    '    <meta property="og:image" content={socialImageUrl} />\n' +
+    '    <title>{title}</title>\n' +
+    '    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />\n' +
+    '    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />\n' +
+    '    <link rel="preconnect" href="https://fonts.googleapis.com" />\n' +
+    '    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n' +
+    '    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" />\n' +
+    `    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />\n` +
+    '    <noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" /></noscript>\n' +
+    '    <ClientRouter />\n' +
+    '    <script is:inline>\n' +
+    '    (function() {\n' +
+    "      var theme = 'dark';\n" +
+    "      try { theme = localStorage.getItem('theme') || 'dark'; } catch(e) {}\n" +
+    "      document.documentElement.setAttribute('data-theme', theme);\n" +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      try {\n' +
+    "        var s = localStorage.getItem('hero_settings');\n" +
+    '        if (s && JSON.parse(s).enabled === false) {\n' +
+    "          document.documentElement.classList.add('no-hero-bg');\n" +
+    '        }\n' +
+    '      } catch(e) {}\n' +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      if (window.__pageMediaSwapCleanupBound) return;\n' +
+    '      window.__pageMediaSwapCleanupBound = true;\n' +
+    '\n' +
+    "      var pageMediaSelector = 'video[data-page-media], audio[data-page-media]';\n" +
+    '\n' +
+    "      document.addEventListener('astro:before-swap', function() {\n" +
+    '        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n' +
+    "          if (media.matches(':not([data-persistent-media])') === false) return;\n" +
+    '          try { media.pause(); } catch(e) {}\n' +
+    "          media.removeAttribute('src');\n" +
+    "          media.querySelectorAll('source').forEach(function(source) {\n" +
+    "            source.removeAttribute('src');\n" +
+    '          });\n' +
+    '          try { media.load(); } catch(e) {}\n' +
+    '        });\n' +
+    '      });\n' +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      if (window.__busuanziLifecycleBound) return;\n' +
+    '      window.__busuanziLifecycleBound = true;\n' +
+    "      var busuanziRequestUrl = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback';\n" +
+    '\n' +
+    '      function applyBusuanzi(data) {\n' +
+    '        var values = data || {};\n' +
+    "        var pv = document.getElementById('busuanzi_value_site_pv');\n" +
+    "        var uv = document.getElementById('busuanzi_value_site_uv');\n" +
+    '        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n' +
+    '        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n' +
+    '      }\n' +
+    '\n' +
+    '      function refreshBusuanzi() {\n' +
+    "        if (!document.getElementById('busuanzi_value_site_pv')) return;\n" +
+    "        if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {\n" +
+    '          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n' +
+    '          return;\n' +
+    '        }\n' +
+    "        var script = document.getElementById('busuanzi-counter-script');\n" +
+    '        if (!script) {\n' +
+    "          script = document.createElement('script');\n" +
+    "          script.id = 'busuanzi-counter-script';\n" +
+    '          script.async = true;\n' +
+    "          script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';\n" +
+    '          document.head.appendChild(script);\n' +
+    '        }\n' +
+    "        script.addEventListener('load', refreshBusuanzi, { once: true });\n" +
+    '      }\n' +
+    "      document.addEventListener('astro:page-load', refreshBusuanzi);\n" +
+    '      refreshBusuanzi();\n' +
+    '    })();\n' +
+    '    </script>\n' +
+    '    <script>\n' +
+    "      import { installHeroVideoLoopGuard } from '../lib/hero-video-loop-guard.mjs';\n" +
+    '      installHeroVideoLoopGuard();\n' +
+    '    </script>\n' +
+    '  </head>\n' +
+    '  <body class={`layout-${layoutMode}`}>\n' +
+    '    <HeroSlideshow />\n' +
+    '    <SekaiParticles />\n' +
+    '    <SekaiPlayer />\n' +
+    '\n' +
+    '    {isStandard ? (\n' +
+    '      <>\n' +
+    '        <SiteHeader currentPath={Astro.url.pathname} />\n' +
+    '        <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />\n' +
+    '        <div class="standard-page-surface">\n' +
+    '          <main class="content-area standard-content">\n' +
+    '            {showTime && <div class="clock-row"><ClockDisplay /></div>}\n' +
+    '            <slot />\n' +
+    '          </main>\n' +
+    '          <footer class="footer">\n' +
+    '            <div class="footer-inner">\n' +
+    '              <p>Built with Astro and GitHub Pages.</p>\n' +
+    '            </div>\n' +
+    '          </footer>\n' +
+    '        </div>\n' +
+    '      </>\n' +
+    '    ) : (\n' +
+    '      <main class="immersive-content"><slot /></main>\n' +
+    '    )}\n' +
+    '  </body>\n' +
+    '</html>\n'
+  
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:53:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '---\ninterface Props {\n  title?: string;\n  description?: string;\n  showTime?: boolean;\n  layoutMode?: \'standard\' | \'immersive\';\n  bannerTitle?: string;\n  bannerSubtitle?: string;\n}\n\nconst normalizedPath = Astro.url.pathname.replace(/\\/+$/, \'\');\nconst defaultLayoutMode: \'standard\' | \'immersive\' =\n  normalizedPath === \'/player\' ? \'immersive\' : \'standard\';\n\nconst {\n  title = \'搁浅 的小窝\',\n  description = \'一个使用 Astro 和 GitHub Pages 搭建的个人博客。\',\n  showTime = false,\n  layoutMode = defaultLayoutMode,\n  bannerTitle,\n  bannerSubtitle,\n} = Astro.props;\n\nconst isStandard = layoutMode === \'standard\';\nconst resolvedBannerTitle = bannerTitle ?? title.split(\'|\')[0].trim();\nconst resolvedBannerSubtitle = bannerSubtitle ?? description;\n\nimport \'../styles/global.css\';\nimport \'../styles/firefly-refresh.css\';\nimport ClockDisplay from \'../components/ClockDisplay.astro\';\nimport BlogBanner from \'../components/BlogBanner.astro\';\nimport SiteHeader from \'../components/SiteHeader.astro\';\nimport { ClientRouter } from \'astro:transitions\';\nimport SekaiPlayer from \'../components/SekaiPlayer.astro\';\nimport HeroSlideshow from \'../components/HeroSlideshow.astro\';\nimport SekaiParticles from \'../components/SekaiParticles.astro\';\n\nconst siteBase = Astro.site ?? new URL(\'https://lidure.xyz\');\nconst canonicalUrl = new URL(Astro.url.pathname, siteBase);\nconst socialImageUrl = new URL(\'/site-icon-512.png\', siteBase);\n---\n<!doctype html>\n<html lang="zh-CN">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n    <meta name="referrer" content="same-origin" />\n    <meta name="description" content={description} />\n    <meta name="generator" content={Astro.generator} />\n    <link rel="canonical" href={canonicalUrl} />\n    <meta property="og:type" content="website" />\n    <meta property="og:title" content={title} />\n    <meta property="og:description" content={description} />\n    <meta property="og:url" content={canonicalUrl} />\n    <meta property="og:image" content={socialImageUrl} />\n    <title>{title}</title>\n    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />\n    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />\n    <link rel="preconnect" href="https://fonts.googleapis.com" />\n    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\n    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" />\n    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'" />\n    <noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" /></noscript>\n    <ClientRouter />\n    <script is:inline>\n    (function() {\n      var theme = \'dark\';\n      try { theme = localStorage.getItem(\'theme\') || \'dark\'; } catch(e) {}\n      document.documentElement.setAttribute(\'data-theme\', theme);\n    })();\n    (function() {\n      try {\n        var s = localStorage.getItem(\'hero_settings\');\n        if (s && JSON.parse(s).enabled === false) {\n          document.documentElement.classList.add(\'no-hero-bg\');\n        }\n      } catch(e) {}\n    })();\n    (function() {\n      if (window.__pageMediaSwapCleanupBound) return;\n      window.__pageMediaSwapCleanupBound = true;\n\n      var pageMediaSelector = \'video[data-page-media], audio[data-page-media]\';\n\n      document.addEventListener(\'astro:before-swap\', function() {\n        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n          if (media.matches(\':not([data-persistent-media])\') === false) return;\n          try { media.pause(); } catch(e) {}\n          media.removeAttribute(\'src\');\n          media.querySelectorAll(\'source\').forEach(function(source) {\n            source.removeAttribute(\'src\');\n          });\n          try { media.load(); } catch(e) {}\n        });\n      });\n    })();\n    (function() {\n      if (window.__busuanziLifecycleBound) return;\n      window.__busuanziLifecycleBound = true;\n      var busuanziRequestUrl = \'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback\';\n\n      function applyBusuanzi(data) {\n        var values = data || {};\n        var pv = document.getElementById(\'busuanzi_value_site_pv\');\n        var uv = document.getElementById(\'busuanzi_value_site_uv\');\n        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n      }\n\n      function refreshBusuanzi() {\n        if (!document.getElementById(\'busuanzi_value_site_pv\')) return;\n        if (window.bszCaller && typeof window.bszCaller.fetch === \'function\') {\n          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n          return;\n        }\n        var script = document.getElementById(\'busuanzi-counter-script\');\n        if (!script) {\n          script = document.createElement(\'script\');\n          script.id = \'busuanzi-counter-script\';\n          script.async = true;\n          script.src = \'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js\';\n          document.head.appendChild(script);\n        }\n        script.addEventListener(\'load\', refreshBusuanzi, { once: true });\n      }\n      document.addEventListener(\'astro:page-load\', refreshBusuanzi);\n      refreshBusuanzi();\n    })();\n    </script>\n    <script>\n      import { installHeroVideoLoopGuard } from \'../lib/hero-video-loop-guard.mjs\';\n      installHeroVideoLoopGuard();\n    </script>\n  </head>\n  <body class={`layout-${layoutMode}`}>\n    <HeroSlideshow />\n    <SekaiParticles />\n    <SekaiPlayer />\n\n    {isStandard ? (\n      <>\n        <SiteHeader currentPath={Astro.url.pathname} />\n        <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />\n        <div class="standard-page-surface">\n          <main class="content-area standard-content">\n            {showTime && <div class="clock-row"><ClockDisplay /></div>}\n            <slot />\n          </main>\n          <footer class="footer">\n            <div class="footer-inner">\n              <p>Built with Astro and GitHub Pages.</p>\n            </div>\n          </footer>\n        </div>\n      </>\n    ) : (\n      <main class="immersive-content"><slot /></main>\n    )}\n  </body>\n</html>\n',
+    expected: /<FloatingControls\s*\/?>/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/firefly-ui-refresh.test.mjs:57:1
+✖ immersive hide state uses current shell selectors (1.568965ms)
+  AssertionError [ERR_ASSERTION]: The input was expected to not match the regular expression /querySelector\(['"]\.topbar['"]\)/. Input:
+  
+  '---\n' +
+    "import BaseLayout from '../layouts/BaseLayout.astro';\n" +
+    "const defaultApiBase = 'https://api.lidure22.xyz/api';\n" +
+    "const apiBase = (import.meta.env.PUBLIC_MOMENTS_API || defaultApiBase).replace(/\\/$/, '');\n" +
+    'const danmakuApiUrl = `${apiBase}/danmaku`;\n' +
+    '---\n' +
+    '<BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">\n' +
+    '  <div class="player-hint" id="playerHint">\n' +
+    '    <div class="player-hint-content">\n' +
+    '      <div class="player-hint-icon">\n' +
+    '        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjHintGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjHintGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n' +
+    '      </div>\n' +
+    '      <div class="player-hint-text">\n' +
+    '        <span class="player-hint-title">点击右下角唱片</span>\n' +
+    '        <span class="player-hint-sub">听 PJSK 的歌，发弹幕</span>\n' +
+    '      </div>\n' +
+    '      <div class="player-hint-arrow">\n' +
+    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>\n' +
+    '      </div>\n' +
+    '    </div>\n' +
+    '  </div>\n' +
+    '  <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>\n' +
+    '  <div class="immersive-spacer" aria-hidden="true"></div>\n' +
+    '  <div class="immersive-cover" id="immersiveCover">\n' +
+    '    <img id="immersiveCoverImg" src="" alt="" style="display:none" />\n' +
+    '    <div class="immersive-cover-fallback">\n' +
+    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>\n' +
+    '    </div>\n' +
+    '  </div>\n' +
+    '  <div class="danmaku-stage" id="danmakuStage" aria-hidden="true"></div>\n' +
+    '\n' +
+    '  <div class="immersive-controls" id="immersiveControls">\n' +
+    '    <button id="immersiveToggleUI" class="immersive-ctrl-btn" title="隐藏界面" aria-label="隐藏界面">\n' +
+    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>\n' +
+    '    </button>\n' +
+    '    <button id="danmakuToggleBtn" class="immersive-ctrl-btn active" title="弹幕" aria-label="弹幕" aria-pressed="true">\n' +
+    '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>\n' +
+    '    </button>\n' +
+    '    <div class="immersive-viz-switcher" id="immersiveVizSwitcher">\n' +
+    '      <button class="immersive-viz-mode active" data-mode="circle" title="圆形频谱">\n' +
+    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n' +
+    '      </button>\n' +
+    '      <button class="immersive-viz-mode" data-mode="bars" title="频谱柱">\n' +
+    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10" y="8" width="3" height="12" rx="1"/><rect x="16" y="4" width="3" height="16" rx="1"/></svg>\n' +
+    '      </button>\n' +
+    '      <button class="immersive-viz-mode" data-mode="wave" title="波形">\n' +
+    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 12c1-3 3-5 5-5s4 4 5 4 3-4 5-4 4 2 5 5"/></svg>\n' +
+    '      </button>\n' +
+    '      <button class="immersive-viz-mode" data-mode="spectrum" title="频谱分析仪">\n' +
+    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="14" width="2" height="6" rx="1"/><rect x="7" y="10" width="2" height="10" rx="1"/><rect x="11" y="6" width="2" height="14" rx="1"/><rect x="15" y="2" width="2" height="18" rx="1"/><rect x="19" y="8" width="2" height="12" rx="1"/></svg>\n' +
+    '      </button>\n' +
+    '    </div>\n' +
+    '  </div>\n' +
+    '  <form class="danmaku-composer" id="danmakuComposer" autocomplete="off">\n' +
+    '    <div class="danmaku-composer-inner">\n' +
+    '      <svg class="danmaku-composer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>\n' +
+    '      <input id="danmakuInput" type="text" maxlength="60" placeholder="说点什么吧..." aria-label="发送弹幕" />\n' +
+    '      <span class="danmaku-counter" id="danmakuCounter">0/60</span>\n' +
+    '      <button type="submit" aria-label="发送" id="danmakuSendBtn">\n' +
+    '        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>\n' +
+    '      </button>\n' +
+    '    </div>\n' +
+    '    <div class="danmaku-colors" id="danmakuColors">\n' +
+    '      <button type="button" class="danmaku-color-dot active" data-color="" style="background:#fff" title="默认白"></button>\n' +
+    '      <button type="button" class="danmaku-color-dot" data-color="#FF5252" style="background:#FF5252" title="红"></button>\n' +
+    '      <button type="button" class="danmaku-color-dot" data-color="#448AFF" style="background:#448AFF" title="蓝"></button>\n' +
+    '      <button type="button" class="danmaku-color-dot" data-color="#69F0AE" style="background:#69F0AE" title="绿"></button>\n' +
+    '      <button type="button" class="danmaku-color-dot" data-color="#FFD740" style="background:#FFD740" title="黄"></button>\n' +
+    '      <button type="button" class="danmaku-color-dot" data-color="#FF80AB" style="background:#FF80AB" title="粉"></button>\n' +
+    '      <button type="button" class="danmaku-color-dot" data-color="#B388FF" style="background:#B388FF" title="紫"></button>\n' +
+    '      <button type="button" class="danmaku-color-dot" data-color="#FFAB40" style="background:#FFAB40" title="橙"></button>\n' +
+    '    </div>\n' +
+    '    <div class="danmaku-send-flash" id="danmakuSendFlash"></div>\n' +
+    '  </form>\n' +
+    '  <div class="danmaku-total-count" id="danmakuTotalCount"></div>\n' +
+    '\n' +
+    '  <style>\n' +
+    '    /* Canvas full viewport */\n' +
+    '    .immersive-viz-canvas {\n' +
+    '      position: fixed;\n' +
+    '      inset: 0;\n' +
+    '      width: 100vw;\n' +
+    '      height: var(--immersive-stable-height, 100vh);\n' +
+    '      pointer-events: none;\n' +
+    '      z-index: 0;\n' +
+    '    }\n' +
+    '\n' +
+    '    .immersive-spacer {\n' +
+    '      min-height: var(--immersive-stable-height, 100vh);\n' +
+    '      pointer-events: none;\n' +
+    '    }\n' +
+    '\n' +
+    '    /* Cover centered */\n' +
+    '    .immersive-cover {\n' +
+    '      position: fixed;\n' +
+    '      top: calc(var(--immersive-stable-height, 100vh) / 2);\n' +
+    '      left: 50%;\n' +
+    '      transform: translate(-50%, -50%);\n' +
+    '      z-index: 1;\n' +
+    '      width: 200px;\n' +
+    '      height: 200px;\n' +
+    '      border-radius: 50%;\n' +
+    '      overflow: hidden;\n' +
+    '      background: rgba(26, 20, 48, 0.5);\n' +
+    '      border: 2px solid rgba(255, 255, 255, 0.1);\n' +
+    '      display: flex;\n' +
+    '      align-items: center;\n' +
+    '      justify-content: center;\n' +
+    '      transition: opacity 0.4s;\n' +
+    '    }\n' +
+    '    .immersive-cover img { width: 100%; height: 100%; object-fit: cover; }\n' +
+    '    .immersive-cover.spinning img { animation: cover-spin 8s linear infinite; }\n' +
+    '    @keyframes cover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\n' +
+    '    .immersive-cover-fallback { color: var(--accent); opacity: 0.3; }\n' +
+    '    .immersive-cover-fallback svg { width: 64px; height: 64px; }\n' +
+    '    .danmaku-stage {\n' +
+    '      position: fixed;\n' +
+    '      inset: 72px 0 96px;\n' +
+    '      z-index: 2;\n' +
+    '      pointer-events: none;\n' +
+    '      overflow: hidden;\n' +
+    '      opacity: 1;\n' +
+    '      transition: opacity 0.3s ease;\n' +
+    '    }\n' +
+    '    .danmaku-stage.is-off {\n' +
+    '      opacity: 0;\n' +
+    '    }\n' +
+    '    .danmaku-composer {\n' +
+    '      position: fixed;\n' +
+    '      left: 50%;\n' +
+    '      bottom: calc(24px + env(safe-area-inset-bottom, 0px));\n' +
+    '      z-index: 99998;\n' +
+    '      width: min(480px, calc(100vw - 200px));\n' +
+    '      transform: translateX(-50%);\n' +
+    '      transition: opacity 0.3s ease, transform 0.3s ease;\n' +
+    '    }\n' +
+    '    [data-theme="light"] .danmaku-composer {\n' +
+    '      filter: none;\n' +
+    '    }\n' +
+    '    .danmaku-composer.is-hidden {\n' +
+    '      opacity: 0;\n' +
+    '      pointer-events: none;\n' +
+    '      transform: translateX(-50%) translateY(12px);\n' +
+    '    }\n' +
+    '    .danmaku-composer-inner {\n' +
+    '      display: flex;\n' +
+    '      align-items: center;\n' +
+    '      gap: 6px;\n' +
+    '      padding: 6px 6px 6px 14px;\n' +
+    '      border-radius: 999px;\n' +
+    '      border: 1px solid rgba(255,255,255,0.12);\n' +
+    '      background: rgba(12, 10, 28, 0.55);\n' +
+    '      backdrop-filter: blur(24px) saturate(1.4);\n' +
+    '      -webkit-backdrop-filter: blur(24px) saturate(1.4);\n' +
+    '      box-shadow:\n' +
+    '        0 2px 16px rgba(0,0,0,0.25),\n' +
+    '        0 0 0 0 rgba(var(--accent-rgb), 0),\n' +
+    '        inset 0 1px 0 rgba(255,255,255,0.06);\n' +
+    '      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;\n' +
+    '      position: relative;\n' +
+    '      overflow: hidden;\n' +
+    '    }\n' +
+    '    .danmaku-composer-inner::before {\n' +
+    "      content: '';\n" +
+    '      position: absolute;\n' +
+    '      inset: -1px;\n' +
+    '      border-radius: inherit;\n' +
+    '      padding: 1px;\n' +
+    '      background: linear-gradient(135deg, rgba(var(--accent-rgb),0), rgba(var(--accent-rgb),0));\n' +
+    '      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);\n' +
+    '      -webkit-mask-composite: xor;\n' +
+    '      mask-composite: exclude;\n' +
+    '      pointer-events: none;\n' +
+    '      transition: background 0.4s;\n' +
+    '    }\n' +
+    '    .danmaku-composer-inner:focus-within {\n' +
+    '      border-color: rgba(var(--accent-rgb), 0.35);\n' +
+    '      box-shadow:\n' +
+    '        0 4px 24px rgba(0,0,0,0.3),\n' +
+    '        0 0 20px rgba(var(--accent-rgb), 0.12),\n' +
+    '        inset 0 1px 0 rgba(255,255,255,0.08);\n' +
+    '      background: rgba(12, 10, 28, 0.7);\n' +
+    '    }\n' +
+    '    .danmaku-composer-inner:focus-within::before {\n' +
+    '      background: linear-gradient(135deg, rgba(var(--accent-rgb),0.4), rgba(var(--accent-3-rgb, var(--accent-rgb)),0.2), rgba(var(--accent-rgb),0.1));\n' +
+    '    }\n' +
+    '    [data-theme="light"] .danmaku-composer-inner {\n' +
+    '      border-color: rgba(200,80,150,0.14);\n' +
+    '      background: rgba(255,255,255,0.55);\n' +
+    '      box-shadow: 0 2px 16px rgba(0,0,0,0.08);\n' +
+    '    }\n' +
+    '    [data-theme="light"] .danmaku-composer-inner:focus-within {\n' +
+    '      ba'... 59154 more characters
+  
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:59:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '---\nimport BaseLayout from \'../layouts/BaseLayout.astro\';\nconst defaultApiBase = \'https://api.lidure22.xyz/api\';\nconst apiBase = (import.meta.env.PUBLIC_MOMENTS_API || defaultApiBase).replace(/\\/$/, \'\');\nconst danmakuApiUrl = `${apiBase}/danmaku`;\n---\n<BaseLayout title="沉浸空间 | 搁浅 的小窝" description="沉浸式音乐与视觉体验。">\n  <div class="player-hint" id="playerHint">\n    <div class="player-hint-content">\n      <div class="player-hint-icon">\n        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjHintGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjHintGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n      </div>\n      <div class="player-hint-text">\n        <span class="player-hint-title">点击右下角唱片</span>\n        <span class="player-hint-sub">听 PJSK 的歌，发弹幕</span>\n      </div>\n      <div class="player-hint-arrow">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>\n      </div>\n    </div>\n  </div>\n  <canvas id="immersiveVizCanvas" class="immersive-viz-canvas" aria-hidden="true"></canvas>\n  <div class="immersive-spacer" aria-hidden="true"></div>\n  <div class="immersive-cover" id="immersiveCover">\n    <img id="immersiveCoverImg" src="" alt="" style="display:none" />\n    <div class="immersive-cover-fallback">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>\n    </div>\n  </div>\n  <div class="danmaku-stage" id="danmakuStage" aria-hidden="true"></div>\n\n  <div class="immersive-controls" id="immersiveControls">\n    <button id="immersiveToggleUI" class="immersive-ctrl-btn" title="隐藏界面" aria-label="隐藏界面">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>\n    </button>\n    <button id="danmakuToggleBtn" class="immersive-ctrl-btn active" title="弹幕" aria-label="弹幕" aria-pressed="true">\n      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/></svg>\n    </button>\n    <div class="immersive-viz-switcher" id="immersiveVizSwitcher">\n      <button class="immersive-viz-mode active" data-mode="circle" title="圆形频谱">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="bars" title="频谱柱">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10" y="8" width="3" height="12" rx="1"/><rect x="16" y="4" width="3" height="16" rx="1"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="wave" title="波形">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M2 12c1-3 3-5 5-5s4 4 5 4 3-4 5-4 4 2 5 5"/></svg>\n      </button>\n      <button class="immersive-viz-mode" data-mode="spectrum" title="频谱分析仪">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><rect x="3" y="14" width="2" height="6" rx="1"/><rect x="7" y="10" width="2" height="10" rx="1"/><rect x="11" y="6" width="2" height="14" rx="1"/><rect x="15" y="2" width="2" height="18" rx="1"/><rect x="19" y="8" width="2" height="12" rx="1"/></svg>\n      </button>\n    </div>\n  </div>\n  <form class="danmaku-composer" id="danmakuComposer" autocomplete="off">\n    <div class="danmaku-composer-inner">\n      <svg class="danmaku-composer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>\n      <input id="danmakuInput" type="text" maxlength="60" placeholder="说点什么吧..." aria-label="发送弹幕" />\n      <span class="danmaku-counter" id="danmakuCounter">0/60</span>\n      <button type="submit" aria-label="发送" id="danmakuSendBtn">\n        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>\n      </button>\n    </div>\n    <div class="danmaku-colors" id="danmakuColors">\n      <button type="button" class="danmaku-color-dot active" data-color="" style="background:#fff" title="默认白"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FF5252" style="background:#FF5252" title="红"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#448AFF" style="background:#448AFF" title="蓝"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#69F0AE" style="background:#69F0AE" title="绿"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FFD740" style="background:#FFD740" title="黄"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FF80AB" style="background:#FF80AB" title="粉"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#B388FF" style="background:#B388FF" title="紫"></button>\n      <button type="button" class="danmaku-color-dot" data-color="#FFAB40" style="background:#FFAB40" title="橙"></button>\n    </div>\n    <div class="danmaku-send-flash" id="danmakuSendFlash"></div>\n  </form>\n  <div class="danmaku-total-count" id="danmakuTotalCount"></div>\n\n  <style>\n    /* Canvas full viewport */\n    .immersive-viz-canvas {\n      position: fixed;\n      inset: 0;\n      width: 100vw;\n      height: var(--immersive-stable-height, 100vh);\n      pointer-events: none;\n      z-index: 0;\n    }\n\n    .immersive-spacer {\n      min-height: var(--immersive-stable-height, 100vh);\n      pointer-events: none;\n    }\n\n    /* Cover centered */\n    .immersive-cover {\n      position: fixed;\n      top: calc(var(--immersive-stable-height, 100vh) / 2);\n      left: 50%;\n      transform: translate(-50%, -50%);\n      z-index: 1;\n      width: 200px;\n      height: 200px;\n      border-radius: 50%;\n      overflow: hidden;\n      background: rgba(26, 20, 48, 0.5);\n      border: 2px solid rgba(255, 255, 255, 0.1);\n      display: flex;\n      align-items: center;\n      justify-content: center;\n      transition: opacity 0.4s;\n    }\n    .immersive-cover img { width: 100%; height: 100%; object-fit: cover; }\n    .immersive-cover.spinning img { animation: cover-spin 8s linear infinite; }\n    @keyframes cover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }\n    .immersive-cover-fallback { color: var(--accent); opacity: 0.3; }\n    .immersive-cover-fallback svg { width: 64px; height: 64px; }\n    .danmaku-stage {\n      position: fixed;\n      inset: 72px 0 96px;\n      z-index: 2;\n      pointer-events: none;\n      overflow: hidden;\n      opacity: 1;\n      transition: opacity 0.3s ease;\n    }\n    .danmaku-stage.is-off {\n      opacity: 0;\n    }\n    .danmaku-composer {\n      position: fixed;\n      left: 50%;\n      bottom: calc(24px + env(safe-area-inset-bottom, 0px));\n      z-index: 99998;\n      width: min(480px, calc(100vw - 200px));\n      transform: translateX(-50%);\n      transition: opacity 0.3s ease, transform 0.3s ease;\n    }\n    [data-theme="light"] .danmaku-composer {\n      filter: none;\n    }\n    .danmaku-composer.is-hidden {\n      opacity: 0;\n      pointer-events: none;\n      transform: translateX(-50%) translateY(12px);\n    }\n    .danmaku-composer-inner {\n      display: flex;\n      align-items: center;\n      gap: 6px;\n      padding: 6px 6px 6px 14px;\n      border-radius: 999px;\n      border: 1px solid rgba(255,255,255,0.12);\n      background: rgba(12, 10, 28, 0.55);\n      backdrop-filter: blur(24px) saturate(1.4);\n      -webkit-backdrop-filter: blur(24px) saturate(1.4);\n      box-shadow:\n        0 2px 16px rgba(0,0,0,0.25),\n        0 0 0 0 rgba(var(--accent-rgb), 0),\n        inset 0 1px 0 rgba(255,255,255,0.06);\n      transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;\n      position: relative;\n      overflow: hidden;\n    }\n    .danmaku-composer-inner::before {\n      content: \'\';\n      position: absolute;\n      inset: -1px;\n      border-radius: inherit;\n      padding: 1px;\n      background: linear-gradient(135deg, rgba(var(--accent-rgb),0), rgba(var(--accent-rgb),0));\n      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);\n      -webkit-mask-composite: xor;\n      mask-composite: exclude;\n      pointer-events: none;\n      transition: background 0.4s;\n    }\n    .danmaku-composer-inner:focus-within {\n      border-color: rgba(var(--accent-rgb), 0.35);\n      box-shadow:\n        0 4px 24px rgba(0,0,0,0.3),\n        0 0 20px rgba(var(--accent-rgb), 0.12),\n        inset 0 1px 0 rgba(255,255,255,0.08);\n      background: rgba(12, 10, 28, 0.7);\n    }\n    .danmaku-composer-inner:focus-within::before {\n      background: linear-gradient(135deg, rgba(var(--accent-rgb),0.4), rgba(var(--accent-3-rgb, var(--accent-rgb)),0.2), rgba(var(--accent-rgb),0.1));\n    }\n    [data-theme="light"] .danmaku-composer-inner {\n      border-color: rgba(200,80,150,0.14);\n      background: rgba(255,255,255,0.55);\n      box-shadow: 0 2px 16px rgba(0,0,0,0.08);\n    }\n    [data-theme="light"] .danmaku-composer-inner:focus-within {\n      ba'... 59154 more characters,
+    expected: /querySelector\(['"]\.topbar['"]\)/,
+    operator: 'doesNotMatch',
+    diff: 'simple'
+  }
+
+test at tests/firefly-ui-refresh.test.mjs:64:1
+✖ homepage exposes left, main, and right regions (0.396556ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /HomeLeftSidebar/. Input:
+  
+  '---\n' +
+    "import { getCollection } from 'astro:content';\n" +
+    "import BaseLayout from '../layouts/BaseLayout.astro';\n" +
+    "import HomePostCard from '../components/HomePostCard.astro';\n" +
+    "import HomeProfileSidebar from '../components/HomeProfileSidebar.astro';\n" +
+    "import VisitorCounter from '../components/VisitorCounter.astro';\n" +
+    '\n' +
+    "const posts = (await getCollection('blog', ({ data }) => !data.draft))\n" +
+    '  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());\n' +
+    '\n' +
+    'const featuredPost = posts.find((post) => post.data.featured) ?? posts[0];\n' +
+    'const latestPosts = posts.slice(0, 5);\n' +
+    'const tagCount = new Set(posts.flatMap((post) => post.data.tags)).size;\n' +
+    'const featuredHref = featuredPost\n' +
+    "  ? `/posts/${featuredPost.id.replace(/\\.md$/, '')}`\n" +
+    "  : '/posts';\n" +
+    '---\n' +
+    '\n' +
+    '<BaseLayout\n' +
+    '  title="搁浅 的小窝"\n' +
+    '  description="一个充满二次元氛围的个人博客，记录游戏、音乐、项目与日常。"\n' +
+    '  bannerTitle="搁浅的小窝"\n' +
+    '  bannerSubtitle="把喜欢的东西，认真地收进小站里。"\n' +
+    '  showTime={true}\n' +
+    '>\n' +
+    '  <div class="home-layout">\n' +
+    '    <section class="home-main-column" aria-labelledby="latest-posts-title">\n' +
+    '      <header class="home-section-header">\n' +
+    '        <h2 id="latest-posts-title">最新文章</h2>\n' +
+    '        <a href="/posts">全部文章 →</a>\n' +
+    '      </header>\n' +
+    '      <div class="home-post-list">\n' +
+    '        {latestPosts.map((post) => <HomePostCard post={post} />)}\n' +
+    '      </div>\n' +
+    '    </section>\n' +
+    '\n' +
+    '    <HomeProfileSidebar\n' +
+    '      postCount={posts.length}\n' +
+    '      tagCount={tagCount}\n' +
+    '      featuredHref={featuredHref}\n' +
+    '    />\n' +
+    '  </div>\n' +
+    '\n' +
+    '  <div class="home-footer-stats">\n' +
+    '    <span class="sekai-note">🎶 NO SONG CAN SET ME FREE · project SEKAI</span>\n' +
+    '    <VisitorCounter />\n' +
+    '  </div>\n' +
+    '</BaseLayout>\n'
+  
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:66:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '---\nimport { getCollection } from \'astro:content\';\nimport BaseLayout from \'../layouts/BaseLayout.astro\';\nimport HomePostCard from \'../components/HomePostCard.astro\';\nimport HomeProfileSidebar from \'../components/HomeProfileSidebar.astro\';\nimport VisitorCounter from \'../components/VisitorCounter.astro\';\n\nconst posts = (await getCollection(\'blog\', ({ data }) => !data.draft))\n  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());\n\nconst featuredPost = posts.find((post) => post.data.featured) ?? posts[0];\nconst latestPosts = posts.slice(0, 5);\nconst tagCount = new Set(posts.flatMap((post) => post.data.tags)).size;\nconst featuredHref = featuredPost\n  ? `/posts/${featuredPost.id.replace(/\\.md$/, \'\')}`\n  : \'/posts\';\n---\n\n<BaseLayout\n  title="搁浅 的小窝"\n  description="一个充满二次元氛围的个人博客，记录游戏、音乐、项目与日常。"\n  bannerTitle="搁浅的小窝"\n  bannerSubtitle="把喜欢的东西，认真地收进小站里。"\n  showTime={true}\n>\n  <div class="home-layout">\n    <section class="home-main-column" aria-labelledby="latest-posts-title">\n      <header class="home-section-header">\n        <h2 id="latest-posts-title">最新文章</h2>\n        <a href="/posts">全部文章 →</a>\n      </header>\n      <div class="home-post-list">\n        {latestPosts.map((post) => <HomePostCard post={post} />)}\n      </div>\n    </section>\n\n    <HomeProfileSidebar\n      postCount={posts.length}\n      tagCount={tagCount}\n      featuredHref={featuredHref}\n    />\n  </div>\n\n  <div class="home-footer-stats">\n    <span class="sekai-note">🎶 NO SONG CAN SET ME FREE · project SEKAI</span>\n    <VisitorCounter />\n  </div>\n</BaseLayout>\n',
+    expected: /HomeLeftSidebar/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/firefly-ui-refresh.test.mjs:72:1
+✖ guestbook uses a wide two-column desktop shell (2.476264ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /messages-layout/. Input:
+  
+  '---\n' +
+    "import BaseLayout from '../layouts/BaseLayout.astro';\n" +
+    '---\n' +
+    '\n' +
+    '<BaseLayout\n' +
+    '  title="留言板 | 搁浅 的小窝"\n' +
+    '  description="给博客留下想说的话。"\n' +
+    '  bannerTitle="留言板"\n' +
+    '  bannerSubtitle="路过也可以留下一句话。"\n' +
+    '>\n' +
+    '  <section class="messages-shell">\n' +
+    '    <p class="messages-intro">自设一个 ID 就能留言和评论，不需要密钥。</p>\n' +
+    '\n' +
+    '    <section class="message-admin" id="message-admin">\n' +
+    '      <div class="message-admin-row">\n' +
+    '        <span id="message-session-status">检查登录状态中...</span>\n' +
+    '        <button type="button" id="message-logout" hidden>退出登录</button>\n' +
+    '      </div>\n' +
+    '      <div id="message-login" hidden>\n' +
+    '        <input type="password" id="message-login-password" placeholder="管理员密码" autocomplete="current-password" />\n' +
+    '        <button type="button" id="message-login-submit">登录</button>\n' +
+    '      </div>\n' +
+    '    </section>\n' +
+    '\n' +
+    '    <form class="message-form" id="message-form">\n' +
+    '      <label>\n' +
+    '        <span>你的 ID</span>\n' +
+    '        <input type="text" name="userId" id="message-user-id" maxlength="32" placeholder="例如：路过的旅人" required />\n' +
+    '      </label>\n' +
+    '      <label>\n' +
+    '        <span>留言</span>\n' +
+    '        <textarea name="text" id="message-text" maxlength="800" rows="4" placeholder="写点什么..." required></textarea>\n' +
+    '      </label>\n' +
+    '      <div class="form-actions">\n' +
+    '        <p id="message-status" aria-live="polite"></p>\n' +
+    '        <button type="submit" id="message-submit">发送留言</button>\n' +
+    '      </div>\n' +
+    '    </form>\n' +
+    '\n' +
+    '    <div class="messages-list" id="messages-list">\n' +
+    '      <div class="message-loading">留言加载中...</div>\n' +
+    '    </div>\n' +
+    '  </section>\n' +
+    '</BaseLayout>\n' +
+    '\n' +
+    '<style is:global>\n' +
+    '  .messages-shell {\n' +
+    '    max-width: 760px;\n' +
+    '    margin: 0 auto;\n' +
+    '  }\n' +
+    '\n' +
+    '  .messages-intro {\n' +
+    '    margin: 0 0 18px;\n' +
+    '    color: var(--muted);\n' +
+    '    line-height: 1.7;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-form,\n' +
+    '  .message-card,\n' +
+    '  .message-admin {\n' +
+    '    border: 1px solid var(--panel-border);\n' +
+    '    background: var(--panel-gradient);\n' +
+    '    box-shadow: var(--shadow-soft);\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-form {\n' +
+    '    display: grid;\n' +
+    '    gap: 14px;\n' +
+    '    padding: 20px 22px;\n' +
+    '    margin-bottom: 20px;\n' +
+    '    border-radius: var(--radius-lg);\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-form label {\n' +
+    '    display: grid;\n' +
+    '    gap: 7px;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-form span {\n' +
+    '    color: var(--muted);\n' +
+    '    font-size: 0.84rem;\n' +
+    '    font-weight: 700;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-form input,\n' +
+    '  .message-form textarea,\n' +
+    '  #message-login input {\n' +
+    '    width: 100%;\n' +
+    '    box-sizing: border-box;\n' +
+    '    border: 1px solid var(--panel-border);\n' +
+    '    border-radius: 10px;\n' +
+    '    background: var(--bg);\n' +
+    '    color: var(--text);\n' +
+    '    font: inherit;\n' +
+    '    padding: 11px 13px;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-form textarea {\n' +
+    '    resize: vertical;\n' +
+    '    min-height: 106px;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-form input:focus,\n' +
+    '  .message-form textarea:focus,\n' +
+    '  #message-login input:focus {\n' +
+    '    outline: none;\n' +
+    '    border-color: var(--accent);\n' +
+    '  }\n' +
+    '\n' +
+    '  .form-actions {\n' +
+    '    display: flex;\n' +
+    '    justify-content: space-between;\n' +
+    '    align-items: center;\n' +
+    '    gap: 12px;\n' +
+    '  }\n' +
+    '\n' +
+    '  #message-status {\n' +
+    '    min-height: 20px;\n' +
+    '    margin: 0;\n' +
+    '    color: var(--muted);\n' +
+    '    font-size: 0.86rem;\n' +
+    '  }\n' +
+    '\n' +
+    '  #message-status.error {\n' +
+    '    color: #d94040;\n' +
+    '  }\n' +
+    '\n' +
+    '  #message-submit {\n' +
+    '    border: none;\n' +
+    '    border-radius: 10px;\n' +
+    '    background: var(--accent);\n' +
+    '    color: #fff;\n' +
+    '    cursor: pointer;\n' +
+    '    font: inherit;\n' +
+    '    font-weight: 700;\n' +
+    '    padding: 11px 18px;\n' +
+    '  }\n' +
+    '\n' +
+    '  #message-submit:disabled {\n' +
+    '    opacity: 0.6;\n' +
+    '    cursor: wait;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-admin {\n' +
+    '    margin: 0 0 18px;\n' +
+    '    padding: 0.75rem 1rem;\n' +
+    '    border-radius: 12px;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-admin-row,\n' +
+    '  #message-login {\n' +
+    '    display: flex;\n' +
+    '    align-items: center;\n' +
+    '    gap: 0.6rem;\n' +
+    '  }\n' +
+    '\n' +
+    '  #message-login {\n' +
+    '    margin-top: 0.6rem;\n' +
+    '  }\n' +
+    '\n' +
+    '  #message-login input {\n' +
+    '    flex: 1;\n' +
+    '    min-width: 0;\n' +
+    '  }\n' +
+    '\n' +
+    '  #message-logout,\n' +
+    '  #message-login-submit,\n' +
+    '  .message-delete {\n' +
+    '    border: 0;\n' +
+    '    border-radius: 8px;\n' +
+    '    padding: 0.35rem 0.75rem;\n' +
+    '    color: inherit;\n' +
+    '    background: rgba(255, 255, 255, 0.12);\n' +
+    '    cursor: pointer;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-delete {\n' +
+    '    margin-left: auto;\n' +
+    '    color: #ffc1cb;\n' +
+    '    background: rgba(255, 92, 122, 0.14);\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-delete:disabled {\n' +
+    '    opacity: 0.6;\n' +
+    '    cursor: wait;\n' +
+    '  }\n' +
+    '\n' +
+    '  .messages-list {\n' +
+    '    display: grid;\n' +
+    '    gap: 14px;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-card {\n' +
+    '    border-radius: var(--radius-lg);\n' +
+    '    padding: 18px 20px;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-meta {\n' +
+    '    display: flex;\n' +
+    '    justify-content: space-between;\n' +
+    '    gap: 12px;\n' +
+    '    margin-bottom: 10px;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-meta strong {\n' +
+    '    color: var(--text);\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-meta time {\n' +
+    '    color: var(--muted);\n' +
+    '    font-size: 0.8rem;\n' +
+    '    white-space: nowrap;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-text {\n' +
+    '    margin: 0;\n' +
+    '    color: var(--text);\n' +
+    '    line-height: 1.75;\n' +
+    '    white-space: pre-wrap;\n' +
+    '  }\n' +
+    '\n' +
+    '  .message-loading,\n' +
+    '  .message-empty {\n' +
+    '    padding: 34px 18px;\n' +
+    '    text-align: center;\n' +
+    '    color: var(--muted);\n' +
+    '  }\n' +
+    '\n' +
+    '  @media (max-width: 640px) {\n' +
+    '    .form-actions,\n' +
+    '    .message-meta {\n' +
+    '      align-items: flex-start;\n' +
+    '      flex-direction: column;\n' +
+    '    }\n' +
+    '\n' +
+    '    #message-submit {\n' +
+    '      width: 100%;\n' +
+    '    }\n' +
+    '  }\n' +
+    '</style>\n' +
+    '\n' +
+    '<script>\n' +
+    '  import {\n' +
+    '    createCommentsWidget,\n' +
+    '    createGuestMessage,\n' +
+    '    deleteGuestMessage,\n' +
+    '    fetchGuestMessages,\n' +
+    '    formatPublicTime,\n' +
+    '    getStoredUserId,\n' +
+    '    normalizeUserId,\n' +
+    '    setStoredUserId,\n' +
+    '    type GuestMessage,\n' +
+    "  } from '../lib/public-interactions';\n" +
+    "  import { getSession, login, logout } from '../lib/moments-api';\n" +
+    '\n' +
+    "  const form = document.getElementById('message-form') as HTMLFormElement | null;\n" +
+    "  const userInput = document.getElementById('message-user-id') as HTMLInputElement | null;\n" +
+    "  const textInput = document.getElementById('message-text') as HTMLTextAreaElement | null;\n" +
+    "  const submit = document.getElementById('message-submit') as HTMLButtonElement | null;\n" +
+    "  const status = document.getElementById('message-status');\n" +
+    "  const list = document.getElementById('messages-list');\n" +
+    "  const sessionStatus = document.getElementById('message-session-status');\n" +
+    "  const loginBox = document.getElementById('message-login');\n" +
+    "  const loginPassword = document.getElementById('message-login-password') as HTMLInputElement | null;\n" +
+    "  const loginSubmit = document.getElementById('message-login-submit') as HTMLButtonElement | null;\n" +
+    "  const logoutButton = document.getElementById('message-logout') as HTMLButtonElement | null;\n" +
+    '  let adminMode = false;\n' +
+    '  let currentMessages: GuestMessage[] = [];\n' +
+    '\n' +
+    '  if (userInput) userInput.value = getStoredUserId();\n' +
+    '\n' +
+    '  function setStatus(text: string, error = false) {\n' +
+    '    if (!status) return;\n' +
+    '    status.textContent = text;\n' +
+    "    status.className = error ? 'error' : '';\n" +
+    '  }\n' +
+    '\n' +
+    "  function updateSessionUi(authenticated: boolean, message = '') {\n" +
+    '    adminMode = authenticated;\n' +
+    "    if (sessionStatus) sessionStatus.textContent = message || (authenticated ? '已登录，可以删除留言。' : '管理员登录后可删除留言。');\n" +
+    '    if (loginBox) loginBox.hidden = authenticated;\n' +
+    '    if (logoutButton) logoutButton.hidden = !authenticated;\n' +
+    '    if (currentMessages.length > 0) renderMessages(currentMessages);\n' +
+    '  }\n' +
+    '\n' +
+    '  function renderMessages(messages: GuestMessage[]) {\n' +
+    '    if (!list) return;\n' +
+    '    currentMessages = messages;\n' +
+    "    list.innerHTML = '';\n" +
+    '\n' +
+    '    if (!messages.length) {\n' +
+    "      const empty = document.createElement('p');\n" +
+    "      empty.className = 'message-empty';\n" +
+    "      empty.textContent = '还没有留言，来写第一条吧。';\n" +
+    '      list.appendChild(empty);\n' +
+    '      return;\n' +
+    '    }\n' +
+    '\n' +
+    '    messages.forEach((message) => {\n' +
+    "      const card = document.createElement('article');\n" +
+    "      card.className = 'message-card';\n" +
+    "      const meta = document.createElement('div');\n" +
+    "      meta.className = 'message-meta';\n" +
+    "      const user = document.createElement('strong');\n" +
+    '      user.textContent = message.userId;\n' +
+    "      const time = document.createElement('time');\n" +
+    '      time.dateTime = new Date(message.createdAt).toISOString();\n' +
+    '      time.textContent = formatPublicTime(message.createdAt);\n' +
+    '      meta.append(user, time);\n' +
+    '      if (adminMode) {\n' +
+    "        const deleteButton = document.createElement('button');\n" +
+    "        deleteButton.type = 'button';\n" +
+    "        deleteButton.className = 'message-delete';\n" +
+    "        deleteButton.textContent = '删除';\n" +
+    "        deleteButton.title = '删除这条留言';\n" +
+    "        deleteButton.addEventListener('click', async () => {\n" +
+    "          if (!window.confirm('确定删除这条留言吗？删除后不可恢复。')) return;\n" +
+    '          deleteButton.disabled = true;\n' +
+    '          try {\n' +
+    '            await deleteGuestMessage(message.id);\n' +
+    '            currentMessages = currentMessages.filter((item) => item.id !== message.id);\n' +
+    '            renderMessages(currentMessages);\n' +
+    '          } catch (err) {\n' +
+    '            deleteButton.disabled = false;\n' +
+    "            setStatus(err instanceof Error ? err.message : '删除失败', true);\n" +
+    '          }\n' +
+    '        });\n' +
+    '        meta.appendChild(deleteButton);\n' +
+    '      }\n' +
+    '\n' +
+    "      const text = document.createElement('p');\n" +
+    "      text.className = 'message-text';\n" +
+    '      text.textContent = message.text;\n' +
+    "      card.append(meta, text, createCommentsWidget('message', message.id, message.commentCount));\n" +
+    '      list.appendChild(card);\n' +
+    '    });\n' +
+    '  }\n' +
+    '\n' +
+    '  async function refreshSession() {\n' +
+    '    try {\n' +
+    '      const state = await getSession();\n' +
+    '      updateSessionUi(state.authenticated);\n' +
+    '    } catch (err) {\n' +
+    "      updateSessionUi(false, err instanceof Error ? err.message : '登录状态检查失败');\n" +
+    '    }\n' +
+    '  }\n' +
+    '\n' +
+    "  loginSubmit?.addEventListener('click', async () => {\n" +
+    "    const password = loginPassword?.value.trim() || '';\n" +
+    "    if (!password) return updateSessionUi(false, '请输入管理员密码');\n" +
+    '    loginSubmit.disabled = true;\n' +
+    '    try {\n' +
+    '      const state = await login(password);\n' +
+    "      if (loginPassword) loginPassword.value = '';\n" +
+    '      updateSessionUi(state.authenticated);\n' +
+    '    } catch (err) {\n' +
+    "      updateSessionUi(false, err instanceof Error ? err.message : '登录失败，请重试');\n" +
+    '    } finally {\n' +
+    '      loginSubmit.disabled = false;\n' +
+    '    }\n' +
+    '  });\n' +
+    '\n' +
+    "  loginPassword?.addEventListener('keydown', (event) => {\n" +
+    "    if (event.key === 'Enter') loginSubmit?.click();\n" +
+    '  });\n' +
+    '\n' +
+    "  logoutButton?.addEventListener('click', async () => {\n" +
+    '    logoutButton.disabled = true;\n' +
+    '    try {\n' +
+    '      await logout();\n' +
+    "      updateSessionUi(false, '已退出登录');\n" +
+    '    } finally {\n' +
+    '      logoutButton.disabled = false;\n' +
+    '    }\n' +
+    '  });\n' +
+    '\n' +
+    '  async function refreshMessages() {\n' +
+    '    if (!list) return;\n' +
+    '    try {\n' +
+    '      renderMessages(await fetchGuestMessages());\n' +
+    '    } catch (err) {\n' +
+    `      list.innerHTML = '<p class="message-empty">留言加载失败，请稍后再试。</p>';\n` +
+    '    }\n' +
+    '  }\n' +
+    '\n' +
+    "  form?.addEventListener('submit', async (event) => {\n" +
+    '  '... 764 more characters
+  
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:74:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `---\nimport BaseLayout from '../layouts/BaseLayout.astro';\n---\n\n<BaseLayout\n  title="留言板 | 搁浅 的小窝"\n  description="给博客留下想说的话。"\n  bannerTitle="留言板"\n  bannerSubtitle="路过也可以留下一句话。"\n>\n  <section class="messages-shell">\n    <p class="messages-intro">自设一个 ID 就能留言和评论，不需要密钥。</p>\n\n    <section class="message-admin" id="message-admin">\n      <div class="message-admin-row">\n        <span id="message-session-status">检查登录状态中...</span>\n        <button type="button" id="message-logout" hidden>退出登录</button>\n      </div>\n      <div id="message-login" hidden>\n        <input type="password" id="message-login-password" placeholder="管理员密码" autocomplete="current-password" />\n        <button type="button" id="message-login-submit">登录</button>\n      </div>\n    </section>\n\n    <form class="message-form" id="message-form">\n      <label>\n        <span>你的 ID</span>\n        <input type="text" name="userId" id="message-user-id" maxlength="32" placeholder="例如：路过的旅人" required />\n      </label>\n      <label>\n        <span>留言</span>\n        <textarea name="text" id="message-text" maxlength="800" rows="4" placeholder="写点什么..." required></textarea>\n      </label>\n      <div class="form-actions">\n        <p id="message-status" aria-live="polite"></p>\n        <button type="submit" id="message-submit">发送留言</button>\n      </div>\n    </form>\n\n    <div class="messages-list" id="messages-list">\n      <div class="message-loading">留言加载中...</div>\n    </div>\n  </section>\n</BaseLayout>\n\n<style is:global>\n  .messages-shell {\n    max-width: 760px;\n    margin: 0 auto;\n  }\n\n  .messages-intro {\n    margin: 0 0 18px;\n    color: var(--muted);\n    line-height: 1.7;\n  }\n\n  .message-form,\n  .message-card,\n  .message-admin {\n    border: 1px solid var(--panel-border);\n    background: var(--panel-gradient);\n    box-shadow: var(--shadow-soft);\n  }\n\n  .message-form {\n    display: grid;\n    gap: 14px;\n    padding: 20px 22px;\n    margin-bottom: 20px;\n    border-radius: var(--radius-lg);\n  }\n\n  .message-form label {\n    display: grid;\n    gap: 7px;\n  }\n\n  .message-form span {\n    color: var(--muted);\n    font-size: 0.84rem;\n    font-weight: 700;\n  }\n\n  .message-form input,\n  .message-form textarea,\n  #message-login input {\n    width: 100%;\n    box-sizing: border-box;\n    border: 1px solid var(--panel-border);\n    border-radius: 10px;\n    background: var(--bg);\n    color: var(--text);\n    font: inherit;\n    padding: 11px 13px;\n  }\n\n  .message-form textarea {\n    resize: vertical;\n    min-height: 106px;\n  }\n\n  .message-form input:focus,\n  .message-form textarea:focus,\n  #message-login input:focus {\n    outline: none;\n    border-color: var(--accent);\n  }\n\n  .form-actions {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    gap: 12px;\n  }\n\n  #message-status {\n    min-height: 20px;\n    margin: 0;\n    color: var(--muted);\n    font-size: 0.86rem;\n  }\n\n  #message-status.error {\n    color: #d94040;\n  }\n\n  #message-submit {\n    border: none;\n    border-radius: 10px;\n    background: var(--accent);\n    color: #fff;\n    cursor: pointer;\n    font: inherit;\n    font-weight: 700;\n    padding: 11px 18px;\n  }\n\n  #message-submit:disabled {\n    opacity: 0.6;\n    cursor: wait;\n  }\n\n  .message-admin {\n    margin: 0 0 18px;\n    padding: 0.75rem 1rem;\n    border-radius: 12px;\n  }\n\n  .message-admin-row,\n  #message-login {\n    display: flex;\n    align-items: center;\n    gap: 0.6rem;\n  }\n\n  #message-login {\n    margin-top: 0.6rem;\n  }\n\n  #message-login input {\n    flex: 1;\n    min-width: 0;\n  }\n\n  #message-logout,\n  #message-login-submit,\n  .message-delete {\n    border: 0;\n    border-radius: 8px;\n    padding: 0.35rem 0.75rem;\n    color: inherit;\n    background: rgba(255, 255, 255, 0.12);\n    cursor: pointer;\n  }\n\n  .message-delete {\n    margin-left: auto;\n    color: #ffc1cb;\n    background: rgba(255, 92, 122, 0.14);\n  }\n\n  .message-delete:disabled {\n    opacity: 0.6;\n    cursor: wait;\n  }\n\n  .messages-list {\n    display: grid;\n    gap: 14px;\n  }\n\n  .message-card {\n    border-radius: var(--radius-lg);\n    padding: 18px 20px;\n  }\n\n  .message-meta {\n    display: flex;\n    justify-content: space-between;\n    gap: 12px;\n    margin-bottom: 10px;\n  }\n\n  .message-meta strong {\n    color: var(--text);\n  }\n\n  .message-meta time {\n    color: var(--muted);\n    font-size: 0.8rem;\n    white-space: nowrap;\n  }\n\n  .message-text {\n    margin: 0;\n    color: var(--text);\n    line-height: 1.75;\n    white-space: pre-wrap;\n  }\n\n  .message-loading,\n  .message-empty {\n    padding: 34px 18px;\n    text-align: center;\n    color: var(--muted);\n  }\n\n  @media (max-width: 640px) {\n    .form-actions,\n    .message-meta {\n      align-items: flex-start;\n      flex-direction: column;\n    }\n\n    #message-submit {\n      width: 100%;\n    }\n  }\n</style>\n\n<script>\n  import {\n    createCommentsWidget,\n    createGuestMessage,\n    deleteGuestMessage,\n    fetchGuestMessages,\n    formatPublicTime,\n    getStoredUserId,\n    normalizeUserId,\n    setStoredUserId,\n    type GuestMessage,\n  } from '../lib/public-interactions';\n  import { getSession, login, logout } from '../lib/moments-api';\n\n  const form = document.getElementById('message-form') as HTMLFormElement | null;\n  const userInput = document.getElementById('message-user-id') as HTMLInputElement | null;\n  const textInput = document.getElementById('message-text') as HTMLTextAreaElement | null;\n  const submit = document.getElementById('message-submit') as HTMLButtonElement | null;\n  const status = document.getElementById('message-status');\n  const list = document.getElementById('messages-list');\n  const sessionStatus = document.getElementById('message-session-status');\n  const loginBox = document.getElementById('message-login');\n  const loginPassword = document.getElementById('message-login-password') as HTMLInputElement | null;\n  const loginSubmit = document.getElementById('message-login-submit') as HTMLButtonElement | null;\n  const logoutButton = document.getElementById('message-logout') as HTMLButtonElement | null;\n  let adminMode = false;\n  let currentMessages: GuestMessage[] = [];\n\n  if (userInput) userInput.value = getStoredUserId();\n\n  function setStatus(text: string, error = false) {\n    if (!status) return;\n    status.textContent = text;\n    status.className = error ? 'error' : '';\n  }\n\n  function updateSessionUi(authenticated: boolean, message = '') {\n    adminMode = authenticated;\n    if (sessionStatus) sessionStatus.textContent = message || (authenticated ? '已登录，可以删除留言。' : '管理员登录后可删除留言。');\n    if (loginBox) loginBox.hidden = authenticated;\n    if (logoutButton) logoutButton.hidden = !authenticated;\n    if (currentMessages.length > 0) renderMessages(currentMessages);\n  }\n\n  function renderMessages(messages: GuestMessage[]) {\n    if (!list) return;\n    currentMessages = messages;\n    list.innerHTML = '';\n\n    if (!messages.length) {\n      const empty = document.createElement('p');\n      empty.className = 'message-empty';\n      empty.textContent = '还没有留言，来写第一条吧。';\n      list.appendChild(empty);\n      return;\n    }\n\n    messages.forEach((message) => {\n      const card = document.createElement('article');\n      card.className = 'message-card';\n      const meta = document.createElement('div');\n      meta.className = 'message-meta';\n      const user = document.createElement('strong');\n      user.textContent = message.userId;\n      const time = document.createElement('time');\n      time.dateTime = new Date(message.createdAt).toISOString();\n      time.textContent = formatPublicTime(message.createdAt);\n      meta.append(user, time);\n      if (adminMode) {\n        const deleteButton = document.createElement('button');\n        deleteButton.type = 'button';\n        deleteButton.className = 'message-delete';\n        deleteButton.textContent = '删除';\n        deleteButton.title = '删除这条留言';\n        deleteButton.addEventListener('click', async () => {\n          if (!window.confirm('确定删除这条留言吗？删除后不可恢复。')) return;\n          deleteButton.disabled = true;\n          try {\n            await deleteGuestMessage(message.id);\n            currentMessages = currentMessages.filter((item) => item.id !== message.id);\n            renderMessages(currentMessages);\n          } catch (err) {\n            deleteButton.disabled = false;\n            setStatus(err instanceof Error ? err.message : '删除失败', true);\n          }\n        });\n        meta.appendChild(deleteButton);\n      }\n\n      const text = document.createElement('p');\n      text.className = 'message-text';\n      text.textContent = message.text;\n      card.append(meta, text, createCommentsWidget('message', message.id, message.commentCount));\n      list.appendChild(card);\n    });\n  }\n\n  async function refreshSession() {\n    try {\n      const state = await getSession();\n      updateSessionUi(state.authenticated);\n    } catch (err) {\n      updateSessionUi(false, err instanceof Error ? err.message : '登录状态检查失败');\n    }\n  }\n\n  loginSubmit?.addEventListener('click', async () => {\n    const password = loginPassword?.value.trim() || '';\n    if (!password) return updateSessionUi(false, '请输入管理员密码');\n    loginSubmit.disabled = true;\n    try {\n      const state = await login(password);\n      if (loginPassword) loginPassword.value = '';\n      updateSessionUi(state.authenticated);\n    } catch (err) {\n      updateSessionUi(false, err instanceof Error ? err.message : '登录失败，请重试');\n    } finally {\n      loginSubmit.disabled = false;\n    }\n  });\n\n  loginPassword?.addEventListener('keydown', (event) => {\n    if (event.key === 'Enter') loginSubmit?.click();\n  });\n\n  logoutButton?.addEventListener('click', async () => {\n    logoutButton.disabled = true;\n    try {\n      await logout();\n      updateSessionUi(false, '已退出登录');\n    } finally {\n      logoutButton.disabled = false;\n    }\n  });\n\n  async function refreshMessages() {\n    if (!list) return;\n    try {\n      renderMessages(await fetchGuestMessages());\n    } catch (err) {\n      list.innerHTML = '<p class="message-empty">留言加载失败，请稍后再试。</p>';\n    }\n  }\n\n  form?.addEventListener('submit', async (event) => {\n  `... 764 more characters,
+    expected: /messages-layout/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+test at tests/firefly-ui-refresh.test.mjs:80:1
+✖ built immersive page keeps core controls without standard chrome (1.581223ms)
+  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /class="site-header"/. Input:
+  
+  `<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="referrer" content="same-origin"><meta name="description" content="沉浸式音乐与视觉体验。"><meta name="generator" content="Astro v6.4.4"><link rel="canonical" href="https://lidure22.xyz/player/"><meta property="og:type" content="website"><meta property="og:title" content="沉浸空间 | 搁浅 的小窝"><meta property="og:description" content="沉浸式音乐与视觉体验。"><meta property="og:url" content="https://lidure22.xyz/player/"><meta property="og:image" content="https://lidure22.xyz/site-icon-512.png"><title>沉浸空间 | 搁浅 的小窝</title><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap"><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet"></noscript><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CAqDO0tx.js"></script><script>\n` +
+    '    (function() {\n' +
+    "      var theme = 'dark';\n" +
+    "      try { theme = localStorage.getItem('theme') || 'dark'; } catch(e) {}\n" +
+    "      document.documentElement.setAttribute('data-theme', theme);\n" +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      try {\n' +
+    "        var s = localStorage.getItem('hero_settings');\n" +
+    '        if (s && JSON.parse(s).enabled === false) {\n' +
+    "          document.documentElement.classList.add('no-hero-bg');\n" +
+    '        }\n' +
+    '      } catch(e) {}\n' +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      if (window.__pageMediaSwapCleanupBound) return;\n' +
+    '      window.__pageMediaSwapCleanupBound = true;\n' +
+    '\n' +
+    "      var pageMediaSelector = 'video[data-page-media], audio[data-page-media]';\n" +
+    '\n' +
+    "      document.addEventListener('astro:before-swap', function() {\n" +
+    '        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n' +
+    "          if (media.matches(':not([data-persistent-media])') === false) return;\n" +
+    '          try { media.pause(); } catch(e) {}\n' +
+    "          media.removeAttribute('src');\n" +
+    "          media.querySelectorAll('source').forEach(function(source) {\n" +
+    "            source.removeAttribute('src');\n" +
+    '          });\n' +
+    '          try { media.load(); } catch(e) {}\n' +
+    '        });\n' +
+    '      });\n' +
+    '    })();\n' +
+    '    (function() {\n' +
+    '      if (window.__busuanziLifecycleBound) return;\n' +
+    '      window.__busuanziLifecycleBound = true;\n' +
+    "      var busuanziRequestUrl = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback';\n" +
+    '\n' +
+    '      function applyBusuanzi(data) {\n' +
+    '        var values = data || {};\n' +
+    "        var pv = document.getElementById('busuanzi_value_site_pv');\n" +
+    "        var uv = document.getElementById('busuanzi_value_site_uv');\n" +
+    '        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n' +
+    '        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n' +
+    '      }\n' +
+    '\n' +
+    '      function refreshBusuanzi() {\n' +
+    "        if (!document.getElementById('busuanzi_value_site_pv')) return;\n" +
+    "        if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {\n" +
+    '          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n' +
+    '          return;\n' +
+    '        }\n' +
+    "        var script = document.getElementById('busuanzi-counter-script');\n" +
+    '        if (!script) {\n' +
+    "          script = document.createElement('script');\n" +
+    "          script.id = 'busuanzi-counter-script';\n" +
+    '          script.async = true;\n' +
+    "          script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';\n" +
+    '          document.head.appendChild(script);\n' +
+    '        }\n' +
+    "        script.addEventListener('load', refreshBusuanzi, { once: true });\n" +
+    '      }\n' +
+    "      document.addEventListener('astro:page-load', refreshBusuanzi);\n" +
+    '      refreshBusuanzi();\n' +
+    '    })();\n' +
+    '    </script><script type="module">function c(t,i){const e=Number(t),n=Number(i);return!Number.isFinite(e)||!Number.isFinite(n)?!1:e>.75&&n+.25<e}function f(t,i,e){if(!t||t.ended||!c(i,e))return!1;const n=t.onended;return typeof n!="function"?!1:(n.call(t),!0)}function m(t=globalThis.document,i=globalThis.window){if(!t||!i||i.__heroVideoLoopGuardBound)return;i.__heroVideoLoopGuardBound=!0;let e=null,n=null,o=null;function s(){e&&(n&&e.removeEventListener("timeupdate",n),o&&e.removeEventListener("ended",o),e=null,n=null,o=null)}function d(){const r=t.getElementById("slideshowVideo");if(!r||r===e)return;s(),e=r;let u=Number(r.currentTime)||0;o=function(){u=0},n=function(){const l=Number(r.currentTime)||0,a=u;u=l,f(r,a,l)&&(u=Number(r.currentTime)||0)},r.addEventListener("ended",o),r.addEventListener("timeupdate",n)}t.addEventListener("astro:page-load",d),d()}m();</script><link rel="stylesheet" href="/_astro/BaseLayout.D2uhEY9I.css">\n' +
+    '<link rel="stylesheet" href="/_astro/player.BBgKW1uS.css"><style>[data-astro-transition-scope="astro-fy2abq5n-6"] { view-transition-name: sekai-btn; }@layer astro { ::view-transition-old(sekai-btn) { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeOut; }::view-transition-new(sekai-btn) { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(sekai-btn) { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(sekai-btn) { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n' +
+    '\t\t\t[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n' +
+    '\t\t\t[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n' +
+    '\t\t\t[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n' +
+    '\t\t\t[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-ixo4q5p3-7"] { view-transition-name: sekai-panel; }@layer astro { ::view-transition-old(sekai-panel) { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeOut; }::view-transition-new(sekai-panel) { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(sekai-panel) { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(sekai-panel) { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n' +
+    '\t\t\t[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n' +
+    '\t\t\t[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n' +
+    '\t\t\t[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n' +
+    '\t\t\t[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n' +
+    '\tanimation-duration: 180ms;\n' +
+    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
+    '\tanimation-fill-mode: both;\n' +
+    '\tanimation-name: astroFadeIn; }</style><s'... 179243 more characters
+  
+      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:83:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: `<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="referrer" content="same-origin"><meta name="description" content="沉浸式音乐与视觉体验。"><meta name="generator" content="Astro v6.4.4"><link rel="canonical" href="https://lidure22.xyz/player/"><meta property="og:type" content="website"><meta property="og:title" content="沉浸空间 | 搁浅 的小窝"><meta property="og:description" content="沉浸式音乐与视觉体验。"><meta property="og:url" content="https://lidure22.xyz/player/"><meta property="og:image" content="https://lidure22.xyz/site-icon-512.png"><title>沉浸空间 | 搁浅 的小窝</title><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap"><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet"></noscript><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CAqDO0tx.js"></script><script>\n    (function() {\n      var theme = 'dark';\n      try { theme = localStorage.getItem('theme') || 'dark'; } catch(e) {}\n      document.documentElement.setAttribute('data-theme', theme);\n    })();\n    (function() {\n      try {\n        var s = localStorage.getItem('hero_settings');\n        if (s && JSON.parse(s).enabled === false) {\n          document.documentElement.classList.add('no-hero-bg');\n        }\n      } catch(e) {}\n    })();\n    (function() {\n      if (window.__pageMediaSwapCleanupBound) return;\n      window.__pageMediaSwapCleanupBound = true;\n\n      var pageMediaSelector = 'video[data-page-media], audio[data-page-media]';\n\n      document.addEventListener('astro:before-swap', function() {\n        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n          if (media.matches(':not([data-persistent-media])') === false) return;\n          try { media.pause(); } catch(e) {}\n          media.removeAttribute('src');\n          media.querySelectorAll('source').forEach(function(source) {\n            source.removeAttribute('src');\n          });\n          try { media.load(); } catch(e) {}\n        });\n      });\n    })();\n    (function() {\n      if (window.__busuanziLifecycleBound) return;\n      window.__busuanziLifecycleBound = true;\n      var busuanziRequestUrl = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback';\n\n      function applyBusuanzi(data) {\n        var values = data || {};\n        var pv = document.getElementById('busuanzi_value_site_pv');\n        var uv = document.getElementById('busuanzi_value_site_uv');\n        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n      }\n\n      function refreshBusuanzi() {\n        if (!document.getElementById('busuanzi_value_site_pv')) return;\n        if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {\n          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n          return;\n        }\n        var script = document.getElementById('busuanzi-counter-script');\n        if (!script) {\n          script = document.createElement('script');\n          script.id = 'busuanzi-counter-script';\n          script.async = true;\n          script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';\n          document.head.appendChild(script);\n        }\n        script.addEventListener('load', refreshBusuanzi, { once: true });\n      }\n      document.addEventListener('astro:page-load', refreshBusuanzi);\n      refreshBusuanzi();\n    })();\n    </script><script type="module">function c(t,i){const e=Number(t),n=Number(i);return!Number.isFinite(e)||!Number.isFinite(n)?!1:e>.75&&n+.25<e}function f(t,i,e){if(!t||t.ended||!c(i,e))return!1;const n=t.onended;return typeof n!="function"?!1:(n.call(t),!0)}function m(t=globalThis.document,i=globalThis.window){if(!t||!i||i.__heroVideoLoopGuardBound)return;i.__heroVideoLoopGuardBound=!0;let e=null,n=null,o=null;function s(){e&&(n&&e.removeEventListener("timeupdate",n),o&&e.removeEventListener("ended",o),e=null,n=null,o=null)}function d(){const r=t.getElementById("slideshowVideo");if(!r||r===e)return;s(),e=r;let u=Number(r.currentTime)||0;o=function(){u=0},n=function(){const l=Number(r.currentTime)||0,a=u;u=l,f(r,a,l)&&(u=Number(r.currentTime)||0)},r.addEventListener("ended",o),r.addEventListener("timeupdate",n)}t.addEventListener("astro:page-load",d),d()}m();</script><link rel="stylesheet" href="/_astro/BaseLayout.D2uhEY9I.css">\n<link rel="stylesheet" href="/_astro/player.BBgKW1uS.css"><style>[data-astro-transition-scope="astro-fy2abq5n-6"] { view-transition-name: sekai-btn; }@layer astro { ::view-transition-old(sekai-btn) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }::view-transition-new(sekai-btn) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(sekai-btn) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(sekai-btn) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n\t\t\t[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n\t\t\t[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n\t\t\t[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n\t\t\t[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-ixo4q5p3-7"] { view-transition-name: sekai-panel; }@layer astro { ::view-transition-old(sekai-panel) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }::view-transition-new(sekai-panel) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(sekai-panel) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(sekai-panel) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n\t\t\t[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n\t\t\t[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n\t\t\t[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n\t\t\t[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }</style><s`... 179243 more characters,
+    expected: /class="site-header"/,
+    operator: 'match',
+    diff: 'simple'
+  }
+
+__EXIT_CODE__=1
