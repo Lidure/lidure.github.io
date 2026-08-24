@@ -54,7 +54,7 @@ function makeEnv(overrides: Partial<FetchEnv> = {}): FetchEnv {
 }
 
 async function makeCookie(): Promise<string> {
-  const value = await createSession("test-session-secret", Date.UTC(2026, 7, 12, 1, 0, 0));
+  const value = await createSession("test-session-secret", Date.now());
   return sessionCookie(value);
 }
 
