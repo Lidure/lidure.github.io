@@ -22,3 +22,17 @@ test('v4 waves provide static SVG first paint and Canvas runtime', () => {
   assert.match(waves, /lidure:visual-settings-change/);
   assert.match(layout, /<BannerWaves/);
 });
+
+test('v4 settings center groups wave controls under Background and uses mobile bottom sheet', () => {
+  const panel = readSource('src/components/VisualSettingsPanel.astro');
+  assert.match(panel, /id="toggle-wave-enabled"/);
+  assert.match(panel, /id="wave-strength-soft"/);
+  assert.match(panel, /id="wave-strength-standard"/);
+  assert.match(panel, /id="wave-strength-strong"/);
+  assert.match(panel, /id="wave-speed-slow"/);
+  assert.match(panel, /id="wave-speed-normal"/);
+  assert.match(panel, /id="wave-speed-fast"/);
+  assert.match(panel, /id="toggle-wave-mobile"/);
+  assert.match(panel, /Customize your space/);
+  assert.match(panel, /max-height:\s*86dvh/);
+});
