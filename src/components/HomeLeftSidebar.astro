@@ -31,6 +31,7 @@ const socialLinks = [
       <nav class="profile-social-links" aria-label="联系方式">
         {socialLinks.map((item) => (
           <a
+            class="profile-social-link"
             href={item.href}
             target="_blank"
             rel="noreferrer"
@@ -78,7 +79,7 @@ const socialLinks = [
     margin-top: 12px;
   }
 
-  body.layout-standard .profile-social-links a {
+  body.layout-standard .profile-social-link {
     position: relative;
     display: grid;
     place-items: center;
@@ -93,40 +94,40 @@ const socialLinks = [
     transition: transform 160ms ease, color 160ms ease, border-color 160ms ease, background 160ms ease;
   }
 
-  body.layout-standard .profile-social-links a span {
+  body.layout-standard .profile-social-link span {
     font-size: 0.62rem;
     font-weight: 850;
     letter-spacing: -0.02em;
   }
 
-  body.layout-standard .profile-social-links a:hover {
+  body.layout-standard .profile-social-link:hover {
     transform: translateY(-2px);
     color: var(--standard-purple);
     border-color: color-mix(in srgb, var(--standard-purple) 30%, var(--standard-line));
     background: color-mix(in srgb, var(--standard-purple-soft) 78%, var(--standard-card-bg));
   }
 
-  body.layout-standard .profile-social-links a:nth-child(2):hover {
+  body.layout-standard .profile-social-link:nth-child(2):hover {
     color: var(--standard-cyan);
     border-color: color-mix(in srgb, var(--standard-cyan) 30%, var(--standard-line));
     background: color-mix(in srgb, var(--standard-cyan-soft) 78%, var(--standard-card-bg));
   }
 
-  body.layout-standard .profile-social-links a:focus-visible {
+  body.layout-standard .profile-social-link:focus-visible {
     outline: 2px solid var(--standard-purple);
     outline-offset: 3px;
   }
 
   @media (prefers-reduced-motion: reduce) {
-    body.layout-standard .profile-social-links a { transition: none; }
-    body.layout-standard .profile-social-links a:hover { transform: none; }
+    body.layout-standard .profile-social-link { transition: none; }
+    body.layout-standard .profile-social-link:hover { transform: none; }
   }
 
-  html[data-reduce-motion="true"] body.layout-standard .profile-social-links a {
+  html[data-reduce-motion="true"] body.layout-standard .profile-social-link {
     transition: none;
   }
 
-  html[data-reduce-motion="true"] body.layout-standard .profile-social-links a:hover {
+  html[data-reduce-motion="true"] body.layout-standard .profile-social-link:hover {
     transform: none;
   }
 </style>
