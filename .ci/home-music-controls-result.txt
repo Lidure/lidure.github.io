@@ -8,12 +8,12 @@
 > astro check && astro build
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m04:07:11[22m [34m[content][39m Syncing content
+[2m04:12:02[22m [34m[content][39m Syncing content
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
-[2m04:07:12[22m [34m[content][39m Synced content
-[2m04:07:12[22m [34m[types][39m Generated [2m1.11s[22m
-[2m04:07:12[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[2m04:12:03[22m [34m[content][39m Synced content
+[2m04:12:03[22m [34m[types][39m Generated [2m1.56s[22m
+[2m04:12:03[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
 [96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
 
 [7m14[0m     draft: z.boolean().default(false),
@@ -201,243 +201,123 @@ Result (52 files):
 - 41 hints
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m04:07:18[22m [34m[content][39m Syncing content
-[2m04:07:18[22m [34m[content][39m Synced content
-[2m04:07:18[22m [34m[types][39m Generated [2m357ms[22m
-[2m04:07:18[22m [34m[build][39m output: [34m"static"[39m
-[2m04:07:18[22m [34m[build][39m mode: [34m"static"[39m
-[2m04:07:18[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
-[2m04:07:18[22m [34m[build][39m Collecting build info...
-[2m04:07:18[22m [34m[build][39m [32m✓ Completed in 372ms.[39m
-[2m04:07:18[22m [34m[build][39m Building static entrypoints...
-[2m04:07:20[22m [34m[vite][39m [32m✓ built in 1.73s[39m
-[2m04:07:20[22m [34m[vite][39m [32m✓ built in 798ms[39m
-[2m04:07:20[22m [34m[build][39m Rearranging server assets...
+[2m04:12:12[22m [34m[content][39m Syncing content
+[2m04:12:12[22m [34m[content][39m Synced content
+[2m04:12:12[22m [34m[types][39m Generated [2m471ms[22m
+[2m04:12:12[22m [34m[build][39m output: [34m"static"[39m
+[2m04:12:12[22m [34m[build][39m mode: [34m"static"[39m
+[2m04:12:12[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m04:12:12[22m [34m[build][39m Collecting build info...
+[2m04:12:12[22m [34m[build][39m [32m✓ Completed in 503ms.[39m
+[2m04:12:12[22m [34m[build][39m Building static entrypoints...
+[2m04:12:15[22m [34m[vite][39m [32m✓ built in 2.40s[39m
+[2m04:12:15[22m [34m[vite][39m [32m✓ built in 486ms[39m
+[2m04:12:15[22m [34m[build][39m Rearranging server assets...
 
 [42m[30m generating static routes [39m[49m
-[2m04:07:21[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+10ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+4ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/player/index.html[22m [2m(+4ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+6ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+3ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+227ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/rss.xml[22m [2m(+25ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/search/index.html[22m [2m(+3ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+1ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+2ms)[22m 
-[2m04:07:21[22m   [34m├─[39m [2m/index.html[22m [2m(+4ms)[22m 
-[2m04:07:21[22m [32m✓ Completed in 335ms.
+[2m04:12:15[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+14ms)[22m 
+[2m04:12:15[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+4ms)[22m 
+[2m04:12:15[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
+[2m04:12:15[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+8ms)[22m 
+[2m04:12:15[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
+[2m04:12:15[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+4ms)[22m 
+[2m04:12:15[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
+[2m04:12:15[22m   [34m├─[39m [2m/posts/index.html[22m [31m(+2.28s)[39m 
+[2m04:12:17[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/rss.xml[22m [2m(+24ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/search/index.html[22m [2m(+3ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m04:12:17[22m   [34m├─[39m [2m/index.html[22m [2m(+5ms)[22m 
+[2m04:12:17[22m [32m✓ Completed in 2.41s.
 [39m
 [42m[30m generating optimized images [39m[49m
-[2m04:07:21[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+49ms)[22m [2m(1/4)[22m
-[2m04:07:21[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+52ms)[22m [2m(2/4)[22m
-[2m04:07:21[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+57ms)[22m [2m(3/4)[22m
-[2m04:07:21[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+252ms)[22m [2m(4/4)[22m
-[2m04:07:21[22m [32m✓ Completed in 252ms.
+[2m04:12:18[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+73ms)[22m [2m(1/4)[22m
+[2m04:12:18[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+78ms)[22m [2m(2/4)[22m
+[2m04:12:18[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+83ms)[22m [2m(3/4)[22m
+[2m04:12:18[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+329ms)[22m [2m(4/4)[22m
+[2m04:12:18[22m [32m✓ Completed in 329ms.
 [39m
-[2m04:07:21[22m [34m[build][39m [32m✓ Completed in 3.16s.[39m
-[2m04:07:21[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
-[2m04:07:21[22m [34m[build][39m 23 page(s) built in [1m3.54s[22m
-[2m04:07:21[22m [34m[build][39m [1mComplete![22m
+[2m04:12:18[22m [34m[build][39m [32m✓ Completed in 5.68s.[39m
+[2m04:12:18[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m04:12:18[22m [34m[build][39m 23 page(s) built in [1m6.19s[22m
+[2m04:12:18[22m [34m[build][39m [1mComplete![22m
 
 > lidure-github-io@0.0.1 test:site
 > node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
 
-✔ BaseLayout exposes standard and immersive page modes (2.478984ms)
-✔ player route defaults to immersive layout with trailing slash tolerance (0.29219ms)
-✔ standard banner keeps B3 desktop and mobile heights (0.289926ms)
-✔ standard banner stays readable when the background is disabled (0.232787ms)
-✔ site header replaces its global scroll listener after Astro navigation (0.245965ms)
-✔ shared shell mounts navigation and floating controls for both modes (0.238572ms)
-✔ floating controls proxy existing background settings instead of duplicating them (0.517408ms)
-✔ immersive UI controller owns current shell visibility without touching player business logic (0.293871ms)
-✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.388772ms)
-✔ BaseLayout installs the immersive UI controller only for immersive mode (0.305898ms)
-✔ homepage exposes left, main, and right regions (0.232498ms)
-✖ homepage widgets consume real tag, moments, player, and visitor sources (2.126859ms)
-✖ home music card uses the player public open API instead of simulating the draggable dock click (1.196681ms)
-✖ home music card proxies previous, play-pause, and next to the existing player controls (0.489663ms)
-✔ v2 visual layer defines semantic colors and responsive Firefly grid (0.276874ms)
-✔ guestbook uses a wide two-column desktop shell (0.215209ms)
-✔ ordinary pages load the v2 cohesion layer (0.187479ms)
-✔ built immersive page keeps core controls without standard chrome (1.058939ms)
-✔ background loop guard detects a wrap and reuses the player recovery handler (1.106566ms)
-✔ base layout installs the background loop guard (0.238141ms)
-✔ player search tolerates imported songs without precomputed searchText (0.907383ms)
-✔ local imports keep active search and tag filters (0.262762ms)
-✔ search embeds parseable post data without a runtime jsonData reference (1.580986ms)
-✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.689216ms)
-✔ source configuration uses configured public domains and no stale publishing defaults (1.799166ms)
-✔ optical-flow article has one h1 and no unparsed inline delimiters (1.777906ms)
-✔ optimized identity assets are used and remain small (0.732398ms)
-✔ rendered background configuration starts with a static image (0.628539ms)
-✔ rendered moments management controls keep the publish panel closed by default (1.001731ms)
-✔ moments page exposes the API hook and local controls (1.123898ms)
-✔ moments publishing UI accepts videos and requires selectable posters (1.052996ms)
-✔ moments video poster generation ignores stale async captures (0.668297ms)
-✔ moments browser code uses the session API client for management (0.895921ms)
-✔ moment delete controls follow the authenticated session (0.458766ms)
-✔ guestbook exposes authenticated message deletion controls (0.240958ms)
-✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.448286ms)
-✔ moments api preserves distinct 401 auth worker codes (0.191682ms)
-✔ Astro swaps clean page-scoped media while preserving persistent background media (0.311033ms)
-✔ persistent layout scripts initialize through astro page-load with data guards (0.402294ms)
-✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.215017ms)
-✔ sakura particles use the approved flowers and natural drift parameters (0.081612ms)
-✔ QQ playlist imports normalize ids and report unavailable audio links (0.97988ms)
-✔ online playlist imports resolve audio URLs on demand (0.501396ms)
-✔ online playlist imports use a unified Meting-compatible adapter (0.673548ms)
-✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.093039ms)
-✔ background video degrades safely on navigation visibility and reduced motion (0.255159ms)
-✔ background videos recover playback when browsers emit ended despite loop (0.294507ms)
-✔ background videos reload before retrying playback after ended (0.262308ms)
-✔ moments single-item query aliases the legacy images column (0.082159ms)
+✔ BaseLayout exposes standard and immersive page modes (2.316028ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.303368ms)
+✔ standard banner keeps B3 desktop and mobile heights (0.410319ms)
+✔ standard banner stays readable when the background is disabled (0.378218ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.375142ms)
+✔ shared shell mounts navigation and floating controls for both modes (0.281157ms)
+✔ floating controls proxy existing background settings instead of duplicating them (0.524573ms)
+✔ immersive UI controller owns current shell visibility without touching player business logic (0.267781ms)
+✔ immersive stage one hides only navigation and restores persistent controls before navigation (0.413725ms)
+✔ BaseLayout installs the immersive UI controller only for immersive mode (0.424135ms)
+✔ homepage exposes left, main, and right regions (0.247354ms)
+✔ homepage widgets consume real tag, moments, player, and visitor sources (1.254811ms)
+✖ home music card uses the player public open API instead of simulating the draggable dock click (2.776792ms)
+✔ home music card proxies previous, play-pause, and next to the existing player controls (0.254807ms)
+✔ v2 visual layer defines semantic colors and responsive Firefly grid (0.240491ms)
+✔ guestbook uses a wide two-column desktop shell (0.366016ms)
+✔ ordinary pages load the v2 cohesion layer (0.264446ms)
+✔ built immersive page keeps core controls without standard chrome (1.398901ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (2.305379ms)
+✔ base layout installs the background loop guard (0.428673ms)
+✔ player search tolerates imported songs without precomputed searchText (1.551626ms)
+✔ local imports keep active search and tag filters (0.419636ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.371883ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.986758ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.379528ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.349271ms)
+✔ optimized identity assets are used and remain small (1.008349ms)
+✔ rendered background configuration starts with a static image (0.924993ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.394142ms)
+✔ moments page exposes the API hook and local controls (1.35552ms)
+✔ moments publishing UI accepts videos and requires selectable posters (1.536989ms)
+✔ moments video poster generation ignores stale async captures (0.925494ms)
+✔ moments browser code uses the session API client for management (1.16888ms)
+✔ moment delete controls follow the authenticated session (0.638336ms)
+✔ guestbook exposes authenticated message deletion controls (0.369592ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.684492ms)
+✔ moments api preserves distinct 401 auth worker codes (0.323296ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.514724ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.635811ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.298519ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.142507ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.326035ms)
+✔ online playlist imports resolve audio URLs on demand (0.772998ms)
+✔ online playlist imports use a unified Meting-compatible adapter (0.987901ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.140173ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.475712ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.459521ms)
+✔ background videos reload before retrying playback after ended (0.450865ms)
+✔ moments single-item query aliases the legacy images column (0.148699ms)
 ℹ tests 49
 ℹ suites 0
-ℹ pass 46
-ℹ fail 3
+ℹ pass 48
+ℹ fail 1
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 117.241371
+ℹ duration_ms 176.996905
 
 ✖ failing tests:
 
-test at tests/firefly-ui-refresh.test.mjs:110:1
-✖ homepage widgets consume real tag, moments, player, and visitor sources (2.126859ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /__sekaiOpenPlayer/. Input:
-  
-  '<button class="music-status-widget" id="home-music-status" type="button" aria-label="打开 SEKAI 播放器">\n' +
-    '  <span class="music-status-cover" aria-hidden="true">\n' +
-    '    <img data-music-cover alt="" />\n' +
-    '    <span data-music-fallback>♪</span>\n' +
-    '  </span>\n' +
-    '  <span class="music-status-copy">\n' +
-    '    <small data-music-state>音乐待机</small>\n' +
-    '    <strong data-music-title>SEKAI Player</strong>\n' +
-    '    <span data-music-artist>点击打开播放器</span>\n' +
-    '  </span>\n' +
-    '  <span class="music-status-open" aria-hidden="true">↗</span>\n' +
-    '</button>\n' +
-    '\n' +
-    '<script is:inline>\n' +
-    '(function () {\n' +
-    '  function cleanupMusicStatus() {\n' +
-    '    if (window.__homeMusicStatusObserver) {\n' +
-    '      window.__homeMusicStatusObserver.disconnect();\n' +
-    '      window.__homeMusicStatusObserver = null;\n' +
-    '    }\n' +
-    '    var audio = window.__homeMusicStatusAudio;\n' +
-    '    var handler = window.__homeMusicStatusAudioHandler;\n' +
-    '    if (audio && handler) {\n' +
-    "      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {\n" +
-    '        audio.removeEventListener(eventName, handler);\n' +
-    '      });\n' +
-    '    }\n' +
-    '    window.__homeMusicStatusAudio = null;\n' +
-    '    window.__homeMusicStatusAudioHandler = null;\n' +
-    '  }\n' +
-    '\n' +
-    '  function initMusicStatus() {\n' +
-    "    var root = document.getElementById('home-music-status');\n" +
-    "    if (!root || root.dataset.initialized === 'true') return;\n" +
-    "    root.dataset.initialized = 'true';\n" +
-    '    cleanupMusicStatus();\n' +
-    '\n' +
-    "    var state = root.querySelector('[data-music-state]');\n" +
-    "    var title = root.querySelector('[data-music-title]');\n" +
-    "    var artist = root.querySelector('[data-music-artist]');\n" +
-    "    var cover = root.querySelector('[data-music-cover]');\n" +
-    "    var fallback = root.querySelector('[data-music-fallback]');\n" +
-    "    var audio = document.getElementById('sekaiAudio');\n" +
-    '\n' +
-    '    function sync() {\n' +
-    "      var sourceTitle = document.getElementById('sekaiTrackTitle');\n" +
-    "      var sourceArtist = document.getElementById('sekaiTrackArtist');\n" +
-    "      var sourceCover = document.getElementById('sekaiDockCover') || document.getElementById('sekaiCover');\n" +
-    "      var currentTitle = sourceTitle && sourceTitle.textContent ? sourceTitle.textContent.trim() : '';\n" +
-    "      var currentArtist = sourceArtist && sourceArtist.textContent ? sourceArtist.textContent.trim() : '';\n" +
-    "      var hasTrack = currentTitle && currentTitle !== '选择一首歌曲';\n" +
-    '\n' +
-    "      if (title) title.textContent = hasTrack ? currentTitle : 'SEKAI Player';\n" +
-    "      if (artist) artist.textContent = hasTrack ? (currentArtist || '未知艺术家') : '点击打开播放器';\n" +
-    "      if (state) state.textContent = audio && audio.src && !audio.paused ? '正在播放' : (hasTrack ? '已暂停' : '音乐待机');\n" +
-    "      root.classList.toggle('is-playing', !!(audio && audio.src && !audio.paused));\n" +
-    '\n' +
-    "      var coverSrc = sourceCover && (sourceCover.currentSrc || sourceCover.src) ? (sourceCover.currentSrc || sourceCover.src) : '';\n" +
-    '      if (cover && coverSrc) {\n' +
-    '        cover.src = coverSrc;\n' +
-    "        cover.style.display = 'block';\n" +
-    "        if (fallback) fallback.style.display = 'none';\n" +
-    '      } else if (cover) {\n' +
-    "        cover.removeAttribute('src');\n" +
-    "        cover.style.display = 'none';\n" +
-    "        if (fallback) fallback.style.display = '';\n" +
-    '      }\n' +
-    '    }\n' +
-    '\n' +
-    "    root.addEventListener('click', function () {\n" +
-    "      var playerButton = document.getElementById('sekaiPlayerBtn');\n" +
-    '      if (playerButton) playerButton.click();\n' +
-    '    });\n' +
-    '\n' +
-    '    var observer = new MutationObserver(sync);\n' +
-    "    ['sekaiTrackTitle', 'sekaiTrackArtist', 'sekaiDockCover', 'sekaiCover'].forEach(function (id) {\n" +
-    '      var element = document.getElementById(id);\n' +
-    "      if (element) observer.observe(element, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['src'] });\n" +
-    '    });\n' +
-    '    window.__homeMusicStatusObserver = observer;\n' +
-    '\n' +
-    '    if (audio) {\n' +
-    "      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {\n" +
-    '        audio.addEventListener(eventName, sync);\n' +
-    '      });\n' +
-    '      window.__homeMusicStatusAudio = audio;\n' +
-    '      window.__homeMusicStatusAudioHandler = sync;\n' +
-    '    }\n' +
-    '\n' +
-    '    sync();\n' +
-    '  }\n' +
-    '\n' +
-    '  if (!window.__homeMusicStatusPageLoadBound) {\n' +
-    '    window.__homeMusicStatusPageLoadBound = true;\n' +
-    "    document.addEventListener('astro:page-load', initMusicStatus);\n" +
-    "    document.addEventListener('astro:before-swap', cleanupMusicStatus);\n" +
-    '  }\n' +
-    '  initMusicStatus();\n' +
-    '})();\n' +
-    '</script>\n'
-  
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:117:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1382:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
-      at Test.postRun (node:internal/test_runner/test:1522:19)
-      at Test.run (node:internal/test_runner/test:1447:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: `<button class="music-status-widget" id="home-music-status" type="button" aria-label="打开 SEKAI 播放器">\n  <span class="music-status-cover" aria-hidden="true">\n    <img data-music-cover alt="" />\n    <span data-music-fallback>♪</span>\n  </span>\n  <span class="music-status-copy">\n    <small data-music-state>音乐待机</small>\n    <strong data-music-title>SEKAI Player</strong>\n    <span data-music-artist>点击打开播放器</span>\n  </span>\n  <span class="music-status-open" aria-hidden="true">↗</span>\n</button>\n\n<script is:inline>\n(function () {\n  function cleanupMusicStatus() {\n    if (window.__homeMusicStatusObserver) {\n      window.__homeMusicStatusObserver.disconnect();\n      window.__homeMusicStatusObserver = null;\n    }\n    var audio = window.__homeMusicStatusAudio;\n    var handler = window.__homeMusicStatusAudioHandler;\n    if (audio && handler) {\n      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {\n        audio.removeEventListener(eventName, handler);\n      });\n    }\n    window.__homeMusicStatusAudio = null;\n    window.__homeMusicStatusAudioHandler = null;\n  }\n\n  function initMusicStatus() {\n    var root = document.getElementById('home-music-status');\n    if (!root || root.dataset.initialized === 'true') return;\n    root.dataset.initialized = 'true';\n    cleanupMusicStatus();\n\n    var state = root.querySelector('[data-music-state]');\n    var title = root.querySelector('[data-music-title]');\n    var artist = root.querySelector('[data-music-artist]');\n    var cover = root.querySelector('[data-music-cover]');\n    var fallback = root.querySelector('[data-music-fallback]');\n    var audio = document.getElementById('sekaiAudio');\n\n    function sync() {\n      var sourceTitle = document.getElementById('sekaiTrackTitle');\n      var sourceArtist = document.getElementById('sekaiTrackArtist');\n      var sourceCover = document.getElementById('sekaiDockCover') || document.getElementById('sekaiCover');\n      var currentTitle = sourceTitle && sourceTitle.textContent ? sourceTitle.textContent.trim() : '';\n      var currentArtist = sourceArtist && sourceArtist.textContent ? sourceArtist.textContent.trim() : '';\n      var hasTrack = currentTitle && currentTitle !== '选择一首歌曲';\n\n      if (title) title.textContent = hasTrack ? currentTitle : 'SEKAI Player';\n      if (artist) artist.textContent = hasTrack ? (currentArtist || '未知艺术家') : '点击打开播放器';\n      if (state) state.textContent = audio && audio.src && !audio.paused ? '正在播放' : (hasTrack ? '已暂停' : '音乐待机');\n      root.classList.toggle('is-playing', !!(audio && audio.src && !audio.paused));\n\n      var coverSrc = sourceCover && (sourceCover.currentSrc || sourceCover.src) ? (sourceCover.currentSrc || sourceCover.src) : '';\n      if (cover && coverSrc) {\n        cover.src = coverSrc;\n        cover.style.display = 'block';\n        if (fallback) fallback.style.display = 'none';\n      } else if (cover) {\n        cover.removeAttribute('src');\n        cover.style.display = 'none';\n        if (fallback) fallback.style.display = '';\n      }\n    }\n\n    root.addEventListener('click', function () {\n      var playerButton = document.getElementById('sekaiPlayerBtn');\n      if (playerButton) playerButton.click();\n    });\n\n    var observer = new MutationObserver(sync);\n    ['sekaiTrackTitle', 'sekaiTrackArtist', 'sekaiDockCover', 'sekaiCover'].forEach(function (id) {\n      var element = document.getElementById(id);\n      if (element) observer.observe(element, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['src'] });\n    });\n    window.__homeMusicStatusObserver = observer;\n\n    if (audio) {\n      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {\n        audio.addEventListener(eventName, sync);\n      });\n      window.__homeMusicStatusAudio = audio;\n      window.__homeMusicStatusAudioHandler = sync;\n    }\n\n    sync();\n  }\n\n  if (!window.__homeMusicStatusPageLoadBound) {\n    window.__homeMusicStatusPageLoadBound = true;\n    document.addEventListener('astro:page-load', initMusicStatus);\n    document.addEventListener('astro:before-swap', cleanupMusicStatus);\n  }\n  initMusicStatus();\n})();\n</script>\n`,
-    expected: /__sekaiOpenPlayer/,
-    operator: 'match',
-    diff: 'simple'
-  }
-
 test at tests/firefly-ui-refresh.test.mjs:121:1
-✖ home music card uses the player public open API instead of simulating the draggable dock click (1.196681ms)
+✖ home music card uses the player public open API instead of simulating the draggable dock click (2.776792ms)
   AssertionError [ERR_ASSERTION]: The input did not match the regular expression /window\.__sekaiOpenPlayer\s*=\s*function/. Input:
   
   '---\n' +
@@ -579,126 +459,6 @@ test at tests/firefly-ui-refresh.test.mjs:121:1
     code: 'ERR_ASSERTION',
     actual: `---\nconst metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink/api';\n---\n\n<button id="sekaiPlayerBtn" class="sekai-player-btn" data-meting-api={metingApi} title="SEKAI 播放器" aria-label="打开 SEKAI 播放器" transition:persist transition:name="sekai-btn">\n  <img id="sekaiDockCover" class="sekai-dock-cover" src="" alt="" aria-hidden="true" />\n  <canvas id="sekaiDockVisualizer" class="sekai-dock-visualizer" aria-hidden="true"></canvas>\n  <span id="sekaiDockIcon" class="sekai-dock-icon">\n    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="pjGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FF5CA8"/><stop offset="100%" stop-color="#A855F7"/></linearGradient></defs><path d="M16 3v12.5A3.5 3.5 0 1 1 14 12V6.5l-5 1.4v9.6a3.5 3.5 0 1 1-2-3.16V5.5a1 1 0 0 1 .74-.97l7-1.9A1 1 0 0 1 16 3.57z" fill="url(#pjGrad)"/><path d="M20 7l.7 1.55L22.3 9l-1.3.95L20.6 11.5l-.95-1.3L18.3 11l.65-1.55L18.3 8l1.35.55z" fill="#FFD54F" opacity="0.9"/><path d="M4.5 16.5l.45.95.95.45-.95.45-.45.95-.45-.95-.95-.45.95-.45z" fill="#FFD54F" opacity="0.75"/></svg>\n  </span>\n</button>\n\n<div id="sekaiPlayerPanel" class="sekai-player-panel hidden" role="dialog" aria-label="SEKAI 播放器" transition:persist transition:name="sekai-panel">\n  <div class="sekai-mobile-bg" id="sekaiMobileBg" aria-hidden="true"></div>\n  <div class="sekai-player-header">\n    <div class="sekai-heading">\n      <span class="sekai-player-title">PJSK CD</span>\n      <span id="sekaiSourceStatus" class="sekai-status">未加载</span>\n    </div>\n    <div class="sekai-header-tools">\n      <div class="sekai-header-toggle sekai-header-mode" aria-label="音频版本">\n        <button id="sekaiLongBtn" class="sekai-header-btn active" type="button" title="完整版">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>\n        </button>\n        <button id="sekaiShortBtn" class="sekai-header-btn" type="button" title="片段版">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="4" height="12" rx="1"/><rect x="8" y="4" width="4" height="16" rx="1"/><rect x="14" y="8" width="4" height="8" rx="1"/></svg>\n        </button>\n      </div>\n      <div class="sekai-header-toggle sekai-header-order" aria-label="播放顺序">\n        <button id="sekaiSequenceBtn" class="sekai-header-btn active" type="button" title="顺序播放">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>\n        </button>\n        <button id="sekaiShuffleBtn" class="sekai-header-btn" type="button" title="随机播放">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>\n        </button>\n      </div>\n      <div class="sekai-header-toggle sekai-header-visual" aria-label="可视化">\n        <button id="sekaiVizOffBtn" class="sekai-header-btn active" type="button" title="关闭可视化" aria-pressed="true">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>\n        </button>\n        <button id="sekaiVizCdBtn" class="sekai-header-btn" type="button" title="环形可视化" aria-pressed="false">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/><circle cx="12" cy="12" r="3"/></svg>\n        </button>\n        <button id="sekaiVizDockBtn" class="sekai-header-btn" type="button" title="悬浮可视化" aria-pressed="false">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="3" width="6" height="6" rx="1"/><rect x="3" y="15" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/></svg>\n        </button>\n        <button id="sekaiVizPageBtn" class="sekai-header-btn" type="button" title="背景可视化" aria-pressed="false">\n          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>\n        </button>\n      </div>\n    </div>\n    <button id="sekaiPlayerCloseBtn" class="sekai-player-close" title="关闭" aria-label="关闭">×</button>\n  </div>\n\n  <div class="sekai-player-body">\n    <aside class="sekai-library-pane">\n      <button class="sekai-lib-close" title="关闭歌单" aria-label="关闭歌单">&times;</button>\n      <div class="sekai-library-controls">\n        <input id="sekaiSearchInput" class="sekai-search" type="search" placeholder="搜索曲名 / 作曲 / 版本" autocomplete="off" />\n        <div class="sekai-dropdown sekai-tag-dropdown" id="sekaiTagDropdown">\n          <button id="sekaiTagButton" class="sekai-dropdown-btn" type="button" aria-haspopup="listbox" aria-expanded="false">\n            <span class="sekai-dropdown-kicker">UNIT</span>\n            <span id="sekaiTagLabel" class="sekai-dropdown-value">全部</span>\n          </button>\n          <div id="sekaiTagMenu" class="sekai-dropdown-menu" role="listbox"></div>\n        </div>\n      </div>\n\n      <div class="sekai-import-bar">\n        <button id="sekaiLocalImport" class="sekai-import-btn" type="button" title="添加本地音乐">\n          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>\n          <span>本地音乐</span>\n        </button>\n        <input type="file" id="sekaiLocalFileInput" accept="audio/*" multiple hidden />\n        <button id="sekaiOnlineImport" class="sekai-import-btn" type="button" title="导入在线歌单">\n          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>\n          <span>在线歌单</span>\n        </button>\n        <button id="sekaiClearImported" class="sekai-import-btn sekai-import-clear" type="button" title="清空所有导入歌曲">\n          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>\n          <span>清空</span>\n        </button>\n      </div>\n\n      <div id="sekaiOnlinePanel" class="sekai-online-panel" style="display:none">\n        <div class="sekai-online-tabs">\n          <button class="sekai-online-tab active" data-platform="netease">网易云</button>\n          <button class="sekai-online-tab" data-platform="qq">QQ音乐</button>\n        </div>\n        <div id="sekaiNeteaseCookieRow" class="sekai-qq-cookie-row" style="display:none">\n          <input id="sekaiNeteaseCookie" class="sekai-online-input" type="text" placeholder="粘贴网易云 cookie（含 MUSIC_U，私密歌单必填）" autocomplete="off" />\n          <button id="sekaiNeteaseCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>\n        </div>\n        <div id="sekaiQQCookieRow" class="sekai-qq-cookie-row" style="display:none">\n          <input id="sekaiQQCookie" class="sekai-online-input" type="text" placeholder="粘贴QQ音乐 cookie（含 qqmusic_key）" autocomplete="off" />\n          <button id="sekaiQQCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>\n        </div>\n        <div class="sekai-online-input-row">\n          <input id="sekaiPlaylistUrl" class="sekai-online-input" type="text" placeholder="粘贴歌单链接或ID" autocomplete="off" />\n          <button id="sekaiPlaylistFetch" class="sekai-online-fetch" type="button">导入</button>\n        </div>\n        <div id="sekaiOnlineStatus" class="sekai-online-status"></div>\n        <button id="sekaiOnlineClose" class="sekai-online-close" type="button">收起</button>\n      </div>\n\n      <div class="sekai-playlist-label">\n        <span>播放列表</span>\n        <span id="sekaiTrackCount">0</span>\n      </div>\n      <div class="sekai-playlist" id="sekaiPlaylist"></div>\n    </aside>\n\n    <section class="sekai-main-pane">\n      <div class="sekai-top-section">\n        <div class="sekai-cover-wrap">\n          <div class="sekai-cd paused" id="sekaiCd">\n            <canvas id="sekaiCdVisualizer" class="sekai-cd-visualizer" aria-hidden="true"></canvas>\n            <img class="sekai-cover" id="sekaiCover" src="" alt="封面" style="display:none;" />\n            <div class="sekai-cover-fallback" id="sekaiCoverFallback">♪</div>\n          </div>\n        </div>\n      </div>\n\n        <div class="sekai-now-playing">\n          <div class="sekai-track-title" id="sekaiTrackTitle">选择一首歌曲</div>\n          <div class="sekai-track-artist" id="sekaiTrackArtist">Project SEKAI</div>\n          <div class="sekai-prog`... 137627 more characters,
     expected: /window\.__sekaiOpenPlayer\s*=\s*function/,
-    operator: 'match',
-    diff: 'simple'
-  }
-
-test at tests/firefly-ui-refresh.test.mjs:129:1
-✖ home music card proxies previous, play-pause, and next to the existing player controls (0.489663ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /id="home-music-prev"/. Input:
-  
-  '<button class="music-status-widget" id="home-music-status" type="button" aria-label="打开 SEKAI 播放器">\n' +
-    '  <span class="music-status-cover" aria-hidden="true">\n' +
-    '    <img data-music-cover alt="" />\n' +
-    '    <span data-music-fallback>♪</span>\n' +
-    '  </span>\n' +
-    '  <span class="music-status-copy">\n' +
-    '    <small data-music-state>音乐待机</small>\n' +
-    '    <strong data-music-title>SEKAI Player</strong>\n' +
-    '    <span data-music-artist>点击打开播放器</span>\n' +
-    '  </span>\n' +
-    '  <span class="music-status-open" aria-hidden="true">↗</span>\n' +
-    '</button>\n' +
-    '\n' +
-    '<script is:inline>\n' +
-    '(function () {\n' +
-    '  function cleanupMusicStatus() {\n' +
-    '    if (window.__homeMusicStatusObserver) {\n' +
-    '      window.__homeMusicStatusObserver.disconnect();\n' +
-    '      window.__homeMusicStatusObserver = null;\n' +
-    '    }\n' +
-    '    var audio = window.__homeMusicStatusAudio;\n' +
-    '    var handler = window.__homeMusicStatusAudioHandler;\n' +
-    '    if (audio && handler) {\n' +
-    "      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {\n" +
-    '        audio.removeEventListener(eventName, handler);\n' +
-    '      });\n' +
-    '    }\n' +
-    '    window.__homeMusicStatusAudio = null;\n' +
-    '    window.__homeMusicStatusAudioHandler = null;\n' +
-    '  }\n' +
-    '\n' +
-    '  function initMusicStatus() {\n' +
-    "    var root = document.getElementById('home-music-status');\n" +
-    "    if (!root || root.dataset.initialized === 'true') return;\n" +
-    "    root.dataset.initialized = 'true';\n" +
-    '    cleanupMusicStatus();\n' +
-    '\n' +
-    "    var state = root.querySelector('[data-music-state]');\n" +
-    "    var title = root.querySelector('[data-music-title]');\n" +
-    "    var artist = root.querySelector('[data-music-artist]');\n" +
-    "    var cover = root.querySelector('[data-music-cover]');\n" +
-    "    var fallback = root.querySelector('[data-music-fallback]');\n" +
-    "    var audio = document.getElementById('sekaiAudio');\n" +
-    '\n' +
-    '    function sync() {\n' +
-    "      var sourceTitle = document.getElementById('sekaiTrackTitle');\n" +
-    "      var sourceArtist = document.getElementById('sekaiTrackArtist');\n" +
-    "      var sourceCover = document.getElementById('sekaiDockCover') || document.getElementById('sekaiCover');\n" +
-    "      var currentTitle = sourceTitle && sourceTitle.textContent ? sourceTitle.textContent.trim() : '';\n" +
-    "      var currentArtist = sourceArtist && sourceArtist.textContent ? sourceArtist.textContent.trim() : '';\n" +
-    "      var hasTrack = currentTitle && currentTitle !== '选择一首歌曲';\n" +
-    '\n' +
-    "      if (title) title.textContent = hasTrack ? currentTitle : 'SEKAI Player';\n" +
-    "      if (artist) artist.textContent = hasTrack ? (currentArtist || '未知艺术家') : '点击打开播放器';\n" +
-    "      if (state) state.textContent = audio && audio.src && !audio.paused ? '正在播放' : (hasTrack ? '已暂停' : '音乐待机');\n" +
-    "      root.classList.toggle('is-playing', !!(audio && audio.src && !audio.paused));\n" +
-    '\n' +
-    "      var coverSrc = sourceCover && (sourceCover.currentSrc || sourceCover.src) ? (sourceCover.currentSrc || sourceCover.src) : '';\n" +
-    '      if (cover && coverSrc) {\n' +
-    '        cover.src = coverSrc;\n' +
-    "        cover.style.display = 'block';\n" +
-    "        if (fallback) fallback.style.display = 'none';\n" +
-    '      } else if (cover) {\n' +
-    "        cover.removeAttribute('src');\n" +
-    "        cover.style.display = 'none';\n" +
-    "        if (fallback) fallback.style.display = '';\n" +
-    '      }\n' +
-    '    }\n' +
-    '\n' +
-    "    root.addEventListener('click', function () {\n" +
-    "      var playerButton = document.getElementById('sekaiPlayerBtn');\n" +
-    '      if (playerButton) playerButton.click();\n' +
-    '    });\n' +
-    '\n' +
-    '    var observer = new MutationObserver(sync);\n' +
-    "    ['sekaiTrackTitle', 'sekaiTrackArtist', 'sekaiDockCover', 'sekaiCover'].forEach(function (id) {\n" +
-    '      var element = document.getElementById(id);\n' +
-    "      if (element) observer.observe(element, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['src'] });\n" +
-    '    });\n' +
-    '    window.__homeMusicStatusObserver = observer;\n' +
-    '\n' +
-    '    if (audio) {\n' +
-    "      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {\n" +
-    '        audio.addEventListener(eventName, sync);\n' +
-    '      });\n' +
-    '      window.__homeMusicStatusAudio = audio;\n' +
-    '      window.__homeMusicStatusAudioHandler = sync;\n' +
-    '    }\n' +
-    '\n' +
-    '    sync();\n' +
-    '  }\n' +
-    '\n' +
-    '  if (!window.__homeMusicStatusPageLoadBound) {\n' +
-    '    window.__homeMusicStatusPageLoadBound = true;\n' +
-    "    document.addEventListener('astro:page-load', initMusicStatus);\n" +
-    "    document.addEventListener('astro:before-swap', cleanupMusicStatus);\n" +
-    '  }\n' +
-    '  initMusicStatus();\n' +
-    '})();\n' +
-    '</script>\n'
-  
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:131:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1382:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
-      at Test.postRun (node:internal/test_runner/test:1522:19)
-      at Test.run (node:internal/test_runner/test:1447:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: `<button class="music-status-widget" id="home-music-status" type="button" aria-label="打开 SEKAI 播放器">\n  <span class="music-status-cover" aria-hidden="true">\n    <img data-music-cover alt="" />\n    <span data-music-fallback>♪</span>\n  </span>\n  <span class="music-status-copy">\n    <small data-music-state>音乐待机</small>\n    <strong data-music-title>SEKAI Player</strong>\n    <span data-music-artist>点击打开播放器</span>\n  </span>\n  <span class="music-status-open" aria-hidden="true">↗</span>\n</button>\n\n<script is:inline>\n(function () {\n  function cleanupMusicStatus() {\n    if (window.__homeMusicStatusObserver) {\n      window.__homeMusicStatusObserver.disconnect();\n      window.__homeMusicStatusObserver = null;\n    }\n    var audio = window.__homeMusicStatusAudio;\n    var handler = window.__homeMusicStatusAudioHandler;\n    if (audio && handler) {\n      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {\n        audio.removeEventListener(eventName, handler);\n      });\n    }\n    window.__homeMusicStatusAudio = null;\n    window.__homeMusicStatusAudioHandler = null;\n  }\n\n  function initMusicStatus() {\n    var root = document.getElementById('home-music-status');\n    if (!root || root.dataset.initialized === 'true') return;\n    root.dataset.initialized = 'true';\n    cleanupMusicStatus();\n\n    var state = root.querySelector('[data-music-state]');\n    var title = root.querySelector('[data-music-title]');\n    var artist = root.querySelector('[data-music-artist]');\n    var cover = root.querySelector('[data-music-cover]');\n    var fallback = root.querySelector('[data-music-fallback]');\n    var audio = document.getElementById('sekaiAudio');\n\n    function sync() {\n      var sourceTitle = document.getElementById('sekaiTrackTitle');\n      var sourceArtist = document.getElementById('sekaiTrackArtist');\n      var sourceCover = document.getElementById('sekaiDockCover') || document.getElementById('sekaiCover');\n      var currentTitle = sourceTitle && sourceTitle.textContent ? sourceTitle.textContent.trim() : '';\n      var currentArtist = sourceArtist && sourceArtist.textContent ? sourceArtist.textContent.trim() : '';\n      var hasTrack = currentTitle && currentTitle !== '选择一首歌曲';\n\n      if (title) title.textContent = hasTrack ? currentTitle : 'SEKAI Player';\n      if (artist) artist.textContent = hasTrack ? (currentArtist || '未知艺术家') : '点击打开播放器';\n      if (state) state.textContent = audio && audio.src && !audio.paused ? '正在播放' : (hasTrack ? '已暂停' : '音乐待机');\n      root.classList.toggle('is-playing', !!(audio && audio.src && !audio.paused));\n\n      var coverSrc = sourceCover && (sourceCover.currentSrc || sourceCover.src) ? (sourceCover.currentSrc || sourceCover.src) : '';\n      if (cover && coverSrc) {\n        cover.src = coverSrc;\n        cover.style.display = 'block';\n        if (fallback) fallback.style.display = 'none';\n      } else if (cover) {\n        cover.removeAttribute('src');\n        cover.style.display = 'none';\n        if (fallback) fallback.style.display = '';\n      }\n    }\n\n    root.addEventListener('click', function () {\n      var playerButton = document.getElementById('sekaiPlayerBtn');\n      if (playerButton) playerButton.click();\n    });\n\n    var observer = new MutationObserver(sync);\n    ['sekaiTrackTitle', 'sekaiTrackArtist', 'sekaiDockCover', 'sekaiCover'].forEach(function (id) {\n      var element = document.getElementById(id);\n      if (element) observer.observe(element, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['src'] });\n    });\n    window.__homeMusicStatusObserver = observer;\n\n    if (audio) {\n      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {\n        audio.addEventListener(eventName, sync);\n      });\n      window.__homeMusicStatusAudio = audio;\n      window.__homeMusicStatusAudioHandler = sync;\n    }\n\n    sync();\n  }\n\n  if (!window.__homeMusicStatusPageLoadBound) {\n    window.__homeMusicStatusPageLoadBound = true;\n    document.addEventListener('astro:page-load', initMusicStatus);\n    document.addEventListener('astro:before-swap', cleanupMusicStatus);\n  }\n  initMusicStatus();\n})();\n</script>\n`,
-    expected: /id="home-music-prev"/,
     operator: 'match',
     diff: 'simple'
   }
