@@ -49,3 +49,20 @@ test('homepage music widget uses the approved large-cover composition', () => {
   assert.match(music, /border-radius:\s*22px/);
   assert.match(music, /window\.__sekaiOpenPlayer\s*\?\.\(\)/);
 });
+
+test('sakura effect renders drawn petals through canvas worker with a safe fallback', () => {
+  const particles = readSource('src/components/SekaiParticles.astro');
+  const worker = readSource('src/workers/sakura.worker.js');
+
+  assert.match(particles, /<canvas[^>]*id="sakura-canvas"/);
+  assert.match(particles, /new Worker\(new URL\(['"]\.\.\/workers\/sakura\.worker\.js['"], import\.meta\.url\)/);
+  assert.match(particles, /transferControlToOffscreen/);
+  assert.match(particles, /getContext\(['"]2d['"]\)/);
+  assert.match(particles, /lidure:sakura-setting/);
+  assert.match(particles, /prefers-reduced-motion/);
+  assert.match(worker, /bezierCurveTo/);
+  assert.match(worker, /MAX_PETALS\s*=\s*24/);
+  assert.match(worker, /wind|sway/);
+  assert.doesNotMatch(particles, /createElement\(['"]div['"]\)/);
+  assert.doesNotMatch(particles, /🌸|🌷|🌹|🌺|❀/);
+});
