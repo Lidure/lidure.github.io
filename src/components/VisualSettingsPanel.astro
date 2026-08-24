@@ -4,6 +4,8 @@
   transition:persist
   type="button"
   aria-label="背景与外观设置"
+  aria-controls="hero-settings-panel"
+  aria-expanded="false"
   title="背景与外观设置"
 >
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -12,11 +14,11 @@
   </svg>
 </button>
 
-<div class="hero-settings-panel" id="hero-settings-panel" transition:persist>
+<div class="hero-settings-panel" id="hero-settings-panel" transition:persist role="dialog" aria-labelledby="visual-settings-title">
   <div class="settings-header">
     <div>
       <span class="settings-kicker">DISPLAY</span>
-      <span class="settings-title">背景与外观</span>
+      <span class="settings-title" id="visual-settings-title">背景与外观</span>
     </div>
     <button class="settings-close" id="settings-close" type="button" aria-label="关闭">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -138,7 +140,8 @@
   .visual-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:5px; margin:0 14px 12px; padding:4px; border-radius:12px; background:color-mix(in srgb,var(--card-bg) 68%,transparent); }
   .visual-tab { min-height:34px; border:0; border-radius:9px; color:var(--muted); background:transparent; font:inherit; font-size:.8rem; font-weight:700; cursor:pointer; }
   .visual-tab.is-active { color:var(--accent); background:color-mix(in srgb,var(--accent) 13%,var(--panel-bg)); box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--accent) 20%,transparent); }
-  .visual-tab:focus-visible,.wallpaper-mode-option:focus-visible,.settings-reset:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .visual-tab:focus-visible,.wallpaper-mode-option:focus-visible,.settings-reset:focus-visible,.hero-settings-btn:focus-visible,.settings-close:focus-visible,.url-add-btn:focus-visible,.media-manage-btn:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+  .toggle-switch input:focus-visible + .toggle-track { outline:2px solid var(--accent); outline-offset:2px; }
   .settings-body { overflow-y:auto; padding:2px 18px 16px; }
   .visual-tab-panel { display:grid; gap:14px; }
   .visual-tab-panel[hidden] { display:none; }
@@ -174,8 +177,8 @@
   .settings-footer { padding:11px 18px 16px; border-top:1px solid var(--border); }
   .settings-reset { width:100%; min-height:38px; border:1px solid var(--border); border-radius:10px; color:var(--muted); background:transparent; font:inherit; font-size:.78rem; font-weight:700; cursor:pointer; }
   .settings-reset:hover { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 36%,var(--border)); background:color-mix(in srgb,var(--accent) 7%,transparent); }
-  @media (max-width:720px) { .hero-settings-btn{left:16px;top:80px;width:38px;height:38px}.hero-settings-panel{left:12px;right:12px;top:126px;width:auto;max-height:calc(100vh - 146px);border-radius:18px}.settings-body{padding-left:14px;padding-right:14px} }
-  @media (max-width:480px) { .hero-settings-btn{left:12px;top:76px;width:36px;height:36px}.hero-settings-panel{left:8px;right:8px;top:118px;max-height:calc(100vh - 128px)}.settings-header{padding:13px 14px 10px}.visual-tabs{margin-left:10px;margin-right:10px}.settings-close{width:40px;height:40px} }
+  @media (max-width:720px) { .hero-settings-btn{left:16px;top:80px;width:38px;height:38px}.hero-settings-panel{left:12px;right:12px;top:126px;width:auto;max-height:calc(100vh - 146px);max-height:calc(100dvh - 146px);padding-bottom:env(safe-area-inset-bottom);border-radius:18px}.settings-body{padding-left:14px;padding-right:14px} }
+  @media (max-width:480px) { .hero-settings-btn{left:12px;top:76px;width:36px;height:36px}.hero-settings-panel{left:8px;right:8px;top:118px;max-height:calc(100vh - 128px);max-height:calc(100dvh - 128px);padding-bottom:env(safe-area-inset-bottom)}.settings-header{padding:13px 14px 10px}.visual-tabs{margin-left:10px;margin-right:10px}.settings-close{width:40px;height:40px} }
   @media (prefers-reduced-motion:reduce) { .hero-settings-panel.open{animation:none}.hero-settings-btn,.toggle-track,.toggle-track::after{transition:none} }
 </style>
 
@@ -185,12 +188,33 @@
   function initVisualSettingsPanel() {
     var panel = document.getElementById('hero-settings-panel');
     if (!panel) return;
+    var settingsButton = document.getElementById('hero-settings-btn');
+    var closeButton = document.getElementById('settings-close');
 
     var visualWindow = window;
     if (visualWindow.__visualSettingsPanelController) visualWindow.__visualSettingsPanelController.abort();
     var controller = typeof AbortController === 'function' ? new AbortController() : null;
     visualWindow.__visualSettingsPanelController = controller;
     var options = controller ? { signal: controller.signal } : undefined;
+
+    if (visualWindow.__visualSettingsPanelExpandedObserver) visualWindow.__visualSettingsPanelExpandedObserver.disconnect();
+    function syncExpandedState() {
+      if (settingsButton) settingsButton.setAttribute('aria-expanded', String(panel.classList.contains('open')));
+    }
+    var expandedObserver = new MutationObserver(syncExpandedState);
+    expandedObserver.observe(panel, { attributes: true, attributeFilter: ['class'] });
+    visualWindow.__visualSettingsPanelExpandedObserver = expandedObserver;
+    syncExpandedState();
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && panel.classList.contains('open')) {
+        event.preventDefault();
+        if (closeButton) closeButton.click();
+        else panel.classList.remove('open');
+        syncExpandedState();
+        if (settingsButton) settingsButton.focus();
+      }
+    }, options);
 
     var tabs = Array.from(panel.querySelectorAll('[role="tab"]'));
     var activeTab = 'appearance';

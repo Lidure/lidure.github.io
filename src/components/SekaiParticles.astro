@@ -44,12 +44,18 @@ const FALLBACK_MAX_PETALS = 24;
 function readSakuraSettings() {
   let sakura = false;
   let reduceMotion = false;
+  let sakuraDensity = 0.65;
+  let sakuraSpeed = 1;
   try {
     const saved = JSON.parse(localStorage.getItem('hero_settings') || '{}');
     sakura = saved.sakura === true;
     reduceMotion = saved.reduceMotion === true;
+    const densityValue = Number(saved.sakuraDensity);
+    const speedValue = Number(saved.sakuraSpeed);
+    if (Number.isFinite(densityValue)) sakuraDensity = Math.min(1, Math.max(0, densityValue));
+    if (Number.isFinite(speedValue)) sakuraSpeed = Math.min(2, Math.max(0.25, speedValue));
   } catch (_error) {}
-  return { sakura, reduceMotion };
+  return { sakura, reduceMotion, sakuraDensity, sakuraSpeed };
 }
 
 function initSakuraParticles() {
@@ -64,6 +70,8 @@ function initSakuraParticles() {
   const initialSettings = readSakuraSettings();
   let requestedEnabled = initialSettings.sakura;
   let explicitReduceMotion = initialSettings.reduceMotion;
+  let density = initialSettings.sakuraDensity;
+  let speedMultiplier = initialSettings.sakuraSpeed;
   let worker: Worker | null = null;
   let fallbackContext: CanvasRenderingContext2D | null = null;
   let fallbackFrame = 0;
@@ -114,11 +122,16 @@ function initSakuraParticles() {
     };
   }
 
+  function fallbackTargetCount() {
+    return Math.max(0, Math.round(FALLBACK_MAX_PETALS * density));
+  }
+
   function resetFallbackPetals(initial = false) {
     fallbackPetals = [];
     fallbackSpawnCarry = 0;
     if (!isEffectEnabled()) return;
-    const count = initial ? Math.min(14, FALLBACK_MAX_PETALS) : 6;
+    const target = fallbackTargetCount();
+    const count = initial ? Math.min(Math.round(14 * density), target) : Math.min(6, target);
     for (let i = 0; i < count; i += 1) fallbackPetals.push(createFallbackPetal(true));
   }
 
@@ -155,8 +168,10 @@ function initSakuraParticles() {
     fallbackContext.clearRect(0, 0, viewportWidth, viewportHeight);
 
     if (isEffectEnabled()) {
-      fallbackSpawnCarry += dt * 1.15;
-      while (fallbackSpawnCarry >= 1 && fallbackPetals.length < FALLBACK_MAX_PETALS) {
+      const target = fallbackTargetCount();
+      if (fallbackPetals.length > target) fallbackPetals.length = target;
+      fallbackSpawnCarry += dt * 1.15 * Math.max(0.15, density);
+      while (fallbackSpawnCarry >= 1 && fallbackPetals.length < target) {
         fallbackSpawnCarry -= 1;
         fallbackPetals.push(createFallbackPetal(false));
       }
@@ -165,9 +180,9 @@ function initSakuraParticles() {
       for (let i = fallbackPetals.length - 1; i >= 0; i -= 1) {
         const petal = fallbackPetals[i];
         const breeze = Math.sin(nowSeconds * petal.sway + petal.phase) * petal.wind;
-        petal.x += (petal.drift + breeze) * dt;
-        petal.y += petal.speed * dt;
-        petal.rotation += petal.spin * dt;
+        petal.x += (petal.drift + breeze) * dt * speedMultiplier;
+        petal.y += petal.speed * dt * speedMultiplier;
+        petal.rotation += petal.spin * dt * speedMultiplier;
         if (petal.y > viewportHeight + 90 || petal.x > viewportWidth + 100 || petal.x < -120) {
           fallbackPetals.splice(i, 1);
           continue;
@@ -203,6 +218,8 @@ function initSakuraParticles() {
         type: 'enabled',
         enabled: requestedEnabled && document.visibilityState !== 'hidden',
         reducedMotion: isReducedMotion(),
+        density,
+        speedMultiplier,
       });
     } else if (active && fallbackPetals.length === 0) {
       resetFallbackPetals(true);
@@ -228,6 +245,8 @@ function initSakuraParticles() {
         dpr,
         enabled: requestedEnabled,
         reducedMotion: isReducedMotion(),
+        density,
+        speedMultiplier,
       }, [offscreen]);
     } catch (_error) {
       worker?.terminate();
@@ -251,6 +270,23 @@ function initSakuraParticles() {
     syncEnabled();
   }
 
+  function onVisualSettingsChange(event: Event) {
+    const customEvent = event as CustomEvent<{ settings?: { sakura?: boolean; sakuraDensity?: number; sakuraSpeed?: number; reduceMotion?: boolean } }>;
+    const settings = customEvent.detail?.settings;
+    if (!settings) return;
+    if (typeof settings.sakura === 'boolean') requestedEnabled = settings.sakura;
+    if (Number.isFinite(Number(settings.sakuraDensity))) density = Math.min(1, Math.max(0, Number(settings.sakuraDensity)));
+    if (Number.isFinite(Number(settings.sakuraSpeed))) speedMultiplier = Math.min(2, Math.max(0.25, Number(settings.sakuraSpeed)));
+    if (typeof settings.reduceMotion === 'boolean') explicitReduceMotion = settings.reduceMotion;
+    if (worker) worker.postMessage({ type: 'settings', density, speedMultiplier, enabled: requestedEnabled, reducedMotion: isReducedMotion() });
+    else {
+      const target = fallbackTargetCount();
+      if (fallbackPetals.length > target) fallbackPetals.length = target;
+      if (isEffectEnabled() && fallbackPetals.length === 0) resetFallbackPetals(true);
+    }
+    syncEnabled();
+  }
+
   function onMotionPreferenceChange() {
     syncEnabled();
   }
@@ -263,6 +299,7 @@ function initSakuraParticles() {
 
   window.addEventListener('resize', resize, { passive: true });
   document.addEventListener('lidure:sakura-setting', onSakuraSetting);
+  document.addEventListener('lidure:visual-settings-change', onVisualSettingsChange);
   document.addEventListener('visibilitychange', onVisibilityChange);
   motionQuery.addEventListener('change', onMotionPreferenceChange);
   syncEnabled();
@@ -270,6 +307,7 @@ function initSakuraParticles() {
   sakuraWindow.__sakuraParticlesCleanup = () => {
     window.removeEventListener('resize', resize);
     document.removeEventListener('lidure:sakura-setting', onSakuraSetting);
+    document.removeEventListener('lidure:visual-settings-change', onVisualSettingsChange);
     document.removeEventListener('visibilitychange', onVisibilityChange);
     motionQuery.removeEventListener('change', onMotionPreferenceChange);
     rootMotionObserver.disconnect();

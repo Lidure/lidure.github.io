@@ -206,6 +206,29 @@
     background: color-mix(in srgb, var(--standard-purple-soft) 84%, var(--standard-card-bg));
   }
 
+  body.layout-standard .music-status-cover-open:focus-visible,
+  body.layout-standard .music-status-play-overlay:focus-visible,
+  body.layout-standard .music-status-control:focus-visible {
+    outline: 2px solid var(--standard-purple);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body.layout-standard .music-status-cover-open img,
+    body.layout-standard .music-status-play-overlay,
+    body.layout-standard .music-status-control { transition: none; }
+    body.layout-standard .music-status-cover-open:hover img { transform: none; }
+    body.layout-standard .music-status-play-overlay:hover { transform: translate(-50%, -50%); }
+    body.layout-standard .music-status-control:hover { transform: none; }
+  }
+
+  html[data-reduce-motion="true"] body.layout-standard .music-status-cover-open img,
+  html[data-reduce-motion="true"] body.layout-standard .music-status-play-overlay,
+  html[data-reduce-motion="true"] body.layout-standard .music-status-control { transition: none; }
+  html[data-reduce-motion="true"] body.layout-standard .music-status-cover-open:hover img { transform: none; }
+  html[data-reduce-motion="true"] body.layout-standard .music-status-play-overlay:hover { transform: translate(-50%, -50%); }
+  html[data-reduce-motion="true"] body.layout-standard .music-status-control:hover { transform: none; }
+
   @media (max-width: 760px) {
     body.layout-standard .music-status-art {
       max-height: min(72vw, 360px);
