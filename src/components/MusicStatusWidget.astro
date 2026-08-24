@@ -1,0 +1,100 @@
+<button class="music-status-widget" id="home-music-status" type="button" aria-label="打开 SEKAI 播放器">
+  <span class="music-status-cover" aria-hidden="true">
+    <img data-music-cover alt="" />
+    <span data-music-fallback>♪</span>
+  </span>
+  <span class="music-status-copy">
+    <small data-music-state>音乐待机</small>
+    <strong data-music-title>SEKAI Player</strong>
+    <span data-music-artist>点击打开播放器</span>
+  </span>
+  <span class="music-status-open" aria-hidden="true">↗</span>
+</button>
+
+<script is:inline>
+(function () {
+  function cleanupMusicStatus() {
+    if (window.__homeMusicStatusObserver) {
+      window.__homeMusicStatusObserver.disconnect();
+      window.__homeMusicStatusObserver = null;
+    }
+    var audio = window.__homeMusicStatusAudio;
+    var handler = window.__homeMusicStatusAudioHandler;
+    if (audio && handler) {
+      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {
+        audio.removeEventListener(eventName, handler);
+      });
+    }
+    window.__homeMusicStatusAudio = null;
+    window.__homeMusicStatusAudioHandler = null;
+  }
+
+  function initMusicStatus() {
+    var root = document.getElementById('home-music-status');
+    if (!root || root.dataset.initialized === 'true') return;
+    root.dataset.initialized = 'true';
+    cleanupMusicStatus();
+
+    var state = root.querySelector('[data-music-state]');
+    var title = root.querySelector('[data-music-title]');
+    var artist = root.querySelector('[data-music-artist]');
+    var cover = root.querySelector('[data-music-cover]');
+    var fallback = root.querySelector('[data-music-fallback]');
+    var audio = document.getElementById('sekaiAudio');
+
+    function sync() {
+      var sourceTitle = document.getElementById('sekaiTrackTitle');
+      var sourceArtist = document.getElementById('sekaiTrackArtist');
+      var sourceCover = document.getElementById('sekaiDockCover') || document.getElementById('sekaiCover');
+      var currentTitle = sourceTitle && sourceTitle.textContent ? sourceTitle.textContent.trim() : '';
+      var currentArtist = sourceArtist && sourceArtist.textContent ? sourceArtist.textContent.trim() : '';
+      var hasTrack = currentTitle && currentTitle !== '选择一首歌曲';
+
+      if (title) title.textContent = hasTrack ? currentTitle : 'SEKAI Player';
+      if (artist) artist.textContent = hasTrack ? (currentArtist || '未知艺术家') : '点击打开播放器';
+      if (state) state.textContent = audio && audio.src && !audio.paused ? '正在播放' : (hasTrack ? '已暂停' : '音乐待机');
+      root.classList.toggle('is-playing', !!(audio && audio.src && !audio.paused));
+
+      var coverSrc = sourceCover && (sourceCover.currentSrc || sourceCover.src) ? (sourceCover.currentSrc || sourceCover.src) : '';
+      if (cover && coverSrc) {
+        cover.src = coverSrc;
+        cover.style.display = 'block';
+        if (fallback) fallback.style.display = 'none';
+      } else if (cover) {
+        cover.removeAttribute('src');
+        cover.style.display = 'none';
+        if (fallback) fallback.style.display = '';
+      }
+    }
+
+    root.addEventListener('click', function () {
+      var playerButton = document.getElementById('sekaiPlayerBtn');
+      if (playerButton) playerButton.click();
+    });
+
+    var observer = new MutationObserver(sync);
+    ['sekaiTrackTitle', 'sekaiTrackArtist', 'sekaiDockCover', 'sekaiCover'].forEach(function (id) {
+      var element = document.getElementById(id);
+      if (element) observer.observe(element, { subtree: true, childList: true, characterData: true, attributes: true, attributeFilter: ['src'] });
+    });
+    window.__homeMusicStatusObserver = observer;
+
+    if (audio) {
+      ['play', 'pause', 'loadedmetadata', 'emptied'].forEach(function (eventName) {
+        audio.addEventListener(eventName, sync);
+      });
+      window.__homeMusicStatusAudio = audio;
+      window.__homeMusicStatusAudioHandler = sync;
+    }
+
+    sync();
+  }
+
+  if (!window.__homeMusicStatusPageLoadBound) {
+    window.__homeMusicStatusPageLoadBound = true;
+    document.addEventListener('astro:page-load', initMusicStatus);
+    document.addEventListener('astro:before-swap', cleanupMusicStatus);
+  }
+  initMusicStatus();
+})();
+</script>
