@@ -1,0 +1,51 @@
+name: V3 Final Verify And Cleanup
+
+on:
+  push:
+    branches:
+      - feat/firefly-banner-covers-music
+    paths:
+      - .github/workflows/v3-final-verify.yml
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout final branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/firefly-banner-covers-music
+          fetch-depth: 0
+
+      - name: Prepare final clean tree
+        run: git rm .github/workflows/v3-verify.yml .github/workflows/v3-final-verify.yml
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run final full test suite
+        shell: bash
+        env:
+          PUBLIC_MOMENTS_API: https://api.lidure22.xyz/api
+          PUBLIC_MEDIA_BASE_URL: https://api.lidure22.xyz/media
+        run: |
+          set -o pipefail
+          npm test 2>&1 | tee final-verification.log
+
+      - name: Commit verified clean tree and evidence
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add final-verification.log
+          git commit -m "chore: verify final v3 branch"
+          git push origin HEAD:feat/firefly-banner-covers-music
