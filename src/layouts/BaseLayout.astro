@@ -27,15 +27,17 @@ const resolvedBannerSubtitle = bannerSubtitle ?? description;
 
 import '../styles/global.css';
 import '../styles/firefly-refresh.css';
+import '../styles/immersive-nav.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import BlogBanner from '../components/BlogBanner.astro';
 import SiteHeader from '../components/SiteHeader.astro';
+import FloatingControls from '../components/FloatingControls.astro';
 import { ClientRouter } from 'astro:transitions';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
 import SekaiParticles from '../components/SekaiParticles.astro';
 
-const siteBase = Astro.site ?? new URL('https://lidure.xyz');
+const siteBase = Astro.site ?? new URL('https://lidure22.xyz');
 const canonicalUrl = new URL(Astro.url.pathname, siteBase);
 const socialImageUrl = new URL('/site-icon-512.png', siteBase);
 ---
@@ -136,10 +138,11 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     <HeroSlideshow />
     <SekaiParticles />
     <SekaiPlayer />
+    <SiteHeader currentPath={Astro.url.pathname} />
+    <FloatingControls />
 
     {isStandard ? (
       <>
-        <SiteHeader currentPath={Astro.url.pathname} />
         <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
         <div class="standard-page-surface">
           <main class="content-area standard-content">
