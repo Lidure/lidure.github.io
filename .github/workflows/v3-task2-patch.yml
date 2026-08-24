@@ -1,0 +1,110 @@
+name: V3 Task2 Exact Patch
+
+on:
+  push:
+    branches:
+      - feat/firefly-banner-covers-music
+    paths:
+      - .github/workflows/v3-task2-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/firefly-banner-covers-music
+          fetch-depth: 0
+
+      - name: Apply exact Task 2 transforms
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          hero_path = Path('src/components/HeroSlideshow.astro')
+          hero = hero_path.read_text(encoding='utf-8')
+
+          settings_start = hero.index('<button\n  class="hero-settings-btn"')
+          media_start = hero.index('<div class="media-panel" id="media-panel" transition:persist>')
+          hero = hero[:settings_start] + hero[media_start:]
+
+          css_start = hero.index('  /* ===== Settings Button ===== */')
+          css_end = hero.index('  /* --- Media Panel (centered dialog) --- */')
+          hero = hero[:css_start] + hero[css_end:]
+
+          save_start = hero.index('    function save() {')
+          save_end = hero.index('    function addCustomSource', save_start)
+          save_impl = '''    function save() {
+                try {
+                  var payload = {
+                    enabled: state.enabled,
+                    autoplay: state.autoplay,
+                    sakura: state.sakura,
+                    interval: state.interval,
+                    opacity: state.opacity,
+                    quality: state.quality,
+                    selectedIndex: state.selectedIndex,
+                    images: state.images.filter(function(src) {
+                      return defaults.indexOf(src) === -1;
+                    }),
+                    posters: state.posters
+                  };
+                  if (window.__lidureVisualSettings && typeof window.__lidureVisualSettings.write === 'function') {
+                    window.__lidureVisualSettings.write(payload);
+                  } else {
+                    var current = {};
+                    try { current = JSON.parse(localStorage.getItem('hero_settings') || '{}'); } catch (_err) {}
+                    localStorage.setItem('hero_settings', JSON.stringify(Object.assign({}, current, payload)));
+                  }
+                  return true;
+                } catch (e) {
+                  if (e.name === 'QuotaExceededError') {
+                    alert('存储空间不足，请减少图片/视频数量。视频文件较大，建议使用 URL 方式添加。');
+                  }
+                  return false;
+                }
+              }
+
+          '''
+          hero = hero[:save_start] + save_impl + hero[save_end:]
+          hero_path.write_text(hero, encoding='utf-8')
+
+          layout_path = Path('src/layouts/BaseLayout.astro')
+          layout = layout_path.read_text(encoding='utf-8')
+          if "import VisualSettingsPanel from '../components/VisualSettingsPanel.astro';" not in layout:
+              layout = layout.replace(
+                  "import HeroSlideshow from '../components/HeroSlideshow.astro';",
+                  "import VisualSettingsPanel from '../components/VisualSettingsPanel.astro';\nimport HeroSlideshow from '../components/HeroSlideshow.astro';",
+              )
+          layout = layout.replace(
+              '  <body class={`layout-${layoutMode}`}>\n    <HeroSlideshow />',
+              '  <body class={`layout-${layoutMode}`}>\n    <VisualSettingsPanel />\n    <HeroSlideshow />',
+          )
+          layout_path.write_text(layout, encoding='utf-8')
+          PY
+
+          grep -q '__lidureVisualSettings' src/components/HeroSlideshow.astro
+          ! grep -q 'id="hero-settings-btn"' src/components/HeroSlideshow.astro
+          grep -q '<VisualSettingsPanel />' src/layouts/BaseLayout.astro
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Task 2
+        env:
+          PUBLIC_MOMENTS_API: ${{ vars.PUBLIC_MOMENTS_API }}
+          PUBLIC_MEDIA_BASE_URL: ${{ vars.PUBLIC_MEDIA_BASE_URL }}
+        run: npm test
+
+      - name: Commit Task 2 patch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/components/HeroSlideshow.astro src/layouts/BaseLayout.astro
+          git diff --cached --quiet && exit 0
+          git commit -m "feat: connect integrated visual settings panel"
+          git push origin HEAD:feat/firefly-banner-covers-music
