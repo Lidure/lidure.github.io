@@ -8,12 +8,12 @@
 > astro check && astro build
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m02:09:36[22m [34m[content][39m Syncing content
+[2m02:10:38[22m [34m[content][39m Syncing content
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
 [Shiki] The language "conf" doesn't exist, falling back to "plaintext".
-[2m02:09:37[22m [34m[content][39m Synced content
-[2m02:09:37[22m [34m[types][39m Generated [2m1.20s[22m
-[2m02:09:37[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
+[2m02:10:39[22m [34m[content][39m Synced content
+[2m02:10:39[22m [34m[types][39m Generated [2m1.24s[22m
+[2m02:10:39[22m [34m[check][39m Getting diagnostics for Astro files in /home/runner/work/lidure.github.io/lidure.github.io...
 [96msrc/content.config.ts[0m:[93m14[0m:[93m12[0m - [93mwarning[0m[90m ts(6385): [0m'z' is deprecated.
 
 [7m14[0m     draft: z.boolean().default(false),
@@ -201,266 +201,106 @@ Result (45 files):
 - 41 hints
 
 [astro] `markdown.remarkPlugins`, `markdown.rehypePlugins`, and `markdown.remarkRehype` are deprecated. Pass them to `unified({...})` from `@astrojs/markdown-remark` directly instead.
-[2m02:09:43[22m [34m[content][39m Syncing content
-[2m02:09:43[22m [34m[content][39m Synced content
-[2m02:09:43[22m [34m[types][39m Generated [2m417ms[22m
-[2m02:09:43[22m [34m[build][39m output: [34m"static"[39m
-[2m02:09:43[22m [34m[build][39m mode: [34m"static"[39m
-[2m02:09:43[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
-[2m02:09:43[22m [34m[build][39m Collecting build info...
-[2m02:09:43[22m [34m[build][39m [32m✓ Completed in 437ms.[39m
-[2m02:09:43[22m [34m[build][39m Building static entrypoints...
-[2m02:09:45[22m [34m[vite][39m [32m✓ built in 1.92s[39m
-[2m02:09:46[22m [34m[vite][39m [32m✓ built in 864ms[39m
-[2m02:09:46[22m [34m[build][39m Rearranging server assets...
+[2m02:10:46[22m [34m[content][39m Syncing content
+[2m02:10:46[22m [34m[content][39m Synced content
+[2m02:10:46[22m [34m[types][39m Generated [2m425ms[22m
+[2m02:10:46[22m [34m[build][39m output: [34m"static"[39m
+[2m02:10:46[22m [34m[build][39m mode: [34m"static"[39m
+[2m02:10:46[22m [34m[build][39m directory: [34m/home/runner/work/lidure.github.io/lidure.github.io/dist/[39m
+[2m02:10:46[22m [34m[build][39m Collecting build info...
+[2m02:10:46[22m [34m[build][39m [32m✓ Completed in 446ms.[39m
+[2m02:10:46[22m [34m[build][39m Building static entrypoints...
+[2m02:10:48[22m [34m[vite][39m [32m✓ built in 2.02s[39m
+[2m02:10:49[22m [34m[vite][39m [32m✓ built in 917ms[39m
+[2m02:10:49[22m [34m[build][39m Rearranging server assets...
 
 [42m[30m generating static routes [39m[49m
-[2m02:09:46[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+12ms)[22m 
-[2m02:09:46[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+4ms)[22m 
-[2m02:09:46[22m   [34m├─[39m [2m/player/index.html[22m [2m(+4ms)[22m 
-[2m02:09:46[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+7ms)[22m 
-[2m02:09:46[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
-[2m02:09:46[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
-[2m02:09:46[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
-[2m02:09:46[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+243ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/rss.xml[22m [2m(+24ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/search/index.html[22m [2m(+3ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+2ms)[22m 
-[2m02:09:47[22m   [34m├─[39m [2m/index.html[22m [2m(+3ms)[22m 
-[2m02:09:47[22m [32m✓ Completed in 362ms.
+[2m02:10:49[22m   [34m├─[39m [2m/messages/index.html[22m [2m(+13ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/moments/index.html[22m [2m(+5ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/player/index.html[22m [2m(+5ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/posts/hello-world/index.html[22m [2m(+8ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/posts/uav完整流程/index.html[22m [2m(+3ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/posts/视觉光流/index.html[22m [2m(+3ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/posts/视觉光流公式推导与文献/index.html[22m [2m(+4ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/posts/index.html[22m [2m(+344ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/rhythm/index.html[22m [2m(+3ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/rss.xml[22m [2m(+27ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/search/index.html[22m [2m(+3ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/sekai-quest/index.html[22m [2m(+3ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/astro/index.html[22m [2m(+3ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/github-pages/index.html[22m [2m(+2ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/blog/index.html[22m [2m(+2ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/UAV/index.html[22m [2m(+2ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/ROS/index.html[22m [2m(+2ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/树莓派/index.html[22m [2m(+2ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/光流/index.html[22m [2m(+2ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/摄像头/index.html[22m [2m(+2ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/视觉测高/index.html[22m [2m(+2ms)[22m 
+[2m02:10:49[22m   [34m├─[39m [2m/tags/文献/index.html[22m [2m(+2ms)[22m 
+[2m02:10:50[22m   [34m├─[39m [2m/tags/index.html[22m [2m(+3ms)[22m 
+[2m02:10:50[22m   [34m├─[39m [2m/index.html[22m [2m(+3ms)[22m 
+[2m02:10:50[22m [32m✓ Completed in 474ms.
 [39m
 [42m[30m generating optimized images [39m[49m
-[2m02:09:47[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+52ms)[22m [2m(1/4)[22m
-[2m02:09:47[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+61ms)[22m [2m(2/4)[22m
-[2m02:09:47[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+66ms)[22m [2m(3/4)[22m
-[2m02:09:47[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+283ms)[22m [2m(4/4)[22m
-[2m02:09:47[22m [32m✓ Completed in 284ms.
+[2m02:10:50[22m   [32m▶[39m /_astro/image.CGzDrFJK_122Idx.webp [2m(before: 28kB, after: 12kB)[22m [2m(+56ms)[22m [2m(1/4)[22m
+[2m02:10:50[22m   [32m▶[39m /_astro/image-2.DrWzS8Gl_2tVqY0.webp [2m(before: 112kB, after: 22kB)[22m [2m(+61ms)[22m [2m(2/4)[22m
+[2m02:10:50[22m   [32m▶[39m /_astro/image-1.BBvBuft0_MmBdf.webp [2m(before: 123kB, after: 21kB)[22m [2m(+67ms)[22m [2m(3/4)[22m
+[2m02:10:50[22m   [32m▶[39m /_astro/131770967_p0_master1200(1)(1).BLtV7GZG_2gk27V.webp [2m(before: 980kB, after: 82kB)[22m [2m(+294ms)[22m [2m(4/4)[22m
+[2m02:10:50[22m [32m✓ Completed in 294ms.
 [39m
-[2m02:09:47[22m [34m[build][39m [32m✓ Completed in 3.48s.[39m
-[2m02:09:47[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
-[2m02:09:47[22m [34m[build][39m 23 page(s) built in [1m3.92s[22m
-[2m02:09:47[22m [34m[build][39m [1mComplete![22m
+[2m02:10:50[22m [34m[build][39m [32m✓ Completed in 3.75s.[39m
+[2m02:10:50[22m [34m[@astrojs/sitemap][39m `sitemap-index.xml` created at `dist`
+[2m02:10:50[22m [34m[build][39m 23 page(s) built in [1m4.20s[22m
+[2m02:10:50[22m [34m[build][39m [1mComplete![22m
 
 > lidure-github-io@0.0.1 test:site
 > node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs
 
-✔ BaseLayout exposes standard and immersive page modes (1.233371ms)
-✔ player route defaults to immersive layout with trailing slash tolerance (0.350436ms)
-✔ standard banner keeps B3 desktop and mobile heights (1.316069ms)
-✔ standard banner stays readable when the background is disabled (0.376747ms)
-✔ site header replaces its global scroll listener after Astro navigation (0.323996ms)
-✔ home uses dedicated profile and post-card components (0.276124ms)
-✖ built immersive page keeps navigation without standard banner shell (3.582866ms)
-✔ background loop guard detects a wrap and reuses the player recovery handler (1.830117ms)
-✔ base layout installs the background loop guard (0.344577ms)
-✔ player search tolerates imported songs without precomputed searchText (0.838295ms)
-✔ local imports keep active search and tag filters (0.278372ms)
-✔ search embeds parseable post data without a runtime jsonData reference (1.925577ms)
-✔ public URLs use the configured lidure22.xyz domain and include social metadata (0.926615ms)
-✔ source configuration uses configured public domains and no stale publishing defaults (2.143395ms)
-✔ optical-flow article has one h1 and no unparsed inline delimiters (2.486556ms)
-✔ optimized identity assets are used and remain small (0.996485ms)
-✔ rendered background configuration starts with a static image (0.914752ms)
-✔ rendered moments management controls keep the publish panel closed by default (1.345417ms)
-✔ moments page exposes the API hook and local controls (1.473094ms)
-✔ moments publishing UI accepts videos and requires selectable posters (1.525627ms)
-✔ moments video poster generation ignores stale async captures (0.8735ms)
-✔ moments browser code uses the session API client for management (1.188633ms)
-✔ moment delete controls follow the authenticated session (0.612329ms)
-✔ guestbook exposes authenticated message deletion controls (0.286315ms)
-✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.650113ms)
-✔ moments api preserves distinct 401 auth worker codes (0.192849ms)
-✔ Astro swaps clean page-scoped media while preserving persistent background media (0.50543ms)
-✔ persistent layout scripts initialize through astro page-load with data guards (0.549026ms)
-✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.220267ms)
-✔ sakura particles use the approved flowers and natural drift parameters (0.121281ms)
-✔ QQ playlist imports normalize ids and report unavailable audio links (1.291371ms)
-✔ online playlist imports resolve audio URLs on demand (0.818356ms)
-✔ online playlist imports use a unified Meting-compatible adapter (0.971623ms)
-✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.110557ms)
-✔ background video degrades safely on navigation visibility and reduced motion (0.393254ms)
-✔ background videos recover playback when browsers emit ended despite loop (0.377247ms)
-✔ background videos reload before retrying playback after ended (0.391758ms)
-✔ moments single-item query aliases the legacy images column (0.101132ms)
+✔ BaseLayout exposes standard and immersive page modes (0.828148ms)
+✔ player route defaults to immersive layout with trailing slash tolerance (0.265138ms)
+✔ standard banner keeps B3 desktop and mobile heights (1.155168ms)
+✔ standard banner stays readable when the background is disabled (0.384416ms)
+✔ site header replaces its global scroll listener after Astro navigation (0.224986ms)
+✔ home uses dedicated profile and post-card components (0.171245ms)
+✔ built immersive page keeps navigation without standard banner shell (1.212083ms)
+✔ background loop guard detects a wrap and reuses the player recovery handler (1.709059ms)
+✔ base layout installs the background loop guard (0.379833ms)
+✔ player search tolerates imported songs without precomputed searchText (1.047878ms)
+✔ local imports keep active search and tag filters (0.477387ms)
+✔ search embeds parseable post data without a runtime jsonData reference (2.174393ms)
+✔ public URLs use the configured lidure22.xyz domain and include social metadata (1.017366ms)
+✔ source configuration uses configured public domains and no stale publishing defaults (2.358086ms)
+✔ optical-flow article has one h1 and no unparsed inline delimiters (2.517628ms)
+✔ optimized identity assets are used and remain small (1.002908ms)
+✔ rendered background configuration starts with a static image (0.956868ms)
+✔ rendered moments management controls keep the publish panel closed by default (1.531361ms)
+✔ moments page exposes the API hook and local controls (1.713368ms)
+✔ moments publishing UI accepts videos and requires selectable posters (1.713099ms)
+✔ moments video poster generation ignores stale async captures (0.947181ms)
+✔ moments browser code uses the session API client for management (1.382374ms)
+✔ moment delete controls follow the authenticated session (0.673158ms)
+✔ guestbook exposes authenticated message deletion controls (0.336949ms)
+✔ hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS (0.724798ms)
+✔ moments api preserves distinct 401 auth worker codes (0.266972ms)
+✔ Astro swaps clean page-scoped media while preserving persistent background media (0.529873ms)
+✔ persistent layout scripts initialize through astro page-load with data guards (0.639988ms)
+✔ layout mounts the sakura particle layer and uses visible flower glyphs (0.207167ms)
+✔ sakura particles use the approved flowers and natural drift parameters (0.084178ms)
+✔ QQ playlist imports normalize ids and report unavailable audio links (1.301743ms)
+✔ online playlist imports resolve audio URLs on demand (0.857036ms)
+✔ online playlist imports use a unified Meting-compatible adapter (0.978124ms)
+✔ Busuanzi refresh always supplies its JSONP endpoint after navigation (0.114683ms)
+✔ background video degrades safely on navigation visibility and reduced motion (0.432281ms)
+✔ background videos recover playback when browsers emit ended despite loop (0.42704ms)
+✔ background videos reload before retrying playback after ended (0.439919ms)
+✔ moments single-item query aliases the legacy images column (0.1174ms)
 ℹ tests 38
 ℹ suites 0
-ℹ pass 37
-ℹ fail 1
+ℹ pass 38
+ℹ fail 0
 ℹ cancelled 0
 ℹ skipped 0
 ℹ todo 0
-ℹ duration_ms 131.497496
+ℹ duration_ms 138.285933
 
-✖ failing tests:
-
-test at tests/firefly-ui-refresh.test.mjs:57:1
-✖ built immersive page keeps navigation without standard banner shell (3.582866ms)
-  AssertionError [ERR_ASSERTION]: The input did not match the regular expression /class="site-header"/. Input:
-  
-  `<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="referrer" content="same-origin"><meta name="description" content="沉浸式音乐与视觉体验。"><meta name="generator" content="Astro v6.4.4"><link rel="canonical" href="https://lidure22.xyz/player/"><meta property="og:type" content="website"><meta property="og:title" content="沉浸空间 | 搁浅 的小窝"><meta property="og:description" content="沉浸式音乐与视觉体验。"><meta property="og:url" content="https://lidure22.xyz/player/"><meta property="og:image" content="https://lidure22.xyz/site-icon-512.png"><title>沉浸空间 | 搁浅 的小窝</title><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap"><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet"></noscript><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CAqDO0tx.js"></script><script>\n` +
-    '    (function() {\n' +
-    "      var theme = 'dark';\n" +
-    "      try { theme = localStorage.getItem('theme') || 'dark'; } catch(e) {}\n" +
-    "      document.documentElement.setAttribute('data-theme', theme);\n" +
-    '    })();\n' +
-    '    (function() {\n' +
-    '      try {\n' +
-    "        var s = localStorage.getItem('hero_settings');\n" +
-    '        if (s && JSON.parse(s).enabled === false) {\n' +
-    "          document.documentElement.classList.add('no-hero-bg');\n" +
-    '        }\n' +
-    '      } catch(e) {}\n' +
-    '    })();\n' +
-    '    (function() {\n' +
-    '      if (window.__pageMediaSwapCleanupBound) return;\n' +
-    '      window.__pageMediaSwapCleanupBound = true;\n' +
-    '\n' +
-    "      var pageMediaSelector = 'video[data-page-media], audio[data-page-media]';\n" +
-    '\n' +
-    "      document.addEventListener('astro:before-swap', function() {\n" +
-    '        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n' +
-    "          if (media.matches(':not([data-persistent-media])') === false) return;\n" +
-    '          try { media.pause(); } catch(e) {}\n' +
-    "          media.removeAttribute('src');\n" +
-    "          media.querySelectorAll('source').forEach(function(source) {\n" +
-    "            source.removeAttribute('src');\n" +
-    '          });\n' +
-    '          try { media.load(); } catch(e) {}\n' +
-    '        });\n' +
-    '      });\n' +
-    '    })();\n' +
-    '    (function() {\n' +
-    '      if (window.__busuanziLifecycleBound) return;\n' +
-    '      window.__busuanziLifecycleBound = true;\n' +
-    "      var busuanziRequestUrl = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback';\n" +
-    '\n' +
-    '      function applyBusuanzi(data) {\n' +
-    '        var values = data || {};\n' +
-    "        var pv = document.getElementById('busuanzi_value_site_pv');\n" +
-    "        var uv = document.getElementById('busuanzi_value_site_uv');\n" +
-    '        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n' +
-    '        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n' +
-    '      }\n' +
-    '\n' +
-    '      function refreshBusuanzi() {\n' +
-    "        if (!document.getElementById('busuanzi_value_site_pv')) return;\n" +
-    "        if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {\n" +
-    '          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n' +
-    '          return;\n' +
-    '        }\n' +
-    "        var script = document.getElementById('busuanzi-counter-script');\n" +
-    '        if (!script) {\n' +
-    "          script = document.createElement('script');\n" +
-    "          script.id = 'busuanzi-counter-script';\n" +
-    '          script.async = true;\n' +
-    "          script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';\n" +
-    '          document.head.appendChild(script);\n' +
-    '        }\n' +
-    "        script.addEventListener('load', refreshBusuanzi, { once: true });\n" +
-    '      }\n' +
-    "      document.addEventListener('astro:page-load', refreshBusuanzi);\n" +
-    '      refreshBusuanzi();\n' +
-    '    })();\n' +
-    '    </script><script type="module">function c(t,i){const e=Number(t),n=Number(i);return!Number.isFinite(e)||!Number.isFinite(n)?!1:e>.75&&n+.25<e}function f(t,i,e){if(!t||t.ended||!c(i,e))return!1;const n=t.onended;return typeof n!="function"?!1:(n.call(t),!0)}function m(t=globalThis.document,i=globalThis.window){if(!t||!i||i.__heroVideoLoopGuardBound)return;i.__heroVideoLoopGuardBound=!0;let e=null,n=null,o=null;function s(){e&&(n&&e.removeEventListener("timeupdate",n),o&&e.removeEventListener("ended",o),e=null,n=null,o=null)}function d(){const r=t.getElementById("slideshowVideo");if(!r||r===e)return;s(),e=r;let u=Number(r.currentTime)||0;o=function(){u=0},n=function(){const l=Number(r.currentTime)||0,a=u;u=l,f(r,a,l)&&(u=Number(r.currentTime)||0)},r.addEventListener("ended",o),r.addEventListener("timeupdate",n)}t.addEventListener("astro:page-load",d),d()}m();</script><link rel="stylesheet" href="/_astro/BaseLayout.D2uhEY9I.css">\n' +
-    '<link rel="stylesheet" href="/_astro/player.BBgKW1uS.css"><style>[data-astro-transition-scope="astro-fy2abq5n-6"] { view-transition-name: sekai-btn; }@layer astro { ::view-transition-old(sekai-btn) { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeOut; }::view-transition-new(sekai-btn) { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(sekai-btn) { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(sekai-btn) { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n' +
-    '\t\t\t[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n' +
-    '\t\t\t[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n' +
-    '\t\t\t[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n' +
-    '\t\t\t[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-ixo4q5p3-7"] { view-transition-name: sekai-panel; }@layer astro { ::view-transition-old(sekai-panel) { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeOut; }::view-transition-new(sekai-panel) { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(sekai-panel) { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(sekai-panel) { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n' +
-    '\t\t\t[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n' +
-    '\t\t\t[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n' +
-    '\t\t\t[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n' +
-    '\t\t\t[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n' +
-    '\tanimation-duration: 180ms;\n' +
-    '\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n' +
-    '\tanimation-fill-mode: both;\n' +
-    '\tanimation-name: astroFadeIn; }</style><s'... 179243 more characters
-  
-      at TestContext.<anonymous> (file:///home/runner/work/lidure.github.io/lidure.github.io/tests/firefly-ui-refresh.test.mjs:60:10)
-      at Test.runInAsyncScope (node:async_hooks:227:14)
-      at Test.run (node:internal/test_runner/test:1382:25)
-      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
-      at Test.postRun (node:internal/test_runner/test:1522:19)
-      at Test.run (node:internal/test_runner/test:1447:12)
-      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
-    generatedMessage: true,
-    code: 'ERR_ASSERTION',
-    actual: `<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><meta name="referrer" content="same-origin"><meta name="description" content="沉浸式音乐与视觉体验。"><meta name="generator" content="Astro v6.4.4"><link rel="canonical" href="https://lidure22.xyz/player/"><meta property="og:type" content="website"><meta property="og:title" content="沉浸空间 | 搁浅 的小窝"><meta property="og:description" content="沉浸式音乐与视觉体验。"><meta property="og:url" content="https://lidure22.xyz/player/"><meta property="og:image" content="https://lidure22.xyz/site-icon-512.png"><title>沉浸空间 | 搁浅 的小窝</title><link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png"><link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap"><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'"><noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet"></noscript><meta name="astro-view-transitions-enabled" content="true"><meta name="astro-view-transitions-fallback" content="animate"><script type="module" src="/_astro/ClientRouter.astro_astro_type_script_index_0_lang.CAqDO0tx.js"></script><script>\n    (function() {\n      var theme = 'dark';\n      try { theme = localStorage.getItem('theme') || 'dark'; } catch(e) {}\n      document.documentElement.setAttribute('data-theme', theme);\n    })();\n    (function() {\n      try {\n        var s = localStorage.getItem('hero_settings');\n        if (s && JSON.parse(s).enabled === false) {\n          document.documentElement.classList.add('no-hero-bg');\n        }\n      } catch(e) {}\n    })();\n    (function() {\n      if (window.__pageMediaSwapCleanupBound) return;\n      window.__pageMediaSwapCleanupBound = true;\n\n      var pageMediaSelector = 'video[data-page-media], audio[data-page-media]';\n\n      document.addEventListener('astro:before-swap', function() {\n        document.querySelectorAll(pageMediaSelector).forEach(function(media) {\n          if (media.matches(':not([data-persistent-media])') === false) return;\n          try { media.pause(); } catch(e) {}\n          media.removeAttribute('src');\n          media.querySelectorAll('source').forEach(function(source) {\n            source.removeAttribute('src');\n          });\n          try { media.load(); } catch(e) {}\n        });\n      });\n    })();\n    (function() {\n      if (window.__busuanziLifecycleBound) return;\n      window.__busuanziLifecycleBound = true;\n      var busuanziRequestUrl = 'https://busuanzi.ibruce.info/busuanzi?jsonpCallback=BusuanziCallback';\n\n      function applyBusuanzi(data) {\n        var values = data || {};\n        var pv = document.getElementById('busuanzi_value_site_pv');\n        var uv = document.getElementById('busuanzi_value_site_uv');\n        if (pv && values.site_pv != null) pv.textContent = String(values.site_pv);\n        if (uv && values.site_uv != null) uv.textContent = String(values.site_uv);\n      }\n\n      function refreshBusuanzi() {\n        if (!document.getElementById('busuanzi_value_site_pv')) return;\n        if (window.bszCaller && typeof window.bszCaller.fetch === 'function') {\n          window.bszCaller.fetch(busuanziRequestUrl, applyBusuanzi);\n          return;\n        }\n        var script = document.getElementById('busuanzi-counter-script');\n        if (!script) {\n          script = document.createElement('script');\n          script.id = 'busuanzi-counter-script';\n          script.async = true;\n          script.src = 'https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js';\n          document.head.appendChild(script);\n        }\n        script.addEventListener('load', refreshBusuanzi, { once: true });\n      }\n      document.addEventListener('astro:page-load', refreshBusuanzi);\n      refreshBusuanzi();\n    })();\n    </script><script type="module">function c(t,i){const e=Number(t),n=Number(i);return!Number.isFinite(e)||!Number.isFinite(n)?!1:e>.75&&n+.25<e}function f(t,i,e){if(!t||t.ended||!c(i,e))return!1;const n=t.onended;return typeof n!="function"?!1:(n.call(t),!0)}function m(t=globalThis.document,i=globalThis.window){if(!t||!i||i.__heroVideoLoopGuardBound)return;i.__heroVideoLoopGuardBound=!0;let e=null,n=null,o=null;function s(){e&&(n&&e.removeEventListener("timeupdate",n),o&&e.removeEventListener("ended",o),e=null,n=null,o=null)}function d(){const r=t.getElementById("slideshowVideo");if(!r||r===e)return;s(),e=r;let u=Number(r.currentTime)||0;o=function(){u=0},n=function(){const l=Number(r.currentTime)||0,a=u;u=l,f(r,a,l)&&(u=Number(r.currentTime)||0)},r.addEventListener("ended",o),r.addEventListener("timeupdate",n)}t.addEventListener("astro:page-load",d),d()}m();</script><link rel="stylesheet" href="/_astro/BaseLayout.D2uhEY9I.css">\n<link rel="stylesheet" href="/_astro/player.BBgKW1uS.css"><style>[data-astro-transition-scope="astro-fy2abq5n-6"] { view-transition-name: sekai-btn; }@layer astro { ::view-transition-old(sekai-btn) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }::view-transition-new(sekai-btn) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(sekai-btn) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(sekai-btn) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n\t\t\t[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n\t\t\t[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n\t\t\t[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-fy2abq5n-6"],\n\t\t\t[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-fy2abq5n-6"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }</style><style>[data-astro-transition-scope="astro-ixo4q5p3-7"] { view-transition-name: sekai-panel; }@layer astro { ::view-transition-old(sekai-panel) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }::view-transition-new(sekai-panel) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }[data-astro-transition=back]::view-transition-old(sekai-panel) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition=back]::view-transition-new(sekai-panel) { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; } }[data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n\t\t\t[data-astro-transition-fallback="old"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n\t\t\t[data-astro-transition-fallback="new"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }[data-astro-transition=back][data-astro-transition-fallback="old"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n\t\t\t[data-astro-transition=back][data-astro-transition-fallback="old"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeOut; }[data-astro-transition=back][data-astro-transition-fallback="new"] [data-astro-transition-scope="astro-ixo4q5p3-7"],\n\t\t\t[data-astro-transition=back][data-astro-transition-fallback="new"][data-astro-transition-scope="astro-ixo4q5p3-7"] { \n\tanimation-duration: 180ms;\n\tanimation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);\n\tanimation-fill-mode: both;\n\tanimation-name: astroFadeIn; }</style><s`... 179243 more characters,
-    expected: /class="site-header"/,
-    operator: 'match',
-    diff: 'simple'
-  }
-
-__EXIT_CODE__=1
+__EXIT_CODE__=0
