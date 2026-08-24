@@ -96,8 +96,9 @@ test('v4 profile exposes compact GitHub and QQ contact controls', () => {
   assert.match(left, /profile-social-links/);
   assert.match(left, /https:\/\/github\.com\/Lidure/);
   assert.match(left, /https:\/\/qm\.qq\.com\/q\/ujOhar9jQQ/);
-  assert.match(left, /aria-label="GitHub"/);
-  assert.match(left, /aria-label="QQ"/);
+  assert.match(left, /label:\s*['"]GitHub['"]/);
+  assert.match(left, /label:\s*['"]QQ['"]/);
+  assert.match(left, /aria-label=\{item\.label\}/);
 });
 
 test('v4 activity rail inserts Recent Messages between Moments and Music', () => {
@@ -109,4 +110,18 @@ test('v4 activity rail inserts Recent Messages between Moments and Music', () =>
   assert.match(messages, /fetchGuestMessages/);
   assert.match(messages, /slice\(0,\s*3\)/);
   assert.doesNotMatch(messages, /createCommentsWidget|deleteGuestMessage|createGuestMessage/);
+});
+
+test('v4 social and activity links expose visible focus and reduced-motion-safe styling', () => {
+  const left = readSource('src/components/HomeLeftSidebar.astro');
+  const messages = readSource('src/components/RecentMessagesWidget.astro');
+  const music = readSource('src/components/MusicStatusWidget.astro');
+  const posts = readSource('src/styles/firefly-v4.css');
+  const combined = `${left}\n${messages}\n${music}\n${posts}`;
+
+  assert.match(left, /\.profile-social-link:focus-visible/);
+  assert.match(messages, /\.recent-message-item:focus-visible/);
+  assert.match(music, /\.music-status-play-overlay:focus-visible/);
+  assert.match(combined, /prefers-reduced-motion:\s*reduce/);
+  assert.match(combined, /html\[data-reduce-motion="true"\]/);
 });
