@@ -124,10 +124,10 @@ The old immersive page still targets `.topbar`, which no longer represents the n
 The state machine must be updated to use current selectors and explicit groups:
 
 - Stage 0: all UI visible;
-- Stage 1: hide site navigation only or reduce primary chrome while preserving player/background access;
-- Stage 2: hide shared floating controls and danmaku composer, while keeping visual content;
-- Stage 3: hide cover/danmaku/visualizer overlays for a near-pure background experience;
-- next activation returns to Stage 0.
+- Stage 1: hide the site navigation only; SEKAI player access, background settings, danmaku composer, and visual content remain visible;
+- Stage 2: keep navigation hidden and also hide shared floating controls plus the danmaku composer, while keeping cover/danmaku/visualizer content visible;
+- Stage 3: additionally hide cover/danmaku/visualizer overlays for a near-pure background experience;
+- next activation returns to Stage 0 and restores all UI groups.
 
 The implementation must not rely on obsolete `.topbar` selectors.
 
