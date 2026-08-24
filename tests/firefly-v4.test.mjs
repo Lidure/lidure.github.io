@@ -90,3 +90,23 @@ test('v4 home post cards use image-forward alternating layouts with stable cover
   assert.match(css, /\.home-post-card:not\(\.has-cover\)/);
   assert.match(layout, /firefly-v4\.css/);
 });
+
+test('v4 profile exposes compact GitHub and QQ contact controls', () => {
+  const left = readSource('src/components/HomeLeftSidebar.astro');
+  assert.match(left, /profile-social-links/);
+  assert.match(left, /https:\/\/github\.com\/Lidure/);
+  assert.match(left, /https:\/\/qm\.qq\.com\/q\/ujOhar9jQQ/);
+  assert.match(left, /aria-label="GitHub"/);
+  assert.match(left, /aria-label="QQ"/);
+});
+
+test('v4 activity rail inserts Recent Messages between Moments and Music', () => {
+  const right = readSource('src/components/HomeRightSidebar.astro');
+  const messages = readSource('src/components/RecentMessagesWidget.astro');
+  assert.match(right, /RecentMessagesWidget/);
+  assert.ok(right.indexOf('RecentMomentsWidget') < right.indexOf('RecentMessagesWidget'));
+  assert.ok(right.indexOf('RecentMessagesWidget') < right.indexOf('MusicStatusWidget'));
+  assert.match(messages, /fetchGuestMessages/);
+  assert.match(messages, /slice\(0,\s*3\)/);
+  assert.doesNotMatch(messages, /createCommentsWidget|deleteGuestMessage|createGuestMessage/);
+});
