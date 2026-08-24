@@ -32,6 +32,7 @@ import ClockDisplay from '../components/ClockDisplay.astro';
 import BlogBanner from '../components/BlogBanner.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import FloatingControls from '../components/FloatingControls.astro';
+import ImmersiveUiController from '../components/ImmersiveUiController.astro';
 import { ClientRouter } from 'astro:transitions';
 import SekaiPlayer from '../components/SekaiPlayer.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
@@ -140,6 +141,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     <SekaiPlayer />
     <SiteHeader currentPath={Astro.url.pathname} />
     <FloatingControls />
+    {!isStandard && <ImmersiveUiController />}
 
     {isStandard ? (
       <>
