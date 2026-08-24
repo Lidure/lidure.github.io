@@ -1,0 +1,45 @@
+name: Verify Immersive Navigation
+
+on:
+  push:
+    branches: [fix/immersive-navigation]
+    paths-ignore:
+      - '.ci/immersive-nav-test-result.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run test suite and write result
+        shell: bash
+        run: |
+          set +e
+          mkdir -p .ci
+          {
+            echo '=== npm test ==='
+            npm test
+            code=$?
+            echo
+            echo "__EXIT_CODE__=$code"
+            exit "$code"
+          } > .ci/immersive-nav-test-result.txt 2>&1
+        continue-on-error: true
+      - name: Commit result
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add .ci/immersive-nav-test-result.txt
+          git commit -m 'ci: record immersive nav verification' || exit 0
+          git push
