@@ -1,0 +1,36 @@
+name: Firefly v4 PR Gate
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  moments-api:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: danmaku-api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: danmaku-api/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run check
