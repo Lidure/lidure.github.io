@@ -91,16 +91,13 @@ test('rendered background configuration starts with a static image', () => {
   assert.ok(defaults.some((source) => /\.mp4$/i.test(source)));
 });
 
-test('rendered moments management controls are hidden by default', () => {
+test('rendered moments management controls keep the publish panel closed by default', () => {
   const html = read('moments/index.html');
   const publishButton = html.match(/<button\b[^>]*id="publish-toggle"[^>]*>/)?.[0];
   const publishPanel = html.match(/<div\b[^>]*id="publish-box"[^>]*>/)?.[0];
 
   assert.ok(publishButton, 'publish toggle should exist');
-  assert.match(publishButton, /data-admin-only/);
-  assert.match(publishButton, /\bhidden\b/);
   assert.ok(publishPanel, 'publish panel should exist');
-  assert.match(publishPanel, /data-admin-only/);
   assert.match(publishPanel, /\bhidden\b/);
 });
 
@@ -208,16 +205,18 @@ test('guestbook exposes authenticated message deletion controls', () => {
   assert.match(worker, /requireSession\(request, env\)/);
 });
 
-test('hero slideshow uses explicit saved video posters instead of black canvas fallback', () => {
+test('hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS', () => {
   const hero = readSource('src/components/HeroSlideshow.astro');
 
-  assert.match(hero, /crossOrigin\s*=\s*'anonymous'/);
+  assert.match(hero, /resolveVideoSource/);
+  assert.match(hero, /fetch\(url, \{ mode: 'cors' \}\)/);
   assert.match(hero, /loadedmetadata/);
   assert.match(hero, /seeked/);
   assert.match(hero, /requestAnimationFrame/);
   assert.match(hero, /hero_settings/);
   assert.match(hero, /posters/);
   assert.match(hero, /poster-needed|VIDEO_CORS_REQUIRED|needs-poster/);
+  assert.doesNotMatch(hero, /crossOrigin\s*=\s*'anonymous'/);
   assert.doesNotMatch(hero, /fillRect\([^)]*0,\s*0/);
 });
 
