@@ -184,6 +184,9 @@
     const context = canvas.getContext('2d');
     if (!context) return;
 
+    const waveRoot: HTMLElement = root;
+    const waveCanvas: HTMLCanvasElement = canvas;
+    const waveContext: CanvasRenderingContext2D = context;
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     const mobileQuery = window.matchMedia('(max-width: 720px)');
     let raf = 0;
@@ -206,23 +209,23 @@
     }
 
     function resize() {
-      const rect = root.getBoundingClientRect();
+      const rect = waveRoot.getBoundingClientRect();
       const nextWidth = Math.max(1, Math.round(rect.width));
       const nextHeight = Math.max(1, Math.round(rect.height));
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      if (nextWidth === width && nextHeight === height && canvas.width === Math.round(nextWidth * dpr)) return;
+      if (nextWidth === width && nextHeight === height && waveCanvas.width === Math.round(nextWidth * dpr)) return;
       width = nextWidth;
       height = nextHeight;
-      canvas.width = Math.round(width * dpr);
-      canvas.height = Math.round(height * dpr);
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      context.setTransform(dpr, 0, 0, dpr, 0, 0);
+      waveCanvas.width = Math.round(width * dpr);
+      waveCanvas.height = Math.round(height * dpr);
+      waveCanvas.style.width = `${width}px`;
+      waveCanvas.style.height = `${height}px`;
+      waveContext.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     function draw(now: number) {
       resize();
-      context.clearRect(0, 0, width, height);
+      waveContext.clearRect(0, 0, width, height);
       const preset = resolveWavePreset(settings);
       const fill = contentFillColor();
       const baseAmplitude = Math.max(5, height * 0.105) * preset.amplitude;
@@ -233,33 +236,33 @@
         const period = Math.max(180, width * (0.62 + index * 0.08));
         const secondaryPeriod = period * 0.47;
 
-        context.beginPath();
-        context.moveTo(0, height);
-        context.lineTo(0, baseline);
+        waveContext.beginPath();
+        waveContext.moveTo(0, height);
+        waveContext.lineTo(0, baseline);
         for (let x = 0; x <= width + 8; x += 8) {
           const y = baseline
             + Math.sin((x / period) * Math.PI * 2 + phase) * baseAmplitude
             + Math.sin((x / secondaryPeriod) * Math.PI * 2 - phase * 0.62) * baseAmplitude * 0.22;
-          context.lineTo(x, y);
+          waveContext.lineTo(x, y);
         }
-        context.lineTo(width, height);
-        context.closePath();
-        context.globalAlpha = Math.min(1, layer.alpha * preset.alpha);
-        context.fillStyle = fill;
-        context.fill();
+        waveContext.lineTo(width, height);
+        waveContext.closePath();
+        waveContext.globalAlpha = Math.min(1, layer.alpha * preset.alpha);
+        waveContext.fillStyle = fill;
+        waveContext.fill();
       });
-      context.globalAlpha = 1;
+      waveContext.globalAlpha = 1;
 
       if (!firstFrameDrawn) {
         firstFrameDrawn = true;
-        root.classList.add('is-canvas-ready');
+        waveRoot.classList.add('is-canvas-ready');
       }
     }
 
     function frame(now: number) {
       if (!shouldRender() || motionReduced() || document.hidden) {
         stopAnimation();
-        root.classList.remove('is-canvas-ready');
+        waveRoot.classList.remove('is-canvas-ready');
         return;
       }
       draw(now);
@@ -269,10 +272,10 @@
     function refresh() {
       settings = readSettings();
       const active = shouldRender();
-      root.hidden = !active;
+      waveRoot.hidden = !active;
       stopAnimation();
       firstFrameDrawn = false;
-      root.classList.remove('is-canvas-ready');
+      waveRoot.classList.remove('is-canvas-ready');
       if (!active) return;
       resize();
       if (motionReduced()) return;
@@ -288,7 +291,7 @@
     }
 
     const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
-    resizeObserver?.observe(root);
+    resizeObserver?.observe(waveRoot);
     const onSettingsChange = () => refresh();
     const onMediaChange = () => refresh();
     document.addEventListener('lidure:visual-settings-change', onSettingsChange);
@@ -305,7 +308,7 @@
       window.removeEventListener('resize', resize);
       motionQuery.removeEventListener?.('change', onMediaChange);
       mobileQuery.removeEventListener?.('change', onMediaChange);
-      root.classList.remove('is-canvas-ready');
+      waveRoot.classList.remove('is-canvas-ready');
     };
 
     refresh();
