@@ -288,7 +288,7 @@ describe("auth worker routes", () => {
       throw new Error(`Unexpected SQL: ${sql}`);
     });
 
-    const cookieValue = await createSession("test-session-secret", Date.UTC(2026, 7, 12, 1, 0, 0));
+    const cookieValue = await createSession("test-session-secret", Date.now());
     const response = await worker.fetch(
       new Request("https://api.lidure.xyz/api/moments", {
         method: "POST",
@@ -333,7 +333,7 @@ describe("auth worker routes", () => {
 
       throw new Error(`Unexpected SQL: ${sql}`);
     });
-    const cookieValue = await createSession("test-session-secret", Date.UTC(2026, 7, 12, 1, 0, 0));
+    const cookieValue = await createSession("test-session-secret", Date.now());
 
     const response = await worker.fetch(
       new Request("https://api.lidure.xyz/api/moments/moment-1", {

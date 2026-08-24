@@ -30,9 +30,11 @@ import '../styles/global.css';
 import '../styles/firefly-refresh.css';
 import '../styles/firefly-v2.css';
 import '../styles/firefly-v2-pages.css';
+import '../styles/firefly-v4.css';
 import '../styles/immersive-nav.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import BlogBanner from '../components/BlogBanner.astro';
+import BannerWaves from '../components/BannerWaves.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import FloatingControls from '../components/FloatingControls.astro';
 import ImmersiveUiController from '../components/ImmersiveUiController.astro';
@@ -41,6 +43,7 @@ import SekaiPlayer from '../components/SekaiPlayer.astro';
 import VisualSettingsPanel from '../components/VisualSettingsPanel.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
 import SekaiParticles from '../components/SekaiParticles.astro';
+import MomentsPinControls from '../components/MomentsPinControls.astro';
 
 const siteBase = Astro.site ?? new URL('https://lidure22.xyz');
 const canonicalUrl = new URL(Astro.url.pathname, siteBase);
@@ -91,6 +94,10 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         root.dataset.cardBorder = String(raw.cardBorder !== false);
         root.dataset.cardFollowTheme = String(raw.cardFollowTheme === true);
         root.dataset.reduceMotion = String(raw.reduceMotion === true);
+        root.dataset.waveEnabled = String(raw.waveEnabled !== false);
+        root.dataset.waveStrength = ['soft', 'standard', 'strong'].includes(raw.waveStrength) ? raw.waveStrength : 'standard';
+        root.dataset.waveSpeed = ['slow', 'normal', 'fast'].includes(raw.waveSpeed) ? raw.waveSpeed : 'normal';
+        root.dataset.waveMobile = String(raw.waveMobile !== false);
         root.classList.toggle('no-hero-bg', raw.enabled === false);
         root.style.setProperty('--wallpaper-overlay', String(opacity));
         root.style.setProperty('--wallpaper-blur', blur + 'px');
@@ -191,6 +198,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     <HeroSlideshow />
     <SekaiParticles />
     <SekaiPlayer />
+    <MomentsPinControls />
     <SiteHeader currentPath={Astro.url.pathname} />
     <FloatingControls />
     {!isStandard && <ImmersiveUiController />}
@@ -198,6 +206,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     {isStandard ? (
       <>
         <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
+        <BannerWaves />
         <div class="standard-page-surface">
           <main class="content-area standard-content">
             {showTime && <div class="clock-row"><ClockDisplay /></div>}

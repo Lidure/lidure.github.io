@@ -2,10 +2,11 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   DEFAULT_VISUAL_SETTINGS,
+  applyVisualSettingsToDocument,
   normalizeVisualSettings,
 } from '../src/lib/visual-settings.mjs';
 
-test('old values and unknown keys survive v2 normalization', () => {
+test('old values and unknown keys survive v3 normalization', () => {
   const settings = normalizeVisualSettings({
     enabled: false,
     autoplay: false,
@@ -47,4 +48,40 @@ test('invalid values are clamped or replaced', () => {
   assert.equal(settings.sakuraSpeed, 0.25);
 });
 
-assert.equal(DEFAULT_VISUAL_SETTINGS.version, 2);
+test('v3 visual defaults add waves while preserving unknown legacy keys', () => {
+  const value = normalizeVisualSettings({
+    version: 2,
+    images: ['legacy-image'],
+    waveStrength: 'invalid',
+    waveSpeed: 'invalid',
+  });
+
+  assert.equal(DEFAULT_VISUAL_SETTINGS.version, 3);
+  assert.equal(value.version, 3);
+  assert.equal(value.waveEnabled, true);
+  assert.equal(value.waveStrength, 'standard');
+  assert.equal(value.waveSpeed, 'normal');
+  assert.equal(value.waveMobile, true);
+  assert.deepEqual(value.images, ['legacy-image']);
+});
+
+test('v3 applies wave datasets to the root element', () => {
+  const dataset = {};
+  const root = {
+    dataset,
+    classList: { toggle() {} },
+    style: { setProperty() {} },
+  };
+
+  applyVisualSettingsToDocument({
+    waveEnabled: false,
+    waveStrength: 'strong',
+    waveSpeed: 'fast',
+    waveMobile: false,
+  }, { documentElement: root });
+
+  assert.equal(dataset.waveEnabled, 'false');
+  assert.equal(dataset.waveStrength, 'strong');
+  assert.equal(dataset.waveSpeed, 'fast');
+  assert.equal(dataset.waveMobile, 'false');
+});

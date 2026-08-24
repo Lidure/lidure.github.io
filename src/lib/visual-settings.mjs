@@ -1,7 +1,7 @@
 export const VISUAL_SETTINGS_KEY = 'hero_settings';
 
 export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
-  version: 2,
+  version: 3,
   enabled: true,
   autoplay: true,
   interval: 15000,
@@ -19,8 +19,14 @@ export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
   sakuraDensity: 0.65,
   sakuraSpeed: 1,
   reduceMotion: false,
+  waveEnabled: true,
+  waveStrength: 'standard',
+  waveSpeed: 'normal',
+  waveMobile: true,
 });
 
+const WAVE_STRENGTHS = ['soft', 'standard', 'strong'];
+const WAVE_SPEEDS = ['slow', 'normal', 'fast'];
 const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
 const finiteOr = (value, fallback) =>
   Number.isFinite(Number(value)) ? Number(value) : fallback;
@@ -31,7 +37,7 @@ export function normalizeVisualSettings(raw = {}) {
 
   return {
     ...merged,
-    version: 2,
+    version: 3,
     enabled: merged.enabled !== false,
     autoplay: merged.autoplay !== false,
     interval: clamp(finiteOr(merged.interval, 15000), 2000, 20000),
@@ -51,6 +57,14 @@ export function normalizeVisualSettings(raw = {}) {
     sakuraDensity: clamp(finiteOr(merged.sakuraDensity, 0.65), 0, 1),
     sakuraSpeed: clamp(finiteOr(merged.sakuraSpeed, 1), 0.25, 2),
     reduceMotion: merged.reduceMotion === true,
+    waveEnabled: merged.waveEnabled !== false,
+    waveStrength: WAVE_STRENGTHS.includes(merged.waveStrength)
+      ? merged.waveStrength
+      : 'standard',
+    waveSpeed: WAVE_SPEEDS.includes(merged.waveSpeed)
+      ? merged.waveSpeed
+      : 'normal',
+    waveMobile: merged.waveMobile !== false,
   };
 }
 
@@ -74,6 +88,10 @@ export function applyVisualSettingsToDocument(settings, doc) {
   root.dataset.cardBorder = String(normalized.cardBorder);
   root.dataset.cardFollowTheme = String(normalized.cardFollowTheme);
   root.dataset.reduceMotion = String(normalized.reduceMotion);
+  root.dataset.waveEnabled = String(normalized.waveEnabled);
+  root.dataset.waveStrength = normalized.waveStrength;
+  root.dataset.waveSpeed = normalized.waveSpeed;
+  root.dataset.waveMobile = String(normalized.waveMobile);
   root.classList.toggle('no-hero-bg', !normalized.enabled);
   root.style.setProperty('--wallpaper-overlay', String(normalized.opacity));
   root.style.setProperty('--wallpaper-blur', `${normalized.backgroundBlur}px`);

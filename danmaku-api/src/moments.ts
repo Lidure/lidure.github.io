@@ -17,6 +17,8 @@ export type MomentApiItem = {
   link?: string;
   images: string[];
   media: MomentMediaItem[];
+  pinned?: boolean;
+  pinnedAt?: number;
 };
 
 export type CreateMomentInput = {
@@ -54,6 +56,8 @@ type MomentListRow = {
   created_at: string;
   updated_at: string;
   legacy_images: string | null;
+  pinned?: number | null;
+  pinned_at?: number | null;
   media_id: string | null;
   media_kind: MomentMediaItem["kind"] | null;
   media_url: string | null;
@@ -152,37 +156,49 @@ export async function listMoments(
 ): Promise<{ items: MomentApiItem[]; nextCursor: string | null }> {
   const normalizedLimit = normalizeLimit(limit);
   const parsedCursor = parseCursor(cursor);
-  const cursorClause = parsedCursor
-    ? "WHERE (date < ? OR (date = ? AND id < ?))"
-    : "";
-  const cursorArgs = parsedCursor ? [parsedCursor.date, parsedCursor.date, parsedCursor.id] : [];
-  const sql = `
-    WITH selected_moments AS (
-      SELECT id, date, category, text, link, images AS legacy_images, created_at, updated_at
-      FROM moments
-      ${cursorClause}
-      ORDER BY date DESC, id DESC
-      LIMIT ?
-    )
-    SELECT m.id, m.date, m.category, m.text, m.link, m.legacy_images, m.created_at, m.updated_at,
-           mm.id AS media_id, mm.kind AS media_kind, mm.url AS media_url, mm.sort_order AS media_sort_order
-    FROM selected_moments m
-    LEFT JOIN moment_media mm ON mm.moment_id = m.id
-    ORDER BY m.date DESC, m.id DESC, mm.sort_order ASC
-  `;
 
-  const { results } = await db
-    .prepare(sql)
-    .bind(...cursorArgs, normalizedLimit + 1)
-    .all<MomentListRow>();
+  if (parsedCursor) {
+    const unpinned = await queryMoments(db, {
+      where: "pinned = 0 AND (date < ? OR (date = ? AND id < ?))",
+      args: [parsedCursor.date, parsedCursor.date, parsedCursor.id],
+      orderBy: "date DESC, id DESC",
+      limit: normalizedLimit + 1,
+    });
+    const pageItems = unpinned.slice(0, normalizedLimit);
+    const hasMore = unpinned.length > normalizedLimit;
+    const tail = pageItems[pageItems.length - 1];
+    return {
+      items: pageItems,
+      nextCursor: hasMore && tail ? formatCursor(tail.date, tail.id) : null,
+    };
+  }
 
-  const aggregated = aggregateMomentRows(results ?? []);
-  const pageItems = aggregated.slice(0, normalizedLimit);
-  const tail = pageItems[pageItems.length - 1];
-  const hasMore = aggregated.length > normalizedLimit;
+  const pinnedCandidates = await queryMoments(db, {
+    where: "pinned = 1",
+    args: [],
+    orderBy: "pinned_at DESC, id DESC",
+    limit: 3,
+  });
+  const pinnedItems = pinnedCandidates
+    .filter((item) => item.pinned === true)
+    .slice(0, Math.min(3, normalizedLimit));
+  const normalLimit = Math.max(0, normalizedLimit - pinnedItems.length);
+  if (normalLimit === 0) {
+    return { items: pinnedItems, nextCursor: null };
+  }
+
+  const unpinned = await queryMoments(db, {
+    where: "pinned = 0",
+    args: [],
+    orderBy: "date DESC, id DESC",
+    limit: normalLimit + 1,
+  });
+  const normalItems = unpinned.slice(0, normalLimit);
+  const hasMore = unpinned.length > normalLimit;
+  const tail = normalItems[normalItems.length - 1];
 
   return {
-    items: pageItems,
+    items: pinnedItems.concat(normalItems),
     nextCursor: hasMore && tail ? formatCursor(tail.date, tail.id) : null,
   };
 }
@@ -231,13 +247,60 @@ export async function createMoment(
   ];
 
   await db.batch(statements);
-
   return getMomentById(db, momentId);
 }
 
 export async function deleteMoment(db: D1Database, id: string): Promise<void> {
   await db.prepare("DELETE FROM moment_media WHERE moment_id = ?").bind(id).run();
   await db.prepare("DELETE FROM moments WHERE id = ?").bind(id).run();
+}
+
+export async function setMomentPinned(
+  db: D1Database,
+  id: string,
+  pinned: boolean,
+  options: { now?: () => number } = {}
+): Promise<{ item: MomentApiItem; displacedId?: string }> {
+  const current = await db
+    .prepare("SELECT pinned, pinned_at FROM moments WHERE id = ?")
+    .bind(id)
+    .first<{ pinned: number; pinned_at: number | null }>();
+  if (!current) throw momentError("MOMENT_NOT_FOUND", "Moment not found");
+
+  if (pinned && current.pinned === 1) {
+    return { item: await getMomentById(db, id) };
+  }
+  if (!pinned && current.pinned !== 1) {
+    return { item: await getMomentById(db, id) };
+  }
+
+  if (!pinned) {
+    await db.prepare("UPDATE moments SET pinned = 0, pinned_at = NULL WHERE id = ?").bind(id).run();
+    return { item: await getMomentById(db, id) };
+  }
+
+  const { results } = await db
+    .prepare("SELECT id, pinned_at FROM moments WHERE pinned = 1 ORDER BY pinned_at ASC, id ASC LIMIT 3")
+    .bind()
+    .all<{ id: string; pinned_at: number | null }>();
+  const existingPins = results ?? [];
+  const now = options.now?.() ?? Date.now();
+
+  if (existingPins.length < 3) {
+    await db.prepare("UPDATE moments SET pinned = 1, pinned_at = ? WHERE id = ?").bind(now, id).run();
+    return { item: await getMomentById(db, id) };
+  }
+
+  const oldest = existingPins[0];
+  await db.batch([
+    db.prepare("UPDATE moments SET pinned = 0, pinned_at = NULL WHERE id = ?").bind(oldest.id),
+    db.prepare("UPDATE moments SET pinned = 1, pinned_at = ? WHERE id = ?").bind(now, id),
+  ]);
+
+  return {
+    item: await getMomentById(db, id),
+    displacedId: oldest.id,
+  };
 }
 
 export function isMomentCategory(value: string): value is MomentCategory {
@@ -265,6 +328,32 @@ function formatCursor(date: string, id: string): string {
   return `${date}${CURSOR_SEPARATOR}${id}`;
 }
 
+async function queryMoments(
+  db: D1Database,
+  options: { where: string; args: unknown[]; orderBy: string; limit: number }
+): Promise<MomentApiItem[]> {
+  const sql = `
+    WITH selected_moments AS (
+      SELECT id, date, category, text, link, images AS legacy_images, created_at, updated_at, pinned, pinned_at
+      FROM moments
+      WHERE ${options.where}
+      ORDER BY ${options.orderBy}
+      LIMIT ?
+    )
+    SELECT m.id, m.date, m.category, m.text, m.link, m.legacy_images, m.created_at, m.updated_at,
+           m.pinned, m.pinned_at,
+           mm.id AS media_id, mm.kind AS media_kind, mm.url AS media_url, mm.sort_order AS media_sort_order
+    FROM selected_moments m
+    LEFT JOIN moment_media mm ON mm.moment_id = m.id
+    ORDER BY ${options.orderBy.replace(/\b(date|id|pinned_at)\b/g, "m.$1")}, mm.sort_order ASC
+  `;
+  const { results } = await db
+    .prepare(sql)
+    .bind(...options.args, options.limit)
+    .all<MomentListRow>();
+  return aggregateMomentRows(results ?? []);
+}
+
 function aggregateMomentRows(rows: MomentListRow[]): MomentApiItem[] {
   const items = new Map<string, MomentApiItem>();
 
@@ -279,6 +368,8 @@ function aggregateMomentRows(rows: MomentListRow[]): MomentApiItem[] {
         images: [],
         media: [],
         ...(row.link ? { link: row.link } : {}),
+        ...(row.pinned === 1 ? { pinned: true } : {}),
+        ...(row.pinned_at != null ? { pinnedAt: Number(row.pinned_at) } : {}),
       };
       items.set(row.id, item);
       if (row.legacy_images) {
@@ -320,6 +411,7 @@ function normalizeLegacyMediaUrl(value: string): string {
 async function getMomentById(db: D1Database, id: string): Promise<MomentApiItem> {
   const sql = `
     SELECT m.id, m.date, m.category, m.text, m.link, m.images AS legacy_images, m.created_at, m.updated_at,
+           m.pinned, m.pinned_at,
            mm.id AS media_id, mm.kind AS media_kind, mm.url AS media_url, mm.sort_order AS media_sort_order
     FROM moments m
     LEFT JOIN moment_media mm ON mm.moment_id = m.id
@@ -328,10 +420,14 @@ async function getMomentById(db: D1Database, id: string): Promise<MomentApiItem>
   `;
   const { results } = await db.prepare(sql).bind(id).all<MomentListRow>();
   const items = aggregateMomentRows(results ?? []);
-  if (!items[0]) {
-    throw new Error("Moment not found after create");
-  }
+  if (!items[0]) throw momentError("MOMENT_NOT_FOUND", "Moment not found");
   return items[0];
+}
+
+function momentError(code: string, message: string): Error & { code?: string } {
+  const error = new Error(message) as Error & { code?: string };
+  error.code = code;
+  return error;
 }
 
 function isValidMomentDate(value: string): boolean {

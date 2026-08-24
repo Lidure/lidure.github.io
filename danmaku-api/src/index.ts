@@ -10,7 +10,7 @@ import {
   publicMediaUrlForKey,
   validateUpload,
 } from "./media";
-import { createMoment, deleteMoment, listMoments, type CreateMomentInput } from "./moments";
+import { createMoment, deleteMoment, listMoments, setMomentPinned, type CreateMomentInput } from "./moments";
 
 interface Env {
   DB: D1Database;
@@ -106,6 +106,15 @@ export default {
 
       if (url.pathname.startsWith("/media/") && request.method === "GET") {
         return handleMedia(request, url, env);
+      }
+
+      const momentPinMatch = /^\/api\/moments\/([^/]+)\/pin$/.exec(url.pathname);
+      if (momentPinMatch) {
+        if (request.method === "PATCH") {
+          return handleSetMomentPinned(momentPinMatch[1], request, env);
+        }
+
+        return errorResponse("Method not allowed", "METHOD_NOT_ALLOWED", 405, request, env);
       }
 
       if (url.pathname.startsWith("/api/moments/")) {
@@ -254,6 +263,46 @@ async function handleCreateMoment(request: Request, env: Env): Promise<Response>
     const message =
       error instanceof Error && error.message ? error.message : "Moment payload is invalid";
     return errorResponse(message, code, 400, request, env);
+  }
+}
+
+async function handleSetMomentPinned(
+  momentId: string,
+  request: Request,
+  env: Env
+): Promise<Response> {
+  const sessionState = await requireSession(request, env);
+  if (sessionState instanceof Response) {
+    return sessionState;
+  }
+
+  const normalizedId = momentId.trim();
+  if (!normalizedId) {
+    return errorResponse("Moment id is required", "INVALID_MOMENT_ID", 400, request, env);
+  }
+
+  if (!isJsonRequest(request)) {
+    return errorResponse("Expected application/json", "UNSUPPORTED_MEDIA_TYPE", 415, request, env);
+  }
+
+  const body = await readJsonBody(request);
+  if (!body.ok) {
+    return errorResponse("Request body must be valid JSON.", "BAD_JSON", 400, request, env);
+  }
+
+  if (typeof body.value.pinned !== "boolean") {
+    return errorResponse("Pinned state must be boolean", "INVALID_PIN_STATE", 400, request, env);
+  }
+
+  try {
+    const result = await setMomentPinned(env.DB, normalizedId, body.value.pinned);
+    return json(result, 200, request, env);
+  } catch (error) {
+    const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+    if (code === "MOMENT_NOT_FOUND") {
+      return errorResponse("Moment not found", code, 404, request, env);
+    }
+    throw error;
   }
 }
 
@@ -575,7 +624,7 @@ function corsHeaders(request: Request, env: Env): Headers {
     headers.set("Access-Control-Allow-Credentials", "true");
   }
 
-  headers.set("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
+  headers.set("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
   headers.set("Access-Control-Allow-Headers", "Content-Type");
   headers.set("Access-Control-Max-Age", "86400");
   headers.set("Vary", "Origin");
