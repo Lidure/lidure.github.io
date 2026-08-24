@@ -1,0 +1,170 @@
+<div class="recent-messages-widget" id="recent-messages-widget">
+  <div class="recent-messages-list" data-message-list>
+    <p class="sidebar-widget-placeholder">正在读取最近留言…</p>
+  </div>
+  <a class="sidebar-widget-more recent-messages-more" href="/messages">查看留言板 →</a>
+</div>
+
+<style is:global>
+  body.layout-standard .recent-messages-widget {
+    display: grid;
+    gap: 8px;
+  }
+
+  body.layout-standard .recent-messages-list {
+    display: grid;
+    gap: 5px;
+  }
+
+  body.layout-standard .recent-message-item {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 8px 9px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    transition: border-color 150ms ease, background 150ms ease, transform 150ms ease;
+  }
+
+  body.layout-standard .recent-message-item:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--standard-cyan) 18%, var(--standard-line));
+    background: color-mix(in srgb, var(--standard-cyan-soft) 60%, transparent);
+  }
+
+  body.layout-standard .recent-message-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  body.layout-standard .recent-message-user {
+    min-width: 0;
+    overflow: hidden;
+    color: var(--standard-cyan);
+    font-size: 0.69rem;
+    font-weight: 750;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  body.layout-standard .recent-message-time {
+    flex: 0 0 auto;
+    color: var(--standard-muted);
+    font-size: 0.61rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  body.layout-standard .recent-message-text {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: var(--standard-muted);
+    font-size: 0.75rem;
+    line-height: 1.58;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  body.layout-standard .recent-messages-more {
+    margin-top: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body.layout-standard .recent-message-item { transition: none; }
+    body.layout-standard .recent-message-item:hover { transform: none; }
+  }
+
+  html[data-reduce-motion="true"] body.layout-standard .recent-message-item {
+    transition: none;
+  }
+
+  html[data-reduce-motion="true"] body.layout-standard .recent-message-item:hover {
+    transform: none;
+  }
+</style>
+
+<script>
+  import { fetchGuestMessages, formatPublicTime } from '../lib/public-interactions';
+
+  const recentMessagesWindow = window as typeof window & {
+    __recentMessagesCleanup?: () => void;
+    __recentMessagesLifecycleBound?: boolean;
+  };
+
+  function initRecentMessagesWidget() {
+    recentMessagesWindow.__recentMessagesCleanup?.();
+
+    const root = document.getElementById('recent-messages-widget');
+    const list = root?.querySelector<HTMLElement>('[data-message-list]');
+    if (!root || !list) return;
+
+    let disposed = false;
+
+    function renderPlaceholder(text: string) {
+      const placeholder = document.createElement('p');
+      placeholder.className = 'sidebar-widget-placeholder';
+      placeholder.textContent = text;
+      list.replaceChildren(placeholder);
+    }
+
+    function renderMessages(items: Awaited<ReturnType<typeof fetchGuestMessages>>) {
+      const recent = items.slice(0, 3);
+      if (recent.length === 0) {
+        renderPlaceholder('还没有公开留言。');
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      recent.forEach((item) => {
+        const article = document.createElement('article');
+        article.className = 'recent-message-item';
+
+        const meta = document.createElement('div');
+        meta.className = 'recent-message-meta';
+
+        const user = document.createElement('strong');
+        user.className = 'recent-message-user';
+        user.textContent = item.userId || '访客';
+
+        const time = document.createElement('time');
+        time.className = 'recent-message-time';
+        time.dateTime = new Date(item.createdAt).toISOString();
+        time.textContent = formatPublicTime(item.createdAt).slice(5);
+
+        const text = document.createElement('p');
+        text.className = 'recent-message-text';
+        text.textContent = item.text;
+
+        meta.append(user, time);
+        article.append(meta, text);
+        fragment.appendChild(article);
+      });
+
+      list.replaceChildren(fragment);
+    }
+
+    fetchGuestMessages()
+      .then((items) => {
+        if (!disposed) renderMessages(items);
+      })
+      .catch(() => {
+        if (!disposed) renderPlaceholder('最近留言暂时读取失败。');
+      });
+
+    recentMessagesWindow.__recentMessagesCleanup = () => {
+      disposed = true;
+    };
+  }
+
+  if (!recentMessagesWindow.__recentMessagesLifecycleBound) {
+    recentMessagesWindow.__recentMessagesLifecycleBound = true;
+    document.addEventListener('astro:page-load', initRecentMessagesWidget);
+    document.addEventListener('astro:before-swap', () => recentMessagesWindow.__recentMessagesCleanup?.());
+  }
+
+  initRecentMessagesWidget();
+</script>
