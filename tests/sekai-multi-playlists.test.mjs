@@ -37,3 +37,12 @@ test('online import passes playlist id and chosen name into the import operation
   assert.match(source, /addOnlineTracks\(tracks, 'netease', playlistId, playlistName\)/);
   assert.match(source, /addOnlineTracks\(tracks, 'qq', playlistId, playlistName\)/);
 });
+
+test('removing the last track from the selected playlist falls back to all before filtering', () => {
+  assert.match(source, /function applyFilters\(\)\s*\{[\s\S]*activeImportedPlaylist !== 'all'[\s\S]*songs\.some\(function\(song\) \{ return song\.playlistKey === activeImportedPlaylist; \}\)[\s\S]*activeImportedPlaylist = 'all';[\s\S]*filteredSongs = songs\.filter/);
+});
+
+test('updating an existing playlist keeps its custom name when the name field is blank', () => {
+  assert.match(source, /var previousPlaylist = songs\.find\(function\(s\) \{ return s\.playlistKey === playlistKey; \}\);/);
+  assert.match(source, /playlistName \|\| \(previousPlaylist && previousPlaylist\.playlistName\) \|\|/);
+});
