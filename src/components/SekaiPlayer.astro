@@ -4269,8 +4269,12 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
     var added = 0, skipped = 0;
     var playlistKey = platform + ':' + playlistId;
     var platformName = platform === 'netease' ? '网易云' : 'QQ音乐';
+    var generatedFallbackName = platformName + '歌单 · ' + playlistId;
     var previousPlaylist = songs.find(function(s) { return s.playlistKey === playlistKey; });
-    var resolvedName = playlistName || (previousPlaylist && previousPlaylist.playlistName) || remotePlaylistName || (platformName + '歌单 · ' + playlistId);
+    var previousCustomName = previousPlaylist && previousPlaylist.playlistName !== generatedFallbackName
+      ? previousPlaylist.playlistName
+      : '';
+    var resolvedName = playlistName || previousCustomName || remotePlaylistName || generatedFallbackName;
     var existed = !!previousPlaylist;
 
     // Re-importing the same playlist updates that playlist only. Other imported
