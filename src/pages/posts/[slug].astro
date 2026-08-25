@@ -45,7 +45,10 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN');
       <Content />
     </div>
 
-    <Comments />
+    <section class="article-comments-boundary" aria-label="评论区">
+      <div class="article-comments-label"><span>Discussion</span><strong>评论区</strong></div>
+      <Comments />
+    </section>
   </article>
 </BaseLayout>
 
