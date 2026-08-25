@@ -120,3 +120,50 @@
 
   initFullscreenWallpaperController();
 </script>
+
+<style is:global>
+  /* Keep the first fullscreen viewport focused on the wallpaper. Once the
+     existing header scroll state activates, strengthen the glass for content
+     readability without changing overlay mode. */
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header {
+    background: color-mix(in oklch, var(--standard-card-bg) 38%, transparent);
+    border-color: color-mix(in oklch, var(--standard-line) 48%, transparent);
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px) saturate(1.08);
+    -webkit-backdrop-filter: blur(10px) saturate(1.08);
+    transition:
+      background-color 0.28s ease,
+      border-color 0.28s ease,
+      box-shadow 0.28s ease,
+      backdrop-filter 0.28s ease,
+      -webkit-backdrop-filter 0.28s ease;
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header.is-scrolled {
+    background: color-mix(in oklch, var(--standard-card-bg) 68%, transparent);
+    border-color: color-mix(in oklch, var(--standard-line) 82%, transparent);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+    backdrop-filter: blur(18px) saturate(1.15);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header-inner {
+    min-height: 66px;
+  }
+
+  @media (max-width: 849px) {
+    html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header-inner {
+      min-height: 58px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header {
+      transition: none;
+    }
+  }
+
+  html[data-reduce-motion="true"] body.layout-standard .site-header {
+    transition: none;
+  }
+</style>
