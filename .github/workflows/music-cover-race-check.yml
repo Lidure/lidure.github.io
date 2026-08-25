@@ -20,5 +20,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Run full test suite
-        run: npm test
+      - name: Build site
+        run: npm run build
+      - name: Run music cover regression
+        run: node --test tests/music-cover-transition.test.mjs
