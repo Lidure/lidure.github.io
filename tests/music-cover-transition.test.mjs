@@ -14,10 +14,10 @@ test('base layout installs the shared page transition enhancer', () => {
 test('music status gets a real default cover with runtime fallback', () => {
   const enhancer = readSource('src/components/PageTransitionEnhancer.astro');
 
-  assert.match(enhancer, /DEFAULT_MUSIC_COVER\s*=\s*['"]\/assets\/music\/default-cover\.png['"]/);
+  assert.match(enhancer, /DEFAULT_MUSIC_COVER\s*=\s*['"]\/assets\/music\/default-cover\.webp['"]/);
   assert.match(enhancer, /data-music-cover/);
   assert.match(enhancer, /addEventListener\(['"]error['"]/);
-  assert.ok(existsSync(new URL('../public/assets/music/default-cover.png', import.meta.url)));
+  assert.ok(existsSync(new URL('../public/assets/music/default-cover.webp', import.meta.url)));
 });
 
 test('page transition uses short Firefly-style compositor animations and theme progress bar', () => {
