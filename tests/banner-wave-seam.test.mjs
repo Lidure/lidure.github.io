@@ -32,9 +32,14 @@ test('homepage stacking lets the content panel cross the banner seam', () => {
 
 test('homepage category navigation is a complete pill inside the content area', () => {
   const theme = bannerStyles();
+  const block = theme.match(/body\.layout-standard\.is-home\s+\.home-category-bar\s*\{([^}]*)\}/s)?.[1] ?? '';
 
-  assert.match(theme, /body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*margin:\s*10px\s+0\s+20px[^}]*border-radius:\s*999px[^}]*overflow:\s*hidden/s);
-  assert.match(theme, /body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*backdrop-filter:\s*none[^}]*-webkit-backdrop-filter:\s*none/s);
+  assert.match(block, /margin:\s*10px\s+0\s+20px/);
+  assert.match(block, /overflow:\s*hidden/);
+  assert.match(block, /border-radius:\s*999px/);
+  assert.match(block, /backdrop-filter:\s*none/);
+  assert.match(block, /-webkit-backdrop-filter:\s*none/);
+
   assert.match(theme, /@media\s*\(max-width:\s*720px\)[\s\S]*body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*margin-top:\s*6px[^}]*overflow-x:\s*auto[^}]*overflow-y:\s*hidden[^}]*border-radius:\s*14px/s);
 });
 
