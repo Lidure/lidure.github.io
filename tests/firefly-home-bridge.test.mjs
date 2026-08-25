@@ -16,7 +16,7 @@ test('homepage groups category navigation and article feed inside one center col
 test('center column owns the main grid area and keeps a compact vertical rhythm', () => {
   assert.match(
     bannerSource,
-    /body\.layout-standard\.is-home\s+\.home-center-column\s*\{[^}]*grid-area:\s*main[^}]*display:\s*grid[^}]*gap:\s*18px/s,
+    /body\.layout-standard\.is-home\s+\.home-center-column\s*\{[^}]*grid-area:\s*main[^}]*display:\s*flex[^}]*flex-direction:\s*column[^}]*gap:\s*18px/s,
   );
 });
 
