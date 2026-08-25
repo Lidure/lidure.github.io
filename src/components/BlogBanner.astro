@@ -36,7 +36,7 @@ const { title, subtitle } = Astro.props;
      below it. Homepage navigation then straddles the seam as the visual bridge. */
   body.layout-standard {
     --banner-surface-overlap: 3.5rem;
-    --home-banner-content-inset: 2.35rem;
+    --home-banner-content-inset: 2.9rem;
   }
 
   html[data-wallpaper-mode="banner"] body.layout-standard .blog-banner-stage {
@@ -56,6 +56,7 @@ const { title, subtitle } = Astro.props;
     padding-top: calc(var(--banner-surface-overlap) + 14px);
   }
 
+  body.layout-standard.is-home .blog-banner-stage,
   body.layout-standard.is-home .blog-banner,
   body.layout-standard.is-home .banner-waves {
     pointer-events: none;
@@ -95,7 +96,7 @@ const { title, subtitle } = Astro.props;
   @media (max-width: 720px) {
     body.layout-standard.is-home {
       --banner-surface-overlap: 2.25rem;
-      --home-banner-content-inset: 1.75rem;
+      --home-banner-content-inset: 2rem;
     }
 
     body.layout-standard.is-home .blog-banner-copy {
