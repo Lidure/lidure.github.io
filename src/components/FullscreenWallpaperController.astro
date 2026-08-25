@@ -21,8 +21,12 @@
     const content = document.getElementById('standard-page-surface');
     let ticking = false;
 
-    function isActive() {
-      return root.dataset.wallpaperMode === 'fullscreen' && body.classList.contains('is-home');
+    function isFullscreen() {
+      return root.dataset.wallpaperMode === 'fullscreen';
+    }
+
+    function isFullscreenHome() {
+      return isFullscreen() && body.classList.contains('is-home');
     }
 
     function prefersReducedMotion() {
@@ -38,7 +42,7 @@
     }
 
     function updateIndicatorPosition() {
-      if (!indicator || !isActive()) {
+      if (!indicator || !isFullscreenHome()) {
         indicator?.style.removeProperty('bottom');
         return;
       }
@@ -50,18 +54,30 @@
       indicator.style.bottom = `${TARGET_CLEARANCE + overlap}px`;
     }
 
-    function reset() {
+    function resetHeroUi() {
       title?.style.removeProperty('--fullscreen-title-scroll');
       title?.style.removeProperty('--fullscreen-title-opacity');
-      hero?.style.removeProperty('--fullscreen-scroll-blur');
       indicator?.classList.remove('hide');
       indicator?.style.removeProperty('bottom');
     }
 
+    function readMaxBlur() {
+      const blurRaw = getComputedStyle(root).getPropertyValue('--wallpaper-blur');
+      return Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
+    }
+
     function sync() {
       ticking = false;
-      if (!isActive()) {
-        reset();
+      if (!isFullscreen()) {
+        resetHeroUi();
+        hero?.style.setProperty('--fullscreen-scroll-blur', '0px');
+        return;
+      }
+
+      const maxBlur = readMaxBlur();
+      if (!body.classList.contains('is-home')) {
+        resetHeroUi();
+        hero?.style.setProperty('--fullscreen-scroll-blur', `${maxBlur}px`);
         return;
       }
 
@@ -73,8 +89,6 @@
       if (scrollY > 100) indicator?.classList.add('hide');
       else indicator?.classList.remove('hide');
 
-      const blurRaw = getComputedStyle(root).getPropertyValue('--wallpaper-blur');
-      const maxBlur = Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
       const blurRatio = Math.min(scrollY / 300, 1);
       const quantized = Math.floor((maxBlur * blurRatio) / 2) * 2;
       hero?.style.setProperty('--fullscreen-scroll-blur', `${quantized}px`);
@@ -87,7 +101,7 @@
     }
 
     indicator?.addEventListener('click', function (event) {
-      if (!isActive() || !content) return;
+      if (!isFullscreenHome() || !content) return;
       event.preventDefault();
       content.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
     }, options);
@@ -98,7 +112,7 @@
       updateIndicatorPosition();
     }, { passive: true, ...(options || {}) });
     document.addEventListener('lidure:visual-settings-change', function () {
-      requestSync();
+      sync();
       updateIndicatorPosition();
     }, options);
 
@@ -109,7 +123,7 @@
 
     stage?.addEventListener('transitionend', updateIndicatorPosition, options);
     updateIndicatorPosition();
-    requestSync();
+    sync();
   }
 
   if (!wallpaperWindow.__fullscreenWallpaperLifecycleBound) {
