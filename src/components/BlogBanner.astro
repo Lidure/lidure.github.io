@@ -33,8 +33,7 @@ const { title, subtitle } = Astro.props;
 <style is:global>
   /* Firefly-style banner/content composition.
      The content surface starts 3.5rem before the banner ends, and the homepage
-     three-column bridge begins almost immediately so the side cards and center
-     navigation visually grow out from behind the waves. */
+     three-column content begins almost immediately behind the waves. */
   body.layout-standard {
     --banner-surface-overlap: 3.5rem;
     --home-banner-content-inset: 0.75rem;
@@ -78,18 +77,24 @@ const { title, subtitle } = Astro.props;
     transform: translateY(calc(-1 * clamp(20px, 4vh, 42px)));
   }
 
-  /* Firefly bridge row: left and right sidebars span both rows while the
-     category navigation occupies the center-top cell above the article feed. */
+  /* Match Firefly's real composition: the outer grid has one center item.
+     Category navigation and article content stack inside that center column,
+     so tall sidebars can never stretch a separate navigation row. */
   body.layout-standard.is-home .home-layout {
     position: relative;
     z-index: 6;
-    grid-template-areas:
-      "left nav right"
-      "left main right";
+  }
+
+  body.layout-standard.is-home .home-center-column {
+    grid-area: main;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-self: start;
   }
 
   body.layout-standard.is-home .home-category-bar {
-    grid-area: nav;
     width: 100%;
     max-width: none;
     box-sizing: border-box;
@@ -114,28 +119,9 @@ const { title, subtitle } = Astro.props;
     }
   }
 
-  @media (max-width: 1199px) and (min-width: 850px) {
-    body.layout-standard.is-home .home-layout {
-      grid-template-areas:
-        "nav left"
-        "main left"
-        "main right";
-    }
-  }
-
   @media (max-width: 1023px) {
     html[data-wave-enabled="true"][data-wave-mobile="true"] body.layout-standard .standard-page-surface::before {
       display: none;
-    }
-  }
-
-  @media (max-width: 849px) {
-    body.layout-standard.is-home .home-layout {
-      grid-template-areas:
-        "nav"
-        "left"
-        "main"
-        "right";
     }
   }
 
@@ -147,6 +133,10 @@ const { title, subtitle } = Astro.props;
 
     body.layout-standard.is-home .blog-banner-copy {
       transform: translateY(calc(-1 * clamp(12px, 2.5vh, 24px)));
+    }
+
+    body.layout-standard.is-home .home-center-column {
+      gap: 16px;
     }
 
     body.layout-standard.is-home .home-category-bar {

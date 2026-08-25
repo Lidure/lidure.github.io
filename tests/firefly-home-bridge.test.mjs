@@ -5,21 +5,27 @@ import test from 'node:test';
 const indexSource = readFileSync(new URL('../src/pages/index.astro', import.meta.url), 'utf8');
 const bannerSource = readFileSync(new URL('../src/components/BlogBanner.astro', import.meta.url), 'utf8');
 
-test('homepage category navigation lives inside the three-column home grid', () => {
-  assert.match(indexSource, /<div class="home-layout">\s*<nav class="home-category-bar"/s);
-  assert.doesNotMatch(indexSource, /<BaseLayout[\s\S]*?>\s*<nav class="home-category-bar"[\s\S]*?<div class="home-layout">/s);
+test('homepage groups category navigation and article feed inside one center column', () => {
+  assert.match(
+    indexSource,
+    /<div class="home-center-column">[\s\S]*?<nav class="home-category-bar"[\s\S]*?<section class="home-main-column"/,
+  );
+  assert.doesNotMatch(indexSource, /<div class="home-layout">\s*<nav class="home-category-bar"/s);
 });
 
-test('desktop home grid gives the category card its own center row while sidebars span the bridge', () => {
-  assert.match(bannerSource, /body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*grid-area:\s*nav[^}]*width:\s*100%/s);
-  assert.match(bannerSource, /body\.layout-standard\.is-home\s+\.home-layout\s*\{[^}]*grid-template-areas:\s*"left nav right"\s*"left main right"/s);
+test('center column owns the main grid area and keeps a compact vertical rhythm', () => {
+  assert.match(
+    bannerSource,
+    /body\.layout-standard\.is-home\s+\.home-center-column\s*\{[^}]*grid-area:\s*main[^}]*display:\s*flex[^}]*flex-direction:\s*column[^}]*gap:\s*18px/s,
+  );
 });
 
-test('homepage starts its three-column bridge close to the Firefly overlap seam', () => {
+test('desktop homepage no longer uses a two-row nav/main grid that can be stretched by sidebars', () => {
+  assert.doesNotMatch(bannerSource, /"left nav right"\s*"left main right"/s);
+  assert.doesNotMatch(bannerSource, /grid-area:\s*nav/);
+});
+
+test('homepage still begins close to the Firefly overlap seam', () => {
   assert.match(bannerSource, /--home-banner-content-inset:\s*0\.75rem/);
   assert.match(bannerSource, /body\.layout-standard\.is-home\s+\.home-layout\s*\{[^}]*position:\s*relative[^}]*z-index:\s*6/s);
-});
-
-test('small screens keep navigation first without forcing sidebars above it', () => {
-  assert.match(bannerSource, /@media\s*\(max-width:\s*849px\)[\s\S]*grid-template-areas:\s*"nav"\s*"left"\s*"main"\s*"right"/s);
 });
