@@ -17,6 +17,40 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .hero-slideshow {
   min-height: 100lvh;
 }
 
+/* Firefly presents wallpaper images as real <img> media. The controller mirrors
+   the legacy layer's selected source into this element so the existing library
+   and slideshow state can stay unchanged while fullscreen rendering avoids a
+   CSS-background composition surface. */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-image,
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-image {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0;
+  transition: opacity 1.5s ease-in-out;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-image.visible,
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-image.visible {
+  opacity: 1;
+}
+
+/* Fullscreen/overlay no longer display the legacy background-div or video
+   canvas surfaces. They remain available to banner mode and to the existing
+   slideshow state machine, but the visible media is native <img>/<video>. */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-layer,
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-layer,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-canvas,
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-canvas {
+  display: none !important;
+}
+
 /* Firefly renders background video through the native <video> surface instead
    of a downscaled canvas. Unlike wallpaper images, the video itself is not
    passed through the image blur/scale treatment, so the native decoder output
@@ -40,11 +74,6 @@ html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-video.vis
 html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-video.visible {
   opacity: 1 !important;
   visibility: visible !important;
-}
-
-html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-canvas,
-html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-canvas {
-  display: none !important;
 }
 
 html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-overlay {
@@ -230,16 +259,16 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .site-nav-utilities a.a
   background: var(--standard-accent-soft);
 }
 
-/* Firefly applies the fullscreen blur ramp to wallpaper images. Scaling the
-   image to 1.05 keeps blur sampling inside the image and avoids edge bleed.
+/* Firefly applies the fullscreen blur ramp to native wallpaper images. Scaling
+   the image to 1.05 keeps blur sampling inside the image and avoids edge bleed.
    Native background video is intentionally excluded, matching Firefly. */
-html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-layer {
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-image {
   filter: blur(var(--fullscreen-scroll-blur, 0px));
   transform: scale(1.05);
   transform-origin: center;
 }
 
-html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-layer {
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-image {
   filter: blur(var(--wallpaper-blur, 5px));
   transform: scale(1.05);
   transform-origin: center;
@@ -304,11 +333,17 @@ html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) bod
   }
 
   .fullscreen-scroll-indicator,
-  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy {
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy,
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-image,
+  html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-image {
     transition: none;
   }
 }
 
 html[data-reduce-motion="true"] .fullscreen-scroll-icon {
   animation: none;
+}
+
+html[data-reduce-motion="true"] body.layout-standard .slideshow-image {
+  transition: none;
 }
