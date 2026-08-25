@@ -1,9 +1,9 @@
 <div class="banner-waves" id="banner-waves" aria-hidden="true">
   <svg class="banner-waves-static" viewBox="0 0 160 32" preserveAspectRatio="none">
-    <path class="wave-layer wave-layer-1" d="M0 15 C20 7 40 23 60 15 S100 7 120 15 S145 22 160 14 V32 H0 Z" />
-    <path class="wave-layer wave-layer-2" d="M0 18 C24 11 42 25 66 17 S108 10 132 18 S150 21 160 17 V32 H0 Z" />
-    <path class="wave-layer wave-layer-3" d="M0 21 C18 16 38 27 62 20 S104 14 126 21 S148 24 160 20 V32 H0 Z" />
-    <path class="wave-layer wave-layer-4" d="M0 24 C22 20 42 29 68 23 S112 18 136 24 S152 26 160 23 V32 H0 Z" />
+    <path class="wave-layer wave-layer-1" d="M0 16 C16 9 34 9 52 15 C70 22 91 20 108 13 C127 6 145 11 160 17 V32 H0 Z" />
+    <path class="wave-layer wave-layer-2" d="M0 19 C20 12 39 14 57 20 C76 26 95 22 114 16 C131 11 148 14 160 20 V32 H0 Z" />
+    <path class="wave-layer wave-layer-3" d="M0 22 C18 17 36 18 54 23 C74 29 96 25 116 20 C134 15 150 18 160 23 V32 H0 Z" />
+    <path class="wave-layer wave-layer-4" d="M0 25 C19 21 39 22 58 26 C78 30 99 28 120 23 C138 19 151 21 160 25 V32 H0 Z" />
   </svg>
   <canvas data-wave-canvas></canvas>
 </div>
@@ -53,10 +53,10 @@
     fill: currentColor;
   }
 
-  body.layout-standard .banner-waves .wave-layer-1 { opacity: 0.22; }
-  body.layout-standard .banner-waves .wave-layer-2 { opacity: 0.42; }
-  body.layout-standard .banner-waves .wave-layer-3 { opacity: 0.58; }
-  body.layout-standard .banner-waves .wave-layer-4 { opacity: 0.72; }
+  body.layout-standard .banner-waves .wave-layer-1 { opacity: 0.18; }
+  body.layout-standard .banner-waves .wave-layer-2 { opacity: 0.34; }
+  body.layout-standard .banner-waves .wave-layer-3 { opacity: 0.52; }
+  body.layout-standard .banner-waves .wave-layer-4 { opacity: 0.68; }
 
   html[data-wave-strength="soft"] body.layout-standard .banner-waves {
     transform: scaleY(0.84);
@@ -228,21 +228,31 @@
       waveContext.clearRect(0, 0, width, height);
       const preset = resolveWavePreset(settings);
       const fill = contentFillColor();
-      const baseAmplitude = Math.max(5, height * 0.105) * preset.amplitude;
+      const seconds = now / 1000;
+      const baseAmplitude = Math.max(4, height * 0.085) * preset.amplitude;
 
       WAVE_LAYERS.forEach((layer, index) => {
-        const phase = (now / 1000) * ((Math.PI * 2) / layer.duration) * preset.speed + layer.phase * Math.PI * 2;
-        const baseline = height * (0.36 + index * 0.075) + layer.y * 0.25;
-        const period = Math.max(180, width * (0.62 + index * 0.08));
-        const secondaryPeriod = period * 0.47;
+        const phase = seconds * ((Math.PI * 2) / layer.duration) * preset.speed + layer.phase * Math.PI * 2;
+        const baseline = height * (0.39 + index * 0.07) + layer.y * 0.22;
+        const drift = Math.sin(seconds * 0.2 + layer.phase * Math.PI * 2) * width * 0.018 * layer.drift;
+        const period = Math.max(220, width * (0.70 + index * 0.075));
+        const secondaryPeriod = period * (0.46 + index * 0.018);
+        const tertiaryPeriod = period * (1.62 - index * 0.05);
 
         waveContext.beginPath();
         waveContext.moveTo(0, height);
         waveContext.lineTo(0, baseline);
         for (let x = 0; x <= width + 8; x += 8) {
-          const y = baseline
-            + Math.sin((x / period) * Math.PI * 2 + phase) * baseAmplitude
-            + Math.sin((x / secondaryPeriod) * Math.PI * 2 - phase * 0.62) * baseAmplitude * 0.22;
+          const normalizedX = width > 0 ? x / width : 0;
+          const envelope = 0.92 + Math.sin(normalizedX * Math.PI + phase * 0.12) * 0.08;
+          const primary = Math.sin(((x + drift) / period) * Math.PI * 2 + phase);
+          const secondary = Math.sin(
+            ((x - drift * 0.45) / secondaryPeriod) * Math.PI * 2 - phase * 0.48 + layer.harmonic,
+          ) * 0.16;
+          const tertiary = Math.cos(
+            ((x + drift * 0.2) / tertiaryPeriod) * Math.PI * 2 + phase * 0.31 + layer.harmonic,
+          ) * 0.11;
+          const y = baseline + (primary + secondary + tertiary) * baseAmplitude * envelope;
           waveContext.lineTo(x, y);
         }
         waveContext.lineTo(width, height);
