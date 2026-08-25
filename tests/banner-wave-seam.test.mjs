@@ -18,17 +18,24 @@ test('homepage uses a real Firefly-style content overlap instead of fully compen
   assert.match(theme, /body\.layout-standard\.is-home\s+\.standard-content\s*\{[^}]*padding-top:\s*var\(--home-banner-content-inset\)/s);
   assert.match(theme, /body\.layout-standard:not\(\.is-home\)\s+\.standard-content\s*\{[^}]*padding-top:\s*calc\(var\(--banner-surface-overlap\)\s*\+\s*14px\)/s);
   assert.match(theme, /body\.layout-standard\.is-home\s+\.blog-banner-stage,\s*body\.layout-standard\.is-home\s+\.blog-banner,\s*body\.layout-standard\.is-home\s+\.banner-waves\s*\{[^}]*pointer-events:\s*none/s);
-  assert.match(theme, /body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*z-index:\s*6[^}]*backdrop-filter:\s*blur\(12px\)/s);
   assert.match(theme, /body\.layout-standard\.is-home\s+\.blog-banner-copy\s*\{[^}]*transform:\s*translateY\(calc\(-1\s*\*\s*clamp\(20px,\s*4vh,\s*42px\)\)\)/s);
 });
 
-test('homepage stacking lets the content panel and category bridge actually cross the banner seam', () => {
+test('homepage stacking lets the content panel cross the banner seam', () => {
   const theme = bannerStyles();
 
   assert.match(theme, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*auto/s);
   assert.match(theme, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.standard-page-surface\s*\{[^}]*border-radius:\s*0/s);
   assert.doesNotMatch(theme, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*4/s);
   assert.match(theme, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*15/s);
+});
+
+test('homepage category navigation is a complete pill inside the content area', () => {
+  const theme = bannerStyles();
+
+  assert.match(theme, /body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*margin:\s*10px\s+0\s+20px[^}]*border-radius:\s*999px[^}]*overflow:\s*hidden/s);
+  assert.match(theme, /body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*backdrop-filter:\s*none[^}]*-webkit-backdrop-filter:\s*none/s);
+  assert.match(theme, /@media\s*\(max-width:\s*720px\)[\s\S]*body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*margin-top:\s*6px[^}]*overflow-x:\s*auto[^}]*overflow-y:\s*hidden[^}]*border-radius:\s*14px/s);
 });
 
 test('mobile homepage softens the overlap without removing it', () => {
