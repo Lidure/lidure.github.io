@@ -4,7 +4,7 @@
 
 **Goal:** Replace the PR #43 journal-card Moments presentation with a bannerless personal life wall where text, photos, video, dates, reactions, comments, and the composer form one uneven but controlled content stream.
 
-**Architecture:** Keep `src/pages/moments.astro` as the owner of API/auth/upload/reaction/lightbox behavior, but make date grouping and visual classification direct rendering responsibilities instead of a post-render enhancer. Introduce one small pure `moments-life-wall.mjs` helper for deterministic date/media classification, add one authoritative `moments-life-wall.css`, remove the PR #43 journal enhancer/style, and change pin reordering to a custom event so the page can preserve date groups after an immediate pin/unpin reorder.
+**Architecture:** Keep `src/pages/moments.astro` as the owner of API/auth/upload/reaction/lightbox behavior, but make date grouping and visual classification direct rendering responsibilities instead of a post-render enhancer. Introduce a pure `moments-life-wall.mjs` helper for local-date/media classification, add one authoritative `moments-life-wall.css`, remove the PR #43 journal enhancer/style, and change pin reordering to a custom event so the page can rebuild valid day groups after pin/unpin.
 
 **Tech Stack:** Astro 6, TypeScript in Astro client scripts, browser DOM APIs, CSS Grid, Node built-in test runner.
 
@@ -12,39 +12,36 @@
 
 ## Dependency
 
-Execute after Task 1 of `docs/superpowers/plans/2026-08-25-article-publication-v2.md`, which adds `BaseLayout` prop `showBanner?: boolean` with default `true`. If this plan is executed alone, implement that exact BaseLayout contract first.
+Execute after Task 1 of `docs/superpowers/plans/2026-08-25-article-publication-v2.md`, which adds `BaseLayout` prop `showBanner?: boolean` with default `true`.
 
 ## Global Constraints
 
-- Moments passes `showBanner={false}` and removes `showTime={true}` so the life wall owns the page entrance.
-- Keep category names exactly `全部 / 生活 / 音乐 / 游戏 / 吐槽` as supplied by existing data.
-- Preserve Moments API contracts, authentication, secure-cookie session flow, image upload, video upload/poster generation, emoji insertion, filtering, reactions, comments, deletion, lightbox, pin/unpin, and retry/error behavior.
-- Preserve all functional IDs/hooks unless a task changes the producer and every consumer atomically.
-- Remove `Moments · Journal`, stat blocks, bordered hero, film-strip pills, PR #43 neat date chapters, uniform rounded glass cards, and filled category pills.
-- Stop importing and delete `src/styles/moments-journal.css` and `src/lib/moments-journal-enhancer.mjs`; do not stack another enhancer over them.
-- No month-navigation UI in V2.
-- Date marks are not sticky; today uses one static accent dot, no pulse.
-- Desktop content variants are deterministic: `moment--whisper`, `moment--text`, `moment--photo-one`, `moment--photo-two`, `moment--photo-three`, `moment--gallery`, `moment--video`.
-- Only secondary images in `photo-three` and `gallery` may use a deterministic tilt up to `1deg`; no random rotation and no tilt on mobile.
-- Under `720px`, flatten to one column with horizontal day headings and no sticky date rail.
-- Reduced motion must disable decorative movement and smooth behavior.
+- Moments passes `showBanner={false}` and removes `showTime={true}`.
+- Keep category names from existing data; visible filter text is `全部` plus each `categoryOrder` name.
+- Preserve API, authentication, secure-cookie session flow, image upload, video upload/poster generation, emoji insertion, filtering, reactions, comments, deletion, lightbox, pin/unpin, retry/error behavior, and existing functional IDs.
+- Remove `Moments · Journal`, stat blocks, bordered hero, film-strip pills, PR #43 date-card treatment, uniform rounded glass cards, and filled category pills.
+- Delete `src/styles/moments-journal.css` and `src/lib/moments-journal-enhancer.mjs`; never stack V2 over that enhancer.
+- No month-navigation UI.
+- Date marks are not sticky; today uses one static accent dot.
+- Deterministic variants: `moment--whisper`, `moment--text`, `moment--photo-one`, `moment--photo-two`, `moment--photo-three`, `moment--gallery`, `moment--video`.
+- Only secondary images in `photo-three` and `gallery` may tilt, maximum `1deg`; no randomness and no tilt under `720px`.
+- Under `720px`, use one content column and horizontal day headings.
+- Reduced motion disables decorative movement and smooth behavior.
 
 ---
 
-### Task 1: Retire the PR #43 journal enhancer and establish V2 regression tests
+### Task 1: Retire the PR #43 journal enhancer
 
 **Files:**
 - Modify: `src/components/MomentsPinControls.astro`
-- Delete later in this task: `src/lib/moments-journal-enhancer.mjs`
-- Delete later in this task: `src/styles/moments-journal.css`
+- Delete: `src/lib/moments-journal-enhancer.mjs`
+- Delete: `src/styles/moments-journal.css`
 - Replace: `tests/moments-journal-layout.test.mjs`
-- Modify: `package.json` only if renaming the test file; preferred approach keeps the current filename to avoid script churn.
 
 **Interfaces:**
-- Consumes: existing pin-control component and `#moments-list`.
-- Produces: pin controls independent from layout enhancement; source regression test that forbids PR #43 imports/copy.
+- Produces: pin controls with no layout-enhancer responsibility.
 
-- [ ] **Step 1: Replace `tests/moments-journal-layout.test.mjs` with the V2 baseline test**
+- [ ] **Step 1: Replace the test file baseline**
 
 ```js
 import assert from 'node:assert/strict';
@@ -60,7 +57,6 @@ test('moments v2 retires the PR 43 journal enhancer', () => {
   assert.doesNotMatch(pins, /moments-journal\.css/);
   assert.equal(existsSync(new URL('../src/lib/moments-journal-enhancer.mjs', import.meta.url)), false);
   assert.equal(existsSync(new URL('../src/styles/moments-journal.css', import.meta.url)), false);
-  assert.doesNotMatch(page, /Moments · Journal/);
 });
 ```
 
@@ -70,26 +66,24 @@ test('moments v2 retires the PR 43 journal enhancer', () => {
 node --test tests/moments-journal-layout.test.mjs
 ```
 
-Expected: FAIL because the pin component still imports/installs the enhancer and both files exist.
+- [ ] **Step 3: Remove enhancer wiring from `MomentsPinControls.astro`**
 
-- [ ] **Step 3: Remove only journal-enhancer wiring from `MomentsPinControls.astro`**
-
-Delete these imports:
+Delete:
 
 ```ts
 import { installMomentsJournalEnhancer } from '../lib/moments-journal-enhancer.mjs';
 import '../styles/moments-journal.css';
 ```
 
-Delete this call from `initMomentsPinControls()`:
+Delete:
 
 ```ts
 installMomentsJournalEnhancer(listRoot, signal);
 ```
 
-Do not alter API imports, decoration, pin button creation, error handling, or lifecycle cleanup in this step.
+Keep every pin/API/lifecycle function otherwise unchanged.
 
-- [ ] **Step 4: Delete the two retired PR #43 files**
+- [ ] **Step 4: Delete retired files**
 
 ```bash
 git rm src/lib/moments-journal-enhancer.mjs src/styles/moments-journal.css
@@ -97,22 +91,16 @@ git rm src/lib/moments-journal-enhancer.mjs src/styles/moments-journal.css
 
 - [ ] **Step 5: Run focused test and verify GREEN**
 
-```bash
-node --test tests/moments-journal-layout.test.mjs
-```
-
-Expected: PASS.
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 6: Commit, including deletions**
 
 ```bash
-git add src/components/MomentsPinControls.astro tests/moments-journal-layout.test.mjs package.json
+git add -A src/components/MomentsPinControls.astro src/lib/moments-journal-enhancer.mjs src/styles/moments-journal.css tests/moments-journal-layout.test.mjs
 git commit -m "refactor: retire moments journal enhancer"
 ```
 
 ---
 
-### Task 2: Build deterministic date/media classification helpers
+### Task 2: Add deterministic local-date and layout helpers
 
 **Files:**
 - Create: `src/lib/moments-life-wall.mjs`
@@ -120,30 +108,27 @@ git commit -m "refactor: retire moments journal enhancer"
 
 **Interfaces:**
 - Produces:
-  - `getMomentDateKey(value: string | Date): string`
-  - `getMomentDayParts(value: string | Date): { key: string, dateLabel: string, weekdayLabel: string, machineDate: string }`
-  - `classifyMomentLayout(input: { text?: string, imageCount?: number, videoCount?: number }): string`
-- Consumes: browser/Node standard `Date`; no DOM and no project API imports.
+  - `getMomentDateKey(value)`
+  - `getMomentDayParts(value)`
+  - `classifyMomentLayout({ text, imageCount, videoCount })`
 
-- [ ] **Step 1: Add failing unit tests**
-
-Append:
+- [ ] **Step 1: Add failing helper tests**
 
 ```js
 const helpersUrl = new URL('../src/lib/moments-life-wall.mjs', import.meta.url);
 
-test('life wall layout classification is deterministic', async () => {
+test('life wall classification is deterministic', async () => {
   const { classifyMomentLayout } = await import(helpersUrl.href + `?t=${Date.now()}`);
   assert.equal(classifyMomentLayout({ text: '今天有点困', imageCount: 0, videoCount: 0 }), 'whisper');
-  assert.equal(classifyMomentLayout({ text: '这是一段超过三十二个字符的普通碎碎念内容，用来确保它进入普通文本布局。', imageCount: 0, videoCount: 0 }), 'text');
-  assert.equal(classifyMomentLayout({ text: 'photo', imageCount: 1, videoCount: 0 }), 'photo-one');
-  assert.equal(classifyMomentLayout({ text: 'photo', imageCount: 2, videoCount: 0 }), 'photo-two');
-  assert.equal(classifyMomentLayout({ text: 'photo', imageCount: 3, videoCount: 0 }), 'photo-three');
-  assert.equal(classifyMomentLayout({ text: 'photo', imageCount: 4, videoCount: 0 }), 'gallery');
-  assert.equal(classifyMomentLayout({ text: 'video', imageCount: 2, videoCount: 1 }), 'video');
+  assert.equal(classifyMomentLayout({ text: '这是一段明显超过三十二个字符的普通碎碎念内容，用来确认它会进入普通文字布局而不是短句布局。', imageCount: 0, videoCount: 0 }), 'text');
+  assert.equal(classifyMomentLayout({ imageCount: 1 }), 'photo-one');
+  assert.equal(classifyMomentLayout({ imageCount: 2 }), 'photo-two');
+  assert.equal(classifyMomentLayout({ imageCount: 3 }), 'photo-three');
+  assert.equal(classifyMomentLayout({ imageCount: 4 }), 'gallery');
+  assert.equal(classifyMomentLayout({ imageCount: 2, videoCount: 1 }), 'video');
 });
 
-test('life wall date helpers use local calendar parts', async () => {
+test('date helpers use the local calendar day', async () => {
   const { getMomentDateKey, getMomentDayParts } = await import(helpersUrl.href + `?d=${Date.now()}`);
   const local = new Date(2026, 7, 25, 23, 30, 0);
   assert.equal(getMomentDateKey(local), '2026-08-25');
@@ -158,9 +143,7 @@ test('life wall date helpers use local calendar parts', async () => {
 
 - [ ] **Step 2: Run and verify RED**
 
-Expected: FAIL because the helper module does not exist.
-
-- [ ] **Step 3: Create the helper module exactly**
+- [ ] **Step 3: Create `src/lib/moments-life-wall.mjs`**
 
 ```js
 export function getMomentDateKey(value) {
@@ -177,9 +160,7 @@ export function getMomentDateKey(value) {
 export function getMomentDayParts(value) {
   const parsed = value instanceof Date ? value : new Date(value);
   const key = getMomentDateKey(value);
-  if (Number.isNaN(parsed.getTime())) {
-    return { key, dateLabel: key, weekdayLabel: '', machineDate: key };
-  }
+  if (Number.isNaN(parsed.getTime())) return { key, dateLabel: key, weekdayLabel: '', machineDate: key };
   const month = String(parsed.getMonth() + 1).padStart(2, '0');
   const day = String(parsed.getDate()).padStart(2, '0');
   const weekdayLabel = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][parsed.getDay()];
@@ -196,17 +177,18 @@ export function classifyMomentLayout({ text = '', imageCount = 0, videoCount = 0
 }
 ```
 
-- [ ] **Step 4: Run focused test and commit**
+- [ ] **Step 4: Run focused test and verify GREEN**
+
+- [ ] **Step 5: Commit**
 
 ```bash
-node --test tests/moments-journal-layout.test.mjs
 git add src/lib/moments-life-wall.mjs tests/moments-journal-layout.test.mjs
 git commit -m "feat: add deterministic moments wall layout rules"
 ```
 
 ---
 
-### Task 3: Replace the Moments page entrance, filter, and composer UI
+### Task 3: Replace the page entrance, text filter, and composer presentation
 
 **Files:**
 - Modify: `src/pages/moments.astro`
@@ -214,12 +196,10 @@ git commit -m "feat: add deterministic moments wall layout rules"
 - Modify: `tests/moments-journal-layout.test.mjs`
 
 **Interfaces:**
-- Consumes: `BaseLayout.showBanner`, existing IDs `#publish-toggle`, `#toggle-icon`, `#publish-box`, `.pill[data-category]`, all existing form/session/upload IDs.
-- Produces: `.moments-wall-head`, `.moments-wall-filter`, `.moments-compose-trigger`, `.moments-compose-label`, direct import of `moments-life-wall.css`.
+- Consumes: `BaseLayout.showBanner`; preserves `#publish-toggle`, `#toggle-icon`, `#publish-box`, `.pill[data-category]`, and every form/session/upload ID.
+- Produces: `.moments-wall-head`, `.moments-wall-filter`, `.moments-compose-trigger`.
 
-- [ ] **Step 1: Add failing structure assertions**
-
-Append:
+- [ ] **Step 1: Add failing page-entrance assertions**
 
 ```js
 test('moments owns a quiet bannerless page entrance', () => {
@@ -228,7 +208,7 @@ test('moments owns a quiet bannerless page entrance', () => {
   assert.match(page, /class="moments-wall-head"/);
   assert.match(page, /class="controls-bar moments-wall-filter"/);
   assert.match(page, /class="fab moments-compose-trigger"/);
-  assert.match(page, /class="moments-compose-label">今天想记点什么？/);
+  assert.match(page, /今天想记点什么？/);
   assert.doesNotMatch(page, /hero-stats/);
   assert.doesNotMatch(page, /hero-bubbles/);
   assert.doesNotMatch(page, /✨ Moments/);
@@ -237,15 +217,15 @@ test('moments owns a quiet bannerless page entrance', () => {
 
 - [ ] **Step 2: Run and verify RED**
 
-- [ ] **Step 3: Import the new authoritative stylesheet in page frontmatter**
+- [ ] **Step 3: Add stylesheet import and BaseLayout props**
+
+Frontmatter:
 
 ```astro
 import '../styles/moments-life-wall.css';
 ```
 
-- [ ] **Step 4: Change `BaseLayout` call**
-
-Use:
+BaseLayout:
 
 ```astro
 <BaseLayout
@@ -255,11 +235,7 @@ Use:
 >
 ```
 
-Remove `showTime={true}`.
-
-- [ ] **Step 5: Replace the old Hero + controls markup only**
-
-Replace the old `.moments-hero` and `.controls-bar` blocks with:
+- [ ] **Step 4: Replace old Hero + controls markup**
 
 ```astro
 <header class="moments-wall-head">
@@ -270,9 +246,7 @@ Replace the old `.moments-hero` and `.controls-bar` blocks with:
 <div class="controls-bar moments-wall-filter" aria-label="筛选碎碎念">
   <div class="cat-pills">
     <button class="pill active" data-category="all">全部</button>
-    {categoryOrder.map((cat) => (
-      <button class="pill" data-category={cat}>{cat}</button>
-    ))}
+    {categoryOrder.map((cat) => <button class="pill" data-category={cat}>{cat}</button>)}
   </div>
   <button class="fab moments-compose-trigger" id="publish-toggle" aria-label="写一条碎碎念">
     <span id="toggle-icon" aria-hidden="true">✎</span>
@@ -281,31 +255,19 @@ Replace the old `.moments-hero` and `.controls-bar` blocks with:
 </div>
 ```
 
-Keep the existing publish panel directly after this control row.
+- [ ] **Step 5: Simplify composer copy without changing behavior hooks**
 
-- [ ] **Step 6: Simplify visible composer copy without changing IDs**
-
-Change only visual labels:
+Use:
 
 ```astro
 <span class="panel-title">写点什么</span>
-```
-
-Textarea placeholder:
-
-```astro
-placeholder="现在脑子里在想什么？"
-```
-
-Submit button text:
-
-```astro
+<textarea name="text" rows="3" placeholder="现在脑子里在想什么？" required></textarea>
 <button type="submit" class="submit-btn" id="submit-btn">发布</button>
 ```
 
-Keep all upload, emoji, login, date/category, close, form-message and poster IDs.
+Keep date/category/link/emoji/upload/poster/session/login/logout/close/form-message controls and IDs.
 
-- [ ] **Step 7: Create the top/composer part of `moments-life-wall.css`**
+- [ ] **Step 6: Create `moments-life-wall.css` entrance/composer base**
 
 ```css
 body.layout-standard .moments-shell {
@@ -314,7 +276,6 @@ body.layout-standard .moments-shell {
   margin: 0 auto;
   padding: clamp(38px, 6vw, 78px) clamp(14px, 3vw, 34px) 60px;
 }
-
 body.layout-standard .moments-wall-head {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(180px, 0.55fr);
@@ -337,7 +298,6 @@ body.layout-standard .moments-wall-head p {
   font-size: 0.88rem;
   line-height: 1.72;
 }
-
 body.layout-standard .moments-wall-filter {
   display: flex;
   align-items: center;
@@ -349,12 +309,7 @@ body.layout-standard .moments-wall-filter {
   border-bottom: 1px solid color-mix(in srgb, var(--standard-line) 78%, transparent);
   background: transparent;
 }
-body.layout-standard .moments-wall-filter .cat-pills {
-  display: flex;
-  align-items: center;
-  gap: 3px;
-  min-width: 0;
-}
+body.layout-standard .moments-wall-filter .cat-pills { display: flex; align-items: center; gap: 3px; min-width: 0; }
 body.layout-standard .moments-wall-filter .pill {
   position: relative;
   min-height: 40px;
@@ -376,16 +331,14 @@ body.layout-standard .moments-wall-filter .pill::after {
   height: 1px;
   background: transparent;
 }
-body.layout-standard .moments-wall-filter .pill:hover { color: var(--standard-text); }
+body.layout-standard .moments-wall-filter .pill:hover,
 body.layout-standard .moments-wall-filter .pill.active { color: var(--standard-text); }
 body.layout-standard .moments-wall-filter .pill.active::after { background: var(--standard-accent); }
-
 body.layout-standard .moments-compose-trigger {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   width: auto;
-  height: auto;
   min-height: 40px;
   padding: 7px 2px 7px 10px;
   border: 0;
@@ -394,10 +347,8 @@ body.layout-standard .moments-compose-trigger {
   box-shadow: none;
   color: var(--standard-muted);
   font-size: 0.82rem;
-  font-weight: 560;
 }
 body.layout-standard .moments-compose-trigger:hover { color: var(--standard-accent); transform: none; box-shadow: none; }
-
 body.layout-standard .moments-shell .publish-panel {
   position: relative;
   margin: -10px 0 46px;
@@ -419,22 +370,21 @@ body.layout-standard .moments-shell .publish-panel::before {
   width: 1px;
   background: color-mix(in srgb, var(--standard-accent) 42%, transparent);
 }
-body.layout-standard .moments-shell .panel-topbar { margin-bottom: 18px; }
-body.layout-standard .moments-shell .panel-title { color: var(--standard-text); font-size: 0.94rem; font-weight: 680; }
 body.layout-standard .moments-shell .field textarea { min-height: 150px; line-height: 1.78; }
 ```
 
-- [ ] **Step 8: Run focused test and commit**
+- [ ] **Step 7: Run focused test and verify GREEN**
+
+- [ ] **Step 8: Commit**
 
 ```bash
-node --test tests/moments-journal-layout.test.mjs
 git add src/pages/moments.astro src/styles/moments-life-wall.css tests/moments-journal-layout.test.mjs
 git commit -m "style: rebuild moments entrance and composer"
 ```
 
 ---
 
-### Task 4: Render day groups and direct life-wall card variants
+### Task 4: Render day groups and content-derived Moment variants directly
 
 **Files:**
 - Modify: `src/pages/moments.astro`
@@ -442,12 +392,10 @@ git commit -m "style: rebuild moments entrance and composer"
 - Modify: `tests/moments-journal-layout.test.mjs`
 
 **Interfaces:**
-- Consumes: `getMomentDateKey`, `getMomentDayParts`, `classifyMomentLayout` from `src/lib/moments-life-wall.mjs`; existing `RenderMoment`; `buildMomentCard`; category filtering.
-- Produces: `.moment-day-group`, `.moment-day-stamp`, `.moment-day-flow`; `.moment--*` classes; `applyMomentFilter(category: string)`.
+- Consumes: helper functions from Task 2 and existing `RenderMoment`/`buildMomentCard`.
+- Produces: `.moment-day-group`, `.moment-day-stamp`, `.moment-day-flow`, `.moment--*`, `applyMomentFilter(category)`.
 
 - [ ] **Step 1: Add failing source assertions**
-
-Append:
 
 ```js
 test('moments render date groups and content-derived layout variants directly', () => {
@@ -455,8 +403,6 @@ test('moments render date groups and content-derived layout variants directly', 
   assert.match(page, /function createMomentDayGroup\(dateKey: string\)/);
   assert.match(page, /function applyMomentFilter\(category: string\)/);
   assert.match(page, /moment-day-group/);
-  assert.match(page, /moment-day-stamp/);
-  assert.match(page, /moment-day-flow/);
   assert.match(page, /classifyMomentLayout\(/);
   assert.match(page, /moment--\$\{layoutVariant\}/);
 });
@@ -464,21 +410,13 @@ test('moments render date groups and content-derived layout variants directly', 
 
 - [ ] **Step 2: Run and verify RED**
 
-- [ ] **Step 3: Import helpers in the client script**
-
-Near the existing client imports add:
+- [ ] **Step 3: Import helpers in the existing client script**
 
 ```ts
-import {
-  classifyMomentLayout,
-  getMomentDateKey,
-  getMomentDayParts,
-} from '../lib/moments-life-wall.mjs';
+import { classifyMomentLayout, getMomentDateKey, getMomentDayParts } from '../lib/moments-life-wall.mjs';
 ```
 
 - [ ] **Step 4: Add direct day-group creation**
-
-Next to `RenderMoment`, add:
 
 ```ts
 function createMomentDayGroup(dateKey: string) {
@@ -499,15 +437,13 @@ function createMomentDayGroup(dateKey: string) {
   weekday.className = 'moment-day-weekday';
   weekday.textContent = parts.weekdayLabel;
 
-  const todayKey = getMomentDateKey(new Date());
   const today = document.createElement('span');
   today.className = 'moment-day-today';
-  today.hidden = dateKey !== todayKey;
+  today.hidden = dateKey !== getMomentDateKey(new Date());
   today.setAttribute('aria-label', '今天');
 
   const flow = document.createElement('div');
   flow.className = 'moment-day-flow';
-
   stamp.append(time, weekday, today);
   group.append(stamp, flow);
   applyScopedStyles(group);
@@ -515,11 +451,9 @@ function createMomentDayGroup(dateKey: string) {
 }
 ```
 
-The today dot is static; do not add animation.
+- [ ] **Step 5: Add deterministic layout class in `buildMomentCard()`**
 
-- [ ] **Step 5: Change `buildMomentCard` to add deterministic layout classes before media rendering**
-
-Immediately after creating `card`:
+Immediately after creating the card:
 
 ```ts
 const videos = (moment.media || []).filter((item) => item.kind === 'video');
@@ -533,19 +467,13 @@ card.dataset.category = moment.category;
 card.dataset.layout = layoutVariant;
 ```
 
-Reuse the `videos` constant later; delete the later duplicate `const videos = ...` declaration.
-
-Change category text from emoji-filled pill copy to plain category text:
+Reuse `videos` later and delete the duplicate declaration. Set:
 
 ```ts
 catPill.textContent = moment.category;
 ```
 
-Keep `.cat-pill` class because pin/reaction code may query the metadata block; CSS will make it text-like.
-
-- [ ] **Step 6: Replace flat `syncMoments()` append with day grouping**
-
-Use:
+- [ ] **Step 6: Replace flat `syncMoments()` append with consecutive date groups**
 
 ```ts
 list.innerHTML = '';
@@ -568,9 +496,9 @@ applyMomentFilter(activeCategory);
 setupLightboxForNewCards();
 ```
 
-Remove `updateStats(moments)` calls and delete the old `updateStats()` function because the stat UI is gone.
+Delete old `updateStats()` and its calls because the stat UI no longer exists.
 
-- [ ] **Step 7: Add chapter-aware filter function and use it in the existing click handler**
+- [ ] **Step 7: Add chapter-aware filtering**
 
 ```ts
 function applyMomentFilter(category: string) {
@@ -586,13 +514,13 @@ function applyMomentFilter(category: string) {
 }
 ```
 
-Replace the current direct card-loop in category button click with:
+In the existing filter click handler, replace direct card toggling with:
 
 ```ts
 applyMomentFilter(tab.dataset.category ?? 'all');
 ```
 
-- [ ] **Step 8: Add the date-flow/card-shell part of `moments-life-wall.css`**
+- [ ] **Step 8: Append day-flow and unboxed-card CSS**
 
 ```css
 body.layout-standard .moments-shell .moments-list {
@@ -609,11 +537,7 @@ body.layout-standard .moment-day-group {
   align-items: start;
 }
 body.layout-standard .moment-day-group[hidden] { display: none; }
-body.layout-standard .moment-day-stamp {
-  padding-top: 5px;
-  color: var(--standard-muted);
-  font-variant-numeric: tabular-nums;
-}
+body.layout-standard .moment-day-stamp { padding-top: 5px; color: var(--standard-muted); font-variant-numeric: tabular-nums; }
 body.layout-standard .moment-day-date {
   display: block;
   color: color-mix(in srgb, var(--standard-text) 19%, transparent);
@@ -623,28 +547,10 @@ body.layout-standard .moment-day-date {
   letter-spacing: -0.055em;
   white-space: nowrap;
 }
-body.layout-standard .moment-day-weekday {
-  display: inline-block;
-  margin-top: 8px;
-  font-size: 0.62rem;
-  font-weight: 720;
-  letter-spacing: 0.15em;
-}
-body.layout-standard .moment-day-today {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin: 0 0 1px 8px;
-  border-radius: 50%;
-  background: var(--standard-accent);
-}
+body.layout-standard .moment-day-weekday { display: inline-block; margin-top: 8px; font-size: 0.62rem; font-weight: 720; letter-spacing: 0.15em; }
+body.layout-standard .moment-day-today { display: inline-block; width: 6px; height: 6px; margin: 0 0 1px 8px; border-radius: 50%; background: var(--standard-accent); }
 body.layout-standard .moment-day-today[hidden] { display: none; }
-body.layout-standard .moment-day-flow {
-  display: grid;
-  gap: clamp(26px, 4vw, 46px);
-  min-width: 0;
-}
-
+body.layout-standard .moment-day-flow { display: grid; gap: clamp(26px, 4vw, 46px); min-width: 0; }
 body.layout-standard .moments-shell .moment-card {
   position: relative;
   width: 100%;
@@ -661,13 +567,7 @@ body.layout-standard .moments-shell .moment-card {
 body.layout-standard .moments-shell .moment-card::before,
 body.layout-standard .moments-shell .card-glow { display: none; }
 body.layout-standard .moments-shell .card-content { padding: 0; }
-body.layout-standard .moments-shell .card-meta {
-  justify-content: flex-start;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-body.layout-standard .moments-shell .card-meta-left,
-body.layout-standard .moments-shell .card-actions { gap: 9px; }
+body.layout-standard .moments-shell .card-meta { justify-content: flex-start; gap: 10px; margin-bottom: 10px; }
 body.layout-standard .moments-shell .cat-pill {
   position: relative;
   padding: 0 0 0 11px;
@@ -676,7 +576,6 @@ body.layout-standard .moments-shell .cat-pill {
   background: none !important;
   color: var(--standard-muted) !important;
   font-size: 0.72rem;
-  font-weight: 620;
 }
 body.layout-standard .moments-shell .cat-pill::before {
   content: '';
@@ -689,52 +588,33 @@ body.layout-standard .moments-shell .cat-pill::before {
   background: var(--standard-accent);
   transform: translateY(-50%);
 }
-body.layout-standard .moments-shell .card-date {
-  color: color-mix(in srgb, var(--standard-muted) 78%, transparent);
-  font-size: 0.7rem;
-  font-variant-numeric: tabular-nums;
-}
-body.layout-standard .moments-shell .card-text {
-  max-width: 64ch;
-  margin: 0 0 13px;
-  color: var(--standard-text);
-  font-size: 1rem;
-  line-height: 1.8;
-  white-space: pre-wrap;
-}
-body.layout-standard .moments-shell .moment--whisper {
-  width: min(88%, 650px);
-  margin-left: clamp(0px, 5vw, 58px);
-}
-body.layout-standard .moments-shell .moment--whisper .card-text {
-  max-width: 28ch;
-  font-size: clamp(1.16rem, 1.2vw + 0.96rem, 1.42rem);
-  line-height: 1.65;
-}
+body.layout-standard .moments-shell .card-text { max-width: 64ch; margin: 0 0 13px; color: var(--standard-text); font-size: 1rem; line-height: 1.8; white-space: pre-wrap; }
+body.layout-standard .moments-shell .moment--whisper { width: min(88%, 650px); margin-left: clamp(0px, 5vw, 58px); }
+body.layout-standard .moments-shell .moment--whisper .card-text { max-width: 28ch; font-size: clamp(1.16rem, 1.2vw + 0.96rem, 1.42rem); line-height: 1.65; }
 body.layout-standard .moments-shell .moment--text { width: min(100%, 760px); }
 ```
 
-- [ ] **Step 9: Run focused test and commit**
+- [ ] **Step 9: Run focused test and verify GREEN**
+
+- [ ] **Step 10: Commit**
 
 ```bash
-node --test tests/moments-journal-layout.test.mjs
 git add src/pages/moments.astro src/styles/moments-life-wall.css tests/moments-journal-layout.test.mjs
 git commit -m "feat: render moments as a direct life wall"
 ```
 
 ---
 
-### Task 5: Give photos and video content-specific composition
+### Task 5: Compose photos and video according to actual content
 
 **Files:**
 - Modify: `src/styles/moments-life-wall.css`
 - Modify: `tests/moments-journal-layout.test.mjs`
 
 **Interfaces:**
-- Consumes: `.moment--photo-one`, `.moment--photo-two`, `.moment--photo-three`, `.moment--gallery`, `.moment--video`, existing `.card-images[data-count]`.
-- Produces: deterministic asymmetric media composition; no random JS.
+- Consumes: `.moment--photo-*`, `.moment--gallery`, `.moment--video`, `.card-images`.
 
-- [ ] **Step 1: Add failing style assertions**
+- [ ] **Step 1: Add failing media-layout assertions**
 
 ```js
 const wallCss = read('src/styles/moments-life-wall.css');
@@ -745,7 +625,7 @@ test('life wall media layouts vary by actual content', () => {
   assert.match(wallCss, /\.moment--photo-three/);
   assert.match(wallCss, /\.moment--gallery/);
   assert.match(wallCss, /\.moment--video/);
-  assert.match(wallCss, /grid-template-columns:\s*minmax\(0, 1\.35fr\) minmax\(0, 0\.85fr\)/);
+  assert.match(wallCss, /1\.35fr/);
   assert.match(wallCss, /rotate\(-0\.7deg\)/);
   assert.match(wallCss, /@media \(max-width:\s*720px\)/);
 });
@@ -753,15 +633,10 @@ test('life wall media layouts vary by actual content', () => {
 
 - [ ] **Step 2: Run and verify RED**
 
-- [ ] **Step 3: Append the exact media rules**
+- [ ] **Step 3: Append desktop media composition CSS**
 
 ```css
-body.layout-standard .moments-shell .card-images {
-  width: 100%;
-  max-width: none;
-  margin: 14px 0 12px;
-  gap: 8px;
-}
+body.layout-standard .moments-shell .card-images { width: 100%; max-width: none; margin: 14px 0 12px; gap: 8px; }
 body.layout-standard .moments-shell .card-images img,
 body.layout-standard .moments-shell .card-images video {
   display: block;
@@ -774,146 +649,60 @@ body.layout-standard .moments-shell .card-images video {
   transform: none;
 }
 body.layout-standard .moments-shell .card-images img:hover { transform: none; box-shadow: none; }
-
 body.layout-standard .moments-shell .moment--photo-one { width: min(100%, 850px); }
-body.layout-standard .moments-shell .moment--photo-one .card-images {
-  display: block;
-  width: min(100%, 820px);
-}
-body.layout-standard .moments-shell .moment--photo-one .card-images img {
-  width: auto;
-  max-width: 100%;
-  max-height: 680px;
-  object-fit: contain;
-}
-
+body.layout-standard .moments-shell .moment--photo-one .card-images { display: block; width: min(100%, 820px); }
+body.layout-standard .moments-shell .moment--photo-one .card-images img { width: auto; max-width: 100%; max-height: 680px; object-fit: contain; }
 body.layout-standard .moments-shell .moment--photo-two { width: min(100%, 900px); }
-body.layout-standard .moments-shell .moment--photo-two .card-images {
-  display: grid;
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr);
-  align-items: end;
-}
-body.layout-standard .moments-shell .moment--photo-two .card-images img {
-  min-height: 190px;
-  max-height: 520px;
-  object-fit: cover;
-}
-
+body.layout-standard .moments-shell .moment--photo-two .card-images { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.85fr); align-items: end; }
+body.layout-standard .moments-shell .moment--photo-two .card-images img { min-height: 190px; max-height: 520px; object-fit: cover; }
 body.layout-standard .moments-shell .moment--photo-three { width: min(100%, 920px); }
-body.layout-standard .moments-shell .moment--photo-three .card-images {
-  display: grid;
-  grid-template-columns: minmax(0, 1.42fr) minmax(150px, 0.74fr);
-  grid-template-rows: repeat(2, minmax(0, 1fr));
-}
-body.layout-standard .moments-shell .moment--photo-three .card-images > :first-child {
-  grid-row: 1 / 3;
-  min-height: 390px;
-  object-fit: cover;
-}
+body.layout-standard .moments-shell .moment--photo-three .card-images { display: grid; grid-template-columns: minmax(0, 1.42fr) minmax(150px, 0.74fr); grid-template-rows: repeat(2, minmax(0, 1fr)); }
+body.layout-standard .moments-shell .moment--photo-three .card-images > :first-child { grid-row: 1 / 3; min-height: 390px; object-fit: cover; }
 body.layout-standard .moments-shell .moment--photo-three .card-images > :nth-child(2) { transform: rotate(-0.7deg); }
 body.layout-standard .moments-shell .moment--photo-three .card-images > :nth-child(3) { transform: rotate(0.6deg); }
-body.layout-standard .moments-shell .moment--photo-three .card-images > :not(:first-child) {
-  min-height: 188px;
-  object-fit: cover;
-}
-
+body.layout-standard .moments-shell .moment--photo-three .card-images > :not(:first-child) { min-height: 188px; object-fit: cover; }
 body.layout-standard .moments-shell .moment--gallery { width: min(100%, 930px); }
-body.layout-standard .moments-shell .moment--gallery .card-images {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-body.layout-standard .moments-shell .moment--gallery .card-images img {
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-}
+body.layout-standard .moments-shell .moment--gallery .card-images { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+body.layout-standard .moments-shell .moment--gallery .card-images img { aspect-ratio: 4 / 3; object-fit: cover; }
 body.layout-standard .moments-shell .moment--gallery .card-images > :nth-child(3n + 2) { transform: rotate(-0.5deg); }
 body.layout-standard .moments-shell .moment--gallery .card-images > :nth-child(4n) { transform: rotate(0.5deg); }
-
 body.layout-standard .moments-shell .moment--video { width: min(100%, 940px); }
-body.layout-standard .moments-shell .moment--video .card-images {
-  display: block;
-  width: min(100%, 900px);
-}
-body.layout-standard .moments-shell .moment--video video {
-  width: 100%;
-  max-height: 72vh;
-  border-radius: 7px;
-  background: #000;
-}
-
-body.layout-standard .moments-shell .card-link {
-  display: inline;
-  color: var(--standard-muted);
-  font-size: 0.78rem;
-  text-decoration-color: color-mix(in srgb, var(--standard-accent) 46%, transparent);
-  text-underline-offset: 3px;
-}
-body.layout-standard .moments-shell .card-link:hover { color: var(--standard-accent); }
+body.layout-standard .moments-shell .moment--video .card-images { display: block; width: min(100%, 900px); }
+body.layout-standard .moments-shell .moment--video video { width: 100%; max-height: 72vh; border-radius: 7px; background: #000; }
+body.layout-standard .moments-shell .card-link { display: inline; color: var(--standard-muted); font-size: 0.78rem; text-underline-offset: 3px; }
 ```
 
-- [ ] **Step 4: Add mobile flattening exactly**
+- [ ] **Step 4: Append mobile flattening and reduced-motion rules**
 
 ```css
 @media (max-width: 720px) {
   body.layout-standard .moments-shell { padding: 30px 14px 46px; }
   body.layout-standard .moments-wall-head { display: block; margin-bottom: 26px; }
-  body.layout-standard .moments-wall-head h1 { font-size: clamp(2.45rem, 15vw, 3.7rem); }
   body.layout-standard .moments-wall-head p { margin-top: 13px; max-width: 30ch; }
   body.layout-standard .moments-wall-filter { align-items: flex-start; flex-direction: column; gap: 6px; }
-  body.layout-standard .moments-wall-filter .cat-pills {
-    width: 100%;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    scrollbar-width: none;
-  }
-  body.layout-standard .moments-compose-trigger { margin-left: 2px; }
+  body.layout-standard .moments-wall-filter .cat-pills { width: 100%; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
   body.layout-standard .moments-shell .publish-panel { margin-top: 0; padding: 22px 0 24px; }
   body.layout-standard .moments-shell .publish-panel::before { display: none; }
-
   body.layout-standard .moment-day-group { display: block; }
-  body.layout-standard .moment-day-stamp {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 0;
-  }
+  body.layout-standard .moment-day-stamp { display: flex; align-items: baseline; gap: 10px; margin-bottom: 20px; padding: 0; }
   body.layout-standard .moment-day-date { font-size: 1.65rem; }
   body.layout-standard .moment-day-weekday { margin-top: 0; }
   body.layout-standard .moment-day-flow { gap: 30px; }
-
   body.layout-standard .moments-shell .moment--whisper,
   body.layout-standard .moments-shell .moment--text,
   body.layout-standard .moments-shell .moment--photo-one,
   body.layout-standard .moments-shell .moment--photo-two,
   body.layout-standard .moments-shell .moment--photo-three,
   body.layout-standard .moments-shell .moment--gallery,
-  body.layout-standard .moments-shell .moment--video {
-    width: 100%;
-    margin-left: 0;
-  }
-  body.layout-standard .moments-shell .moment--whisper .card-text { max-width: 32ch; }
+  body.layout-standard .moments-shell .moment--video { width: 100%; margin-left: 0; }
   body.layout-standard .moments-shell .moment--photo-two .card-images,
   body.layout-standard .moments-shell .moment--photo-three .card-images,
-  body.layout-standard .moments-shell .moment--gallery .card-images {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: auto;
-  }
+  body.layout-standard .moments-shell .moment--gallery .card-images { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: auto; }
   body.layout-standard .moments-shell .moment--photo-three .card-images > :first-child { grid-row: auto; min-height: 0; }
   body.layout-standard .moments-shell .moment--photo-three .card-images > *,
   body.layout-standard .moments-shell .moment--gallery .card-images > * { transform: none !important; }
 }
-```
-
-- [ ] **Step 5: Add reduced-motion protection**
-
-```css
 @media (prefers-reduced-motion: reduce) {
-  body.layout-standard .moments-shell *,
-  body.layout-standard .moments-shell *::before,
-  body.layout-standard .moments-shell *::after {
-    scroll-behavior: auto !important;
-  }
   body.layout-standard .moments-shell .moment-card,
   body.layout-standard .moments-compose-trigger { transition: none !important; }
 }
@@ -921,10 +710,11 @@ html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment-card
 html[data-reduce-motion="true"] body.layout-standard .moments-compose-trigger { transition: none !important; }
 ```
 
-- [ ] **Step 6: Run focused test and commit**
+- [ ] **Step 5: Run focused test and verify GREEN**
+
+- [ ] **Step 6: Commit**
 
 ```bash
-node --test tests/moments-journal-layout.test.mjs
 git add src/styles/moments-life-wall.css tests/moments-journal-layout.test.mjs
 git commit -m "style: compose moments media as a life wall"
 ```
@@ -939,10 +729,10 @@ git commit -m "style: compose moments media as a life wall"
 - Modify: `tests/moments-journal-layout.test.mjs`
 
 **Interfaces:**
-- Produces event: `moments:pin-order-changed` on `#moments-list` with detail `{ ids: string[] }`.
-- Consumes event in Moments page to reorder `currentMoments` and call `syncMoments()` so day groups are rebuilt correctly.
+- Produces event: `moments:pin-order-changed` on `#moments-list`, detail `{ ids: string[] }`.
+- Consumes event in Moments page, reorders `currentMoments`, then calls `syncMoments(currentMoments)`.
 
-- [ ] **Step 1: Add failing pin-contract assertions**
+- [ ] **Step 1: Add failing pin-contract test**
 
 ```js
 test('pin reorder is delegated back to the life-wall renderer', () => {
@@ -957,9 +747,9 @@ test('pin reorder is delegated back to the life-wall renderer', () => {
 
 - [ ] **Step 2: Run and verify RED**
 
-- [ ] **Step 3: Replace `reorderManagedCards()` in `MomentsPinControls.astro`**
+- [ ] **Step 3: Replace DOM-moving pin reorder**
 
-Delete the DOM-moving implementation and use:
+In `MomentsPinControls.astro`, replace `reorderManagedCards()` with:
 
 ```ts
 function requestManagedReorder() {
@@ -970,19 +760,13 @@ function requestManagedReorder() {
 }
 ```
 
-In `refreshItems`, change:
-
-```ts
-if (reorder) reorderManagedCards();
-```
-
-to:
+In `refreshItems` use:
 
 ```ts
 if (reorder) requestManagedReorder();
 ```
 
-- [ ] **Step 4: Add the page listener inside `initMomentsPage()` using the existing AbortSignal**
+- [ ] **Step 4: Add the list event listener inside `initMomentsPage()`**
 
 ```ts
 list.addEventListener('moments:pin-order-changed', (event) => {
@@ -998,58 +782,46 @@ list.addEventListener('moments:pin-order-changed', (event) => {
 }, { signal });
 ```
 
-Place it after the existing list click handler is attached. The event does not change API data; it only updates client order from the already-authoritative pin-control refresh response.
+- [ ] **Step 5: Run focused test and verify GREEN**
 
-- [ ] **Step 5: Run focused test and commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-node --test tests/moments-journal-layout.test.mjs
 git add src/components/MomentsPinControls.astro src/pages/moments.astro tests/moments-journal-layout.test.mjs
 git commit -m "fix: preserve moments day groups after pin reorder"
 ```
 
 ---
 
-### Task 7: Actions, reactions, comments, lightbox, and final visual regression
+### Task 7: Integrate actions/comments and verify the complete page
 
 **Files:**
 - Modify: `src/styles/moments-life-wall.css`
-- Modify: `tests/moments-journal-layout.test.mjs`
-- Modify if needed: `src/pages/moments.astro`
+- Test: `tests/moments-journal-layout.test.mjs`
+- Verify: `src/pages/moments.astro`, `src/components/MomentsPinControls.astro`
 
 **Interfaces:**
-- Consumes: existing reaction/comment/lightbox/delete/session controls.
-- Produces: unclipped controls, desktop secondary-action quieting, mobile tap visibility, green full build/test.
+- Consumes: existing `.moment-reactions`, `.moment-reaction-panel`, `.public-comments`, `.delete-moment-btn`, `.pin-moment-btn`.
 
-- [ ] **Step 1: Append action-visibility CSS**
+- [ ] **Step 1: Append action/comment visibility CSS using the real comments root class**
 
 ```css
 body.layout-standard .moments-shell .moment-card .delete-moment-btn,
-body.layout-standard .moments-shell .moment-card .pin-moment-btn {
-  opacity: 0.46;
-}
+body.layout-standard .moments-shell .moment-card .pin-moment-btn { opacity: 0.46; }
 body.layout-standard .moments-shell .moment-card:hover .delete-moment-btn,
 body.layout-standard .moments-shell .moment-card:hover .pin-moment-btn,
 body.layout-standard .moments-shell .moment-card:focus-within .delete-moment-btn,
-body.layout-standard .moments-shell .moment-card:focus-within .pin-moment-btn {
-  opacity: 1;
-}
+body.layout-standard .moments-shell .moment-card:focus-within .pin-moment-btn { opacity: 1; }
 body.layout-standard .moments-shell .moment-reactions,
-body.layout-standard .moments-shell .comments-widget {
-  position: relative;
-  z-index: 1;
-}
+body.layout-standard .moments-shell .public-comments { position: relative; z-index: 1; }
 body.layout-standard .moments-shell .moment-reaction-panel { z-index: 2200; }
-
 @media (max-width: 720px) {
   body.layout-standard .moments-shell .moment-card .delete-moment-btn,
   body.layout-standard .moments-shell .moment-card .pin-moment-btn { opacity: 1; }
 }
 ```
 
-If the actual comments component uses a different root class, inspect its rendered/source class and replace `.comments-widget` with the real existing class; do not invent a second wrapper solely for styling.
-
-- [ ] **Step 2: Add final anti-template regression assertions**
+- [ ] **Step 2: Add anti-template regression test**
 
 ```js
 test('retired journal-template UI does not return', () => {
@@ -1058,7 +830,6 @@ test('retired journal-template UI does not return', () => {
   assert.doesNotMatch(page, /moments-journal-header/);
   assert.doesNotMatch(page, /moments-film-strip/);
   assert.doesNotMatch(page, /bubble-float/);
-  assert.doesNotMatch(wallCss, /border-radius:\s*999px[\s\S]{0,160}\.pill/);
   assert.doesNotMatch(wallCss, /moment-today-pulse/);
 });
 ```
@@ -1072,7 +843,7 @@ npm run test:site
 
 Expected: PASS.
 
-- [ ] **Step 4: Run full Astro validation/build**
+- [ ] **Step 4: Run Astro validation/build**
 
 ```bash
 npm run build
@@ -1080,26 +851,21 @@ npm run build
 
 Expected: `astro check` and `astro build` PASS.
 
-- [ ] **Step 5: Manual browser smoke checklist on the built/dev page**
+- [ ] **Step 5: Browser smoke-test both desktop and mobile**
 
-Verify all of these with at least desktop and mobile viewport:
+Verify exactly:
 
 1. `/moments` has no normal banner and no separate clock row.
-2. Filter hides empty day groups and switching back to `全部` restores them.
-3. Open/close composer works; login/logout state still updates.
-4. Publish plain text.
-5. Publish/select image(s); preview/remove/upload behavior works.
-6. Video poster controls still appear and publish.
-7. Emoji insertion still writes into textarea.
-8. Reaction picker opens outside the unboxed Moment without clipping.
-9. Existing comments render under a Moment.
-10. Admin delete works.
-11. Pin/unpin immediately reorders and the date groups remain valid.
-12. Image lightbox opens/closes and multi-image navigation works.
-13. Theme hue, light/dark and wallpaper modes remain readable.
-14. Under 720px all image tilts disappear and touch controls remain visible.
+2. Filter hides empty day groups and `全部` restores them.
+3. Composer open/close, login/logout, plain-text publish, emoji insertion, image upload/preview/removal, video poster controls, and link field still work.
+4. Reaction picker opens without clipping; `.public-comments` renders below the Moment.
+5. Admin delete works.
+6. Pin/unpin immediately reorders and day groups remain valid.
+7. Image lightbox opens/closes and navigates multi-image sets.
+8. Theme hue, light/dark and wallpaper modes remain readable.
+9. Under `720px`, all tilt is gone and pin/delete/reaction/comment controls remain tappable.
 
-- [ ] **Step 6: Review scope and stale-file imports**
+- [ ] **Step 6: Verify no stale journal implementation remains**
 
 ```bash
 git grep -n "moments-journal\|installMomentsJournalEnhancer\|Moments · Journal" -- src tests || true
@@ -1107,13 +873,15 @@ git diff --check main...HEAD
 git diff --stat main...HEAD
 ```
 
-Expected: no old journal enhancer/style import; only design docs may mention the retired names.
+Expected: no old journal enhancer/style references in `src` or `tests`.
 
-- [ ] **Step 7: Commit final corrections only if necessary**
+- [ ] **Step 7: Commit only if verification required a correction**
+
+If a correction was necessary:
 
 ```bash
-git add src/pages/moments.astro src/components/MomentsPinControls.astro src/lib/moments-life-wall.mjs src/styles/moments-life-wall.css tests/moments-journal-layout.test.mjs package.json
+git add src/pages/moments.astro src/components/MomentsPinControls.astro src/lib/moments-life-wall.mjs src/styles/moments-life-wall.css tests/moments-journal-layout.test.mjs
 git commit -m "test: lock moments life wall v2 behavior"
 ```
 
-Do not create an empty commit if all checks were already green.
+If nothing changed, finish without an empty commit.
