@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import test from 'node:test';
+
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+
+test('article page exposes editorial metadata and reading-time hooks', () => {
+  const page = read('src/pages/posts/[slug].astro');
+  const util = read('src/utils/article-reading.ts');
+
+  assert.match(util, /export function estimateReadingMinutes\(source: string\)/);
+  assert.match(util, /[\\u3400-\\u9fff]/);
+  assert.match(page, /estimateReadingMinutes\(post\.body/);
+  assert.match(page, /class="article-meta-rail"/);
+  assert.match(page, /class="article-issue-stamp"/);
+  assert.match(page, /class="article-reading-time"/);
+  assert.match(page, /class="article-tag-list"/);
+});
