@@ -1,8 +1,8 @@
 export const WAVE_LAYERS = Object.freeze([
-  { y: 0, alpha: 0.22, duration: 8.4, phase: 0 },
-  { y: 3, alpha: 0.42, duration: 9.3, phase: 0.23 },
-  { y: 5, alpha: 0.58, duration: 10.1, phase: 0.51 },
-  { y: 7, alpha: 0.72, duration: 11.2, phase: 0.76 },
+  { y: 0, alpha: 0.18, duration: 9.8, phase: 0.04, drift: 0.18, harmonic: 0.42 },
+  { y: 3, alpha: 0.34, duration: 10.9, phase: 0.27, drift: 0.26, harmonic: 0.76 },
+  { y: 5, alpha: 0.52, duration: 12.1, phase: 0.53, drift: 0.14, harmonic: 1.08 },
+  { y: 7, alpha: 0.68, duration: 13.4, phase: 0.79, drift: 0.22, harmonic: 1.36 },
 ]);
 
 const STRENGTH = Object.freeze({
