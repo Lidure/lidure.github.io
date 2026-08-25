@@ -16,3 +16,13 @@ test('article page exposes editorial metadata and reading-time hooks', () => {
   assert.match(page, /class="article-reading-time"/);
   assert.match(page, /class="article-tag-list"/);
 });
+
+test('article page scopes reading progress to the prose region', () => {
+  const page = read('src/pages/posts/[slug].astro');
+  assert.match(page, /class="article-reading-progress"/);
+  assert.match(page, /--article-reading-progress/);
+  assert.match(page, /getBoundingClientRect\(\)/);
+  assert.match(page, /document\.addEventListener\(['"]astro:page-load['"]/);
+  assert.match(page, /prefers-reduced-motion/);
+  assert.match(page, /astro:before-swap/);
+});
