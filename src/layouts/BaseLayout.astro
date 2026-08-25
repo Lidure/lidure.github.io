@@ -46,6 +46,7 @@ import VisualSettingsPanel from '../components/VisualSettingsPanel.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
 import SekaiParticles from '../components/SekaiParticles.astro';
 import MomentsPinControls from '../components/MomentsPinControls.astro';
+import PageTransitionEnhancer from '../components/PageTransitionEnhancer.astro';
 
 const siteBase = Astro.site ?? new URL('https://lidure22.xyz');
 const canonicalUrl = new URL(Astro.url.pathname, siteBase);
@@ -200,6 +201,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     <HeroSlideshow />
     <SekaiParticles />
     <SekaiPlayer />
+    <PageTransitionEnhancer />
     <MomentsPinControls />
     <SiteHeader currentPath={Astro.url.pathname} />
     <FloatingControls />

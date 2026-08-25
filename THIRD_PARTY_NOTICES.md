@@ -2,7 +2,7 @@
 
 ## CuteLeaf/Firefly
 
-Parts of the banner wave geometry/timing, profile-card visual direction, and the OKLCH theme-variable model in this site are adapted from [CuteLeaf/Firefly](https://github.com/CuteLeaf/Firefly).
+Parts of the banner wave geometry/timing, profile-card visual direction, short page-transition timing/progress treatment, and the OKLCH theme-variable model in this site are adapted from [CuteLeaf/Firefly](https://github.com/CuteLeaf/Firefly).
 
 MIT License
 
