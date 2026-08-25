@@ -15,7 +15,7 @@ test('homepage uses a real Firefly-style content overlap instead of fully compen
   assert.match(theme, /--home-banner-content-inset:\s*2\.9rem/);
   assert.match(theme, /body\.layout-standard\.is-home\s+\.standard-content\s*\{[^}]*padding-top:\s*var\(--home-banner-content-inset\)/s);
   assert.match(theme, /body\.layout-standard:not\(\.is-home\)\s+\.standard-content\s*\{[^}]*padding-top:\s*calc\(var\(--banner-surface-overlap\)\s*\+\s*14px\)/s);
-  assert.match(theme, /body\.layout-standard\.is-home\s+\.blog-banner-stage\s*\{[^}]*pointer-events:\s*none/s);
+  assert.match(theme, /body\.layout-standard\.is-home\s+\.blog-banner-stage,\s*body\.layout-standard\.is-home\s+\.blog-banner,\s*body\.layout-standard\.is-home\s+\.banner-waves\s*\{[^}]*pointer-events:\s*none/s);
   assert.match(theme, /body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*z-index:\s*6[^}]*backdrop-filter:\s*blur\(12px\)/s);
   assert.match(theme, /body\.layout-standard\.is-home\s+\.blog-banner-copy\s*\{[^}]*transform:\s*translateY\(calc\(-1\s*\*\s*clamp\(20px,\s*4vh,\s*42px\)\)\)/s);
 });
