@@ -2,513 +2,399 @@
 
 ## Status
 
-Approved direction from the design discussion on 2026-08-25. This specification replaces the visual direction introduced by PR #43 for **article detail pages** and **Moments / 碎碎念** only.
+Approved design direction from 2026-08-25. This specification replaces the visual direction introduced by PR #43 for **article detail pages** and **Moments / 碎碎念** only.
 
-The goal is not to produce a more polished generic blog template. The goal is to make these two pages feel authored, lived-in, and recognizably personal.
+The goal is not a more polished generic template. The goal is two pages that feel authored, lived-in, and recognizably personal.
 
-## References and Design Principle
+## Design principle and references
 
-Reference projects include `ImUpXuu/xuhome`, `Amiyadesi/sayori-blog` / Mizuki, and personal sites discovered through their friend-link ecosystems. We borrow structural ideas such as content-first reading, expressive but consistent visual language, asymmetric media composition, and social-feed immediacy. We do **not** copy their skins, color schemes, markup, or signature motifs.
-
-The new design follows one sentence:
+Reference projects include `ImUpXuu/xuhome`, `Amiyadesi/sayori-blog` / Mizuki, and personal sites found through their friend-link ecosystems. We borrow structural ideas—content-first reading, a consistent authorial language, asymmetric media composition, and an immediate personal feed—but do **not** copy skins, colors, markup, or signature motifs.
 
 > **文章像一本自己排出来的小刊物，碎碎念像一面一直长下去的生活墙。**
 
-The two pages may have different compositions. They remain part of the same site through typography, theme hue, wallpaper behavior, text colors, interaction timing, and spacing rhythm rather than by forcing them into identical cards.
+The two pages intentionally use different compositions. They still belong to one site through typography, theme hue, wallpaper behavior, text colors, interaction timing, and spacing rhythm rather than identical cards.
 
 ---
 
 # 1. Scope
 
-## 1.1 In scope
+## In scope
 
 - Article detail page UI and reading experience.
-- Moments page header, filter, composer presentation, feed structure, media layout, metadata presentation, and responsive behavior.
-- A BaseLayout escape hatch that allows these pages to opt out of the standard banner while retaining the global header, wallpaper, particles, player, visual-settings panel, page transitions, and footer.
-- Removal or retirement of the PR #43 visual layer that conflicts with this direction.
+- Moments header, text filter, composer presentation, feed structure, media layout, metadata, and responsive behavior.
+- A narrow `BaseLayout` banner opt-out for these two pages.
+- Retirement of the PR #43 visual layer that conflicts with this direction.
 
-## 1.2 Out of scope
+## Out of scope
 
-- Homepage redesign.
-- Article list / archive redesign.
-- Changing the content collection schema unless absolutely required for a non-breaking optional field.
-- Changing Moments API contracts, database format, authentication, R2 upload behavior, reactions, comments, deletion, lightbox, or poster generation.
-- Copying the visual identity of xuhome, Mizuki, or any friend-link site.
-- Adding a large dashboard-like sidebar, statistics dashboard, or AI summary block.
+- Homepage, article-list, or archive redesign.
+- Moments API/database/auth/R2/reaction/comment/delete/lightbox/poster contract changes.
+- AI summaries or dashboard widgets.
+- Direct visual copying from reference sites.
 
 ---
 
-# 2. What must be removed from PR #43
+# 2. PR #43 UI to retire
 
-The following visual ideas are explicitly retired:
+## Article
 
-### Article
+Remove:
 
-- `ISSUE {year}` badge.
-- Editorial metadata rail as a boxed/structured UI concept.
-- The current decorative H2 accent bar / glow treatment.
-- The current large rounded article-shell-card look as the dominant page container.
-- `Discussion / 评论区` template-like section label.
-- A visible generic vertical progress bar as the main article signature.
+- `ISSUE {year}`;
+- `article-meta-rail` as a visible structured UI pattern;
+- glowing/accent-bar H2 treatment;
+- one large rounded article card as the dominant page container;
+- `Discussion / 评论区` template label;
+- the current generic vertical progress bar as the page signature.
 
-### Moments
+## Moments
 
-- `Moments · Journal` kicker.
-- The three-stat header (`全部 / 本月 / 最近更新`).
-- Header rendered as a bordered hero card.
-- Connected pill / film-strip filter UI.
-- Every day rendered as a neat chapter-card system.
-- Every Moment rendered as the same rounded glass/card component.
-- Uniform category pills as a primary visual element.
+Remove:
 
-The implementation should delete or stop importing `src/styles/moments-journal.css` and `src/lib/moments-journal-enhancer.mjs` once equivalent functional behavior is represented directly in the new layout. Do not stack V2 styles on top of the old enhancer.
+- `Moments · Journal`;
+- `全部 / 本月 / 最近更新` stat blocks;
+- bordered hero-card header;
+- film-strip/pill filter;
+- neat chapter-card visual treatment for every date;
+- the same rounded glass card around every Moment;
+- filled category pills as a primary visual element.
+
+V2 must stop importing and then delete `src/styles/moments-journal.css` and `src/lib/moments-journal-enhancer.mjs` after their required behavior is represented directly in the Moments page. Do **not** stack a second visual enhancer over PR #43.
 
 ---
 
 # 3. Shared page chrome
 
-## 3.1 Banner opt-out
+## 3.1 Exact banner opt-out
 
-`BaseLayout.astro` gains a small, explicit page-level option, for example `showBanner?: boolean` with a default of `true`.
+`BaseLayout.astro` adds exactly:
 
-Article details and Moments pass `showBanner={false}`. The pages retain:
+```ts
+showBanner?: boolean
+```
 
-- global site header;
-- fullscreen/banner/overlay wallpaper modes;
-- HeroSlideshow background source;
-- visual settings;
-- music player;
-- particles;
-- page transitions;
-- footer.
+Default: `true`.
 
-Only the normal `BlogBanner + BannerWaves + fullscreen scroll indicator` stage is omitted for these two pages.
+Article details and Moments pass `showBanner={false}`.
 
-This is intentionally a narrow layout capability, not a new layout system.
+When false, omit only the normal `BlogBanner + BannerWaves + fullscreen-scroll-indicator` stage. Keep the global header, HeroSlideshow wallpaper source, particles, player, visual settings, page transitions, standard content surface, and footer.
+
+No broader layout-system rewrite is introduced.
 
 ## 3.2 Shared visual language
 
-Both pages should use:
+Both pages use existing theme variables and settings. Accent color guides the eye rather than filling surfaces.
 
-- `--standard-text`, `--standard-muted`, `--standard-accent`, `--standard-line`, theme hue and existing card opacity variables;
-- a restrained accent color: accent should guide the eye, not fill most surfaces;
+Required tendencies:
+
 - fewer visible containers;
 - fewer pills;
-- fewer rounded rectangles;
-- noticeably more whitespace;
-- small imperfections/asymmetries only where they support content;
-- no decorative English microcopy added only to make the page look designed.
+- fewer repeated rounded rectangles;
+- more whitespace;
+- restrained, deterministic asymmetry;
+- no decorative English microcopy added merely to look designed.
 
-Light/dark mode and user-configured theme hue must remain fully functional.
+Light/dark mode, theme hue, wallpaper modes, card opacity, and border settings remain functional where a visible surface still exists.
 
 ---
 
-# 4. Article page — “个人刊物”
+# 4. Article — “个人刊物”
 
-## 4.1 Page composition
+## 4.1 Composition
 
-Desktop composition:
+Desktop:
 
-- outer page width: approximately `1100–1180px`;
-- primary reading column: approximately `700–740px`;
-- asymmetric free space on both sides is intentional;
-- wide media, tables, code, quotes, and margin notes may use that free space.
+- outer canvas: about `1100–1180px`;
+- primary reading column: about `700–740px`;
+- side space is intentionally usable by media, quotes, notes, and the bookmark rail.
 
-The page does **not** sit inside a single visually dominant card. A very subtle reading surface may be used for contrast in fullscreen/overlay wallpaper modes, but it must read as a sheet/field, not as a dashboard card.
+There is **no full-page card**. In normal/banner mode the reading canvas is visually open. In fullscreen/overlay wallpaper modes only, a low-contrast translucent reading field may sit behind the article to preserve readability; it must have no dashboard-like border/shadow treatment.
 
 ## 4.2 Masthead
 
-The article itself owns the top of the page.
-
 Order:
 
-1. article title;
-2. optional description / deck;
-3. quiet publication metadata;
-4. tags as plain text links/labels;
-5. article body.
+1. title;
+2. description/deck;
+3. plain metadata;
+4. plain tags;
+5. body.
 
-Title:
+Title is left aligned, large but not landing-page huge, and has no badge/kicker.
 
-- left aligned;
-- large but not landing-page huge;
-- maximum width below the full canvas width so very long Chinese titles remain readable;
-- no badge above it;
-- no English kicker unless the content itself supplies one.
+The existing `post.data.description` becomes the deck. On wide desktop it sits slightly to the right of the main text axis with one short thin accent rule. On mobile it returns directly below the title in normal flow.
 
-Description:
+Metadata is plain text, e.g.:
 
-- uses the existing `post.data.description`;
-- on wide screens it may sit slightly to the right of the title/body axis as a **margin note / deck**;
-- shown with a short thin accent rule or a tiny marker, not a card;
-- on mobile it returns to normal document flow below the title.
+`2026.08.25 · 更新于 08.25 · 约 6 分钟`
 
-Metadata:
+Tags render as lightweight `#tag` text, not filled pills.
 
-- plain text, e.g. `2026.08.25 · 更新于 08.25 · 约 6 分钟`;
-- tags appear as lightweight `#tag` text, not filled pills;
-- separators can be punctuation or thin rules;
-- metadata is a secondary visual layer.
+## 4.3 Body typography
 
-## 4.3 Reading body
+- Chinese long-form line-height: final value within `1.75–1.85`.
+- Paragraph spacing remains editorial and moderate.
+- H2 uses a CSS counter (`01`, `02`, …) placed pale and slightly outside the text axis.
+- H2 has no bar, glow, pill, or full divider.
+- H3/H4 use typography and spacing only.
+- Counters never change Markdown heading IDs/content.
 
-Paragraphs:
-
-- optimize for Chinese long-form reading;
-- approximately `1.75–1.85` line height depending on final font size;
-- paragraph rhythm should feel editorial rather than Markdown-default;
-- avoid exaggerated paragraph gaps.
-
-Headings:
-
-- H2 uses CSS counters for a subtle chapter number (`01`, `02`, ...);
-- chapter number should be pale and slightly outside the main text axis;
-- H2 itself has no glowing bar, pill, box, or full-width divider;
-- H3 is mostly typographic: weight, size, spacing;
-- H4 is deliberately quiet.
-
-The H2 counter is a visual aid only and must not alter heading IDs or Markdown content.
-
-## 4.4 Asymmetric rich content
-
-The content column is stable; selected blocks are allowed to break it.
+## 4.4 Rich content
 
 ### Images
 
-- standard image: follows reading column;
-- landscape / large image: may expand to roughly `900–1000px`;
-- portrait image: should preserve natural width and should not be forced to fill the row;
-- no universal heavy border/shadow treatment;
-- subtle radius is allowed but not required on every image;
-- captions are understated and align to the image edge.
+A paragraph containing only an image may use a breakout container up to about `960px`. The image itself uses `width:auto; max-width:100%`, so portrait images retain a natural narrow width instead of being stretched.
 
-A small, deterministic variation is allowed based on content shape/class, but the layout must not randomly rotate images on every page load.
+- no universal heavy shadow/border;
+- captions are quiet and align to the image edge;
+- no random rotation.
 
-### Blockquotes
+### Quotes
 
-- can break slightly into the left margin;
-- primarily typographic: larger/lighter text, thin line or mark;
-- no large tinted quote card.
+Blockquotes shift slightly into the left margin and rely on typography plus one thin mark. No tinted quote card.
 
 ### Code
 
-- workbench/document-snippet feel;
-- quiet background and readable contrast;
-- no fake Mac traffic-light decoration;
-- copy affordance may appear on hover/focus on desktop and remain discoverable on touch devices;
-- preserve horizontal scrolling.
+Workbench/document-snippet feel: quiet high-contrast surface, horizontal scrolling, no fake Mac traffic lights. Copy control may fade until hover/focus on desktop but must remain discoverable on touch.
 
 ### Tables
 
-- document-like table treatment;
-- light horizontal separators preferred over cell-box grids;
-- horizontal overflow must remain safe on mobile.
+Document-like rows with light horizontal separators rather than a boxed grid. Mobile overflow remains horizontal and safe.
 
 ### KaTeX
 
-Existing inline/block math must remain intact and must not be clipped by breakout layout rules.
+Inline and block math must remain unclipped and unaffected by breakout rules.
 
-## 4.5 Reading trajectory
+## 4.5 Bookmark reading rail
 
-Desktop may show a **minimal bookmark rail**, not a TOC card.
+Desktop (`>= 980px`) shows a minimal bookmark rail in the outer margin:
 
-Requirements:
+- thin track;
+- small movable progress marker;
+- tiny static ticks for rendered H2 headings;
+- tick hover/focus reveals that heading title;
+- no persistent text list and no card background.
 
-- thin vertical track positioned in the page margin;
-- current overall reading position is represented by a small movable marker;
-- H2 headings become tiny static chapter ticks derived from Astro-rendered headings;
-- hovering/focusing a tick may reveal the heading title in a small native-feeling tooltip/popover;
-- no persistent large text list;
-- no glass card container.
+Article rendering must retain Astro heading data so H2 ticks are deterministic.
 
-Mobile:
+Mobile/tablet (`< 980px`) hides the rail and uses only a `2px` top reading-progress line.
 
-- hide the bookmark rail entirely;
-- use only a very thin top reading-progress line.
+Reduced-motion mode removes interpolation; position updates remain immediate.
 
-Reduced-motion mode disables animated interpolation; position updates may remain immediate.
+## 4.6 Ending
 
-## 4.6 Article ending
-
-After prose:
-
-- use a small typographic ending mark such as `· · ·` or one minimal accent ornament;
-- then enter comments naturally;
-- remove `Discussion` and other decorative English labels;
-- comments may have a simple Chinese heading only if needed for orientation.
-
-Future previous/next links, if added, should look like a page index, not two large cards.
+After prose, show a centered `· · ·` end mark, then the existing `Comments` component directly. No `Discussion`, no extra comment card, and no decorative English heading.
 
 ---
 
-# 5. Moments page — “生活墙”
+# 5. Moments — “生活墙”
 
-## 5.1 Page entrance
+## 5.1 Entrance
 
-No hero card.
+No hero card and no statistics.
 
-Desktop page head:
+Top area contains only:
 
-- plain `碎碎念` title on the left;
-- one short Chinese sentence below/next to it;
-- optional current year/month navigation on the right (`2026 / 08`) if useful;
-- no total-count dashboard;
-- no English kicker.
+- `碎碎念`;
+- one short Chinese description;
+- the text category filter.
 
-The title area should feel like the top of a personal notebook page, not an app header.
+There is **no month navigator in V2**. Date navigation is deliberately excluded to avoid adding another UI subsystem.
 
-## 5.2 Filter
+## 5.2 Category filter
 
-Categories remain `全部 / 生活 / 音乐 / 游戏 / 吐槽`.
+Keep categories `全部 / 生活 / 音乐 / 游戏 / 吐槽`.
 
-Presentation:
+They render as plain text controls. The active item uses a short accent underline plus normal text-weight change; color alone is not the only selected-state cue.
 
-- plain text navigation;
-- spacing rather than pills defines the controls;
-- active item gets a short accent underline or dot;
-- filter may become sticky under the site header on desktop if it remains visually light;
-- touch targets must still meet practical minimum size via padding without looking like pills.
+Controls retain practical click/touch padding but must not visually become pills.
+
+On desktop the filter may sit directly below the title and becomes sticky beneath the global site header. The sticky surface is transparent/near-transparent, not a floating card.
 
 ## 5.3 Composer
 
-The entry point is a sentence rather than a toolbar button:
+Use the existing auth/admin visibility rules. Wherever the current publish trigger is allowed, its collapsed presentation becomes:
 
-> `今天想记点什么？`
+`今天想记点什么？`
 
-Collapsed state:
+It appears as one quiet writable line inside the content flow.
 
-- looks like one quiet writable line in the content flow;
-- small pencil/plus icon is optional;
-- admin/auth behavior remains unchanged.
+Click expands the existing composer in place. Preserve category, link, emoji, image/video upload, poster, preview, submit, success/error, and auth behavior. Textarea is visually dominant; secondary controls are quieter.
 
-Expanded state:
-
-- unfolds in place;
-- textarea becomes the dominant element;
-- category, link, emoji, image/video upload and submit controls remain available but are visually secondary;
-- media previews appear directly beneath the text area;
-- avoid an outer dashboard-like panel wherever possible;
-- functional error/success messages remain visible.
-
-The composer must preserve all current IDs/hooks or update callers in one atomic change.
+Do not wrap the expanded composer in a dashboard-like outer card. Existing IDs/hooks are preserved, or all callers are updated atomically in the same implementation task.
 
 ## 5.4 Day groups
 
-Moments remain chronologically ordered but date grouping becomes a **background rhythm**, not a collection of chapter cards.
+DOM uses semantic day-group wrappers, but they have no enclosing border/card.
 
-DOM may still use semantic day-group wrappers for filtering and layout, but visually:
+Desktop (`>= 980px`):
 
-- the left margin shows a large pale date such as `08 / 25`;
-- weekday or year can be much smaller beneath it;
-- several Moments can share the same date marker;
-- date marker may become sticky only if it does not compete with content;
-- no border around the whole day group;
-- no full-height timeline line is required.
+- left zone shows large pale `MM / DD`;
+- small weekday/year sits below;
+- date marker is `position: sticky` within its day group with a top offset aligned below the site header;
+- today's group gets one **static** accent dot;
+- no pulsing animation;
+- no full-height timeline line.
 
-Today's marker can use one tiny accent dot. Do not use a pulsing animation by default; a static mark is more human and calmer.
+Mobile/tablet: date returns to normal horizontal flow above that day's Moments; it is not sticky.
 
-## 5.5 Life-wall layout
+## 5.5 Deterministic life-wall variants
 
-Desktop uses an intentionally uneven two-zone grid:
+Each Moment receives exactly one primary variant from content/media, never randomness:
 
-- narrow date / side-note zone;
-- flexible content zone;
+- `moment--whisper`: no media and trimmed text length `<= 32` characters;
+- `moment--text`: no media and text length `> 32`;
+- `moment--photo-one`: exactly one image and no video;
+- `moment--photo-two`: exactly two images and no video;
+- `moment--photo-three`: exactly three images and no video;
+- `moment--gallery`: four or more images and no video;
+- `moment--video`: one or more videos (video wins over photo variants).
 
-Within the content zone, Moments receive layout variants based on actual content. The renderer should add deterministic classes such as:
+### Whisper
 
-- `moment--whisper`: very short text, no media;
-- `moment--text`: normal text-only;
-- `moment--photo-one`;
-- `moment--photo-two`;
-- `moment--photo-three`;
-- `moment--gallery`;
-- `moment--video`.
+Slightly larger text, narrower width, and a small horizontal offset on desktop. No card shell.
 
-The variant must come from content/media count, never from random choice.
+### Text
 
-### Short text / whisper
-
-- can be slightly larger;
-- may sit narrower or offset from the main axis;
-- no visible card shell;
-- feels like a thought written into whitespace.
-
-### Normal text
-
-- readable width around `58–66ch`;
-- no mandatory border;
-- optional very subtle paper tint in wallpaper-heavy modes only.
+Readable width around `58–66ch`; no mandatory border. Fullscreen/overlay may add only a faint local paper tint if wallpaper contrast requires it.
 
 ### One photo
 
-- image is the dominant object;
-- preserve natural aspect ratio within sensible max dimensions;
-- can project wider than the text column;
-- time/caption may align to a photo edge;
-- allow a deterministic `~1deg` hand-set tilt class only for selected structural variants, not random rotation.
+Photo dominates, retains natural aspect ratio within max dimensions, and can project wider than text. **Single photos are never tilted.**
 
 ### Two photos
 
-- asymmetric pair: roughly `60/40` or `55/45` rather than equal squares;
-- preserve useful image content with `object-fit` chosen conservatively.
+Asymmetric pair, approximately `60/40`. On desktop only, second supporting image uses a fixed `rotate(0.7deg)`.
 
 ### Three photos
 
-- one lead image + two supporting images.
+One lead image plus two supporting images. Desktop supporting image 2 uses `rotate(0.7deg)` and image 3 uses `rotate(-0.6deg)`.
 
 ### Four or more
 
-- controlled gallery grid is acceptable;
-- avoid generic social-app nine-grid when image count does not require it.
+Controlled gallery grid. No rotation. Avoid forcing nine-grid geometry when not necessary.
 
 ### Video
 
-- receives a wider dedicated presentation;
-- poster and controls remain functional;
-- do not style it identically to an image tile.
+Dedicated wider presentation with existing poster/controls. No rotation and not styled identically to image tiles.
 
-## 5.6 Moment metadata and actions
+All rotations are removed below `720px` and under reduced-motion/user-reduced-motion modes.
 
-Category:
+## 5.6 Metadata and actions
 
-- small dot + text (`● 音乐`) or just text;
-- color derives from theme hue/category offsets but remains subtle;
-- no filled category pill.
+Category becomes small dot + plain text (or plain text alone), with subtle theme-derived category color. No filled pills.
 
-Time:
+Time uses quiet tabular/monospace numerals near metadata/media.
 
-- quiet monospace/tabular numeric text near the category or media edge.
+Existing reactions and counts remain readable. Secondary desktop actions may reduce opacity until `hover`/`focus-within`; touch-critical actions remain visible on mobile. Admin delete remains discoverable. Reaction pickers/comments must not be clipped by overflow.
 
-Reactions/comments/share/delete:
-
-- existing reactions and counts remain visible enough to understand state;
-- secondary desktop actions may reduce opacity until card hover/focus-within;
-- critical touch controls stay visible on mobile;
-- admin delete remains discoverable in admin mode;
-- comments and reaction pickers must not be clipped by overflow rules.
-
-Links:
-
-- present as readable domain/text links, not a separate card.
+Links render as normal readable domain/text links, not link cards.
 
 ## 5.7 Mobile Moments
 
-Below roughly `720px`:
+Below `720px`:
 
-- collapse to one content column;
-- date becomes a horizontal heading above each day group;
-- remove offsets/tilts that reduce usable width;
-- media uses full available width with natural ratios;
-- composer uses full width;
-- category filter scrolls horizontally if needed but remains text-like;
-- reaction/comment controls remain easy to tap;
-- no sticky date rail.
-
-The mobile page should still feel like the same life wall, just flattened for readability.
+- one content column;
+- date above each day group;
+- no offsets/rotations;
+- media uses available width and natural ratios;
+- composer full width;
+- text filter may horizontally scroll but remains visually text-only;
+- reaction/comment controls stay tap-friendly.
 
 ---
 
-# 6. Architecture and file boundaries
+# 6. Architecture and ownership
 
-## 6.1 BaseLayout
+## BaseLayout
 
-Modify only enough to support banner opt-out. Existing standard pages continue to render exactly as before by default.
+Only add `showBanner`; all existing pages default to current banner behavior.
 
-## 6.2 Article
+## Article
 
-Preferred ownership:
+- `src/pages/posts/[slug].astro`: data, `Content`, rendered headings, masthead composition, rail hooks.
+- Replace `src/styles/article-reading.css` wholesale rather than layering V2 over PR #43.
+- Extract a small article-reading controller only if the page script becomes difficult to test/read.
 
-- `src/pages/posts/[slug].astro`: data, heading extraction, article composition, progress/rail initialization;
-- a dedicated article stylesheet (the existing `article-reading.css` may be replaced wholesale rather than incrementally patched);
-- a small article reading/heading controller module if the page script becomes non-trivial.
+Do not preserve PR #43 markup just for compatibility.
 
-Do not preserve PR #43 markup purely for compatibility if it no longer serves the new composition.
+## Moments
 
-## 6.3 Moments
+- `src/pages/moments.astro` stays owner of API/auth/upload/reaction/lightbox behavior.
+- Directly replace header/filter/composer/feed render structure and card classes in that file.
+- Pure date/content-classification helpers may move to `src/lib/`.
+- Remove the old journal enhancer and stylesheet after direct rendering is complete.
 
-V2 should move away from the PR #43 progressive journal enhancer.
-
-Preferred ownership:
-
-- `src/pages/moments.astro` remains the source of API/auth/upload/reaction/lightbox behavior;
-- replace the feed/header/composer markup and render classes in that page directly;
-- if necessary, extract **pure layout classification/date helpers** to `src/lib/`, but do not move API behavior simply for aesthetic refactoring;
-- remove old journal enhancer/style imports after the direct layout is complete.
-
-Because `moments.astro` is large, implementation should use targeted edits and regression tests, not a full blind rewrite of the business script.
+Because `moments.astro` is large, implementation must use targeted edits plus regression tests, not a blind whole-file rewrite of business logic.
 
 ---
 
 # 7. Behavior preservation
 
-The redesign is considered incorrect if it breaks any of the following:
+The redesign is incorrect if it breaks:
 
-- article Markdown rendering;
-- KaTeX;
-- article comments;
-- Moments API load;
-- Moments authentication/admin state;
-- publish form submission;
-- image upload;
-- video upload/poster behavior;
+- Markdown/KaTeX/article comments;
+- Moments API load and ordering;
+- auth/admin state;
+- publish;
+- image/video upload and video poster behavior;
 - emoji insertion;
 - category filtering;
-- reactions and reaction picker;
-- comments;
-- delete flow;
-- image lightbox;
-- fullscreen/banner/overlay wallpaper settings;
-- theme hue;
-- light/dark mode;
-- card opacity / border settings where those settings are meaningful for any remaining surfaces;
-- Astro client-side page transitions.
+- reactions/picker;
+- Moment comments;
+- delete;
+- lightbox;
+- wallpaper modes;
+- theme hue/light-dark mode;
+- relevant card opacity/border controls;
+- Astro client-side transitions.
 
 ---
 
 # 8. Motion and accessibility
 
-- Use motion sparingly; content entrance should not cascade like a marketing page.
-- No default pulsing decorations.
-- `prefers-reduced-motion` and `html[data-reduce-motion="true"]` must disable decorative transitions/tilts/animated scrolling effects.
-- Focus states must remain visible.
-- Text filters and composer triggers must remain keyboard accessible.
-- Media remains keyboard/lightbox accessible where currently supported.
-- Color is never the only indicator of selected category or interactive state.
+- No cascade marketing entrance animations.
+- No pulsing decoration by default.
+- `prefers-reduced-motion` and `html[data-reduce-motion="true"]` disable decorative transition/rotation/interpolation.
+- Focus states remain visible.
+- Filters/composer triggers remain keyboard accessible.
+- Media keeps current keyboard/lightbox accessibility.
+- Selected state never relies on color alone.
 
 ---
 
-# 9. Testing strategy
+# 9. Testing
 
-Add/update source regression tests for:
+Regression tests must cover:
 
-1. BaseLayout banner opt-out exists and defaults to current behavior.
-2. Article no longer renders `ISSUE`, `article-meta-rail`, or `Discussion` template labels.
-3. Article exposes masthead, deck, plain metadata, chapter-counter and bookmark-rail hooks.
-4. Article rich-content CSS has breakout image, quote, code, table, mobile, KaTeX-safe rules.
-5. Moments no longer imports the old journal enhancer/style.
-6. Moments renders text filters, composer prompt, day-group/date-rail structure and deterministic content variants.
-7. Existing functional IDs / selectors required for publish, reaction, lightbox, auth, and delete remain present.
-8. Mobile rules collapse the life wall into a single readable flow.
-9. Reduced-motion rules cover new decorative motion.
+1. `showBanner` exists and defaults to current behavior.
+2. Article no longer renders `ISSUE`, `article-meta-rail`, or `Discussion`.
+3. Article has masthead/deck/plain metadata/H2-counter/bookmark-rail hooks.
+4. Article CSS covers breakout images, quotes, code, tables, KaTeX safety, desktop rail and mobile progress.
+5. Moments no longer imports old journal enhancer/style.
+6. Moments has text filter, composer prompt, semantic day groups/date rail, and deterministic variant classes.
+7. Functional IDs/selectors needed by publish/reaction/lightbox/auth/delete remain present.
+8. Mobile flattens the life wall into one readable flow.
+9. Reduced-motion rules cover all new decorative movement.
 
-Final verification must include:
+Final verification:
 
 - focused Node tests;
 - `npm run test:site`;
 - `npm run build` (`astro check && astro build`);
-- review of the GitHub Pages deploy after merge.
+- GitHub Pages deploy after merge.
 
 ---
 
 # 10. Acceptance criteria
 
-The redesign is successful when:
+Success means:
 
-- an article screenshot is not immediately recognizable as a generic “editorial SaaS/blog template”;
-- a Moments screenshot does not look like a card dashboard, admin panel, or cloned social app;
-- the two pages are visibly different in composition but clearly belong to the same website;
-- content, not UI chrome, is the first thing seen;
-- images have more natural proportions and visual weight;
-- the design still works with the user's wallpaper/theme controls;
-- desktop has personality without sacrificing mobile readability;
-- no existing article/Moments business feature is lost.
+- article screenshots no longer read as a generic “editorial template”;
+- Moments screenshots no longer resemble a dashboard/card system or cloned social app;
+- both pages differ in composition but clearly belong to the same site;
+- content is the first visual priority;
+- images retain natural proportions and varied visual weight;
+- existing wallpaper/theme controls still work;
+- desktop has personality while mobile remains calm/readable;
+- no existing article or Moments business feature is lost.
