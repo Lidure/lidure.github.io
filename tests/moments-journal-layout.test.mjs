@@ -37,21 +37,49 @@ test('date helpers use the local calendar day', async () => {
   });
 });
 
+test('moments owns a quiet bannerless life-wall entrance', () => {
+  assert.match(page, /showBanner=\{false\}/);
+  assert.doesNotMatch(page, /showTime=\{true\}/);
+  assert.match(page, /class="moments-wall-head"/);
+  assert.match(page, /class="controls-bar moments-wall-filter"/);
+  assert.match(page, /class="fab moments-compose-trigger"/);
+  assert.match(page, /今天想记点什么？/);
+  assert.match(page, /moments-life-wall\.css/);
+  assert.doesNotMatch(page, /hero-stats/);
+  assert.doesNotMatch(page, /hero-bubbles/);
+  assert.doesNotMatch(page, /✨ Moments/);
+  assert.doesNotMatch(page, /<style>/);
+});
+
+test('feed renderer owns date groups and deterministic content variants', () => {
+  assert.match(page, /function buildMomentDayGroup/);
+  assert.match(page, /className = 'moment-day'/);
+  assert.match(page, /getMomentDayParts\(/);
+  assert.match(page, /getMomentDateKey\(/);
+  assert.match(page, /classifyMomentLayout\(/);
+  for (const variant of ['whisper', 'text', 'photo-one', 'photo-two', 'photo-three', 'gallery', 'video']) {
+    assert.match(page, new RegExp(`moment--\\$\\{layout\\}`));
+    assert.match(read('src/styles/moments-life-wall.css'), new RegExp(`moment--${variant}`));
+  }
+  assert.match(page, /function applyMomentFilter/);
+  assert.match(page, /moments:pin-order-changed/);
+});
+
 test('core moments behavior hooks stay present while the presentation changes', () => {
   for (const hook of [
-    'id="publish-toggle"',
-    'id="publish-box"',
-    'id="publish-form"',
-    'id="image-input"',
-    'id="image-previews"',
-    'id="moments-session-status"',
-    'id="moment-lightbox"',
+    'id="publish-toggle"', 'id="publish-box"', 'id="publish-form"', 'id="image-input"',
+    'id="image-previews"', 'id="moments-session-status"', 'id="moment-lightbox"',
+    'id="manual-poster-input"', 'id="moments-login"', 'id="moments-login-submit"',
   ]) assert.match(page, new RegExp(hook));
 
   assert.match(page, /renderMomentReactions\(moment/);
   assert.match(page, /setupLightboxForNewCards\(\)/);
   assert.match(page, /deleteMomentViaApi/);
   assert.match(page, /uploadToR2/);
+  assert.match(page, /captureVideoPoster/);
   assert.match(page, /MOMENT_REACTIONS_API_URL/);
   assert.match(page, /createCommentsWidget\(['"]moment['"]/);
+  assert.match(page, /getSession/);
+  assert.match(page, /login\(/);
+  assert.match(page, /logout\(/);
 });
