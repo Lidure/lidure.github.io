@@ -6,15 +6,15 @@ export const WAVE_LAYERS = Object.freeze([
 ]);
 
 const STRENGTH = Object.freeze({
-  soft: { amplitude: 0.68, alpha: 0.74 },
+  soft: { amplitude: 0.72, alpha: 0.72 },
   standard: { amplitude: 1, alpha: 1 },
-  strong: { amplitude: 1.18, alpha: 1.08 },
+  strong: { amplitude: 1.22, alpha: 1.12 },
 });
 
 const SPEED = Object.freeze({
-  slow: 0.74,
+  slow: 0.72,
   normal: 1,
-  fast: 1.28,
+  fast: 1.32,
 });
 
 export function resolveWavePreset(settings = {}) {
