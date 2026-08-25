@@ -1,0 +1,65 @@
+<script>
+  const wallpaperWindow = window as typeof window & {
+    __fullscreenWallpaperController?: AbortController;
+    __fullscreenWallpaperLifecycleBound?: boolean;
+  };
+
+  function initFullscreenWallpaperController() {
+    wallpaperWindow.__fullscreenWallpaperController?.abort();
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    if (controller) wallpaperWindow.__fullscreenWallpaperController = controller;
+    const options = controller ? { signal: controller.signal } : undefined;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const hero = document.querySelector<HTMLElement>('.hero-slideshow');
+    const title = document.querySelector<HTMLElement>('.blog-banner-copy');
+    let ticking = false;
+
+    function reset() {
+      title?.style.removeProperty('--fullscreen-title-scroll');
+      title?.style.removeProperty('--fullscreen-title-opacity');
+      hero?.style.removeProperty('--fullscreen-scroll-blur');
+    }
+
+    function sync() {
+      ticking = false;
+      const active = root.dataset.wallpaperMode === 'fullscreen' && body.classList.contains('is-home');
+      if (!active) {
+        reset();
+        return;
+      }
+
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      const fadeDistance = Math.max(1, window.innerHeight * 0.5);
+      const titleRatio = Math.min(scrollY / fadeDistance, 1);
+      title?.style.setProperty('--fullscreen-title-scroll', `${-scrollY}px`);
+      title?.style.setProperty('--fullscreen-title-opacity', String(1 - titleRatio));
+
+      const blurRaw = getComputedStyle(root).getPropertyValue('--wallpaper-blur');
+      const maxBlur = Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
+      const blurRatio = Math.min(scrollY / 300, 1);
+      const quantized = Math.floor((maxBlur * blurRatio) / 2) * 2;
+      hero?.style.setProperty('--fullscreen-scroll-blur', `${quantized}px`);
+    }
+
+    function requestSync() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(sync);
+    }
+
+    window.addEventListener('scroll', requestSync, { passive: true, ...(options || {}) });
+    window.addEventListener('resize', requestSync, { passive: true, ...(options || {}) });
+    document.addEventListener('lidure:visual-settings-change', requestSync, options);
+    requestSync();
+  }
+
+  if (!wallpaperWindow.__fullscreenWallpaperLifecycleBound) {
+    wallpaperWindow.__fullscreenWallpaperLifecycleBound = true;
+    document.addEventListener('astro:page-load', initFullscreenWallpaperController);
+    document.addEventListener('astro:before-swap', () => wallpaperWindow.__fullscreenWallpaperController?.abort());
+  }
+
+  initFullscreenWallpaperController();
+</script>
