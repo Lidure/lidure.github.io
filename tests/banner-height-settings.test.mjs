@@ -38,10 +38,11 @@ test('banner height control is 45-80vh, live, and resettable', () => {
   assert.match(enhancer, /bannerHeight:\s*65/);
 });
 
-test('banner geometry reads the user height variable and initial paint restores saved height', () => {
-  const waves = read('src/components/BannerWaves.astro');
-  const layout = read('src/layouts/BaseLayout.astro');
-  assert.match(waves, /--blog-banner-height:\s*var\(--user-banner-height,\s*65vh\)/);
-  assert.match(layout, /raw\.bannerHeight/);
-  assert.match(layout, /--user-banner-height/);
+test('saved height is restored before the banner finishes rendering', () => {
+  const enhancer = read('src/components/BannerHeightSettingsEnhancer.astro');
+  const banner = read('src/components/BlogBanner.astro');
+  assert.match(enhancer, /hero_settings/);
+  assert.match(enhancer, /raw\.bannerHeight/);
+  assert.match(enhancer, /--blog-banner-height/);
+  assert.match(banner, /BannerHeightSettingsEnhancer/);
 });
