@@ -28,18 +28,6 @@
     will-change: transform, opacity;
   }
 
-  body.layout-standard .music-status-cover-open {
-    background-color: var(--standard-card-soft);
-    background-image: url('/assets/music/default-cover.webp');
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: cover;
-  }
-
-  body.layout-standard .music-status-cover-fallback {
-    display: none;
-  }
-
   html[data-reduce-motion="true"] #page-transition-progress,
   html[data-reduce-motion="true"] .standard-page-surface,
   html[data-reduce-motion="true"] .immersive-content {
@@ -59,7 +47,6 @@
 
 <script is:inline>
 (function () {
-  var DEFAULT_MUSIC_COVER = '/assets/music/default-cover.webp';
   var root = document.documentElement;
   var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -151,71 +138,6 @@
     );
   }
 
-  function bindDefaultMusicCover() {
-    if (typeof window.__homeMusicDefaultCoverCleanup === 'function') {
-      window.__homeMusicDefaultCoverCleanup();
-    }
-
-    var cover = document.querySelector('#home-music-status img[data-music-cover]');
-    if (!cover) {
-      window.__homeMusicDefaultCoverCleanup = null;
-      return;
-    }
-
-    var fallback = document.querySelector('#home-music-status [data-music-fallback]');
-    var applyingDefault = false;
-
-    function showFallback() {
-      cover.style.display = 'none';
-      if (fallback) fallback.style.display = 'grid';
-    }
-
-    function applyDefaultCover() {
-      applyingDefault = true;
-      cover.setAttribute('src', DEFAULT_MUSIC_COVER);
-      cover.style.display = 'block';
-      if (fallback) fallback.style.display = 'none';
-      queueMicrotask(function () {
-        applyingDefault = false;
-      });
-    }
-
-    function ensureVisibleCover() {
-      var src = (cover.getAttribute('src') || '').trim();
-      if (!src) {
-        applyDefaultCover();
-        return;
-      }
-      cover.style.display = 'block';
-      if (fallback) fallback.style.display = 'none';
-    }
-
-    function onCoverError() {
-      var src = (cover.getAttribute('src') || '').trim();
-      if (src && !src.endsWith(DEFAULT_MUSIC_COVER)) {
-        applyDefaultCover();
-        return;
-      }
-      showFallback();
-    }
-
-    cover.addEventListener('error', onCoverError);
-    var observer = new MutationObserver(function () {
-      if (!applyingDefault) ensureVisibleCover();
-    });
-    observer.observe(cover, {
-      attributes: true,
-      attributeFilter: ['src', 'style'],
-    });
-
-    ensureVisibleCover();
-
-    window.__homeMusicDefaultCoverCleanup = function () {
-      observer.disconnect();
-      cover.removeEventListener('error', onCoverError);
-    };
-  }
-
   if (!window.__pageTransitionEnhancerBound) {
     window.__pageTransitionEnhancerBound = true;
 
@@ -232,17 +154,7 @@
 
     document.addEventListener('astro:page-load', function () {
       root.classList.remove('is-page-transitioning');
-      bindDefaultMusicCover();
-    });
-
-    document.addEventListener('astro:before-swap', function () {
-      if (typeof window.__homeMusicDefaultCoverCleanup === 'function') {
-        window.__homeMusicDefaultCoverCleanup();
-        window.__homeMusicDefaultCoverCleanup = null;
-      }
     });
   }
-
-  bindDefaultMusicCover();
 })();
 </script>

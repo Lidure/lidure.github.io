@@ -11,12 +11,17 @@ test('base layout installs the shared page transition enhancer', () => {
   assert.match(layout, /<PageTransitionEnhancer\s*\/>/);
 });
 
-test('music status gets a real default cover with runtime fallback', () => {
+test('music widget owns a deterministic default cover without page-level races', () => {
+  const widget = readSource('src/components/MusicStatusWidget.astro');
   const enhancer = readSource('src/components/PageTransitionEnhancer.astro');
 
-  assert.match(enhancer, /DEFAULT_MUSIC_COVER\s*=\s*['"]\/assets\/music\/default-cover\.webp['"]/);
-  assert.match(enhancer, /data-music-cover/);
-  assert.match(enhancer, /addEventListener\(['"]error['"]/);
+  assert.match(widget, /DEFAULT_MUSIC_COVER\s*=\s*['"]\/assets\/music\/default-cover\.webp['"]/);
+  assert.match(widget, /<img[^>]*data-music-cover[^>]*src="\/assets\/music\/default-cover\.webp"/);
+  assert.match(widget, /coverSrc\s*\|\|\s*DEFAULT_MUSIC_COVER/);
+  assert.match(widget, /cover\.addEventListener\(['"]error['"]/);
+  assert.doesNotMatch(widget, /cover\.removeAttribute\(['"]src['"]\)/);
+  assert.doesNotMatch(widget, /cover\.style\.display\s*=\s*['"]none['"]/);
+  assert.doesNotMatch(enhancer, /DEFAULT_MUSIC_COVER|__homeMusicDefaultCoverCleanup|bindDefaultMusicCover/);
   assert.ok(existsSync(new URL('../public/assets/music/default-cover.webp', import.meta.url)));
 });
 
