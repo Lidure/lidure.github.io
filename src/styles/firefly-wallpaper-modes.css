@@ -17,6 +17,37 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .hero-slideshow {
   min-height: 100lvh;
 }
 
+/* Firefly renders background video through the native <video> surface instead
+   of a downscaled canvas. The existing slideshow canvas stays available for
+   banner mode, but fullscreen and overlay hide it so native media keeps the
+   source resolution and the same object-cover behavior as Firefly. */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-video,
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-video {
+  position: absolute;
+  inset: 0;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0 !important;
+  visibility: visible !important;
+  transform-origin: center;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-video.visible,
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-video.visible {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-canvas,
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-canvas {
+  display: none !important;
+}
+
 html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-overlay {
   background: rgba(0, 0, 0, calc(var(--wallpaper-overlay, 0.45) * 0.44));
 }
@@ -202,18 +233,19 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .site-nav-utilities a.a
 
 /* Wallpaper media is sharp at the top of fullscreen mode and gains the chosen
    blur while scrolling, like Firefly. Overlay mode uses the chosen blur at all
-   times. Scaling hides filter edge bleed. */
+   times. Firefly scales wallpaper media to 1.05 so blur sampling never exposes
+   the container edge. */
 html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-layer,
-html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-canvas {
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-video {
   filter: blur(var(--fullscreen-scroll-blur, 0px));
-  transform: scale(1.02);
+  transform: scale(1.05);
   transform-origin: center;
 }
 
 html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-layer,
-html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-canvas {
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-video {
   filter: blur(var(--wallpaper-blur, 5px));
-  transform: scale(1.03);
+  transform: scale(1.05);
   transform-origin: center;
 }
 
