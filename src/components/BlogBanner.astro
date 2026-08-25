@@ -31,14 +31,14 @@ const { title, subtitle } = Astro.props;
 </style>
 
 <style is:global>
-  /* Firefly-style banner/content relationship. The banner stage must not be a
-     stacking context: the page surface can then rise over the bottom of the
-     wallpaper while the independently positioned wave layers remain above it. */
+  /* Firefly-style banner/content relationship. The homepage banner stage must
+     not be a stacking context: the page surface can then rise over the bottom
+     of the wallpaper while the wave layers remain independently above it. */
   body.layout-standard {
     --banner-surface-overlap: 3.5rem;
   }
 
-  body.layout-standard .blog-banner-stage {
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .blog-banner-stage {
     z-index: auto;
   }
 
