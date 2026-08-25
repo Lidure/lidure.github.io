@@ -2,6 +2,8 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Comments from '../../components/Comments.astro';
+import { estimateReadingMinutes } from '../../utils/article-reading';
+import '../../styles/article-reading.css';
 import 'katex/dist/katex.min.css';
 
 export async function getStaticPaths() {
@@ -16,6 +18,10 @@ export async function getStaticPaths() {
 const { post } = Astro.props;
 const { Content } = await render(post);
 const updatedDate = post.data.updatedDate ?? post.data.pubDate;
+const readingMinutes = estimateReadingMinutes(post.body ?? '');
+const issueYear = post.data.pubDate.getFullYear();
+const publishedLabel = post.data.pubDate.toLocaleDateString('zh-CN');
+const updatedLabel = updatedDate.toLocaleDateString('zh-CN');
 ---
 <BaseLayout
   title={`${post.data.title} | Lidure Blog`}
@@ -24,14 +30,15 @@ const updatedDate = post.data.updatedDate ?? post.data.pubDate;
   bannerSubtitle={post.data.description}
 >
   <article class="post-shell">
-    <div class="meta post-meta-top">
-      <span>发布于 {post.data.pubDate.toLocaleDateString('zh-CN')}</span>
-      <span>最后更新 {updatedDate.toLocaleDateString('zh-CN')}</span>
-      <span>{post.data.tags.length} tags</span>
-    </div>
-    <div class="tag-list">
-      {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
-    </div>
+    <header class="article-meta-rail" aria-label="文章信息">
+      <span class="article-issue-stamp" aria-hidden="true">ISSUE {issueYear}</span>
+      <span>发布于 {publishedLabel}</span>
+      <span>更新于 {updatedLabel}</span>
+      <span class="article-reading-time">约 {readingMinutes} 分钟阅读</span>
+      <div class="article-tag-list" aria-label="文章标签">
+        {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+      </div>
+    </header>
 
     <div class="prose">
       <Content />
