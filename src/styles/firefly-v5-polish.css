@@ -1,23 +1,23 @@
 :root {
-  --visual-panel-bg: rgba(21, 21, 27, 0.94);
-  --visual-panel-surface: rgba(255, 255, 255, 0.055);
-  --visual-panel-soft: rgba(255, 255, 255, 0.045);
-  --visual-panel-control: rgba(13, 13, 18, 0.72);
-  --visual-panel-border: rgba(255, 255, 255, 0.12);
-  --visual-panel-text: #f3f3f7;
-  --visual-panel-muted: #a9a9b3;
-  --visual-panel-shadow: 0 24px 70px rgba(2, 4, 12, 0.34);
+  --visual-panel-bg: rgba(18, 18, 24, 0.96);
+  --visual-panel-surface: rgba(255, 255, 255, 0.07);
+  --visual-panel-soft: rgba(255, 255, 255, 0.055);
+  --visual-panel-control: rgba(8, 8, 12, 0.78);
+  --visual-panel-border: rgba(255, 255, 255, 0.16);
+  --visual-panel-text: #f7f7fa;
+  --visual-panel-muted: #b8b8c2;
+  --visual-panel-shadow: 0 24px 70px rgba(2, 4, 12, 0.38);
 }
 
 [data-theme="light"] {
-  --visual-panel-bg: rgba(255, 252, 255, 0.95);
-  --visual-panel-surface: rgba(79, 56, 70, 0.045);
-  --visual-panel-soft: rgba(79, 56, 70, 0.055);
-  --visual-panel-control: rgba(255, 255, 255, 0.88);
-  --visual-panel-border: rgba(104, 75, 91, 0.16);
-  --visual-panel-text: #302933;
-  --visual-panel-muted: #716872;
-  --visual-panel-shadow: 0 24px 64px rgba(126, 74, 99, 0.16);
+  --visual-panel-bg: rgba(255, 255, 255, 0.97);
+  --visual-panel-surface: rgba(63, 49, 57, 0.055);
+  --visual-panel-soft: rgba(63, 49, 57, 0.065);
+  --visual-panel-control: rgba(255, 255, 255, 0.96);
+  --visual-panel-border: rgba(81, 64, 72, 0.18);
+  --visual-panel-text: #29252b;
+  --visual-panel-muted: #69616a;
+  --visual-panel-shadow: 0 24px 64px rgba(126, 74, 99, 0.14);
 }
 
 /* The full-width page surface should meet the viewport edge cleanly. Rounded
@@ -26,16 +26,26 @@ body.layout-standard .standard-page-surface {
   border-radius: 0;
 }
 
-/* Theme-aware visual settings shell. These selectors intentionally outrank the
-   component-scoped fallback colors so the panel follows data-theme instantly. */
+/* Bridge the v5 theme tokens into the variable names consumed inside the
+   Astro-scoped VisualSettingsPanel styles. This avoids relying on external
+   selector specificity: the scoped rules now resolve the correct light/dark
+   colors directly from their own var(--panel-bg), var(--text), etc. */
 html body .hero-settings-btn {
+  --panel-bg: var(--visual-panel-bg);
+  --text-soft: var(--visual-panel-text);
+  --border: var(--visual-panel-border);
   color: var(--visual-panel-text);
-  background: color-mix(in srgb, var(--visual-panel-bg) 92%, transparent);
+  background: color-mix(in srgb, var(--visual-panel-bg) 94%, transparent);
   border-color: var(--visual-panel-border);
   box-shadow: 0 12px 32px color-mix(in srgb, #000 16%, transparent);
 }
 
 html body .hero-settings-panel {
+  --panel-bg: var(--visual-panel-bg);
+  --text: var(--visual-panel-text);
+  --text-soft: color-mix(in srgb, var(--visual-panel-text) 86%, var(--visual-panel-muted));
+  --muted: var(--visual-panel-muted);
+  --border: var(--visual-panel-border);
   color: var(--visual-panel-text);
   background: var(--visual-panel-bg);
   border-color: var(--visual-panel-border);
@@ -83,7 +93,7 @@ html body .url-row input {
 }
 
 html body .url-row input::placeholder {
-  color: color-mix(in srgb, var(--visual-panel-muted) 80%, transparent);
+  color: color-mix(in srgb, var(--visual-panel-muted) 82%, transparent);
 }
 
 html body .visual-tab,
@@ -114,12 +124,12 @@ html body .settings-reset:hover {
 }
 
 html body .toggle-track {
-  background: color-mix(in srgb, var(--visual-panel-text) 9%, transparent);
+  background: color-mix(in srgb, var(--visual-panel-text) 10%, transparent);
   border-color: var(--visual-panel-border);
 }
 
 html body .toggle-track::after {
-  background: color-mix(in srgb, var(--visual-panel-text) 84%, #fff);
+  background: color-mix(in srgb, var(--visual-panel-text) 88%, #fff);
 }
 
 html body .upload-zone:hover,
@@ -129,11 +139,11 @@ html body .media-manage-btn:hover {
     hsl(var(--theme-hue, 340) 70% 60%) 7%,
     var(--visual-panel-surface)
   );
-  border-color: hsl(var(--theme-hue, 340) 60% 56% / 0.34);
+  border-color: hsl(var(--theme-hue, 340) 60% 56% / 0.38);
 }
 
 html body .settings-body {
-  scrollbar-color: color-mix(in srgb, var(--visual-panel-muted) 35%, transparent) transparent;
+  scrollbar-color: color-mix(in srgb, var(--visual-panel-muted) 42%, transparent) transparent;
 }
 
 /* Firefly-like hue spectrum: the track communicates the complete hue range
@@ -204,6 +214,6 @@ html body #theme-hue-range:focus-visible {
 
 @media (max-width: 720px) {
   html body .hero-settings-panel {
-    background: color-mix(in srgb, var(--visual-panel-bg) 97%, transparent);
+    background: color-mix(in srgb, var(--visual-panel-bg) 98%, transparent);
   }
 }
