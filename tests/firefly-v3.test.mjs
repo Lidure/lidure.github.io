@@ -36,23 +36,15 @@ test('fullscreen cards use wallpaper-aware opacity and theme hue affects the pri
   assert.match(css, /data-card-follow-theme="true"/);
 });
 
-test('Firefly-aligned visual defaults stay synchronized across preload, panel, dim, and blur lifecycle', () => {
+test('Firefly-aligned visual defaults stay synchronized across preload, reset, dim, and blur lifecycle', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
-  const panel = readSource('src/components/VisualSettingsPanel.astro');
   const wallpaperCss = readSource('src/styles/firefly-wallpaper-modes.css');
   const controller = readSource('src/components/FullscreenWallpaperController.astro');
 
   assert.match(layout, /raw\.backgroundBlur[\s\S]*?:\s*5;/);
   assert.match(layout, /raw\.themeHue[\s\S]*?:\s*255;/);
-
-  assert.match(panel, /id="theme-hue-val">255°/);
-  assert.match(panel, /id="theme-hue-range"[\s\S]*?value="255"/);
-  assert.match(panel, /id="background-blur-val">5px/);
-  assert.match(panel, /id="background-blur-range"[\s\S]*?value="5"/);
-  assert.match(panel, /themeHue\s*\?\?\s*255/);
-  assert.match(panel, /backgroundBlur\s*\?\?\s*5/);
-  assert.match(panel, /themeHue:\s*255/);
-  assert.match(panel, /backgroundBlur:\s*5/);
+  assert.match(layout, /bridge\.write\(\{\s*themeHue:\s*255\s*\}\)/);
+  assert.match(layout, /bridge\.write\(\{\s*backgroundBlur:\s*5\s*\}\)/);
 
   assert.match(wallpaperCss, /calc\(var\(--wallpaper-overlay,\s*0\.45\)\s*\*\s*0\.44\)/);
   assert.match(wallpaperCss, /var\(--wallpaper-blur,\s*5px\)/);
