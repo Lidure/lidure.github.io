@@ -1,24 +1,59 @@
 <div class="banner-waves" id="banner-waves" aria-hidden="true">
-  <svg class="banner-waves-static" viewBox="0 0 160 32" preserveAspectRatio="none">
-    <path class="wave-layer wave-layer-1" d="M0 16 C16 9 34 9 52 15 C70 22 91 20 108 13 C127 6 145 11 160 17 V32 H0 Z" />
-    <path class="wave-layer wave-layer-2" d="M0 19 C20 12 39 14 57 20 C76 26 95 22 114 16 C131 11 148 14 160 20 V32 H0 Z" />
-    <path class="wave-layer wave-layer-3" d="M0 22 C18 17 36 18 54 23 C74 29 96 25 116 20 C134 15 150 18 160 23 V32 H0 Z" />
-    <path class="wave-layer wave-layer-4" d="M0 25 C19 21 39 22 58 26 C78 30 99 28 120 23 C138 19 151 21 160 25 V32 H0 Z" />
+  <svg
+    class="banner-waves-static"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 24 150 28"
+    preserveAspectRatio="none"
+    shape-rendering="geometricPrecision"
+  >
+    <defs>
+      <path
+        id="gentle-wave"
+        d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v48h-352z"
+      />
+    </defs>
+    <g>
+      <use href="#gentle-wave" x="-42.000" y="0" class="wave-layer wave-layer-1" />
+      <use href="#gentle-wave" x="2.641" y="3" class="wave-layer wave-layer-2" />
+      <use href="#gentle-wave" x="48.944" y="5" class="wave-layer wave-layer-3" />
+      <use href="#gentle-wave" x="92.468" y="7" class="wave-layer wave-layer-4" />
+    </g>
   </svg>
   <canvas data-wave-canvas></canvas>
 </div>
 
 <style is:global>
-  body.layout-standard .banner-waves {
-    --banner-wave-height: clamp(72px, 13vh, 150px);
+  body.layout-standard .blog-banner-stage {
     position: relative;
-    z-index: 4;
+    z-index: 2;
+    width: 100%;
+    height: var(--blog-banner-height, 62vh);
+    min-height: 360px;
+  }
+
+  body.layout-standard .blog-banner-stage > .blog-banner {
+    height: 100%;
+    min-height: 0;
+  }
+
+  body.layout-standard .banner-waves {
+    --banner-wave-height: clamp(50px, 15vh, 150px);
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    z-index: 15;
     width: 100%;
     height: var(--banner-wave-height);
-    margin-top: calc(-1 * (var(--blog-banner-overlap, 56px) + var(--banner-wave-height)));
+    margin-bottom: -1px;
     color: var(--standard-page-bg);
-    overflow: hidden;
+    isolation: isolate;
+    contain: layout style;
+    overflow: visible;
     pointer-events: none;
+    transform: translate3d(0, 0, 0);
+    transform-origin: bottom;
+    backface-visibility: hidden;
   }
 
   body.layout-standard .banner-waves-static,
@@ -28,17 +63,18 @@
     display: block;
     width: 100%;
     height: 100%;
+    pointer-events: none;
   }
 
   body.layout-standard .banner-waves-static {
     z-index: 1;
-    transition: opacity 220ms ease;
+    transition: opacity 180ms ease;
   }
 
   body.layout-standard .banner-waves canvas {
     z-index: 2;
     opacity: 0;
-    transition: opacity 220ms ease;
+    transition: opacity 180ms ease;
   }
 
   body.layout-standard .banner-waves.is-canvas-ready canvas {
@@ -53,55 +89,32 @@
     fill: currentColor;
   }
 
-  body.layout-standard .banner-waves .wave-layer-1 { opacity: 0.18; }
-  body.layout-standard .banner-waves .wave-layer-2 { opacity: 0.34; }
-  body.layout-standard .banner-waves .wave-layer-3 { opacity: 0.52; }
-  body.layout-standard .banner-waves .wave-layer-4 { opacity: 0.68; }
+  body.layout-standard .banner-waves .wave-layer-1 { opacity: 0.25; }
+  body.layout-standard .banner-waves .wave-layer-2 { opacity: 0.50; }
+  body.layout-standard .banner-waves .wave-layer-3 { opacity: 0.65; }
+  body.layout-standard .banner-waves .wave-layer-4 { opacity: 0.75; }
 
   html[data-wave-strength="soft"] body.layout-standard .banner-waves {
-    transform: scaleY(0.84);
-    transform-origin: bottom;
+    transform: scaleY(0.72) translateZ(0);
   }
 
   html[data-wave-strength="strong"] body.layout-standard .banner-waves {
-    transform: scaleY(1.08);
-    transform-origin: bottom;
-  }
-
-  html[data-wave-enabled="true"]:not(.no-hero-bg) body.layout-standard .banner-waves + .standard-page-surface {
-    margin-top: 0;
+    transform: scaleY(1.22) translateZ(0);
   }
 
   html[data-wave-enabled="false"] body.layout-standard .banner-waves,
-  html.no-hero-bg body.layout-standard .banner-waves {
+  html.no-hero-bg body.layout-standard .banner-waves,
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .banner-waves {
     display: none;
   }
 
-  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .banner-waves {
-    margin-top: calc(-1 * var(--banner-wave-height));
-    color: color-mix(in srgb, var(--standard-page-bg) 70%, transparent);
-  }
-
-  html[data-wallpaper-mode="fullscreen"] body.layout-standard:not(.is-home) .banner-waves {
-    display: none;
-  }
-
-  @media (max-width: 720px) {
+  @media (max-width: 1023px) {
     body.layout-standard .banner-waves {
-      --banner-wave-height: clamp(48px, 9vh, 92px);
-      margin-top: calc(-1 * (var(--blog-banner-overlap, 28px) + var(--banner-wave-height)));
+      --banner-wave-height: clamp(50px, 10vh, 150px);
     }
 
     html[data-wave-mobile="false"] body.layout-standard .banner-waves {
       display: none;
-    }
-
-    html[data-wave-mobile="false"] body.layout-standard .banner-waves + .standard-page-surface {
-      margin-top: calc(-1 * var(--blog-banner-overlap, 28px));
-    }
-
-    html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .banner-waves {
-      margin-top: calc(-1 * var(--banner-wave-height));
     }
   }
 
@@ -119,7 +132,13 @@
 </style>
 
 <script>
-  import { WAVE_LAYERS, resolveWavePreset } from '../lib/banner-waves.mjs';
+  import {
+    WAVE_LAYERS,
+    WAVE_PATH_D,
+    WAVE_VIEWBOX,
+    resolveWavePreset,
+    waveUseX,
+  } from '../lib/banner-waves.mjs';
 
   type WaveSettings = {
     waveEnabled: boolean;
@@ -168,10 +187,7 @@
       if (background && background !== 'rgba(0, 0, 0, 0)') return background;
     }
     const bodyStyle = getComputedStyle(document.body);
-    const pageBackground = bodyStyle.getPropertyValue('--standard-page-bg').trim();
-    if (pageBackground) return pageBackground;
-    const rootStyle = getComputedStyle(document.documentElement);
-    return rootStyle.getPropertyValue('--bg').trim() || '#15151a';
+    return bodyStyle.getPropertyValue('--standard-page-bg').trim() || '#15151a';
   }
 
   function initBannerWaves() {
@@ -184,22 +200,33 @@
     const context = canvas.getContext('2d');
     if (!context) return;
 
+    let wavePath: Path2D;
+    try {
+      wavePath = new Path2D(WAVE_PATH_D);
+    } catch {
+      return;
+    }
+
     const waveRoot: HTMLElement = root;
     const waveCanvas: HTMLCanvasElement = canvas;
     const waveContext: CanvasRenderingContext2D = context;
     const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const mobileQuery = window.matchMedia('(max-width: 720px)');
+    const mobileQuery = window.matchMedia('(max-width: 1023px)');
     let raf = 0;
     let width = 0;
     let height = 0;
     let settings = readSettings();
     let firstFrameDrawn = false;
+    let startTime = performance.now();
 
     function motionReduced() {
       return settings.reduceMotion || motionQuery.matches;
     }
 
     function shouldRender() {
+      const pageRoot = document.documentElement;
+      if (pageRoot.dataset.wallpaperMode === 'fullscreen') return false;
+      if (pageRoot.classList.contains('no-hero-bg')) return false;
       return settings.waveEnabled && !(mobileQuery.matches && !settings.waveMobile);
     }
 
@@ -213,55 +240,48 @@
       const nextWidth = Math.max(1, Math.round(rect.width));
       const nextHeight = Math.max(1, Math.round(rect.height));
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      if (nextWidth === width && nextHeight === height && waveCanvas.width === Math.round(nextWidth * dpr)) return;
+      if (
+        nextWidth === width
+        && nextHeight === height
+        && waveCanvas.width === Math.round(nextWidth * dpr)
+      ) return;
+
       width = nextWidth;
       height = nextHeight;
       waveCanvas.width = Math.round(width * dpr);
       waveCanvas.height = Math.round(height * dpr);
       waveCanvas.style.width = `${width}px`;
       waveCanvas.style.height = `${height}px`;
-      waveContext.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
 
     function draw(now: number) {
       resize();
-      waveContext.clearRect(0, 0, width, height);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
       const preset = resolveWavePreset(settings);
       const fill = contentFillColor();
-      const seconds = now / 1000;
-      const baseAmplitude = Math.max(4, height * 0.085) * preset.amplitude;
+      const elapsed = (now - startTime) / 1000;
+      const scaleX = width / WAVE_VIEWBOX.width;
+      const scaleY = height / WAVE_VIEWBOX.height;
 
-      WAVE_LAYERS.forEach((layer, index) => {
-        const phase = seconds * ((Math.PI * 2) / layer.duration) * preset.speed + layer.phase * Math.PI * 2;
-        const baseline = height * (0.39 + index * 0.07) + layer.y * 0.22;
-        const drift = Math.sin(seconds * 0.2 + layer.phase * Math.PI * 2) * width * 0.018 * layer.drift;
-        const period = Math.max(220, width * (0.70 + index * 0.075));
-        const secondaryPeriod = period * (0.46 + index * 0.018);
-        const tertiaryPeriod = period * (1.62 - index * 0.05);
+      waveContext.setTransform(1, 0, 0, 1, 0, 0);
+      waveContext.clearRect(0, 0, waveCanvas.width, waveCanvas.height);
 
-        waveContext.beginPath();
-        waveContext.moveTo(0, height);
-        waveContext.lineTo(0, baseline);
-        for (let x = 0; x <= width + 8; x += 8) {
-          const normalizedX = width > 0 ? x / width : 0;
-          const envelope = 0.92 + Math.sin(normalizedX * Math.PI + phase * 0.12) * 0.08;
-          const primary = Math.sin(((x + drift) / period) * Math.PI * 2 + phase);
-          const secondary = Math.sin(
-            ((x - drift * 0.45) / secondaryPeriod) * Math.PI * 2 - phase * 0.48 + layer.harmonic,
-          ) * 0.16;
-          const tertiary = Math.cos(
-            ((x + drift * 0.2) / tertiaryPeriod) * Math.PI * 2 + phase * 0.31 + layer.harmonic,
-          ) * 0.11;
-          const y = baseline + (primary + secondary + tertiary) * baseAmplitude * envelope;
-          waveContext.lineTo(x, y);
-        }
-        waveContext.lineTo(width, height);
-        waveContext.closePath();
+      WAVE_LAYERS.forEach((layer) => {
+        const useX = waveUseX(layer, elapsed, preset.speed);
+        waveContext.save();
+        waveContext.setTransform(
+          dpr * scaleX,
+          0,
+          0,
+          dpr * scaleY,
+          dpr * useX * scaleX,
+          dpr * (layer.y - WAVE_VIEWBOX.y) * scaleY,
+        );
         waveContext.globalAlpha = Math.min(1, layer.alpha * preset.alpha);
         waveContext.fillStyle = fill;
-        waveContext.fill();
+        waveContext.fill(wavePath);
+        waveContext.restore();
       });
-      waveContext.globalAlpha = 1;
 
       if (!firstFrameDrawn) {
         firstFrameDrawn = true;
@@ -279,7 +299,7 @@
       raf = requestAnimationFrame(frame);
     }
 
-    function refresh() {
+    function refresh({ restart = true } = {}) {
       settings = readSettings();
       const active = shouldRender();
       waveRoot.hidden = !active;
@@ -287,23 +307,27 @@
       firstFrameDrawn = false;
       waveRoot.classList.remove('is-canvas-ready');
       if (!active) return;
+      if (restart) startTime = performance.now();
       resize();
       if (motionReduced()) return;
       raf = requestAnimationFrame(frame);
     }
 
     function onVisibilityChange() {
-      if (document.hidden) {
-        stopAnimation();
-      } else {
-        refresh();
-      }
+      if (document.hidden) stopAnimation();
+      else refresh({ restart: false });
     }
 
     const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
     resizeObserver?.observe(waveRoot);
+    const themeObserver = new MutationObserver(() => refresh({ restart: false }));
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme', 'data-wallpaper-mode', 'style', 'class'],
+    });
+
     const onSettingsChange = () => refresh();
-    const onMediaChange = () => refresh();
+    const onMediaChange = () => refresh({ restart: false });
     document.addEventListener('lidure:visual-settings-change', onSettingsChange);
     document.addEventListener('visibilitychange', onVisibilityChange);
     window.addEventListener('resize', resize);
@@ -313,6 +337,7 @@
     waveWindow.__bannerWavesCleanup = () => {
       stopAnimation();
       resizeObserver?.disconnect();
+      themeObserver.disconnect();
       document.removeEventListener('lidure:visual-settings-change', onSettingsChange);
       document.removeEventListener('visibilitychange', onVisibilityChange);
       window.removeEventListener('resize', resize);
