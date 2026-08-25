@@ -42,7 +42,8 @@ test('removing the last track from the selected playlist falls back to all befor
   assert.match(source, /function applyFilters\(\)\s*\{[\s\S]*activeImportedPlaylist !== 'all'[\s\S]*songs\.some\(function\(song\) \{ return song\.playlistKey === activeImportedPlaylist; \}\)[\s\S]*activeImportedPlaylist = 'all';[\s\S]*filteredSongs = songs\.filter/);
 });
 
-test('updating an existing playlist keeps its custom name when the name field is blank', () => {
+test('updating an existing playlist keeps its true custom name when the name field is blank', () => {
   assert.match(source, /var previousPlaylist = songs\.find\(function\(s\) \{ return s\.playlistKey === playlistKey; \}\);/);
-  assert.match(source, /playlistName \|\| \(previousPlaylist && previousPlaylist\.playlistName\) \|\|/);
+  assert.match(source, /var previousCustomName = previousPlaylist && previousPlaylist\.playlistName !== generatedFallbackName/);
+  assert.match(source, /playlistName \|\| previousCustomName \|\|/);
 });
