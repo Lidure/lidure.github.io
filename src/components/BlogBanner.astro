@@ -32,16 +32,17 @@ const { title, subtitle } = Astro.props;
 
 <style is:global>
   /* Firefly-style banner/content composition.
-     The content surface starts 3.5rem before the banner ends, and the homepage
-     three-column content begins almost immediately behind the waves. */
+     The content panel starts 3.5rem before the banner ends. The panel itself
+     stays transparent on the homepage; readable content is layered above the
+     waves while the body page color provides the continuous surface below. */
   body.layout-standard {
     --banner-surface-overlap: 3.5rem;
     --home-banner-content-inset: 0.75rem;
   }
 
   /* Non-home banner pages retain the original stacking boundary. On the
-     homepage the stage must not create one, otherwise the content surface
-     cannot visually overlap the banner area. */
+     homepage the stage must not create one, otherwise the content panel cannot
+     cross the banner seam like Firefly's z-30 content-panel. */
   html[data-wallpaper-mode="banner"] body.layout-standard:not(.is-home) .blog-banner-stage {
     z-index: 4;
   }
@@ -55,16 +56,19 @@ const { title, subtitle } = Astro.props;
     margin-top: calc(-1 * var(--banner-surface-overlap));
   }
 
-  /* Keep the homepage surface itself out of a stacking context. The waves can
-     still paint over the page background, while the actual cards/navigation
-     are allowed to rise above the wave layer. */
+  /* Firefly's content-panel is a positioning wrapper rather than an opaque
+     sheet. Keep this wrapper out of a stacking context; the body supplies the
+     page background and the inner content receives the actual z-index. */
   html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-page-surface {
     z-index: auto;
     border-radius: 0;
+    background: transparent;
   }
 
   html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-content {
-    padding-top: var(--home-banner-content-inset);
+    position: relative;
+    z-index: 30;
+    padding-top: 0;
   }
 
   html[data-wallpaper-mode="banner"] body.layout-standard:not(.is-home) .standard-content {
@@ -81,8 +85,9 @@ const { title, subtitle } = Astro.props;
     transform: translateY(calc(-1 * clamp(20px, 4vh, 42px)));
   }
 
-  /* Match Firefly's real composition: waves remain a decorative transition
-     behind the first row, while the readable UI stays fully above them. */
+  /* Keep the home grid explicitly readable above decorative layers as an
+     additional local guarantee; the parent content panel now matches Firefly's
+     z-30 layer while waves remain at z-15. */
   body.layout-standard.is-home .home-layout {
     position: relative;
     z-index: 20;
