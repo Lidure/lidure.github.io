@@ -2,7 +2,7 @@
 
 ## CuteLeaf/Firefly
 
-Parts of the banner wave geometry/timing and the OKLCH theme-variable model in this site are adapted from [CuteLeaf/Firefly](https://github.com/CuteLeaf/Firefly).
+Parts of the banner wave geometry/timing, profile-card visual direction, and the OKLCH theme-variable model in this site are adapted from [CuteLeaf/Firefly](https://github.com/CuteLeaf/Firefly).
 
 MIT License
 
@@ -26,3 +26,12 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+## Font Awesome Free brand icons
+
+The GitHub and QQ SVG paths used by the homepage profile card are from Font Awesome Free. Firefly uses the corresponding `fa7-brands:github` and `fa7-brands:qq` icons; this site embeds the free brand SVG paths directly to avoid adding an icon-runtime dependency.
+
+Font Awesome Free icons are licensed under CC BY 4.0. Font Awesome is a trademark of Fonticons, Inc.
+
+Source: https://github.com/FortAwesome/Font-Awesome
+License: https://creativecommons.org/licenses/by/4.0/
