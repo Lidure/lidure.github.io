@@ -95,6 +95,9 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
           <input id="sekaiQQCookie" class="sekai-online-input" type="text" placeholder="粘贴QQ音乐 cookie（含 qqmusic_key）" autocomplete="off" />
           <button id="sekaiQQCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>
         </div>
+        <div class="sekai-online-input-row sekai-playlist-name-row">
+          <input id="sekaiPlaylistName" class="sekai-online-input" type="text" placeholder="歌单名称（可选，默认自动命名）" autocomplete="off" />
+        </div>
         <div class="sekai-online-input-row">
           <input id="sekaiPlaylistUrl" class="sekai-online-input" type="text" placeholder="粘贴歌单链接或ID" autocomplete="off" />
           <button id="sekaiPlaylistFetch" class="sekai-online-fetch" type="button">导入</button>
@@ -102,6 +105,8 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
         <div id="sekaiOnlineStatus" class="sekai-online-status"></div>
         <button id="sekaiOnlineClose" class="sekai-online-close" type="button">收起</button>
       </div>
+
+      <div id="sekaiImportedPlaylists" class="sekai-imported-playlists" aria-label="已导入歌单"></div>
 
       <div class="sekai-playlist-label">
         <span>播放列表</span>
@@ -1133,6 +1138,54 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
   flex-shrink: 0;
 }
 
+/* ===== Imported Playlist Switcher ===== */
+.sekai-imported-playlists {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  padding: 1px 2px 2px;
+  flex-shrink: 0;
+}
+.sekai-imported-playlists:empty { display: none; }
+:global(.sekai-imported-playlist-chip) {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 9px;
+  background: rgba(255,255,255,0.045);
+  overflow: hidden;
+}
+:global(.sekai-imported-playlist-chip.active) {
+  border-color: rgba(30,216,255,0.32);
+  background: linear-gradient(135deg,rgba(30,216,255,0.12),rgba(255,93,168,0.1));
+}
+:global(.sekai-imported-playlist-select),
+:global(.sekai-imported-playlist-delete) {
+  border: 0;
+  background: transparent;
+  color: rgba(255,255,255,0.64);
+  font: inherit;
+  cursor: pointer;
+}
+:global(.sekai-imported-playlist-select) {
+  max-width: 158px;
+  padding: 6px 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .68rem;
+  font-weight: 700;
+}
+:global(.sekai-imported-playlist-chip.active .sekai-imported-playlist-select) { color: rgba(255,255,255,0.95); }
+:global(.sekai-imported-playlist-delete) {
+  align-self: stretch;
+  padding: 0 7px;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  font-size: .8rem;
+}
+:global(.sekai-imported-playlist-delete:hover) { color: #ff7c9f; background: rgba(255,93,168,0.08); }
+
 /* ===== Online Import Panel ===== */
 .sekai-online-panel {
   margin: 0 2px 4px;
@@ -1998,6 +2051,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
   var isSeeking = false;
   var query = '';
   var tagFilter = 'all';
+  var activeImportedPlaylist = 'all';
   var savedState = readState();
 
   if (savedState) {
@@ -2118,6 +2172,9 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
             source: t.source,
             tags: ['imported'],
             onlineId: t.onlineId || null,
+            playlistKey: t.playlistKey || ('legacy_' + t.source),
+            playlistId: t.playlistId || '',
+            playlistName: t.playlistName || (t.source === 'netease' ? '旧版导入 · 网易云' : (t.source === 'qq' ? '旧版导入 · QQ音乐' : '旧版导入')),
             sourceUrl: t.sourceUrl || '',
             audioState: t.sourceUrl ? 'ready' : 'unknown',
             vocals: [{ id: t.source + '_vocal', name: t.composer || '未知', sourceUrl: t.sourceUrl || '' }]
@@ -2239,11 +2296,13 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
   function applyFilters() {
     var normalizedQuery = normalize(query);
     filteredSongs = songs.filter(function(song) {
+      var matchesPlaylist = activeImportedPlaylist === 'all' || song.playlistKey === activeImportedPlaylist;
       var matchesTag = tagFilter === 'all' || song.tags.indexOf(tagFilter) >= 0;
       var matchesQuery = !normalizedQuery || getSongSearchText(song).indexOf(normalizedQuery) >= 0;
-      return matchesTag && matchesQuery;
+      return matchesPlaylist && matchesTag && matchesQuery;
     });
     renderedCount = BATCH_SIZE;
+    renderImportedPlaylists();
     renderPlaylist();
     saveState();
   }
@@ -3640,6 +3699,9 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
           cover: s.jacketBundle || null,
           source: s.source,
           onlineId: s.onlineId || null,
+          playlistKey: s.playlistKey || '',
+          playlistId: s.playlistId || '',
+          playlistName: s.playlistName || '',
           sourceUrl: s.sourceUrl || ''
         };
       });
@@ -3965,9 +4027,11 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
   var onlineImportBtn = document.getElementById('sekaiOnlineImport');
   var onlinePanel = document.getElementById('sekaiOnlinePanel');
   var onlineClose = document.getElementById('sekaiOnlineClose');
+  var playlistNameInput = document.getElementById('sekaiPlaylistName');
   var playlistUrlInput = document.getElementById('sekaiPlaylistUrl');
   var playlistFetchBtn = document.getElementById('sekaiPlaylistFetch');
   var onlineStatus = document.getElementById('sekaiOnlineStatus');
+  var importedPlaylistsEl = document.getElementById('sekaiImportedPlaylists');
   var onlineTabs = document.querySelectorAll('.sekai-online-tab');
   var selectedPlatform = 'netease';
   var qqCookieRow = document.getElementById('sekaiQQCookieRow');
@@ -4072,6 +4136,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
 
       var playlistId = extractPlaylistId(raw, selectedPlatform);
       if (!playlistId) { onlineStatus.textContent = '无法识别歌单ID，请检查输入'; onlineStatus.className = 'sekai-online-status error'; return; }
+      var playlistName = playlistNameInput ? playlistNameInput.value.trim() : '';
 
       playlistFetchBtn.disabled = true;
       onlineStatus.textContent = '正在获取歌单...';
@@ -4081,7 +4146,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
         fetchMetingPlaylist(playlistId, 'netease', function(tracks, error) {
           playlistFetchBtn.disabled = false;
           if (error) { onlineStatus.textContent = error; onlineStatus.className = 'sekai-online-status error'; return; }
-          addOnlineTracks(tracks, 'netease');
+          addOnlineTracks(tracks, 'netease', playlistId, playlistName);
         });
       } else {
           fetchMetingPlaylist(playlistId, 'qq', function(tracks, error) {
@@ -4089,7 +4154,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
           if (error) { onlineStatus.textContent = error; onlineStatus.className = 'sekai-online-status error'; return; }
           // QQ 需要额外获取音频 URL
           onlineStatus.textContent = '已获取歌单，正在获取音频链接...';
-          addOnlineTracks(tracks, 'qq');
+          addOnlineTracks(tracks, 'qq', playlistId, playlistName);
         });
       }
     });
@@ -4111,43 +4176,136 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
     return null;
   }
 
-  function addOnlineTracks(tracks, platform) {
+  function getImportedPlaylistGroups() {
+    var groups = {};
+    songs.forEach(function(song) {
+      if (!song.playlistKey) return;
+      if (!groups[song.playlistKey]) {
+        groups[song.playlistKey] = {
+          key: song.playlistKey,
+          name: song.playlistName || song.playlistKey,
+          platform: song.source || '',
+          count: 0
+        };
+      }
+      groups[song.playlistKey].count++;
+    });
+    return Object.keys(groups).map(function(key) { return groups[key]; });
+  }
+
+  function renderImportedPlaylists() {
+    if (!importedPlaylistsEl) return;
+    importedPlaylistsEl.innerHTML = '';
+    var groups = getImportedPlaylistGroups();
+    if (!groups.length) {
+      activeImportedPlaylist = 'all';
+      return;
+    }
+    if (activeImportedPlaylist !== 'all' && !groups.some(function(group) { return group.key === activeImportedPlaylist; })) {
+      activeImportedPlaylist = 'all';
+    }
+
+    var allChip = document.createElement('span');
+    allChip.className = 'sekai-imported-playlist-chip' + (activeImportedPlaylist === 'all' ? ' active' : '');
+    var allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.className = 'sekai-imported-playlist-select';
+    allBtn.textContent = '全部';
+    allBtn.addEventListener('click', function() {
+      activeImportedPlaylist = 'all';
+      applyFilters();
+    });
+    allChip.appendChild(allBtn);
+    importedPlaylistsEl.appendChild(allChip);
+
+    groups.forEach(function(group) {
+      var chip = document.createElement('span');
+      chip.className = 'sekai-imported-playlist-chip' + (activeImportedPlaylist === group.key ? ' active' : '');
+      var select = document.createElement('button');
+      select.type = 'button';
+      select.className = 'sekai-imported-playlist-select';
+      select.title = group.name + ' · ' + group.count + ' 首';
+      select.textContent = group.name + ' · ' + group.count;
+      select.addEventListener('click', function() {
+        activeImportedPlaylist = group.key;
+        applyFilters();
+      });
+      var remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'sekai-imported-playlist-delete';
+      remove.title = '删除歌单「' + group.name + '」';
+      remove.setAttribute('aria-label', remove.title);
+      remove.textContent = '×';
+      remove.addEventListener('click', function(event) {
+        event.stopPropagation();
+        if (confirm('确定删除歌单「' + group.name + '」及其中 ' + group.count + ' 首歌曲？')) {
+          deleteImportedPlaylist(group.key);
+        }
+      });
+      chip.appendChild(select);
+      chip.appendChild(remove);
+      importedPlaylistsEl.appendChild(chip);
+    });
+  }
+
+  function deleteImportedPlaylist(playlistKey) {
+    if (!playlistKey) return;
+    if (currentSong && currentSong.playlistKey === playlistKey) {
+      audio.pause();
+      currentSong = null;
+      currentVocal = null;
+      isPlaying = false;
+      updateNowPlaying();
+    }
+    songs = songs.filter(function(s) { return s.playlistKey !== playlistKey; });
+    if (activeImportedPlaylist === playlistKey) activeImportedPlaylist = 'all';
+    applyFilters();
+  }
+
+  function addOnlineTracks(tracks, platform, playlistId, playlistName) {
     var added = 0, skipped = 0;
-    // 导入前移除同一平台的已有歌曲，避免重复
-    songs = songs.filter(function(s) { return s.source !== platform; });
+    var playlistKey = platform + ':' + playlistId;
+    var platformName = platform === 'netease' ? '网易云' : 'QQ音乐';
+    var resolvedName = playlistName || (platformName + '歌单 · ' + playlistId);
+    var existed = songs.some(function(s) { return s.playlistKey === playlistKey; });
+
+    // Re-importing the same playlist updates that playlist only. Other imported
+    // playlists from the same platform remain untouched.
+    songs = songs.filter(function(s) { return s.playlistKey !== playlistKey; });
     tracks.forEach(function(track) {
       var audioUrl = track.url || '';
-      // QQ 音乐大部分无链接但仍然导入（显示歌曲信息，尝试播放时再提示）
       if (!audioUrl && platform !== 'qq') { skipped++; return; }
       songs.push({
-        id: platform + '_' + track.id,
+        id: platform + '_' + playlistId + '_' + track.id,
         title: track.title,
         composer: track.artist || (platform === 'netease' ? '网易云音乐' : 'QQ音乐'),
         jacketBundle: track.cover || null,
         source: platform,
         tags: ['imported'],
         onlineId: track.id,
+        playlistKey: playlistKey,
+        playlistId: String(playlistId),
+        playlistName: resolvedName,
         sourceUrl: audioUrl,
         audioState: audioUrl ? 'ready' : 'unknown',
         vocals: [{ id: platform + '_vocal', name: track.artist || '未知', sourceUrl: audioUrl }]
       });
       added++;
     });
+    activeImportedPlaylist = playlistKey;
     applyFilters();
+    if (playlistNameInput) playlistNameInput.value = '';
+
+    var actionText = existed ? '已更新歌单「' + resolvedName + '」：' : '已导入歌单「' + resolvedName + '」：';
     if (platform === 'qq' && added > 0) {
       var noUrl = tracks.filter(function(t) { return !t.url; }).length;
-      if (noUrl > 0) {
-        onlineStatus.textContent = '已导入 ' + added + ' 首QQ音乐歌曲（' + noUrl + ' 首暂无播放链接）';
-        onlineStatus.className = 'sekai-online-status';
-      } else {
-        onlineStatus.textContent = '已导入 ' + added + ' 首歌曲';
-        onlineStatus.className = 'sekai-online-status';
-      }
+      onlineStatus.textContent = actionText + added + ' 首' + (noUrl > 0 ? '（' + noUrl + ' 首暂无播放链接）' : '');
+      onlineStatus.className = 'sekai-online-status';
     } else if (skipped > 0) {
-      onlineStatus.textContent = '已导入 ' + added + ' 首，' + skipped + ' 首无版权/不可用已跳过';
+      onlineStatus.textContent = actionText + added + ' 首，' + skipped + ' 首无版权/不可用已跳过';
       onlineStatus.className = 'sekai-online-status';
     } else {
-      onlineStatus.textContent = '已导入 ' + added + ' 首歌曲';
+      onlineStatus.textContent = actionText + added + ' 首';
       onlineStatus.className = 'sekai-online-status';
     }
   }
@@ -4168,6 +4326,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
 
   function clearImported() {
     songs = songs.filter(function(s) { return !s.source || s.source === 'sekai'; });
+    activeImportedPlaylist = 'all';
     if (currentSong && currentSong.source && currentSong.source !== 'sekai') {
       audio.pause();
       currentSong = null;
