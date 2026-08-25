@@ -12,8 +12,9 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .hero-slideshow {
   position: fixed;
   inset: 0;
   width: 100%;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100lvh;
+  min-height: 100lvh;
 }
 
 html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-overlay {
@@ -24,14 +25,17 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-overlay {
   background: rgba(0, 0, 0, var(--wallpaper-overlay, 0.45));
 }
 
-/* Firefly-like fullscreen homepage: one complete viewport for the wallpaper and
-   title, then the content continues over the same fixed wallpaper. */
+/* Firefly fullscreen keeps the hero fixed for the whole first viewport. The
+   content itself starts one viewport later, so the title only receives the
+   scroll transform once instead of moving with the document and with JS. */
 html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-stage {
-  position: relative;
+  position: fixed;
+  inset: 0;
   z-index: 1;
   width: 100%;
-  height: 100dvh;
-  min-height: 100dvh;
+  height: 100vh;
+  height: 100lvh;
+  min-height: 100lvh;
   overflow: hidden;
 }
 
@@ -40,6 +44,10 @@ html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner
   min-height: 100%;
   padding-top: clamp(96px, 12vh, 132px);
   padding-bottom: 13vh;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .banner-waves {
+  display: none !important;
 }
 
 html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy {
@@ -74,6 +82,14 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .standard-page-surface 
   background: transparent;
 }
 
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .standard-page-surface {
+  position: relative;
+  z-index: 2;
+  margin-top: 100vh;
+  margin-top: 100lvh;
+  scroll-margin-top: 5.5rem;
+}
+
 html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .standard-content {
   padding-top: 32px;
 }
@@ -83,47 +99,67 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .standard-content {
   padding-top: 96px;
 }
 
-/* Fullscreen scroll cue. */
+/* Firefly-style fullscreen scroll cue: no pill or glass circle, only a large
+   rounded down arrow that bounces gently and fades after the first 100px. */
 .fullscreen-scroll-indicator {
   display: none;
-}
-
-html[data-wallpaper-mode="fullscreen"]:not([data-reduce-motion="true"]) {
-  scroll-behavior: smooth;
 }
 
 html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .fullscreen-scroll-indicator {
   position: absolute;
   left: 50%;
-  bottom: clamp(42px, 8vh, 82px);
-  z-index: 24;
-  display: grid;
-  place-items: center;
-  width: 56px;
-  height: 56px;
-  border-radius: 999px;
-  color: rgba(255, 255, 255, 0.94);
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  bottom: 5rem;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: auto;
+  height: auto;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.8);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
   transform: translateX(-50%);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: background 180ms ease, transform 180ms ease;
+  transition: opacity 0.4s ease, transform 0.4s ease, color 0.2s ease;
+  cursor: pointer;
   pointer-events: auto;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .fullscreen-scroll-indicator.hide {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
 
 html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .fullscreen-scroll-indicator:hover {
-  background: rgba(255, 255, 255, 0.12);
-  transform: translateX(-50%) translateY(2px);
+  color: rgba(255, 255, 255, 1);
 }
 
-.fullscreen-scroll-indicator span {
-  width: 22px;
-  height: 22px;
-  border-right: 4px solid currentColor;
-  border-bottom: 4px solid currentColor;
-  border-radius: 2px;
-  transform: translateY(-4px) rotate(45deg);
+.fullscreen-scroll-icon {
+  width: 5rem;
+  height: 5rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: scroll-down-bounce 2s ease-in-out infinite;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes scroll-down-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+@media (max-width: 1023px) {
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .fullscreen-scroll-indicator {
+    bottom: 10rem;
+  }
 }
 
 /* Floating glass navbar, especially close to Firefly's fullscreen treatment. */
@@ -235,12 +271,16 @@ html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) bod
 }
 
 @media (prefers-reduced-motion: reduce) {
-  html[data-wallpaper-mode="fullscreen"] {
-    scroll-behavior: auto;
+  .fullscreen-scroll-icon {
+    animation: none;
   }
 
   .fullscreen-scroll-indicator,
   html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy {
     transition: none;
   }
+}
+
+html[data-reduce-motion="true"] .fullscreen-scroll-icon {
+  animation: none;
 }

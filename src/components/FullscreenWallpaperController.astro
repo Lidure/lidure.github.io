@@ -4,6 +4,8 @@
     __fullscreenWallpaperLifecycleBound?: boolean;
   };
 
+  const TARGET_CLEARANCE = 104;
+
   function initFullscreenWallpaperController() {
     wallpaperWindow.__fullscreenWallpaperController?.abort();
     const controller = typeof AbortController === 'function' ? new AbortController() : null;
@@ -13,19 +15,52 @@
     const root = document.documentElement;
     const body = document.body;
     const hero = document.querySelector<HTMLElement>('.hero-slideshow');
+    const stage = document.querySelector<HTMLElement>('.blog-banner-stage');
     const title = document.querySelector<HTMLElement>('.blog-banner-copy');
+    const indicator = document.querySelector<HTMLElement>('.fullscreen-scroll-indicator');
+    const content = document.getElementById('standard-page-surface');
     let ticking = false;
+
+    function isActive() {
+      return root.dataset.wallpaperMode === 'fullscreen' && body.classList.contains('is-home');
+    }
+
+    function prefersReducedMotion() {
+      return root.dataset.reduceMotion === 'true'
+        || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+    }
+
+    function getToolbarOverlap() {
+      const viewport = window.visualViewport;
+      if (!stage || !viewport) return 0;
+      const visibleBottom = viewport.offsetTop + viewport.height;
+      return Math.max(0, stage.getBoundingClientRect().bottom - visibleBottom);
+    }
+
+    function updateIndicatorPosition() {
+      if (!indicator || !isActive()) {
+        indicator?.style.removeProperty('bottom');
+        return;
+      }
+      if (window.innerWidth > 1023 || !/EdgA\//i.test(navigator.userAgent)) {
+        indicator.style.removeProperty('bottom');
+        return;
+      }
+      const overlap = getToolbarOverlap() || 48;
+      indicator.style.bottom = `${TARGET_CLEARANCE + overlap}px`;
+    }
 
     function reset() {
       title?.style.removeProperty('--fullscreen-title-scroll');
       title?.style.removeProperty('--fullscreen-title-opacity');
       hero?.style.removeProperty('--fullscreen-scroll-blur');
+      indicator?.classList.remove('hide');
+      indicator?.style.removeProperty('bottom');
     }
 
     function sync() {
       ticking = false;
-      const active = root.dataset.wallpaperMode === 'fullscreen' && body.classList.contains('is-home');
-      if (!active) {
+      if (!isActive()) {
         reset();
         return;
       }
@@ -35,6 +70,8 @@
       const titleRatio = Math.min(scrollY / fadeDistance, 1);
       title?.style.setProperty('--fullscreen-title-scroll', `${-scrollY}px`);
       title?.style.setProperty('--fullscreen-title-opacity', String(1 - titleRatio));
+      if (scrollY > 100) indicator?.classList.add('hide');
+      else indicator?.classList.remove('hide');
 
       const blurRaw = getComputedStyle(root).getPropertyValue('--wallpaper-blur');
       const maxBlur = Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
@@ -49,9 +86,29 @@
       requestAnimationFrame(sync);
     }
 
+    indicator?.addEventListener('click', function (event) {
+      if (!isActive() || !content) return;
+      event.preventDefault();
+      content.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    }, options);
+
     window.addEventListener('scroll', requestSync, { passive: true, ...(options || {}) });
-    window.addEventListener('resize', requestSync, { passive: true, ...(options || {}) });
-    document.addEventListener('lidure:visual-settings-change', requestSync, options);
+    window.addEventListener('resize', function () {
+      requestSync();
+      updateIndicatorPosition();
+    }, { passive: true, ...(options || {}) });
+    document.addEventListener('lidure:visual-settings-change', function () {
+      requestSync();
+      updateIndicatorPosition();
+    }, options);
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateIndicatorPosition, { passive: true, ...(options || {}) });
+      window.visualViewport.addEventListener('scroll', updateIndicatorPosition, { passive: true, ...(options || {}) });
+    }
+
+    stage?.addEventListener('transitionend', updateIndicatorPosition, options);
+    updateIndicatorPosition();
     requestSync();
   }
 

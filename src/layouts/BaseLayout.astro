@@ -215,9 +215,11 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         <div class="blog-banner-stage">
           <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
           <BannerWaves />
-          <a class="fullscreen-scroll-indicator" href="#standard-page-surface" aria-label="向下浏览">
-            <span aria-hidden="true"></span>
-          </a>
+          <button id="fullscreen-scroll-indicator" class="fullscreen-scroll-indicator" type="button" aria-label="向下浏览">
+            <svg class="fullscreen-scroll-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="m6.5 9.5 5.5 5.5 5.5-5.5" />
+            </svg>
+          </button>
         </div>
         <div class="standard-page-surface" id="standard-page-surface">
           <main class="content-area standard-content">
