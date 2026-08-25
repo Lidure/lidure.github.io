@@ -2294,6 +2294,9 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
   }
 
   function applyFilters() {
+    if (activeImportedPlaylist !== 'all' && !songs.some(function(song) { return song.playlistKey === activeImportedPlaylist; })) {
+      activeImportedPlaylist = 'all';
+    }
     var normalizedQuery = normalize(query);
     filteredSongs = songs.filter(function(song) {
       var matchesPlaylist = activeImportedPlaylist === 'all' || song.playlistKey === activeImportedPlaylist;
@@ -4266,8 +4269,9 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
     var added = 0, skipped = 0;
     var playlistKey = platform + ':' + playlistId;
     var platformName = platform === 'netease' ? '网易云' : 'QQ音乐';
-    var resolvedName = playlistName || (platformName + '歌单 · ' + playlistId);
-    var existed = songs.some(function(s) { return s.playlistKey === playlistKey; });
+    var previousPlaylist = songs.find(function(s) { return s.playlistKey === playlistKey; });
+    var resolvedName = playlistName || (previousPlaylist && previousPlaylist.playlistName) || (platformName + '歌单 · ' + playlistId);
+    var existed = !!previousPlaylist;
 
     // Re-importing the same playlist updates that playlist only. Other imported
     // playlists from the same platform remain untouched.
