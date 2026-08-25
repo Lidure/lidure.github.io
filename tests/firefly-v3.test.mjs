@@ -53,6 +53,15 @@ test('Firefly-aligned visual defaults stay synchronized across preload, reset, d
   assert.match(controller, /blurRatio\s*>=\s*1\s*\?\s*maxBlur/);
 });
 
+test('fullscreen video follows Firefly native media rendering instead of showing the downscaled canvas surface', () => {
+  const wallpaperCss = readSource('src/styles/firefly-wallpaper-modes.css');
+
+  assert.match(wallpaperCss, /data-wallpaper-mode="fullscreen"[\s\S]*?\.slideshow-video[\s\S]*?object-fit:\s*cover/);
+  assert.match(wallpaperCss, /\.slideshow-video\.visible[\s\S]*?opacity:\s*1\s*!important/);
+  assert.match(wallpaperCss, /data-wallpaper-mode="fullscreen"[\s\S]*?\.slideshow-video[\s\S]*?filter:\s*blur\(var\(--fullscreen-scroll-blur,\s*0px\)\)/);
+  assert.match(wallpaperCss, /data-wallpaper-mode="fullscreen"[\s\S]*?\.slideshow-canvas[\s\S]*?display:\s*none\s*!important/);
+});
+
 test('homepage music widget uses the approved large-cover composition', () => {
   const music = readSource('src/components/MusicStatusWidget.astro');
   assert.match(music, /class="music-status-art"/);
