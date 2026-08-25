@@ -13,7 +13,7 @@ test('online playlist import can read the remote playlist display name', () => {
 
 test('remote playlist name is passed into both NetEase and QQ imports', () => {
   assert.match(source, /function fetchMetingPlaylist\(playlistId, platform, callback\)[\s\S]*fetchPlaylistDisplayName/);
-  assert.match(source, /callback\(tracks, null, remotePlaylistName\)/);
+  assert.match(source, /callback\(tracks, null, remotePlaylistName(?:\s*\|\|\s*'')?\)/);
   assert.match(source, /function\(tracks, error, remotePlaylistName\)/);
   assert.match(source, /addOnlineTracks\(tracks, 'netease', playlistId, playlistName, remotePlaylistName\)/);
   assert.match(source, /addOnlineTracks\(tracks, 'qq', playlistId, playlistName, remotePlaylistName\)/);
