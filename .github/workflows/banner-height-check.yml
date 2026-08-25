@@ -14,4 +14,5 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: node --test tests/banner-height-settings.test.mjs
+      - run: node --test tests/banner-height-settings.test.mjs tests/visual-settings.test.mjs tests/firefly-banner-surface.test.mjs tests/firefly-wallpaper-modes.test.mjs
+      - run: npm run build
