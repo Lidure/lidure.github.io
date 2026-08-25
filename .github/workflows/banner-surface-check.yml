@@ -1,0 +1,17 @@
+name: Banner surface check
+
+on:
+  push:
+    branches: [fix/firefly-banner-surface-layering]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/firefly-banner-surface.test.mjs
