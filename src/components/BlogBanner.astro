@@ -39,13 +39,24 @@ const { title, subtitle } = Astro.props;
     --home-banner-content-inset: 2.9rem;
   }
 
-  html[data-wallpaper-mode="banner"] body.layout-standard .blog-banner-stage {
+  /* Non-home banner pages retain the original stacking boundary. On the
+     homepage the stage must not create one, otherwise the z:3 content panel
+     can never visually cross the z:4 banner stage regardless of child z-index. */
+  html[data-wallpaper-mode="banner"] body.layout-standard:not(.is-home) .blog-banner-stage {
     z-index: 4;
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .blog-banner-stage {
+    z-index: auto;
   }
 
   html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {
     z-index: 3;
     margin-top: calc(-1 * var(--banner-surface-overlap));
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-page-surface {
+    border-radius: 0;
   }
 
   html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-content {
