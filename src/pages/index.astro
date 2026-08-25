@@ -29,15 +29,15 @@ const featuredHref = featuredPost
   bannerTitle="搁浅的小窝"
   bannerSubtitle="把喜欢的东西，认真地收进小站里。"
 >
-  <nav class="home-category-bar" aria-label="首页内容导航">
-    <a class="is-featured" href={featuredHref}>✦ 精选</a>
-    <a href="#latest-posts-title">最新</a>
-    <a href="/tags">标签</a>
-    <a href="/moments">碎碎念</a>
-    <a href="/messages">留言</a>
-  </nav>
-
   <div class="home-layout">
+    <nav class="home-category-bar" aria-label="首页内容导航">
+      <a class="is-featured" href={featuredHref}>✦ 精选</a>
+      <a href="#latest-posts-title">最新</a>
+      <a href="/tags">标签</a>
+      <a href="/moments">碎碎念</a>
+      <a href="/messages">留言</a>
+    </nav>
+
     <HomeLeftSidebar
       postCount={posts.length}
       tagCount={tagCount}
