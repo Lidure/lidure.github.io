@@ -55,7 +55,11 @@ const { title, subtitle } = Astro.props;
     margin-top: calc(-1 * var(--banner-surface-overlap));
   }
 
+  /* Keep the homepage surface itself out of a stacking context. The waves can
+     still paint over the page background, while the actual cards/navigation
+     are allowed to rise above the wave layer. */
   html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-page-surface {
+    z-index: auto;
     border-radius: 0;
   }
 
@@ -77,12 +81,11 @@ const { title, subtitle } = Astro.props;
     transform: translateY(calc(-1 * clamp(20px, 4vh, 42px)));
   }
 
-  /* Match Firefly's real composition: the outer grid has one center item.
-     Category navigation and article content stack inside that center column,
-     so tall sidebars can never stretch a separate navigation row. */
+  /* Match Firefly's real composition: waves remain a decorative transition
+     behind the first row, while the readable UI stays fully above them. */
   body.layout-standard.is-home .home-layout {
     position: relative;
-    z-index: 6;
+    z-index: 20;
   }
 
   body.layout-standard.is-home .home-center-column {
