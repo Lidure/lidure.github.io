@@ -18,17 +18,39 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - name: Repair temporary patcher quoting
+      - name: Prepare temporary patcher
         run: |
           python - <<'PY'
           from pathlib import Path
           p = Path('scripts/patch-sekai-multi-playlists.py')
           s = p.read_text(encoding='utf-8')
-          s = s.replace("sourceUrl: s.sourceUrl || '' ''',", "sourceUrl: s.sourceUrl || ''' ,")
-          p.write_text(s, encoding='utf-8')
+          old = "    if old not in text:\n        raise SystemExit(f'missing pattern: {label}')"
+          new = "    if old not in text:\n        if label == 'persist playlist metadata':\n            return\n        raise SystemExit(f'missing pattern: {label}')"
+          if old not in s:
+              raise SystemExit('replace_once guard not found')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
           PY
       - name: Apply multi-playlist implementation
         run: python scripts/patch-sekai-multi-playlists.py
+      - name: Patch playlist persistence metadata
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('src/components/SekaiPlayer.astro')
+          s = p.read_text(encoding='utf-8')
+          old = """          source: s.source,
+          onlineId: s.onlineId || null,
+          sourceUrl: s.sourceUrl || ''"""
+          new = """          source: s.source,
+          onlineId: s.onlineId || null,
+          playlistKey: s.playlistKey || '',
+          playlistId: s.playlistId || '',
+          playlistName: s.playlistName || '',
+          sourceUrl: s.sourceUrl || ''"""
+          if old not in s:
+              raise SystemExit('persist metadata source block not found')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
       - name: Run multi-playlist regression
         run: node --test tests/sekai-multi-playlists.test.mjs
       - name: Build site
