@@ -49,3 +49,12 @@ test('article stylesheet is publication-first rather than card-first', () => {
   assert.match(css, /@media \(max-width:\s*760px\)/);
   assert.doesNotMatch(css, /box-shadow:\s*0 18px 60px/);
 });
+
+test('article bookmark rail follows headings and cleans up across Astro navigation', () => {
+  assert.match(page, /--article-reading-progress/);
+  assert.match(page, /--chapter-offset/);
+  assert.match(page, /AbortController/);
+  assert.match(page, /astro:page-load/);
+  assert.match(page, /astro:before-swap/);
+  assert.doesNotMatch(page, /--wallpaper-blur/);
+});
