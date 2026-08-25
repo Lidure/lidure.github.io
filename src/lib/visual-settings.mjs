@@ -46,7 +46,9 @@ export function normalizeVisualSettings(raw = {}) {
       ? merged.quality
       : 'high',
     sakura: merged.sakura === true,
-    wallpaperMode: merged.wallpaperMode === 'fullscreen' ? 'fullscreen' : 'banner',
+    wallpaperMode: ['fullscreen', 'overlay'].includes(merged.wallpaperMode)
+      ? merged.wallpaperMode
+      : 'banner',
     backgroundBlur: clamp(finiteOr(merged.backgroundBlur, 6), 0, 20),
     cardOpacity: clamp(finiteOr(merged.cardOpacity, 0.92), 0.2, 1),
     bannerGradient: merged.bannerGradient !== false,

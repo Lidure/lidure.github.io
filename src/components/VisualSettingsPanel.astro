@@ -52,9 +52,10 @@
       <div class="settings-card">
         <div class="settings-card-title"><span>壁纸显示</span><small>Wallpaper</small></div>
         <div class="setting-group">
-          <div class="segmented-control wallpaper-mode-switch" role="group" aria-label="壁纸显示模式">
-            <button id="wallpaper-mode-banner" class="segment-option wallpaper-mode-option is-active" type="button" aria-pressed="true">横幅壁纸</button>
-            <button id="wallpaper-mode-fullscreen" class="segment-option wallpaper-mode-option" type="button" aria-pressed="false">全屏壁纸</button>
+          <div class="segmented-control three wallpaper-mode-switch" role="group" aria-label="壁纸显示模式">
+            <button id="wallpaper-mode-banner" class="segment-option wallpaper-mode-option is-active" type="button" aria-pressed="true">横幅</button>
+            <button id="wallpaper-mode-fullscreen" class="segment-option wallpaper-mode-option" type="button" aria-pressed="false">全屏</button>
+            <button id="wallpaper-mode-overlay" class="segment-option wallpaper-mode-option" type="button" aria-pressed="false">覆盖透明</button>
           </div>
         </div>
         <div class="setting-row"><div><span class="setting-label">启用背景</span><small>显示当前背景媒体</small></div><label class="toggle-switch"><input type="checkbox" id="toggle-enabled" checked /><span class="toggle-track"></span></label></div>
@@ -69,11 +70,11 @@
         </div>
         <div class="setting-group mode-fullscreen-only">
           <div class="setting-heading"><span class="setting-label">背景模糊</span><span class="range-value" id="background-blur-val">6px</span></div>
-          <input type="range" id="background-blur-range" min="0" max="20" step="1" value="6" aria-label="全屏背景模糊" />
+          <input type="range" id="background-blur-range" min="0" max="20" step="1" value="6" aria-label="透明壁纸背景模糊" />
         </div>
         <div class="setting-group mode-fullscreen-only">
           <div class="setting-heading"><span class="setting-label">卡片透明度</span><span class="range-value" id="fullscreen-card-opacity-val">92%</span></div>
-          <input type="range" id="fullscreen-card-opacity-range" min="20" max="100" step="1" value="92" aria-label="全屏壁纸卡片透明度" />
+          <input type="range" id="fullscreen-card-opacity-range" min="20" max="100" step="1" value="92" aria-label="透明壁纸卡片透明度" />
         </div>
       </div>
 
@@ -236,8 +237,10 @@
   .media-library-arrow { color: var(--muted, #92929d); font-size: 1.25rem; }
 
   .mode-fullscreen-only { display: none; }
-  :global(html[data-wallpaper-mode="fullscreen"]) .mode-fullscreen-only { display: grid; }
-  :global(html[data-wallpaper-mode="fullscreen"]) .mode-banner-only { display: none; }
+  :global(html[data-wallpaper-mode="fullscreen"]) .mode-fullscreen-only,
+  :global(html[data-wallpaper-mode="overlay"]) .mode-fullscreen-only { display: grid; }
+  :global(html[data-wallpaper-mode="fullscreen"]) .mode-banner-only,
+  :global(html[data-wallpaper-mode="overlay"]) .mode-banner-only { display: none; }
 
   .settings-footer { padding: 10px 14px 14px; border-top: 1px solid color-mix(in srgb, var(--border, rgba(255,255,255,.1)) 60%, transparent); }
   .settings-reset { width: 100%; min-height: 34px; }
@@ -351,11 +354,13 @@
 
     function sync(settings) {
       settings = settings || readSettings();
-      var mode = settings.wallpaperMode === 'fullscreen' ? 'fullscreen' : 'banner';
+      var mode = settings.wallpaperMode === 'fullscreen' || settings.wallpaperMode === 'overlay' ? settings.wallpaperMode : 'banner';
       var bannerButton = document.getElementById('wallpaper-mode-banner');
       var fullscreenButton = document.getElementById('wallpaper-mode-fullscreen');
+      var overlayButton = document.getElementById('wallpaper-mode-overlay');
       if (bannerButton) { bannerButton.classList.toggle('is-active', mode === 'banner'); bannerButton.setAttribute('aria-pressed', String(mode === 'banner')); }
       if (fullscreenButton) { fullscreenButton.classList.toggle('is-active', mode === 'fullscreen'); fullscreenButton.setAttribute('aria-pressed', String(mode === 'fullscreen')); }
+      if (overlayButton) { overlayButton.classList.toggle('is-active', mode === 'overlay'); overlayButton.setAttribute('aria-pressed', String(mode === 'overlay')); }
 
       setValue('theme-hue-range', settings.themeHue ?? 340); setText('theme-hue-val', Math.round(settings.themeHue ?? 340) + '°');
       var cardOpacity = Math.round((settings.cardOpacity ?? 0.92) * 100);
@@ -390,6 +395,7 @@
 
     document.getElementById('wallpaper-mode-banner')?.addEventListener('click', function () { sync(writeSettings({ wallpaperMode: 'banner' })); }, options);
     document.getElementById('wallpaper-mode-fullscreen')?.addEventListener('click', function () { sync(writeSettings({ wallpaperMode: 'fullscreen' })); }, options);
+    document.getElementById('wallpaper-mode-overlay')?.addEventListener('click', function () { sync(writeSettings({ wallpaperMode: 'overlay' })); }, options);
     document.getElementById('theme-hue-range')?.addEventListener('input', function () { var value = Number(this.value); setText('theme-hue-val', value + '°'); writeSettings({ themeHue: value }); }, options);
 
     function updateCardOpacity(value) {

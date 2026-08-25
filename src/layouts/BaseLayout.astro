@@ -33,6 +33,7 @@ import '../styles/firefly-v2-pages.css';
 import '../styles/firefly-v4.css';
 import '../styles/firefly-v5-polish.css';
 import '../styles/firefly-v6-theme.css';
+import '../styles/firefly-wallpaper-modes.css';
 import '../styles/immersive-nav.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import BlogBanner from '../components/BlogBanner.astro';
@@ -47,6 +48,7 @@ import HeroSlideshow from '../components/HeroSlideshow.astro';
 import SekaiParticles from '../components/SekaiParticles.astro';
 import MomentsPinControls from '../components/MomentsPinControls.astro';
 import PageTransitionEnhancer from '../components/PageTransitionEnhancer.astro';
+import FullscreenWallpaperController from '../components/FullscreenWallpaperController.astro';
 
 const siteBase = Astro.site ?? new URL('https://lidure22.xyz');
 const canonicalUrl = new URL(Astro.url.pathname, siteBase);
@@ -85,7 +87,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
       try {
         var raw = JSON.parse(localStorage.getItem('hero_settings') || '{}');
         var root = document.documentElement;
-        var mode = raw.wallpaperMode === 'fullscreen' ? 'fullscreen' : 'banner';
+        var mode = raw.wallpaperMode === 'fullscreen' || raw.wallpaperMode === 'overlay' ? raw.wallpaperMode : 'banner';
         var opacity = Number.isFinite(Number(raw.opacity)) ? Math.max(0, Math.min(1, Number(raw.opacity))) : 0.45;
         var blur = Number.isFinite(Number(raw.backgroundBlur)) ? Math.max(0, Math.min(20, Number(raw.backgroundBlur))) : 6;
         var cardOpacity = Number.isFinite(Number(raw.cardOpacity)) ? Math.max(0.2, Math.min(1, Number(raw.cardOpacity))) : 0.92;
@@ -202,6 +204,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     <SekaiParticles />
     <SekaiPlayer />
     <PageTransitionEnhancer />
+    <FullscreenWallpaperController />
     <MomentsPinControls />
     <SiteHeader currentPath={Astro.url.pathname} />
     <FloatingControls />
@@ -212,8 +215,11 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         <div class="blog-banner-stage">
           <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
           <BannerWaves />
+          <a class="fullscreen-scroll-indicator" href="#standard-page-surface" aria-label="向下浏览">
+            <span aria-hidden="true"></span>
+          </a>
         </div>
-        <div class="standard-page-surface">
+        <div class="standard-page-surface" id="standard-page-surface">
           <main class="content-area standard-content">
             {showTime && <div class="clock-row"><ClockDisplay /></div>}
             <slot />

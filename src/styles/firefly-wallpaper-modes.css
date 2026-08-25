@@ -1,0 +1,246 @@
+/* Firefly-style wallpaper modes: banner, fullscreen hero, and transparent overlay. */
+
+/* Banner mode keeps the wallpaper bounded to the hero and lets the waves land
+   directly on the normal page surface, matching Firefly's clean handoff. */
+html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {
+  background: var(--standard-page-bg);
+}
+
+/* Fullscreen and overlay keep the wallpaper fixed behind the page. */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .hero-slideshow,
+html[data-wallpaper-mode="overlay"] body.layout-standard .hero-slideshow {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-overlay {
+  background: rgba(0, 0, 0, calc(var(--wallpaper-overlay, 0.45) * 0.66));
+}
+
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-overlay {
+  background: rgba(0, 0, 0, var(--wallpaper-overlay, 0.45));
+}
+
+/* Firefly-like fullscreen homepage: one complete viewport for the wallpaper and
+   title, then the content continues over the same fixed wallpaper. */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-stage {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-stage > .blog-banner {
+  height: 100%;
+  min-height: 100%;
+  padding-top: clamp(96px, 12vh, 132px);
+  padding-bottom: 13vh;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy {
+  transform: translateY(calc(4vh + var(--fullscreen-title-scroll, 0px)));
+  opacity: var(--fullscreen-title-opacity, 1);
+  will-change: transform, opacity;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy h1 {
+  font-size: clamp(3rem, 5.4vw, 4.5rem);
+  line-height: 1.08;
+  text-shadow: 0 3px 24px rgba(0, 0, 0, 0.42);
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy p {
+  margin-top: 16px;
+  font-size: clamp(1rem, 1.65vw, 1.32rem);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* On inner pages fullscreen behaves like Firefly's overlay presentation: no
+   redundant hero title, just the fixed wallpaper behind readable glass cards. */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard:not(.is-home) .blog-banner-stage,
+html[data-wallpaper-mode="overlay"] body.layout-standard .blog-banner-stage {
+  display: none;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .standard-page-surface,
+html[data-wallpaper-mode="overlay"] body.layout-standard .standard-page-surface {
+  margin-top: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .standard-content {
+  padding-top: 32px;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard:not(.is-home) .standard-content,
+html[data-wallpaper-mode="overlay"] body.layout-standard .standard-content {
+  padding-top: 96px;
+}
+
+/* Fullscreen scroll cue. */
+.fullscreen-scroll-indicator {
+  display: none;
+}
+
+html[data-wallpaper-mode="fullscreen"]:not([data-reduce-motion="true"]) {
+  scroll-behavior: smooth;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .fullscreen-scroll-indicator {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(42px, 8vh, 82px);
+  z-index: 24;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.94);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transform: translateX(-50%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: background 180ms ease, transform 180ms ease;
+  pointer-events: auto;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .fullscreen-scroll-indicator:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(-50%) translateY(2px);
+}
+
+.fullscreen-scroll-indicator span {
+  width: 22px;
+  height: 22px;
+  border-right: 4px solid currentColor;
+  border-bottom: 4px solid currentColor;
+  border-radius: 2px;
+  transform: translateY(-4px) rotate(45deg);
+}
+
+/* Floating glass navbar, especially close to Firefly's fullscreen treatment. */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header,
+html[data-wallpaper-mode="overlay"] body.layout-standard .site-header,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header.is-scrolled,
+html[data-wallpaper-mode="overlay"] body.layout-standard .site-header.is-scrolled {
+  top: 8px;
+  left: 50%;
+  right: auto;
+  width: min(calc(100% - 32px), 1640px);
+  color: var(--standard-text);
+  background: color-mix(in oklch, var(--standard-card-bg) 70%, transparent);
+  border: 1px solid color-mix(in oklch, var(--standard-line) 86%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  backdrop-filter: blur(18px) saturate(1.15);
+  -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  transform: translateX(-50%);
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header-inner,
+html[data-wallpaper-mode="overlay"] body.layout-standard .site-header-inner {
+  width: 100%;
+  min-height: 72px;
+  padding-inline: 18px;
+}
+
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-nav-primary a:hover,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-nav-utilities a:hover,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-nav-primary a.active,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-nav-utilities a.active,
+html[data-wallpaper-mode="overlay"] body.layout-standard .site-nav-primary a:hover,
+html[data-wallpaper-mode="overlay"] body.layout-standard .site-nav-utilities a:hover,
+html[data-wallpaper-mode="overlay"] body.layout-standard .site-nav-primary a.active,
+html[data-wallpaper-mode="overlay"] body.layout-standard .site-nav-utilities a.active {
+  color: var(--standard-accent);
+  background: var(--standard-accent-soft);
+}
+
+/* Wallpaper media is sharp at the top of fullscreen mode and gains the chosen
+   blur while scrolling, like Firefly. Overlay mode uses the chosen blur at all
+   times. Scaling hides filter edge bleed. */
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-layer,
+html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-canvas {
+  filter: blur(var(--fullscreen-scroll-blur, 0px));
+  transform: scale(1.02);
+  transform-origin: center;
+}
+
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-layer,
+html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-canvas {
+  filter: blur(var(--wallpaper-blur, 6px));
+  transform: scale(1.03);
+  transform-origin: center;
+}
+
+/* Transparent card layer shared by fullscreen and overlay modes. */
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .sidebar-widget,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .home-category-bar,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .home-featured-card,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .home-post-card,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .card,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .archive-shell,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .post-shell,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .timeline-item,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .project-card,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .message-form,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .message-card,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .publish-panel,
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .moment-card {
+  background: color-mix(in oklch, var(--standard-card-bg) var(--card-opacity-percent, 92%), transparent);
+  backdrop-filter: blur(max(12px, var(--wallpaper-blur, 6px))) saturate(1.08);
+  -webkit-backdrop-filter: blur(max(12px, var(--wallpaper-blur, 6px))) saturate(1.08);
+}
+
+html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .footer {
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 849px) {
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header,
+  html[data-wallpaper-mode="overlay"] body.layout-standard .site-header,
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header.is-scrolled,
+  html[data-wallpaper-mode="overlay"] body.layout-standard .site-header.is-scrolled {
+    top: 6px;
+    width: calc(100% - 16px);
+    border-radius: 14px;
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header-inner,
+  html[data-wallpaper-mode="overlay"] body.layout-standard .site-header-inner {
+    min-height: 60px;
+    padding-inline: 10px;
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy h1 {
+    font-size: clamp(2.45rem, 12vw, 3.25rem);
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy p {
+    font-size: 0.98rem;
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard:not(.is-home) .standard-content,
+  html[data-wallpaper-mode="overlay"] body.layout-standard .standard-content {
+    padding-top: 82px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-wallpaper-mode="fullscreen"] {
+    scroll-behavior: auto;
+  }
+
+  .fullscreen-scroll-indicator,
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy {
+    transition: none;
+  }
+}
