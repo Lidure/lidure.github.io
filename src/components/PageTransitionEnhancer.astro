@@ -43,6 +43,329 @@
       transition: none !important;
     }
   }
+
+  body.layout-standard .moments-shell {
+    max-width: 960px;
+  }
+
+  body.layout-standard .moments-shell .moments-journal-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 24px;
+    padding: 28px 30px;
+    text-align: left;
+    overflow: hidden;
+    box-shadow: none;
+  }
+
+  body.layout-standard .moments-shell .moments-journal-header h1 {
+    margin: 4px 0 6px;
+    font-family: 'Noto Sans SC', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.08;
+  }
+
+  body.layout-standard .moments-shell .moments-journal-header p {
+    max-width: 48ch;
+    margin: 0;
+  }
+
+  body.layout-standard .moments-shell .moments-journal-header .hero-bubbles {
+    opacity: 0.42;
+  }
+
+  body.layout-standard .moments-shell .moments-journal-header .b3 {
+    display: none;
+  }
+
+  body.layout-standard .moments-shell .moments-journal-stats {
+    justify-content: flex-end;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  body.layout-standard .moments-shell .moments-journal-stats .stat-badge {
+    min-width: 88px;
+    display: grid;
+    gap: 2px;
+    padding: 9px 12px;
+    border-radius: 12px;
+    text-align: left;
+    background: color-mix(in srgb, var(--standard-card-soft, var(--panel)) 82%, transparent);
+  }
+
+  body.layout-standard .moments-shell .moments-journal-stats small {
+    color: var(--standard-muted, var(--muted));
+    font-size: 0.66rem;
+    font-weight: 600;
+  }
+
+  body.layout-standard .moments-shell .moments-film-strip {
+    padding: 6px;
+    border: 1px solid var(--standard-line, var(--panel-border));
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--standard-card-bg, var(--panel)) 90%, transparent);
+  }
+
+  body.layout-standard .moments-shell .moments-film-strip .cat-pills {
+    gap: 3px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  body.layout-standard .moments-shell .moments-film-strip .pill {
+    border-color: transparent;
+    border-radius: 9px;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  body.layout-standard .moments-shell .moments-film-strip .pill.active {
+    color: var(--standard-accent, var(--accent));
+    background: var(--standard-accent-soft, var(--tag-bg));
+    border-color: color-mix(in srgb, var(--standard-accent, var(--accent)) 22%, transparent);
+  }
+
+  body.layout-standard .moments-shell .moments-film-strip .fab {
+    width: auto;
+    height: 38px;
+    gap: 7px;
+    padding: 0 13px;
+    border-radius: 10px;
+    box-shadow: none;
+    font-size: 0.82rem;
+  }
+
+  body.layout-standard .moments-shell .moments-publish-label {
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+
+  body.layout-standard .moments-shell .publish-panel {
+    margin-top: -10px;
+    border-radius: 16px;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  body.layout-standard .moments-shell .moments-list {
+    display: grid;
+    gap: 30px;
+    padding-left: 0;
+    margin-left: 0;
+    border-left: 0;
+  }
+
+  body.layout-standard .moments-shell .moment-date-chapter {
+    display: grid;
+    grid-template-columns: 122px minmax(0, 1fr);
+    gap: 22px;
+  }
+
+  body.layout-standard .moments-shell .moment-date-heading {
+    position: sticky;
+    top: 86px;
+    align-self: start;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 0 0;
+    color: var(--standard-muted, var(--muted));
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  body.layout-standard .moments-shell .moment-date-chapter-list {
+    position: relative;
+    display: grid;
+    gap: 14px;
+    padding-left: 18px;
+  }
+
+  body.layout-standard .moments-shell .moment-date-chapter-list::before {
+    content: '';
+    position: absolute;
+    inset: 8px auto 8px 2px;
+    width: 1px;
+    background: var(--standard-line, var(--panel-border));
+  }
+
+  body.layout-standard .moments-shell .moment-today-dot {
+    display: none;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--standard-accent, var(--accent));
+  }
+
+  body.layout-standard .moments-shell .moment-date-chapter.is-today .moment-today-dot {
+    display: inline-block;
+    animation: moment-today-pulse 2.4s ease-in-out infinite;
+  }
+
+  @keyframes moment-today-pulse {
+    0%, 100% { opacity: 0.45; transform: scale(0.86); }
+    50% { opacity: 1; transform: scale(1.15); }
+  }
+
+  body.layout-standard .moments-shell .moment-card {
+    margin-left: 0;
+    border-radius: 16px;
+    box-shadow: none;
+    backdrop-filter: none;
+    transition: border-color 180ms ease, background 180ms ease;
+  }
+
+  body.layout-standard .moments-shell .moment-card::before {
+    left: -22px;
+    top: 25px;
+    width: 7px;
+    height: 7px;
+    border: 2px solid var(--standard-card-bg, var(--bg));
+    box-shadow: 0 0 0 1px var(--standard-accent, var(--accent));
+  }
+
+  body.layout-standard .moments-shell .moment-card:hover {
+    transform: none;
+    border-color: color-mix(in srgb, var(--standard-accent, var(--accent)) 22%, var(--standard-line, var(--panel-border)));
+    box-shadow: none;
+  }
+
+  body.layout-standard .moments-shell .moment-card .card-glow {
+    width: 2px;
+    background: var(--standard-accent, var(--accent));
+    opacity: 0.55;
+  }
+
+  body.layout-standard .moments-shell .moment-card .card-content {
+    padding: 18px 20px 18px 22px;
+  }
+
+  body.layout-standard .moments-shell .moment-card .card-text {
+    max-width: 66ch;
+    margin-bottom: 12px;
+    font-size: 0.98rem;
+    line-height: 1.78;
+  }
+
+  body.layout-standard .moments-shell .moment-card.is-single-media .card-images {
+    width: min(100%, 680px);
+    max-width: 680px;
+  }
+
+  body.layout-standard .moments-shell .moment-card.is-single-media .card-images img,
+  body.layout-standard .moments-shell .moment-card.is-single-media .card-images video {
+    max-height: 540px;
+    object-fit: cover;
+  }
+
+  body.layout-standard .moments-shell .moment-card.is-multi-media .card-images {
+    width: min(100%, 720px);
+    max-width: 720px;
+    gap: 7px;
+  }
+
+  body.layout-standard .moments-shell .moment-card.is-multi-media .card-images[data-count="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.layout-standard .moments-shell .moment-card.is-multi-media .card-images[data-count="3"] {
+    grid-template-columns: 1.35fr 0.9fr;
+  }
+
+  body.layout-standard .moments-shell .moment-card.is-multi-media .card-images[data-count="3"] > :first-child {
+    grid-row: span 2;
+  }
+
+  body.layout-standard .moments-shell .moment-card.is-multi-media .card-images img {
+    height: 100%;
+    min-height: 140px;
+    object-fit: cover;
+  }
+
+  body.layout-standard .moments-shell .moment-card .card-actions,
+  body.layout-standard .moments-shell .moment-card .moment-reactions {
+    opacity: 0.72;
+    transition: opacity 160ms ease;
+  }
+
+  body.layout-standard .moments-shell .moment-card:hover .card-actions,
+  body.layout-standard .moments-shell .moment-card:focus-within .card-actions,
+  body.layout-standard .moments-shell .moment-card:hover .moment-reactions,
+  body.layout-standard .moments-shell .moment-card:focus-within .moment-reactions {
+    opacity: 1;
+  }
+
+  @media (max-width: 760px) {
+    body.layout-standard .moments-shell .moments-journal-header {
+      grid-template-columns: 1fr;
+      gap: 18px;
+      padding: 22px 18px;
+    }
+
+    body.layout-standard .moments-shell .moments-journal-stats {
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    body.layout-standard .moments-shell .moments-film-strip {
+      align-items: center;
+      overflow: hidden;
+    }
+
+    body.layout-standard .moments-shell .moments-film-strip .cat-pills {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    body.layout-standard .moments-shell .moments-film-strip .cat-pills::-webkit-scrollbar { display: none; }
+
+    body.layout-standard .moments-shell .moment-date-chapter {
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    body.layout-standard .moments-shell .moment-date-heading {
+      position: static;
+      padding-left: 2px;
+    }
+
+    body.layout-standard .moments-shell .moment-date-chapter-list {
+      padding-left: 10px;
+    }
+
+    body.layout-standard .moments-shell .moment-date-chapter-list::before {
+      left: 0;
+    }
+
+    body.layout-standard .moments-shell .moment-card::before {
+      left: -14px;
+    }
+
+    body.layout-standard .moments-shell .moment-card .card-actions,
+    body.layout-standard .moments-shell .moment-card .moment-reactions {
+      opacity: 1;
+    }
+  }
+
+  @media (max-width: 480px) {
+    body.layout-standard .moments-shell .moment-card .card-content { padding: 15px 14px 15px 16px; }
+    body.layout-standard .moments-shell .moment-card.is-multi-media .card-images,
+    body.layout-standard .moments-shell .moment-card.is-multi-media .card-images[data-count="2"],
+    body.layout-standard .moments-shell .moment-card.is-multi-media .card-images[data-count="3"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    body.layout-standard .moments-shell .moment-card.is-multi-media .card-images[data-count="3"] > :first-child { grid-row: auto; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    body.layout-standard .moments-shell .moment-date-chapter.is-today .moment-today-dot { animation: none; }
+  }
+  html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment-date-chapter.is-today .moment-today-dot { animation: none; }
 </style>
 
 <script is:inline>
@@ -138,6 +461,173 @@
     );
   }
 
+  function getLocalDateKey(value) {
+    var date = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(date.getTime())) return String(value || '').slice(0, 10) || 'unknown';
+    var y = date.getFullYear();
+    var m = String(date.getMonth() + 1).padStart(2, '0');
+    var d = String(date.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + d;
+  }
+
+  function formatChapterDate(key) {
+    var parts = key.split('-');
+    return parts.length === 3 ? parts[0] + ' / ' + parts[1] + ' / ' + parts[2] : key;
+  }
+
+  function syncMomentChapterVisibility(list) {
+    list.querySelectorAll('.moment-date-chapter').forEach(function (chapter) {
+      var visible = Array.from(chapter.querySelectorAll('.moment-card')).some(function (card) {
+        return !card.classList.contains('hidden');
+      });
+      chapter.hidden = !visible;
+    });
+  }
+
+  function enhanceMomentCards(list) {
+    var looseCards = Array.from(list.children).filter(function (node) {
+      return node.classList && node.classList.contains('moment-card');
+    });
+    if (!looseCards.length) {
+      syncMomentChapterVisibility(list);
+      return;
+    }
+
+    var fragment = document.createDocumentFragment();
+    var currentKey = '';
+    var stack = null;
+    var todayKey = getLocalDateKey(new Date());
+
+    looseCards.forEach(function (card) {
+      var mediaCount = card.querySelectorAll('.card-images img, .card-images video').length;
+      card.classList.remove('is-text-only', 'is-single-media', 'is-multi-media');
+      card.classList.add(mediaCount === 0 ? 'is-text-only' : mediaCount === 1 ? 'is-single-media' : 'is-multi-media');
+
+      var time = card.querySelector('time.card-date');
+      var dateValue = time && (time.getAttribute('datetime') || time.textContent) || '';
+      var key = getLocalDateKey(dateValue);
+      if (key !== currentKey) {
+        currentKey = key;
+        var chapter = document.createElement('section');
+        chapter.className = 'moment-date-chapter';
+        chapter.dataset.date = key;
+        if (key === todayKey) chapter.classList.add('is-today');
+
+        var heading = document.createElement('header');
+        heading.className = 'moment-date-heading';
+        var chapterTime = document.createElement('time');
+        chapterTime.dateTime = key;
+        chapterTime.textContent = formatChapterDate(key);
+        chapterTime.setAttribute('aria-label', key);
+        var dot = document.createElement('span');
+        dot.className = 'moment-today-dot';
+        dot.setAttribute('aria-hidden', 'true');
+        heading.append(chapterTime, dot);
+
+        stack = document.createElement('div');
+        stack.className = 'moment-date-chapter-list';
+        chapter.append(heading, stack);
+        fragment.appendChild(chapter);
+      }
+
+      if (time) {
+        var parsed = new Date(dateValue);
+        if (!Number.isNaN(parsed.getTime())) {
+          time.textContent = parsed.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+        }
+      }
+      if (stack) stack.appendChild(card);
+    });
+
+    list.replaceChildren(fragment);
+    syncMomentChapterVisibility(list);
+  }
+
+  function enhanceMomentsHeader(shell) {
+    var hero = shell.querySelector('.moments-hero');
+    if (hero) {
+      hero.classList.add('moments-journal-header');
+      var stats = hero.querySelector('#hero-stats');
+      if (stats) {
+        stats.classList.add('moments-journal-stats');
+        if (!stats.querySelector('#stat-month')) {
+          stats.innerHTML = '<span class="stat-badge"><small>全部</small><strong id="stat-total">—</strong></span>' +
+            '<span class="stat-badge"><small>本月</small><strong id="stat-month">—</strong></span>' +
+            '<span class="stat-badge stat-latest"><small>最近更新</small><strong id="stat-latest">—</strong></span>';
+        }
+      }
+    }
+
+    var controls = shell.querySelector('.controls-bar');
+    if (controls) controls.classList.add('moments-film-strip');
+    shell.querySelectorAll('.pill[data-category]').forEach(function (pill) {
+      var category = pill.dataset.category || '';
+      if (category && category !== 'all' && !pill.dataset.journalLabeled) {
+        var labels = { '游戏': '🎮 游戏', '音乐': '🎵 音乐', '生活': '☕ 生活', '吐槽': '💬 吐槽' };
+        pill.textContent = labels[category] || category;
+        pill.dataset.journalLabeled = '1';
+      }
+    });
+
+    var publish = shell.querySelector('#publish-toggle');
+    if (publish && !publish.querySelector('.moments-publish-label')) {
+      var label = document.createElement('span');
+      label.className = 'moments-publish-label';
+      label.textContent = '写一条';
+      publish.appendChild(label);
+    }
+  }
+
+  function updateMomentJournalStats(shell, list) {
+    var cards = Array.from(list.querySelectorAll('.moment-card'));
+    var now = new Date();
+    var monthCount = cards.filter(function (card) {
+      var value = card.querySelector('time.card-date')?.getAttribute('datetime') || '';
+      var date = new Date(value);
+      return !Number.isNaN(date.getTime()) && date.getFullYear() === now.getFullYear() && date.getMonth() === now.getMonth();
+    }).length;
+    var latestValue = cards[0]?.querySelector('time.card-date')?.getAttribute('datetime') || '';
+    var latest = latestValue ? new Date(latestValue) : null;
+
+    var totalEl = shell.querySelector('#stat-total');
+    var monthEl = shell.querySelector('#stat-month');
+    var latestEl = shell.querySelector('#stat-latest');
+    if (totalEl) totalEl.textContent = String(cards.length);
+    if (monthEl) monthEl.textContent = String(monthCount);
+    if (latestEl) latestEl.textContent = latest && !Number.isNaN(latest.getTime())
+      ? latest.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' })
+      : '—';
+  }
+
+  var momentsObserver;
+  var momentsMutationQueued = false;
+
+  function initMomentsJournal() {
+    if (momentsObserver) {
+      momentsObserver.disconnect();
+      momentsObserver = undefined;
+    }
+    var shell = document.querySelector('.moments-shell');
+    var list = shell && shell.querySelector('#moments-list');
+    if (!shell || !list) return;
+
+    enhanceMomentsHeader(shell);
+
+    function sync() {
+      momentsMutationQueued = false;
+      enhanceMomentCards(list);
+      updateMomentJournalStats(shell, list);
+    }
+
+    momentsObserver = new MutationObserver(function () {
+      if (momentsMutationQueued) return;
+      momentsMutationQueued = true;
+      requestAnimationFrame(sync);
+    });
+    momentsObserver.observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
+    sync();
+  }
+
   if (!window.__pageTransitionEnhancerBound) {
     window.__pageTransitionEnhancerBound = true;
 
@@ -154,7 +644,10 @@
 
     document.addEventListener('astro:page-load', function () {
       root.classList.remove('is-page-transitioning');
+      initMomentsJournal();
     });
   }
+
+  initMomentsJournal();
 })();
 </script>
