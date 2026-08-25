@@ -2,12 +2,14 @@
   const wallpaperWindow = window as typeof window & {
     __fullscreenWallpaperController?: AbortController;
     __fullscreenWallpaperLifecycleBound?: boolean;
+    __nativeWallpaperImageObserver?: MutationObserver;
   };
 
   const TARGET_CLEARANCE = 104;
 
   function initFullscreenWallpaperController() {
     wallpaperWindow.__fullscreenWallpaperController?.abort();
+    wallpaperWindow.__nativeWallpaperImageObserver?.disconnect();
     const controller = typeof AbortController === 'function' ? new AbortController() : null;
     if (controller) wallpaperWindow.__fullscreenWallpaperController = controller;
     const options = controller ? { signal: controller.signal } : undefined;
@@ -15,14 +17,21 @@
     const root = document.documentElement;
     const body = document.body;
     const hero = document.querySelector<HTMLElement>('.hero-slideshow');
+    const legacyLayer = hero?.querySelector<HTMLElement>('.slideshow-layer') ?? null;
     const stage = document.querySelector<HTMLElement>('.blog-banner-stage');
     const title = document.querySelector<HTMLElement>('.blog-banner-copy');
     const indicator = document.querySelector<HTMLElement>('.fullscreen-scroll-indicator');
     const content = document.getElementById('standard-page-surface');
+    let nativeImage = hero?.querySelector<HTMLImageElement>('.slideshow-image') ?? null;
     let ticking = false;
 
     function isFullscreen() {
       return root.dataset.wallpaperMode === 'fullscreen';
+    }
+
+    function isNativeImageMode() {
+      return root.dataset.wallpaperMode === 'fullscreen'
+        || root.dataset.wallpaperMode === 'overlay';
     }
 
     function isFullscreenHome() {
@@ -32,6 +41,66 @@
     function prefersReducedMotion() {
       return root.dataset.reduceMotion === 'true'
         || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+    }
+
+    function extractBackgroundImageUrl(backgroundImage: string) {
+      const value = backgroundImage.trim();
+      if (!value || value === 'none' || !value.startsWith('url(')) return '';
+      return value.slice(4, -1).trim().replace(/^['"]|['"]$/g, '');
+    }
+
+    function ensureNativeImage() {
+      if (!hero) return null;
+      if (nativeImage?.isConnected) return nativeImage;
+      nativeImage = document.createElement('img');
+      nativeImage.className = 'slideshow-image';
+      nativeImage.alt = '';
+      nativeImage.decoding = 'async';
+      nativeImage.draggable = false;
+      nativeImage.setAttribute('aria-hidden', 'true');
+      const canvas = hero.querySelector('.slideshow-canvas');
+      hero.insertBefore(nativeImage, canvas || legacyLayer?.nextSibling || hero.firstChild);
+      return nativeImage;
+    }
+
+    function syncNativeWallpaperImage() {
+      const image = ensureNativeImage();
+      if (!image) return;
+
+      const activeMode = isNativeImageMode();
+      image.style.display = activeMode ? '' : 'none';
+      if (!activeMode || !legacyLayer) {
+        image.classList.remove('visible');
+        return;
+      }
+
+      const backgroundImage = legacyLayer.style.backgroundImage
+        || getComputedStyle(legacyLayer).backgroundImage;
+      const nextSrc = extractBackgroundImageUrl(backgroundImage);
+      const currentSrc = image.getAttribute('src') || '';
+
+      if (nextSrc && currentSrc !== nextSrc) {
+        image.classList.remove('visible');
+        image.onload = () => syncNativeWallpaperImage();
+        image.onerror = () => image.classList.remove('visible');
+        image.src = nextSrc;
+      }
+
+      const shouldShow = Boolean(nextSrc) && legacyLayer.classList.contains('visible');
+      if (!shouldShow) {
+        image.classList.remove('visible');
+      } else if (image.complete && image.naturalWidth > 0) {
+        image.classList.add('visible');
+      }
+    }
+
+    if (legacyLayer && typeof MutationObserver === 'function') {
+      const imageObserver = new MutationObserver(syncNativeWallpaperImage);
+      imageObserver.observe(legacyLayer, {
+        attributes: true,
+        attributeFilter: ['class', 'style'],
+      });
+      wallpaperWindow.__nativeWallpaperImageObserver = imageObserver;
     }
 
     function getToolbarOverlap() {
@@ -68,6 +137,7 @@
 
     function sync() {
       ticking = false;
+      syncNativeWallpaperImage();
       if (!isFullscreen()) {
         resetHeroUi();
         hero?.style.setProperty('--fullscreen-scroll-blur', '0px');
@@ -131,7 +201,10 @@
   if (!wallpaperWindow.__fullscreenWallpaperLifecycleBound) {
     wallpaperWindow.__fullscreenWallpaperLifecycleBound = true;
     document.addEventListener('astro:page-load', initFullscreenWallpaperController);
-    document.addEventListener('astro:before-swap', () => wallpaperWindow.__fullscreenWallpaperController?.abort());
+    document.addEventListener('astro:before-swap', () => {
+      wallpaperWindow.__fullscreenWallpaperController?.abort();
+      wallpaperWindow.__nativeWallpaperImageObserver?.disconnect();
+    });
   }
 
   initFullscreenWallpaperController();
