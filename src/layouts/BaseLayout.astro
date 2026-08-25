@@ -3,6 +3,7 @@ interface Props {
   title?: string;
   description?: string;
   showTime?: boolean;
+  showBanner?: boolean;
   layoutMode?: 'standard' | 'immersive';
   bannerTitle?: string;
   bannerSubtitle?: string;
@@ -16,6 +17,7 @@ const {
   title = '搁浅 的小窝',
   description = '一个使用 Astro 和 GitHub Pages 搭建的个人博客。',
   showTime = false,
+  showBanner = true,
   layoutMode = defaultLayoutMode,
   bannerTitle,
   bannerSubtitle,
@@ -237,15 +239,17 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
 
     {isStandard ? (
       <>
-        <div class="blog-banner-stage">
-          <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
-          <BannerWaves />
-          <button id="fullscreen-scroll-indicator" class="fullscreen-scroll-indicator" type="button" aria-label="向下浏览">
-            <svg class="fullscreen-scroll-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-              <path d="m6.5 9.5 5.5 5.5 5.5-5.5" />
-            </svg>
-          </button>
-        </div>
+        {showBanner && (
+          <div class="blog-banner-stage">
+            <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
+            <BannerWaves />
+            <button id="fullscreen-scroll-indicator" class="fullscreen-scroll-indicator" type="button" aria-label="向下浏览">
+              <svg class="fullscreen-scroll-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="m6.5 9.5 5.5 5.5 5.5-5.5" />
+              </svg>
+            </button>
+          </div>
+        )}
         <div class="standard-page-surface" id="standard-page-surface">
           <main class="content-area standard-content">
             {showTime && <div class="clock-row"><ClockDisplay /></div>}
