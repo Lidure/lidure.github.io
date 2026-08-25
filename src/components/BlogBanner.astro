@@ -29,3 +29,40 @@ const { title, subtitle } = Astro.props;
     color: var(--standard-muted);
   }
 </style>
+
+<style is:global>
+  /* Firefly-style banner seam: the content surface rises behind the waves,
+     while real page UI remains below the banner edge. This removes the empty
+     strip without asking a broad white gradient to blend with the wave. */
+  body.layout-standard {
+    --banner-surface-overlap: 3.5rem;
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard .blog-banner-stage {
+    z-index: 4;
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {
+    z-index: 3;
+    margin-top: calc(-1 * var(--banner-surface-overlap));
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard .standard-content {
+    padding-top: calc(var(--banner-surface-overlap) + 14px);
+  }
+
+  /* Firefly makes waves and the wallpaper gradient mutually exclusive. Keep
+     the gradient only as the fallback when waves are not rendered on the
+     current device. */
+  @media (min-width: 1024px) {
+    html[data-wave-enabled="true"] body.layout-standard .standard-page-surface::before {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    html[data-wave-enabled="true"][data-wave-mobile="true"] body.layout-standard .standard-page-surface::before {
+      display: none;
+    }
+  }
+</style>
