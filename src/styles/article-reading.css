@@ -12,7 +12,7 @@ body.layout-standard .post-shell {
 }
 
 html[data-card-opacity] body.layout-standard .post-shell {
-  background: color-mix(in srgb, var(--standard-card-bg) calc(var(--card-opacity, 0.92) * 100%), transparent);
+  background: color-mix(in srgb, var(--standard-card-bg) var(--card-opacity-percent, 92%), transparent);
 }
 
 html[data-card-border="false"] body.layout-standard .post-shell { border-color: transparent; }
