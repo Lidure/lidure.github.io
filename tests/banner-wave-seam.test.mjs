@@ -13,8 +13,8 @@ test('homepage content panel genuinely overlaps the banner while waves stay abov
   const styles = bannerStyles();
 
   assert.match(styles, /--banner-surface-overlap:\s*3\.5rem/);
-  assert.match(styles, /body\.layout-standard\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*auto/s);
-  assert.doesNotMatch(styles, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*4/s);
+  assert.match(styles, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*auto/s);
+  assert.doesNotMatch(styles, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*4/s);
   assert.match(styles, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.standard-page-surface\s*\{[^}]*margin-top:\s*calc\(-1\s*\*\s*var\(--banner-surface-overlap\)\)[^}]*border-radius:\s*0/s);
   assert.match(styles, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*15/s);
 });
