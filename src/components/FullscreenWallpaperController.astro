@@ -70,7 +70,8 @@
       const titleRatio = Math.min(scrollY / fadeDistance, 1);
       title?.style.setProperty('--fullscreen-title-scroll', `${-scrollY}px`);
       title?.style.setProperty('--fullscreen-title-opacity', String(1 - titleRatio));
-      indicator?.classList.toggle('hide', scrollY > 100);
+      if (scrollY > 100) indicator?.classList.add('hide');
+      else indicator?.classList.remove('hide');
 
       const blurRaw = getComputedStyle(root).getPropertyValue('--wallpaper-blur');
       const maxBlur = Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
