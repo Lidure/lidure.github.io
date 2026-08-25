@@ -16,40 +16,70 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
-const { Content } = await render(post);
+const { Content, headings } = await render(post);
 const updatedDate = post.data.updatedDate ?? post.data.pubDate;
 const readingMinutes = estimateReadingMinutes(post.body ?? '');
-const issueYear = post.data.pubDate.getFullYear();
-const publishedLabel = post.data.pubDate.toLocaleDateString('zh-CN');
-const updatedLabel = updatedDate.toLocaleDateString('zh-CN');
+const chapterHeadings = headings.filter((heading) => heading.depth === 2);
+const publishedMachine = post.data.pubDate.toISOString();
+const updatedMachine = updatedDate.toISOString();
+const publishedLabel = post.data.pubDate.toLocaleDateString('zh-CN', {
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+}).replaceAll('/', '.');
+const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
+  month: '2-digit',
+  day: '2-digit',
+}).replaceAll('/', '.');
 ---
 <BaseLayout
   title={`${post.data.title} | Lidure Blog`}
   description={post.data.description}
-  bannerTitle={post.data.title}
-  bannerSubtitle={post.data.description}
   showBanner={false}
 >
-  <article class="post-shell">
-    <div class="article-reading-progress" aria-hidden="true"><span></span></div>
-    <header class="article-meta-rail" aria-label="文章信息">
-      <span class="article-issue-stamp" aria-hidden="true">ISSUE {issueYear}</span>
-      <span>发布于 {publishedLabel}</span>
-      <span>更新于 {updatedLabel}</span>
-      <span class="article-reading-time">约 {readingMinutes} 分钟阅读</span>
-      <div class="article-tag-list" aria-label="文章标签">
-        {post.data.tags.map((tag) => <span class="tag">#{tag}</span>)}
+  <article class="article-publication">
+    <header class="article-masthead">
+      <h1 class="article-title">{post.data.title}</h1>
+      {post.data.description && <p class="article-deck">{post.data.description}</p>}
+
+      <div class="article-meta" aria-label="文章信息">
+        <time datetime={publishedMachine}>{publishedLabel}</time>
+        <span aria-hidden="true">·</span>
+        <span>更新于 <time datetime={updatedMachine}>{updatedLabel}</time></span>
+        <span aria-hidden="true">·</span>
+        <span>约 {readingMinutes} 分钟</span>
       </div>
+
+      {post.data.tags.length > 0 && (
+        <div class="article-tags" aria-label="文章标签">
+          {post.data.tags.map((tag) => <span>#{tag}</span>)}
+        </div>
+      )}
     </header>
 
-    <div class="prose">
-      <Content />
+    <div class="article-reading-canvas">
+      <nav class="article-bookmark" aria-label="文章章节">
+        <div class="article-bookmark-track">
+          <span class="article-bookmark-marker" aria-hidden="true"></span>
+          {chapterHeadings.map((heading) => (
+            <a
+              class="article-bookmark-tick"
+              href={`#${heading.slug}`}
+              data-article-chapter={heading.slug}
+              aria-label={heading.text}
+              title={heading.text}
+            ></a>
+          ))}
+        </div>
+      </nav>
+
+      <div class="prose article-prose">
+        <Content />
+      </div>
     </div>
 
-    <section class="article-comments-boundary" aria-label="评论区">
-      <div class="article-comments-label"><span>Discussion</span><strong>评论区</strong></div>
-      <Comments />
-    </section>
+    <div class="article-end" aria-hidden="true"><span>·</span><span>·</span><span>·</span></div>
+    <section class="article-comments" aria-label="评论"><Comments /></section>
   </article>
 </BaseLayout>
 
@@ -62,8 +92,8 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN');
   function initArticleReadingProgress() {
     articleReadingWindow.__articleReadingCleanup?.();
 
-    const article = document.querySelector<HTMLElement>('.post-shell');
-    const prose = article?.querySelector<HTMLElement>('.prose');
+    const article = document.querySelector<HTMLElement>('.article-publication');
+    const prose = article?.querySelector<HTMLElement>('.article-prose');
     if (!article || !prose) return;
 
     const controller = new AbortController();
@@ -85,10 +115,6 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN');
       ticking = true;
       requestAnimationFrame(sync);
     };
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      || document.documentElement.dataset.reduceMotion === 'true';
-    article.dataset.progressMotion = reducedMotion ? 'reduced' : 'normal';
 
     window.addEventListener('scroll', requestSync, { passive: true, signal });
     window.addEventListener('resize', requestSync, { passive: true, signal });
