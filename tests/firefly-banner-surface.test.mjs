@@ -8,10 +8,11 @@ const read = (path) => readFileSync(new URL(path, root), 'utf8');
 const banner = read('src/components/BlogBanner.astro');
 const modes = read('src/styles/firefly-wallpaper-modes.css');
 const waves = read('src/components/BannerWaves.astro');
+const bannerStyles = `${modes}\n${banner}`;
 
 test('banner homepage uses a transparent Firefly-style content panel over the page background', () => {
   assert.match(
-    modes,
+    bannerStyles,
     /data-wallpaper-mode="banner"[\s\S]*body\.layout-standard\.is-home\s+\.standard-page-surface\s*\{[^}]*background:\s*transparent/s,
   );
   assert.match(
