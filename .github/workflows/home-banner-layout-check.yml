@@ -1,0 +1,26 @@
+name: Homepage banner layout check
+
+on:
+  push:
+    branches: [feat/firefly-home-banner-layout]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Build site
+        run: npm run build
+      - name: Run banner layout regression
+        run: node --test tests/banner-wave-seam.test.mjs
