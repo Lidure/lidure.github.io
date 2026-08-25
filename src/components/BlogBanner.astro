@@ -1,4 +1,6 @@
 ---
+import BannerHeightSettingsEnhancer from './BannerHeightSettingsEnhancer.astro';
+
 interface Props {
   title: string;
   subtitle?: string;
@@ -7,6 +9,7 @@ interface Props {
 const { title, subtitle } = Astro.props;
 ---
 
+<BannerHeightSettingsEnhancer />
 <section class="blog-banner" aria-labelledby="blog-banner-title">
   <div class="blog-banner-copy">
     <h1 id="blog-banner-title">{title}</h1>
