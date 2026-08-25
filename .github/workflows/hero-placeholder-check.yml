@@ -27,25 +27,19 @@ jobs:
 
           path = Path('src/components/HeroSlideshow.astro')
           source = path.read_text(encoding='utf-8')
-          old = """    if (!posterNeededEl) {
-              posterNeededEl = document.createElement('div');
-              posterNeededEl.className = 'poster-needed-placeholder';
-              posterNeededEl.setAttribute('aria-hidden', 'true');
-              posterNeededEl.textContent = 'VIDEO_CORS_REQUIRED · needs-poster';
-              container.appendChild(posterNeededEl);
-            }
-          """
-          new = """    if (!posterNeededEl) {
-              posterNeededEl = document.createElement('div');
-              posterNeededEl.className = 'poster-needed-placeholder';
-              container.appendChild(posterNeededEl);
-            }
-            posterNeededEl.setAttribute('aria-hidden', 'true');
-            posterNeededEl.textContent = '';
-          """
-          if old not in source:
-              raise SystemExit('expected hero placeholder block not found')
-          path.write_text(source.replace(old, new, 1), encoding='utf-8')
+          debug_line = "      posterNeededEl.textContent = 'VIDEO_CORS_REQUIRED · needs-poster';\n"
+          append_line = "      container.appendChild(posterNeededEl);\n    }\n"
+          if debug_line not in source:
+              raise SystemExit('expected hero debug text not found')
+          if append_line not in source:
+              raise SystemExit('expected hero placeholder append block not found')
+          source = source.replace(debug_line, '', 1)
+          source = source.replace(
+              append_line,
+              append_line + "    posterNeededEl.setAttribute('aria-hidden', 'true');\n    posterNeededEl.textContent = '';\n",
+              1,
+          )
+          path.write_text(source, encoding='utf-8')
       - name: Run placeholder regression
         run: node --test tests/hero-background-placeholder.test.mjs
       - name: Build site
