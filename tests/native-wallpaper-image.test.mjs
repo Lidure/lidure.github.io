@@ -17,3 +17,12 @@ test('fullscreen image wallpaper uses a native image surface instead of the lega
   assert.match(css, /data-wallpaper-mode="fullscreen"[\s\S]*?\.slideshow-image[\s\S]*?filter:\s*blur\(var\(--fullscreen-scroll-blur,\s*0px\)\)/);
   assert.match(css, /data-wallpaper-mode="fullscreen"[\s\S]*?\.slideshow-layer[\s\S]*?display:\s*none\s*!important/);
 });
+
+test('fullscreen wallpaper parent is neutral so only the image blur ramp controls homepage blur', () => {
+  const css = readSource('src/styles/firefly-wallpaper-modes.css');
+  const match = css.match(/html\[data-wallpaper-mode="fullscreen"\]\s+body\.layout-standard\s+\.hero-slideshow\s*\{([\s\S]*?)\}/);
+
+  assert.ok(match, 'fullscreen hero-slideshow rule should exist');
+  assert.match(match[1], /filter:\s*none/);
+  assert.match(match[1], /transform:\s*none/);
+});
