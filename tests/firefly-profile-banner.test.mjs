@@ -19,10 +19,9 @@ test('homepage profile follows Firefly with a large square avatar and brand icon
 });
 
 test('standard banner uses Firefly 65vh height on the shared banner stage', () => {
-  const refreshCss = readSource('src/styles/firefly-refresh.css');
   const waves = readSource('src/components/BannerWaves.astro');
 
-  assert.match(refreshCss, /--blog-banner-height:\s*65vh/);
+  assert.match(waves, /--blog-banner-height:\s*65vh/);
   assert.match(waves, /height:\s*var\(--blog-banner-height,\s*65vh\)/);
   assert.match(waves, /min-height:\s*400px/);
 });
