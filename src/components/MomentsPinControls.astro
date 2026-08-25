@@ -105,6 +105,8 @@
 </style>
 
 <script>
+  import { installMomentsJournalEnhancer } from '../lib/moments-journal-enhancer.mjs';
+  import '../styles/moments-journal.css';
   import {
     fetchMoments,
     MomentApiError,
@@ -137,6 +139,7 @@
 
     const controller = new AbortController();
     const { signal } = controller;
+    installMomentsJournalEnhancer(listRoot, signal);
     let items: MomentApiItem[] = [];
     let decorateQueued = false;
 
