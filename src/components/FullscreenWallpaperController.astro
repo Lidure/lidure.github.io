@@ -90,7 +90,9 @@
       else indicator?.classList.remove('hide');
 
       const blurRatio = Math.min(scrollY / 300, 1);
-      const quantized = Math.floor((maxBlur * blurRatio) / 2) * 2;
+      const quantized = blurRatio >= 1
+        ? maxBlur
+        : Math.floor((maxBlur * blurRatio) / 2) * 2;
       hero?.style.setProperty('--fullscreen-scroll-blur', `${quantized}px`);
     }
 

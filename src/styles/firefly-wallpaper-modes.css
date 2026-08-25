@@ -18,7 +18,7 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .hero-slideshow {
 }
 
 html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-overlay {
-  background: rgba(0, 0, 0, calc(var(--wallpaper-overlay, 0.45) * 0.66));
+  background: rgba(0, 0, 0, calc(var(--wallpaper-overlay, 0.45) * 0.44));
 }
 
 html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-overlay {
@@ -212,7 +212,7 @@ html[data-wallpaper-mode="fullscreen"] body.layout-standard .slideshow-canvas {
 
 html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-layer,
 html[data-wallpaper-mode="overlay"] body.layout-standard .slideshow-canvas {
-  filter: blur(var(--wallpaper-blur, 6px));
+  filter: blur(var(--wallpaper-blur, 5px));
   transform: scale(1.03);
   transform-origin: center;
 }
@@ -232,8 +232,8 @@ html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) bod
 html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .publish-panel,
 html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .moment-card {
   background: color-mix(in oklch, var(--standard-card-bg) var(--card-opacity-percent, 92%), transparent);
-  backdrop-filter: blur(max(12px, var(--wallpaper-blur, 6px))) saturate(1.08);
-  -webkit-backdrop-filter: blur(max(12px, var(--wallpaper-blur, 6px))) saturate(1.08);
+  backdrop-filter: blur(max(12px, var(--wallpaper-blur, 5px))) saturate(1.08);
+  -webkit-backdrop-filter: blur(max(12px, var(--wallpaper-blur, 5px))) saturate(1.08);
 }
 
 html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) body.layout-standard .footer {
