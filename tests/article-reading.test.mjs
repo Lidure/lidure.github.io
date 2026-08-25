@@ -40,3 +40,11 @@ test('article stylesheet provides editorial hierarchy and responsive media', () 
   assert.match(css, /@media \(max-width:\s*760px\)/);
   assert.match(css, /var\(--card-opacity-percent/);
 });
+
+test('article comments are separated from prose by an editorial boundary', () => {
+  const page = read('src/pages/posts/[slug].astro');
+  const css = read('src/styles/article-reading.css');
+  assert.match(page, /class="article-comments-boundary"/);
+  assert.match(page, /class="article-comments-label"/);
+  assert.match(css, /\.article-comments-boundary/);
+});
