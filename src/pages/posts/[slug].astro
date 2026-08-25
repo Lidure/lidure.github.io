@@ -30,6 +30,7 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN');
   bannerSubtitle={post.data.description}
 >
   <article class="post-shell">
+    <div class="article-reading-progress" aria-hidden="true"><span></span></div>
     <header class="article-meta-rail" aria-label="文章信息">
       <span class="article-issue-stamp" aria-hidden="true">ISSUE {issueYear}</span>
       <span>发布于 {publishedLabel}</span>
@@ -47,3 +48,55 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN');
     <Comments />
   </article>
 </BaseLayout>
+
+<script>
+  const articleReadingWindow = window as typeof window & {
+    __articleReadingCleanup?: () => void;
+    __articleReadingLifecycleBound?: boolean;
+  };
+
+  function initArticleReadingProgress() {
+    articleReadingWindow.__articleReadingCleanup?.();
+
+    const article = document.querySelector<HTMLElement>('.post-shell');
+    const prose = article?.querySelector<HTMLElement>('.prose');
+    if (!article || !prose) return;
+
+    const controller = new AbortController();
+    const { signal } = controller;
+    let ticking = false;
+
+    const sync = () => {
+      ticking = false;
+      const rect = prose.getBoundingClientRect();
+      const start = window.scrollY + rect.top;
+      const end = start + prose.offsetHeight - window.innerHeight;
+      const span = Math.max(1, end - start);
+      const progress = Math.min(1, Math.max(0, (window.scrollY - start) / span));
+      article.style.setProperty('--article-reading-progress', String(progress));
+    };
+
+    const requestSync = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(sync);
+    };
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      || document.documentElement.dataset.reduceMotion === 'true';
+    article.dataset.progressMotion = reducedMotion ? 'reduced' : 'normal';
+
+    window.addEventListener('scroll', requestSync, { passive: true, signal });
+    window.addEventListener('resize', requestSync, { passive: true, signal });
+    articleReadingWindow.__articleReadingCleanup = () => controller.abort();
+    sync();
+  }
+
+  if (!articleReadingWindow.__articleReadingLifecycleBound) {
+    articleReadingWindow.__articleReadingLifecycleBound = true;
+    document.addEventListener('astro:page-load', initArticleReadingProgress);
+    document.addEventListener('astro:before-swap', () => articleReadingWindow.__articleReadingCleanup?.());
+  }
+
+  initArticleReadingProgress();
+</script>
