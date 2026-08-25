@@ -24,9 +24,9 @@ test('old values and unknown keys survive v3 normalization', () => {
   assert.equal(settings.quality, 'original');
   assert.equal(settings.sakura, true);
   assert.equal(settings.wallpaperMode, 'banner');
-  assert.equal(settings.backgroundBlur, 6);
+  assert.equal(settings.backgroundBlur, 5);
   assert.equal(settings.cardOpacity, 0.92);
-  assert.equal(settings.themeHue, 340);
+  assert.equal(settings.themeHue, 255);
   assert.equal(settings.customLegacyValue, 'keep-me');
 });
 
@@ -57,6 +57,8 @@ test('v3 visual defaults add waves while preserving unknown legacy keys', () => 
   });
 
   assert.equal(DEFAULT_VISUAL_SETTINGS.version, 3);
+  assert.equal(DEFAULT_VISUAL_SETTINGS.backgroundBlur, 5);
+  assert.equal(DEFAULT_VISUAL_SETTINGS.themeHue, 255);
   assert.equal(value.version, 3);
   assert.equal(value.waveEnabled, true);
   assert.equal(value.waveStrength, 'standard');
