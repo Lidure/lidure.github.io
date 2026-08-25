@@ -26,3 +26,17 @@ test('article page scopes reading progress to the prose region', () => {
   assert.match(page, /prefers-reduced-motion/);
   assert.match(page, /astro:before-swap/);
 });
+
+test('article stylesheet provides editorial hierarchy and responsive media', () => {
+  const css = read('src/styles/article-reading.css');
+  assert.match(css, /\.post-shell\s*\{[\s\S]*max-width:\s*980px/);
+  assert.match(css, /\.post-shell \.prose\s*\{[\s\S]*max-width:\s*760px/);
+  assert.match(css, /\.prose p:has\(> img:only-child\)/);
+  assert.match(css, /\.prose h2::before/);
+  assert.match(css, /\.prose blockquote/);
+  assert.match(css, /\.prose pre/);
+  assert.match(css, /\.prose table/);
+  assert.match(css, /article-reading-progress/);
+  assert.match(css, /@media \(max-width:\s*760px\)/);
+  assert.match(css, /var\(--card-opacity-percent/);
+});
