@@ -33,15 +33,15 @@ const { title, subtitle } = Astro.props;
 <style is:global>
   /* Firefly-style banner/content composition.
      The page surface itself overlaps the banner instead of being pushed back
-     below it. Homepage navigation then straddles the seam as the visual bridge. */
+     below it. Homepage navigation then sits fully inside the content field. */
   body.layout-standard {
     --banner-surface-overlap: 3.5rem;
     --home-banner-content-inset: 2.9rem;
   }
 
   /* Non-home banner pages retain the original stacking boundary. On the
-     homepage the stage must not create one, otherwise the z:3 content panel
-     can never visually cross the z:4 banner stage regardless of child z-index. */
+     homepage the stage must not create one, otherwise the content surface
+     cannot visually overlap the banner area. */
   html[data-wallpaper-mode="banner"] body.layout-standard:not(.is-home) .blog-banner-stage {
     z-index: 4;
   }
@@ -77,16 +77,21 @@ const { title, subtitle } = Astro.props;
     transform: translateY(calc(-1 * clamp(20px, 4vh, 42px)));
   }
 
+  /* Keep the category navigation out of the composited seam itself. It is a
+     complete content pill, not another overlap layer. A small top margin keeps
+     its upper radius clear of the content boundary seen in Chromium. */
   body.layout-standard.is-home .home-category-bar {
     position: relative;
     z-index: 6;
-    margin-bottom: 20px;
-    background: color-mix(in oklch, var(--standard-card-bg) 88%, transparent);
+    margin: 10px 0 20px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: color-mix(in oklch, var(--standard-card-bg) 95%, transparent);
     box-shadow:
-      0 10px 30px color-mix(in oklch, var(--standard-page-bg) 54%, transparent),
-      0 1px 0 color-mix(in oklch, var(--standard-accent) 10%, transparent);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+      0 8px 24px color-mix(in oklch, var(--standard-page-bg) 46%, transparent),
+      0 0 0 1px color-mix(in oklch, var(--standard-accent) 8%, transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
   /* Firefly makes waves and the wallpaper gradient mutually exclusive. Keep
@@ -115,9 +120,11 @@ const { title, subtitle } = Astro.props;
     }
 
     body.layout-standard.is-home .home-category-bar {
+      margin-top: 6px;
       margin-bottom: 16px;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      overflow-x: auto;
+      overflow-y: hidden;
+      border-radius: 14px;
     }
   }
 </style>
