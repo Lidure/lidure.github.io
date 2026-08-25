@@ -20,6 +20,19 @@ test('visual settings polish is loaded and exposes theme-aware panel tokens plus
   assert.match(css, /\.hero-settings-panel[\s\S]*var\(--visual-panel-text\)/);
 });
 
+test('visual panel provides the theme variables consumed by its scoped component styles', () => {
+  const css = readSource('src/styles/firefly-v5-polish.css');
+  const panelRule = css.match(/html body \.hero-settings-panel\s*\{([^}]*)\}/)?.[1] ?? '';
+  const buttonRule = css.match(/html body \.hero-settings-btn\s*\{([^}]*)\}/)?.[1] ?? '';
+
+  assert.match(panelRule, /--panel-bg:\s*var\(--visual-panel-bg\)/);
+  assert.match(panelRule, /--text:\s*var\(--visual-panel-text\)/);
+  assert.match(panelRule, /--muted:\s*var\(--visual-panel-muted\)/);
+  assert.match(panelRule, /--border:\s*var\(--visual-panel-border\)/);
+  assert.match(buttonRule, /--panel-bg:\s*var\(--visual-panel-bg\)/);
+  assert.match(buttonRule, /--text-soft:\s*var\(--visual-panel-text\)/);
+});
+
 test('outer page surface no longer rounds the full viewport edge', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
   assert.match(layout, /firefly-v5-polish\.css/);
