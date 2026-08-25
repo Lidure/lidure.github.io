@@ -89,9 +89,9 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         var root = document.documentElement;
         var mode = raw.wallpaperMode === 'fullscreen' || raw.wallpaperMode === 'overlay' ? raw.wallpaperMode : 'banner';
         var opacity = Number.isFinite(Number(raw.opacity)) ? Math.max(0, Math.min(1, Number(raw.opacity))) : 0.45;
-        var blur = Number.isFinite(Number(raw.backgroundBlur)) ? Math.max(0, Math.min(20, Number(raw.backgroundBlur))) : 6;
+        var blur = Number.isFinite(Number(raw.backgroundBlur)) ? Math.max(0, Math.min(20, Number(raw.backgroundBlur))) : 5;
         var cardOpacity = Number.isFinite(Number(raw.cardOpacity)) ? Math.max(0.2, Math.min(1, Number(raw.cardOpacity))) : 0.92;
-        var hue = Number.isFinite(Number(raw.themeHue)) ? Math.max(0, Math.min(360, Number(raw.themeHue))) : 340;
+        var hue = Number.isFinite(Number(raw.themeHue)) ? Math.max(0, Math.min(360, Number(raw.themeHue))) : 255;
 
         root.dataset.wallpaperMode = mode;
         root.dataset.bannerGradient = String(raw.bannerGradient !== false);
