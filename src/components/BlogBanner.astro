@@ -31,24 +31,38 @@ const { title, subtitle } = Astro.props;
 </style>
 
 <style is:global>
-  /* Firefly-style banner seam: the content surface rises behind the waves,
-     while real page UI remains below the banner edge. This removes the empty
-     strip without asking a broad white gradient to blend with the wave. */
+  /* Firefly-style banner/content relationship. The banner stage must not be a
+     stacking context: the page surface can then rise over the bottom of the
+     wallpaper while the independently positioned wave layers remain above it. */
   body.layout-standard {
     --banner-surface-overlap: 3.5rem;
   }
 
-  html[data-wallpaper-mode="banner"] body.layout-standard .blog-banner-stage {
-    z-index: 4;
+  body.layout-standard .blog-banner-stage {
+    z-index: auto;
   }
 
-  html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-page-surface {
     z-index: 3;
     margin-top: calc(-1 * var(--banner-surface-overlap));
+    border-radius: 0;
+    box-shadow: none;
   }
 
-  html[data-wallpaper-mode="banner"] body.layout-standard .standard-content {
-    padding-top: calc(var(--banner-surface-overlap) + 14px);
+  /* Keep the first real controls just below the visual wave edge, while the
+     surface itself already occupies the overlap behind the waves. */
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-content {
+    padding-top: calc(var(--banner-surface-overlap) + 10px);
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .blog-banner-copy {
+    transform: translateY(clamp(-30px, -3vh, -14px));
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .home-category-bar {
+    position: relative;
+    z-index: 4;
+    margin-bottom: 20px;
   }
 
   /* Firefly makes waves and the wallpaper gradient mutually exclusive. Keep
@@ -61,6 +75,18 @@ const { title, subtitle } = Astro.props;
   }
 
   @media (max-width: 1023px) {
+    body.layout-standard {
+      --banner-surface-overlap: 2.75rem;
+    }
+
+    html[data-wallpaper-mode="banner"] body.layout-standard.is-home .blog-banner-copy {
+      transform: translateY(clamp(-22px, -2.2vh, -10px));
+    }
+
+    html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-content {
+      padding-top: calc(var(--banner-surface-overlap) + 8px);
+    }
+
     html[data-wave-enabled="true"][data-wave-mobile="true"] body.layout-standard .standard-page-surface::before {
       display: none;
     }
