@@ -96,7 +96,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
           <button id="sekaiQQCookieSave" class="sekai-qq-cookie-save" type="button">保存</button>
         </div>
         <div class="sekai-online-input-row sekai-playlist-name-row">
-          <input id="sekaiPlaylistName" class="sekai-online-input" type="text" placeholder="歌单名称（可选，默认自动命名）" autocomplete="off" />
+          <input id="sekaiPlaylistName" class="sekai-online-input" type="text" placeholder="歌单名称（可选，默认读取原歌单名）" autocomplete="off" />
         </div>
         <div class="sekai-online-input-row">
           <input id="sekaiPlaylistUrl" class="sekai-online-input" type="text" placeholder="粘贴歌单链接或ID" autocomplete="off" />
@@ -4146,18 +4146,18 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
       onlineStatus.className = 'sekai-online-status';
 
       if (selectedPlatform === 'netease') {
-        fetchMetingPlaylist(playlistId, 'netease', function(tracks, error) {
+        fetchMetingPlaylist(playlistId, 'netease', function(tracks, error, remotePlaylistName) {
           playlistFetchBtn.disabled = false;
           if (error) { onlineStatus.textContent = error; onlineStatus.className = 'sekai-online-status error'; return; }
-          addOnlineTracks(tracks, 'netease', playlistId, playlistName);
+          addOnlineTracks(tracks, 'netease', playlistId, playlistName, remotePlaylistName);
         });
       } else {
-          fetchMetingPlaylist(playlistId, 'qq', function(tracks, error) {
+          fetchMetingPlaylist(playlistId, 'qq', function(tracks, error, remotePlaylistName) {
           playlistFetchBtn.disabled = false;
           if (error) { onlineStatus.textContent = error; onlineStatus.className = 'sekai-online-status error'; return; }
           // QQ 需要额外获取音频 URL
           onlineStatus.textContent = '已获取歌单，正在获取音频链接...';
-          addOnlineTracks(tracks, 'qq', playlistId, playlistName);
+          addOnlineTracks(tracks, 'qq', playlistId, playlistName, remotePlaylistName);
         });
       }
     });
@@ -4265,12 +4265,12 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
     applyFilters();
   }
 
-  function addOnlineTracks(tracks, platform, playlistId, playlistName) {
+  function addOnlineTracks(tracks, platform, playlistId, playlistName, remotePlaylistName) {
     var added = 0, skipped = 0;
     var playlistKey = platform + ':' + playlistId;
     var platformName = platform === 'netease' ? '网易云' : 'QQ音乐';
     var previousPlaylist = songs.find(function(s) { return s.playlistKey === playlistKey; });
-    var resolvedName = playlistName || (previousPlaylist && previousPlaylist.playlistName) || (platformName + '歌单 · ' + playlistId);
+    var resolvedName = playlistName || (previousPlaylist && previousPlaylist.playlistName) || remotePlaylistName || (platformName + '歌单 · ' + playlistId);
     var existed = !!previousPlaylist;
 
     // Re-importing the same playlist updates that playlist only. Other imported
@@ -4352,7 +4352,56 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
     });
   }
 
+  function extractPlaylistDisplayName(data) {
+    if (!data || typeof data !== 'object') return '';
+    var candidates = [
+      data.playlistName,
+      data.name,
+      data.title,
+      data.dissname,
+      data.playlist && (data.playlist.name || data.playlist.title || data.playlist.dissname),
+      data.data && (data.data.playlistName || data.data.name || data.data.title || data.data.dissname),
+      data.data && data.data.playlist && (data.data.playlist.name || data.data.playlist.title || data.data.playlist.dissname),
+      data.result && (data.result.playlistName || data.result.name || data.result.title || data.result.dissname),
+      data.result && data.result.playlist && (data.result.playlist.name || data.result.playlist.title || data.result.playlist.dissname)
+    ];
+    for (var i = 0; i < candidates.length; i++) {
+      if (typeof candidates[i] === 'string' && candidates[i].trim()) return candidates[i].trim();
+    }
+    return '';
+  }
+
+  function fetchPlaylistDisplayName(playlistId, platform) {
+    var PROXY = 'https://music-proxy-3e4.pages.dev/api/';
+    var endpoint = platform === 'qq' ? 'qq-playlist' : 'netease-playlist';
+    var fetchOpts = {};
+    if (platform === 'netease') {
+      var neCookie = '';
+      try { neCookie = localStorage.getItem('netease_cookie') || ''; } catch(e) {}
+      if (!neCookie && neCookieInput) neCookie = neCookieInput.value.trim();
+      if (neCookie) {
+        fetchOpts.method = 'POST';
+        fetchOpts.headers = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        fetchOpts.body = 'cookie=' + encodeURIComponent(neCookie);
+      }
+    }
+
+    var lookup = fetch(PROXY + endpoint + '?id=' + encodeURIComponent(playlistId), fetchOpts)
+      .then(function(response) {
+        if (!response.ok) return '';
+        return response.json();
+      })
+      .then(function(data) { return extractPlaylistDisplayName(data); })
+      .catch(function() { return ''; });
+
+    var timeout = new Promise(function(resolve) {
+      setTimeout(function() { resolve(''); }, 1800);
+    });
+    return Promise.race([lookup, timeout]);
+  }
+
   function fetchMetingPlaylist(playlistId, platform, callback) {
+    var remoteNamePromise = fetchPlaylistDisplayName(playlistId, platform);
     var server = platform === 'qq' ? 'tencent' : 'netease';
     var url = METING_API + '?server=' + encodeURIComponent(server) + '&type=playlist&id=' + encodeURIComponent(playlistId) + '&br=2000';
     fetch(url).then(function(response) {
@@ -4360,9 +4409,12 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
       return response.json();
     }).then(function(data) {
       if (!Array.isArray(data) || !data.length) throw new Error('歌单为空或接口未返回歌曲');
-      callback(data.map(normalizeMetingSong));
+      var tracks = data.map(normalizeMetingSong);
+      return remoteNamePromise.then(function(remotePlaylistName) {
+        callback(tracks, null, remotePlaylistName || '');
+      });
     }).catch(function(error) {
-      callback(null, 'Meting API 请求失败: ' + error.message);
+      callback(null, 'Meting API 请求失败: ' + error.message, '');
     });
   }
 
