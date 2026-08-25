@@ -69,16 +69,12 @@
     background: color-mix(in srgb, var(--standard-accent-soft, var(--tag-bg)) 74%, transparent);
   }
 
-  .pin-moment-btn:hover {
-    transform: translateY(-1px);
-  }
-
+  .pin-moment-btn:hover { transform: translateY(-1px); }
   .pin-moment-btn:disabled {
     cursor: wait;
     opacity: 0.58;
     transform: none;
   }
-
   .pin-moment-btn:focus-visible {
     outline: 2px solid color-mix(in srgb, var(--standard-accent, var(--accent)) 70%, white);
     outline-offset: 2px;
@@ -89,7 +85,6 @@
       min-height: 22px;
       padding-inline: 7px;
     }
-
     .pin-moment-btn {
       min-height: 32px;
       padding-inline: 10px;
@@ -98,15 +93,11 @@
 
   @media (prefers-reduced-motion: reduce) {
     .moments-pin-status,
-    .pin-moment-btn {
-      transition: none;
-    }
+    .pin-moment-btn { transition: none; }
   }
 </style>
 
 <script>
-  import { installMomentsJournalEnhancer } from '../lib/moments-journal-enhancer.mjs';
-  import '../styles/moments-journal.css';
   import {
     fetchMoments,
     MomentApiError,
@@ -139,7 +130,6 @@
 
     const controller = new AbortController();
     const { signal } = controller;
-    installMomentsJournalEnhancer(listRoot, signal);
     let items: MomentApiItem[] = [];
     let decorateQueued = false;
 
@@ -273,8 +263,7 @@
     observer.observe(listRoot, { childList: true, subtree: true });
 
     void refreshItems().catch(() => {
-      // The moments page already owns its primary loading/error UI. Pin controls
-      // should fail quietly rather than masking the main timeline.
+      // The moments page owns loading/error UI. Pin controls fail quietly.
     });
 
     pinWindow.__momentsPinCleanup = () => {
