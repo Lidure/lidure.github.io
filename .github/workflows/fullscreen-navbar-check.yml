@@ -14,4 +14,5 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: node --test tests/fullscreen-navbar-transparency.test.mjs
+      - run: node --test tests/fullscreen-navbar-transparency.test.mjs tests/firefly-wallpaper-modes.test.mjs tests/visual-settings.test.mjs
+      - run: npm run build
