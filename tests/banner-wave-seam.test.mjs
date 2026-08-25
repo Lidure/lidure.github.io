@@ -5,7 +5,9 @@ import test from 'node:test';
 const readSource = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const bannerStyles = () => [
   readSource('src/styles/firefly-v6-theme.css'),
+  readSource('src/styles/firefly-refresh.css'),
   readSource('src/components/BlogBanner.astro'),
+  readSource('src/components/BannerWaves.astro'),
 ].join('\n');
 
 test('homepage uses a real Firefly-style content overlap instead of fully compensating the lift', () => {
@@ -18,6 +20,15 @@ test('homepage uses a real Firefly-style content overlap instead of fully compen
   assert.match(theme, /body\.layout-standard\.is-home\s+\.blog-banner-stage,\s*body\.layout-standard\.is-home\s+\.blog-banner,\s*body\.layout-standard\.is-home\s+\.banner-waves\s*\{[^}]*pointer-events:\s*none/s);
   assert.match(theme, /body\.layout-standard\.is-home\s+\.home-category-bar\s*\{[^}]*z-index:\s*6[^}]*backdrop-filter:\s*blur\(12px\)/s);
   assert.match(theme, /body\.layout-standard\.is-home\s+\.blog-banner-copy\s*\{[^}]*transform:\s*translateY\(calc\(-1\s*\*\s*clamp\(20px,\s*4vh,\s*42px\)\)\)/s);
+});
+
+test('homepage stacking lets the content panel and category bridge actually cross the banner seam', () => {
+  const theme = bannerStyles();
+
+  assert.match(theme, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*auto/s);
+  assert.match(theme, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.standard-page-surface\s*\{[^}]*border-radius:\s*0/s);
+  assert.doesNotMatch(theme, /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*4/s);
+  assert.match(theme, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*15/s);
 });
 
 test('mobile homepage softens the overlap without removing it', () => {
