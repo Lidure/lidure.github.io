@@ -18,6 +18,15 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Repair temporary patcher quoting
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('scripts/patch-sekai-multi-playlists.py')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace("sourceUrl: s.sourceUrl || '' ''',", "sourceUrl: s.sourceUrl || ''' ,")
+          p.write_text(s, encoding='utf-8')
+          PY
       - name: Apply multi-playlist implementation
         run: python scripts/patch-sekai-multi-playlists.py
       - name: Run multi-playlist regression
