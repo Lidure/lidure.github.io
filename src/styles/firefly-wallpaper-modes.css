@@ -6,7 +6,9 @@ html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {
   background: var(--standard-page-bg);
 }
 
-/* Fullscreen and overlay keep the wallpaper fixed behind the page. */
+/* Fullscreen and overlay keep the wallpaper fixed behind the page. The legacy
+   refresh stylesheet used to blur/scale this parent directly; neutralize that
+   here so blur is owned only by the native image surface, like Firefly. */
 html[data-wallpaper-mode="fullscreen"] body.layout-standard .hero-slideshow,
 html[data-wallpaper-mode="overlay"] body.layout-standard .hero-slideshow {
   position: fixed;
@@ -15,6 +17,8 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .hero-slideshow {
   height: 100vh;
   height: 100lvh;
   min-height: 100lvh;
+  filter: none;
+  transform: none;
 }
 
 /* Firefly presents wallpaper images as real <img> media. The controller mirrors
