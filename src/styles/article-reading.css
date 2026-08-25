@@ -49,15 +49,11 @@ body.layout-standard .article-tags {
   font-variant-numeric: tabular-nums;
 }
 
-body.layout-standard .article-meta {
-  margin-top: 30px;
-}
-
+body.layout-standard .article-meta { margin-top: 30px; }
 body.layout-standard .article-tags {
   margin-top: 9px;
   color: color-mix(in srgb, var(--standard-accent) 72%, var(--standard-muted));
 }
-
 body.layout-standard .article-tags span {
   padding: 0;
   border: 0;
@@ -74,9 +70,7 @@ body.layout-standard .article-masthead::after {
   background: color-mix(in srgb, var(--standard-accent) 58%, transparent);
 }
 
-body.layout-standard .article-reading-canvas {
-  position: relative;
-}
+body.layout-standard .article-reading-canvas { position: relative; }
 
 body.layout-standard .article-prose {
   counter-reset: article-section;
@@ -89,20 +83,11 @@ body.layout-standard .article-prose {
   line-height: 1.82;
   text-wrap: pretty;
 }
-
-body.layout-standard .article-prose > *:first-child {
-  margin-top: 0;
-}
-
+body.layout-standard .article-prose > *:first-child { margin-top: 0; }
 body.layout-standard .article-prose p,
 body.layout-standard .article-prose ul,
-body.layout-standard .article-prose ol {
-  margin-block: 1.04em;
-}
-
-body.layout-standard .article-prose li + li {
-  margin-top: 0.34em;
-}
+body.layout-standard .article-prose ol { margin-block: 1.04em; }
+body.layout-standard .article-prose li + li { margin-top: 0.34em; }
 
 body.layout-standard .article-prose h2,
 body.layout-standard .article-prose h3,
@@ -112,7 +97,6 @@ body.layout-standard .article-prose h4 {
   text-wrap: balance;
   scroll-margin-top: 96px;
 }
-
 body.layout-standard .article-prose h2 {
   counter-increment: article-section;
   position: relative;
@@ -124,7 +108,6 @@ body.layout-standard .article-prose h2 {
   line-height: 1.32;
   letter-spacing: -0.025em;
 }
-
 body.layout-standard .article-prose h2::before {
   content: counter(article-section, decimal-leading-zero);
   position: absolute;
@@ -134,14 +117,12 @@ body.layout-standard .article-prose h2::before {
   font: 600 0.68rem/1.4 ui-monospace, 'SFMono-Regular', Consolas, monospace;
   letter-spacing: 0.08em;
 }
-
 body.layout-standard .article-prose h3 {
   margin: 2.25em 0 0.72em;
   font-size: 1.18rem;
   font-weight: 670;
   line-height: 1.45;
 }
-
 body.layout-standard .article-prose h4 {
   margin: 1.8em 0 0.62em;
   color: color-mix(in srgb, var(--standard-text) 88%, var(--standard-muted));
@@ -157,7 +138,6 @@ body.layout-standard .article-prose a {
   text-underline-offset: 4px;
   transition: color 160ms ease, text-decoration-color 160ms ease;
 }
-
 body.layout-standard .article-prose a:hover,
 body.layout-standard .article-prose a:focus-visible {
   color: var(--standard-accent);
@@ -176,7 +156,6 @@ body.layout-standard .article-prose blockquote {
   font-size: 1.02em;
   line-height: 1.78;
 }
-
 body.layout-standard .article-prose blockquote > :first-child { margin-top: 0; }
 body.layout-standard .article-prose blockquote > :last-child { margin-bottom: 0; }
 
@@ -188,7 +167,6 @@ body.layout-standard .article-prose code {
   color: color-mix(in srgb, var(--standard-text) 92%, var(--standard-accent));
   font-size: 0.9em;
 }
-
 body.layout-standard .article-prose pre {
   width: min(900px, calc(100vw - 48px));
   max-width: 900px;
@@ -201,7 +179,6 @@ body.layout-standard .article-prose pre {
   background: color-mix(in srgb, var(--standard-card-soft) 88%, #06070b 12%);
   box-shadow: none;
 }
-
 body.layout-standard .article-prose pre code {
   padding: 0;
   border: 0;
@@ -221,7 +198,6 @@ body.layout-standard .article-prose table {
   border-radius: 0;
   background: transparent;
 }
-
 body.layout-standard .article-prose th,
 body.layout-standard .article-prose td {
   padding: 10px 12px;
@@ -229,7 +205,6 @@ body.layout-standard .article-prose td {
   border-bottom: 1px solid color-mix(in srgb, var(--standard-line) 88%, transparent);
   vertical-align: top;
 }
-
 body.layout-standard .article-prose th {
   color: var(--standard-text);
   background: transparent;
@@ -244,7 +219,6 @@ body.layout-standard .article-prose figure:has(img) {
   margin: 2.25em 50%;
   transform: translateX(-50%);
 }
-
 body.layout-standard .article-prose img {
   display: block;
   width: auto;
@@ -257,7 +231,11 @@ body.layout-standard .article-prose img {
   box-shadow: none;
   object-fit: contain;
 }
-
+body.layout-standard .article-prose img:hover {
+  transform: none;
+  border-color: transparent;
+  box-shadow: none;
+}
 body.layout-standard .article-prose figcaption,
 body.layout-standard .article-prose p:has(> img:only-child) + em {
   color: var(--standard-muted);
@@ -265,14 +243,12 @@ body.layout-standard .article-prose p:has(> img:only-child) + em {
   line-height: 1.65;
   text-align: center;
 }
-
 body.layout-standard .article-prose hr {
   width: 72px;
   margin: 3.2em auto;
   border: 0;
   border-top: 1px solid color-mix(in srgb, var(--standard-line) 88%, transparent);
 }
-
 body.layout-standard .article-prose .katex-display {
   max-width: 100%;
   overflow-x: auto;
@@ -287,7 +263,6 @@ body.layout-standard .article-bookmark {
   width: 32px;
   pointer-events: none;
 }
-
 body.layout-standard .article-bookmark-track {
   position: sticky;
   top: 112px;
@@ -297,7 +272,6 @@ body.layout-standard .article-bookmark-track {
   border-left: 1px solid color-mix(in srgb, var(--standard-line) 72%, transparent);
   pointer-events: auto;
 }
-
 body.layout-standard .article-bookmark-marker {
   position: absolute;
   left: -3px;
@@ -310,18 +284,16 @@ body.layout-standard .article-bookmark-marker {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--standard-accent) 10%, transparent);
   transition: top 120ms linear;
 }
-
 body.layout-standard .article-bookmark-tick {
   position: absolute;
   left: -1px;
-  top: calc(var(--chapter-pos, 0) * 100%);
+  top: calc(var(--chapter-offset, 0) * 100%);
   width: 9px;
   height: 1px;
   background: color-mix(in srgb, var(--standard-muted) 46%, transparent);
   transform: translateY(-50%);
   transition: width 140ms ease, background-color 140ms ease;
 }
-
 body.layout-standard .article-bookmark-tick:hover,
 body.layout-standard .article-bookmark-tick:focus-visible,
 body.layout-standard .article-bookmark-tick.is-current {
@@ -340,7 +312,6 @@ body.layout-standard .article-end {
   font-size: 0.72rem;
   letter-spacing: 0.12em;
 }
-
 body.layout-standard .article-comments {
   width: min(100%, 800px);
   margin: 28px auto 0;
@@ -372,41 +343,28 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
 }
 
 @media (max-width: 760px) {
-  body.layout-standard .article-publication {
-    padding: 38px 16px 52px;
-  }
-
+  body.layout-standard .article-publication { padding: 38px 16px 52px; }
   body.layout-standard .article-masthead {
     margin-bottom: 52px;
     padding-bottom: 18px;
   }
-
   body.layout-standard .article-title {
     max-width: none;
     font-size: clamp(2rem, 11vw, 3rem);
     letter-spacing: -0.035em;
   }
-
   body.layout-standard .article-deck {
     width: 100%;
     margin: 24px 0 0;
     padding-left: 14px;
   }
-
-  body.layout-standard .article-meta {
-    margin-top: 24px;
-  }
-
+  body.layout-standard .article-meta { margin-top: 24px; }
   body.layout-standard .article-prose {
     max-width: none;
     font-size: 0.98rem;
     line-height: 1.8;
   }
-
-  body.layout-standard .article-prose h2 {
-    margin-top: 2.8em;
-  }
-
+  body.layout-standard .article-prose h2 { margin-top: 2.8em; }
   body.layout-standard .article-prose p:has(> img:only-child),
   body.layout-standard .article-prose figure:has(img),
   body.layout-standard .article-prose pre {
@@ -415,7 +373,6 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
     margin-inline: 0;
     transform: none;
   }
-
   body.layout-standard .article-prose table {
     display: block;
     width: 100%;
@@ -424,11 +381,7 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
     overflow-x: auto;
     transform: none;
   }
-
-  body.layout-standard .article-prose img {
-    border-radius: 6px;
-  }
-
+  body.layout-standard .article-prose img { border-radius: 6px; }
   body.layout-standard .article-bookmark {
     display: block;
     position: fixed;
@@ -438,7 +391,6 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
     height: 2px;
     pointer-events: none;
   }
-
   body.layout-standard .article-bookmark-track {
     position: static;
     width: 100%;
@@ -446,7 +398,6 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
     border: 0;
     background: transparent;
   }
-
   body.layout-standard .article-bookmark-track::before {
     content: '';
     display: block;
@@ -454,12 +405,8 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
     height: 100%;
     background: var(--standard-accent);
   }
-
   body.layout-standard .article-bookmark-marker,
-  body.layout-standard .article-bookmark-tick {
-    display: none;
-  }
-
+  body.layout-standard .article-bookmark-tick { display: none; }
   html[data-wallpaper-mode="fullscreen"] body.layout-standard .article-publication::before,
   html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::before {
     inset: 14px 4px 18px;
@@ -470,13 +417,8 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
 @media (prefers-reduced-motion: reduce) {
   body.layout-standard .article-bookmark-marker,
   body.layout-standard .article-bookmark-tick,
-  body.layout-standard .article-prose a {
-    transition: none;
-  }
+  body.layout-standard .article-prose a { transition: none; }
 }
-
 html[data-reduce-motion="true"] body.layout-standard .article-bookmark-marker,
 html[data-reduce-motion="true"] body.layout-standard .article-bookmark-tick,
-html[data-reduce-motion="true"] body.layout-standard .article-prose a {
-  transition: none;
-}
+html[data-reduce-motion="true"] body.layout-standard .article-prose a { transition: none; }
