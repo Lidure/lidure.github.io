@@ -1,0 +1,24 @@
+name: Music cover race check
+
+on:
+  push:
+    branches: [fix/music-cover-race]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run full test suite
+        run: npm test
