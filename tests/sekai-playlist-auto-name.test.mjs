@@ -19,9 +19,16 @@ test('remote playlist name is passed into both NetEase and QQ imports', () => {
   assert.match(source, /addOnlineTracks\(tracks, 'qq', playlistId, playlistName, remotePlaylistName\)/);
 });
 
-test('playlist naming keeps manual and existing names ahead of the remote default', () => {
+test('playlist naming keeps manual and true custom names ahead of the remote default', () => {
   assert.match(source, /function addOnlineTracks\(tracks, platform, playlistId, playlistName, remotePlaylistName\)/);
-  assert.match(source, /playlistName \|\| \(previousPlaylist && previousPlaylist\.playlistName\) \|\| remotePlaylistName \|\|/);
+  assert.match(source, /var generatedFallbackName = platformName \+ '歌单 · ' \+ playlistId/);
+  assert.match(source, /var previousCustomName = previousPlaylist && previousPlaylist\.playlistName !== generatedFallbackName[\s\S]*previousPlaylist\.playlistName/);
+  assert.match(source, /playlistName \|\| previousCustomName \|\| remotePlaylistName \|\| generatedFallbackName/);
+});
+
+test('old generated platform/id names can upgrade to the remote playlist name', () => {
+  assert.match(source, /previousPlaylist\.playlistName !== generatedFallbackName/);
+  assert.doesNotMatch(source, /playlistName \|\| \(previousPlaylist && previousPlaylist\.playlistName\) \|\| remotePlaylistName/);
 });
 
 test('name input explains that the original playlist name is used by default', () => {
