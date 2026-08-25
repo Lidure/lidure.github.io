@@ -13,7 +13,7 @@ test('online import UI supports naming and switching imported playlists', () => 
 
 test('different playlists from the same platform coexist instead of replacing each other', () => {
   assert.doesNotMatch(source, /songs\s*=\s*songs\.filter\(function\(s\)\s*\{\s*return s\.source !== platform;\s*\}\);/);
-  assert.match(source, /function addOnlineTracks\(tracks, platform, playlistId, playlistName\)/);
+  assert.match(source, /function addOnlineTracks\(tracks, platform, playlistId, playlistName(?:, remotePlaylistName)?\)/);
   assert.match(source, /playlistKey\s*=\s*platform\s*\+\s*':'\s*\+\s*playlistId/);
   assert.match(source, /s\.playlistKey !== playlistKey/);
 });
@@ -34,15 +34,16 @@ test('playlist filter and delete operate on playlist identity rather than platfo
 
 test('online import passes playlist id and chosen name into the import operation', () => {
   assert.match(source, /playlistNameInput\.value\.trim\(\)/);
-  assert.match(source, /addOnlineTracks\(tracks, 'netease', playlistId, playlistName\)/);
-  assert.match(source, /addOnlineTracks\(tracks, 'qq', playlistId, playlistName\)/);
+  assert.match(source, /addOnlineTracks\(tracks, 'netease', playlistId, playlistName(?:, remotePlaylistName)?\)/);
+  assert.match(source, /addOnlineTracks\(tracks, 'qq', playlistId, playlistName(?:, remotePlaylistName)?\)/);
 });
 
 test('removing the last track from the selected playlist falls back to all before filtering', () => {
   assert.match(source, /function applyFilters\(\)\s*\{[\s\S]*activeImportedPlaylist !== 'all'[\s\S]*songs\.some\(function\(song\) \{ return song\.playlistKey === activeImportedPlaylist; \}\)[\s\S]*activeImportedPlaylist = 'all';[\s\S]*filteredSongs = songs\.filter/);
 });
 
-test('updating an existing playlist keeps its custom name when the name field is blank', () => {
+test('updating an existing playlist keeps its true custom name when the name field is blank', () => {
   assert.match(source, /var previousPlaylist = songs\.find\(function\(s\) \{ return s\.playlistKey === playlistKey; \}\);/);
-  assert.match(source, /playlistName \|\| \(previousPlaylist && previousPlaylist\.playlistName\) \|\|/);
+  assert.match(source, /var previousCustomName = previousPlaylist && previousPlaylist\.playlistName !== generatedFallbackName/);
+  assert.match(source, /playlistName \|\| previousCustomName \|\|/);
 });
