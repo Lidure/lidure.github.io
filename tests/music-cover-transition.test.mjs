@@ -20,11 +20,11 @@ test('music status gets a real default cover with runtime fallback', () => {
   assert.ok(existsSync(new URL('../public/assets/music/default-cover.webp', import.meta.url)));
 });
 
-test('page transition uses short Firefly-style compositor animations and theme progress bar', () => {
+test('page transition uses short Firefly-style compositor animations and a persistent theme progress bar', () => {
   const enhancer = readSource('src/components/PageTransitionEnhancer.astro');
 
-  assert.match(enhancer, /id="page-transition-progress"/);
-  assert.match(enhancer, /120ms/);
+  assert.match(enhancer, /id="page-transition-progress"[^>]*transition:persist/);
+  assert.match(enhancer, /duration:\s*120/);
   assert.match(enhancer, /translateY\(-?2rem\)/);
   assert.match(enhancer, /will-change:\s*transform,\s*opacity/);
   assert.match(enhancer, /astro:before-preparation/);
