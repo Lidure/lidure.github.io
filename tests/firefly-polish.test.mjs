@@ -21,8 +21,11 @@ test('visual settings polish is loaded and exposes theme-aware panel tokens plus
 });
 
 test('outer page surface no longer rounds the full viewport edge', () => {
-  const css = readSource('src/styles/firefly-refresh.css');
-  assert.doesNotMatch(css, /\.standard-page-surface\s*\{[\s\S]*?border-radius:\s*22px\s+22px\s+0\s+0/);
+  const layout = readSource('src/layouts/BaseLayout.astro');
+  assert.match(layout, /firefly-v5-polish\.css/);
+
+  const css = readSource('src/styles/firefly-v5-polish.css');
+  assert.match(css, /body\.layout-standard\s+\.standard-page-surface\s*\{[\s\S]*border-radius:\s*0/);
 });
 
 test('banner waves use multi-harmonic asymmetric drift for a softer Firefly-like boundary', () => {
