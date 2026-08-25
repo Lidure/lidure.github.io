@@ -23,12 +23,21 @@
 </div>
 
 <style is:global>
+  body.layout-standard {
+    --blog-banner-height: 65vh;
+  }
+
+  body.layout-standard .hero-slideshow {
+    height: var(--blog-banner-height, 65vh);
+    min-height: 400px;
+  }
+
   body.layout-standard .blog-banner-stage {
     position: relative;
     z-index: 2;
     width: 100%;
-    height: var(--blog-banner-height, 62vh);
-    min-height: 360px;
+    height: var(--blog-banner-height, 65vh);
+    min-height: 400px;
   }
 
   body.layout-standard .blog-banner-stage > .blog-banner {
