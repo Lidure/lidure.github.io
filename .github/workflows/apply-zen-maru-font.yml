@@ -22,15 +22,19 @@ jobs:
 
           root = Path('.')
           src = root / 'src'
-          old_decl = "font-family: 'Noto Sans SC', sans-serif;"
-          new_decl = "font-family: var(--font-body);"
+          replacements = {
+              "font-family: 'Noto Sans SC', sans-serif;": "font-family: var(--font-body);",
+              "font-family: 'Noto Sans SC', 'Courier New', sans-serif;": "font-family: var(--font-body);",
+          }
 
           changed = []
           for path in src.rglob('*'):
               if path.suffix not in {'.css', '.astro'}:
                   continue
               text = path.read_text(encoding='utf-8')
-              updated = text.replace(old_decl, new_decl)
+              updated = text
+              for old_decl, new_decl in replacements.items():
+                  updated = updated.replace(old_decl, new_decl)
               if updated != text:
                   path.write_text(updated, encoding='utf-8')
                   changed.append(str(path))
