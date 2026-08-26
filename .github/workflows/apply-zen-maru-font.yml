@@ -1,0 +1,92 @@
+name: Apply Zen Maru Font
+
+on:
+  push:
+    branches:
+      - style/zen-maru-font
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: github.event.head_commit.message != 'style: apply unified Zen Maru font'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: style/zen-maru-font
+      - name: Apply font replacements
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          root = Path('.')
+          src = root / 'src'
+          old_decl = "font-family: 'Noto Sans SC', sans-serif;"
+          new_decl = "font-family: var(--font-body);"
+
+          changed = []
+          for path in src.rglob('*'):
+              if path.suffix not in {'.css', '.astro'}:
+                  continue
+              text = path.read_text(encoding='utf-8')
+              updated = text.replace(old_decl, new_decl)
+              if updated != text:
+                  path.write_text(updated, encoding='utf-8')
+                  changed.append(str(path))
+
+          layout = src / 'layouts' / 'BaseLayout.astro'
+          text = layout.read_text(encoding='utf-8')
+          old_family = 'family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe'
+          new_family = 'family=Ma+Shan+Zheng&family=Zen+Maru+Gothic:wght@400;500;600;700&family=ZCOOL+KuaiLe'
+          updated = text.replace(old_family, new_family)
+          if updated == text:
+              raise SystemExit('BaseLayout font URL replacement did not match')
+          layout.write_text(updated, encoding='utf-8')
+
+          global_css = src / 'styles' / 'global.css'
+          text = global_css.read_text(encoding='utf-8')
+          if "--font-body:" not in text:
+              text = text.replace(':root {\n', ":root {\n  --font-body: 'Zen Maru Gothic', 'PingFang SC', 'Microsoft YaHei', sans-serif;\n  --font-hand: 'Ma Shan Zheng', cursive;\n", 1)
+          body_needle = "  font-family: var(--font-body);\n  line-height: 1.7;"
+          if body_needle not in text:
+              raise SystemExit('global body font replacement did not match')
+          text = text.replace(body_needle, "  font-family: var(--font-body);\n  font-weight: 500;\n  line-height: 1.75;", 1)
+          global_css.write_text(text, encoding='utf-8')
+
+          moments = src / 'styles' / 'moments-life-wall.css'
+          text = moments.read_text(encoding='utf-8')
+          if 'body.layout-standard .moments-shell {' in text and 'font-family: var(--font-body);' not in text.split('}', 1)[0]:
+              text = text.replace('  color: var(--standard-text, var(--text));\n}', '  color: var(--standard-text, var(--text));\n  font-family: var(--font-body);\n}', 1)
+          moments.write_text(text, encoding='utf-8')
+
+          package = root / 'package.json'
+          text = package.read_text(encoding='utf-8')
+          if 'tests/site-font.test.mjs' not in text:
+              needle = 'tests/moments-journal-layout.test.mjs'
+              if needle not in text:
+                  raise SystemExit('test:site insertion point missing')
+              text = text.replace(needle, needle + ' tests/site-font.test.mjs', 1)
+              package.write_text(text, encoding='utf-8')
+
+          print('updated explicit Noto declarations in:', *changed, sep='\n- ')
+          PY
+      - name: Verify no explicit Noto family remains in production source
+        run: |
+          if grep -R "font-family: 'Noto Sans SC'" src --include='*.css' --include='*.astro'; then
+            echo 'Explicit Noto Sans SC declaration remains' >&2
+            exit 1
+          fi
+          if grep -q 'Noto+Sans+SC' src/layouts/BaseLayout.astro; then
+            echo 'BaseLayout still loads Noto Sans SC' >&2
+            exit 1
+          fi
+      - name: Commit result
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src package.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'style: apply unified Zen Maru font'
+          git push origin HEAD:style/zen-maru-font
