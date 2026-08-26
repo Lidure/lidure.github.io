@@ -6,7 +6,9 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf
 const page = read('src/pages/moments.astro');
 const baseLayout = read('src/layouts/BaseLayout.astro');
 const pins = read('src/components/MomentsPinControls.astro');
+const snapshotBridge = read('src/components/MomentsSnapshotPreviewBridge.astro');
 const css = read('src/styles/moments-life-wall.css');
+const followupCss = read('src/styles/article-moments-followup.css');
 const notebookCssUrl = new URL('../src/styles/moments-notebook-refresh.css', import.meta.url);
 const notebookCss = existsSync(notebookCssUrl) ? readFileSync(notebookCssUrl, 'utf8') : '';
 const helpersUrl = new URL('../src/lib/moments-life-wall.mjs', import.meta.url);
@@ -76,7 +78,24 @@ test('Moments microinteractions make paper, reactions, and side filters feel ali
   assert.match(notebookCss, /\.moments-side-category:hover/);
   assert.match(notebookCss, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*\.moment-card:hover/);
   assert.match(pins, /sideCategoryButtons\.forEach/);
-  assert.match(pins, /matchingImage\?\.click\(\)/);
+});
+
+test('Moments top filter uses a quiet paper-style active state instead of a solid accent block', () => {
+  assert.match(baseLayout, /article-moments-followup\.css/);
+  assert.match(followupCss, /\.moments-wall-filter \.pill\.active\s*\{[\s\S]*background:\s*transparent\s*!important/);
+  assert.match(followupCss, /\.moments-wall-filter \.pill\.active::after\s*\{[\s\S]*background:\s*color-mix/);
+  assert.doesNotMatch(followupCss, /\.moments-wall-filter \.pill\.active\s*\{[^}]*background:\s*var\(--standard-accent/);
+});
+
+test('Moments snapshots open the existing lightbox by stable thumbnail index', () => {
+  assert.match(baseLayout, /MomentsSnapshotPreviewBridge/);
+  assert.match(snapshotBridge, /\.moments-side-photo/);
+  assert.match(snapshotBridge, /\.moments-side-gallery/);
+  assert.match(snapshotBridge, /\.moments-list \.card-images img/);
+  assert.match(snapshotBridge, /stopImmediatePropagation\(\)/);
+  assert.match(snapshotBridge, /sourceImages\[index\]/);
+  assert.match(snapshotBridge, /sourceImage\?\.click\(\)/);
+  assert.doesNotMatch(snapshotBridge, /currentSrc\s*===/);
 });
 
 test('emoji and reaction pickers stay collapsed until opened', () => {

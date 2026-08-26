@@ -1,0 +1,33 @@
+name: Verify article and moments followup fixes
+
+on:
+  push:
+    branches:
+      - fix/article-table-moments-snapshots
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Run focused contracts
+        run: node --test tests/article-reading.test.mjs tests/moments-journal-layout.test.mjs
+      - name: Run full site suite
+        env:
+          PUBLIC_MOMENTS_API: ${{ vars.PUBLIC_MOMENTS_API }}
+          PUBLIC_MEDIA_BASE_URL: ${{ vars.PUBLIC_MEDIA_BASE_URL }}
+        run: npm test
+
+# Retriggered after the final production diff was ready.

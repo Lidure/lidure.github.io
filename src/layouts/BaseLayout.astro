@@ -39,6 +39,7 @@ import '../styles/firefly-wallpaper-modes.css';
 import '../styles/bannerless-pages.css';
 import '../styles/immersive-nav.css';
 import '../styles/moments-notebook-refresh.css';
+import '../styles/article-moments-followup.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import BlogBanner from '../components/BlogBanner.astro';
 import BannerWaves from '../components/BannerWaves.astro';
@@ -51,6 +52,7 @@ import VisualSettingsPanel from '../components/VisualSettingsPanel.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
 import SekaiParticles from '../components/SekaiParticles.astro';
 import MomentsPinControls from '../components/MomentsPinControls.astro';
+import MomentsSnapshotPreviewBridge from '../components/MomentsSnapshotPreviewBridge.astro';
 import PageTransitionEnhancer from '../components/PageTransitionEnhancer.astro';
 import FullscreenWallpaperController from '../components/FullscreenWallpaperController.astro';
 
@@ -235,6 +237,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     <PageTransitionEnhancer />
     <FullscreenWallpaperController />
     <MomentsPinControls />
+    <MomentsSnapshotPreviewBridge />
     <SiteHeader currentPath={Astro.url.pathname} />
     <FloatingControls />
     {!isStandard && <ImmersiveUiController />}
