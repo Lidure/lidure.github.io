@@ -36,6 +36,7 @@ import '../styles/firefly-v4.css';
 import '../styles/firefly-v5-polish.css';
 import '../styles/firefly-v6-theme.css';
 import '../styles/firefly-wallpaper-modes.css';
+import '../styles/bannerless-pages.css';
 import '../styles/immersive-nav.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import BlogBanner from '../components/BlogBanner.astro';
@@ -225,7 +226,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
       installVisualResetDefaultSync();
     </script>
   </head>
-  <body class:list={[`layout-${layoutMode}`, { 'is-home': isHome }]}>
+  <body class:list={[`layout-${layoutMode}`, { 'is-home': isHome, 'is-bannerless': isStandard && !showBanner }]}>
     <VisualSettingsPanel />
     <HeroSlideshow />
     <SekaiParticles />
