@@ -21,6 +21,15 @@ export function getMomentDayParts(value) {
   return { key, dateLabel: `${month} / ${day}`, weekdayLabel, machineDate: key };
 }
 
+export function getMomentDaypart(value) {
+  const parsed = value instanceof Date ? value : new Date(value);
+  const hour = Number.isNaN(parsed.getTime()) ? 12 : parsed.getHours();
+  if (hour >= 5 && hour < 11) return { key: 'morning', label: '清晨', mark: '☼' };
+  if (hour >= 11 && hour < 17) return { key: 'day', label: '白昼', mark: '·' };
+  if (hour >= 17 && hour < 20) return { key: 'evening', label: '黄昏', mark: '◐' };
+  return { key: 'night', label: '深夜', mark: '☾' };
+}
+
 export function classifyMomentLayout({ text = '', imageCount = 0, videoCount = 0 } = {}) {
   if (videoCount > 0) return 'video';
   if (imageCount >= 4) return 'gallery';
