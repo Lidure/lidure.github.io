@@ -1,0 +1,444 @@
+body.layout-standard .moments-shell.moments-shell {
+  width: min(100%, 900px);
+  max-width: 900px;
+  margin-inline: auto;
+  padding: clamp(42px, 6vw, 72px) var(--space-page) 76px;
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+body.layout-standard .moments-shell .hidden,
+body.layout-standard .moments-shell [hidden],
+body.layout-standard .moments-shell .moment-reaction-panel[hidden],
+body.layout-standard .moments-shell .emoji-panel.hidden,
+body.layout-standard .moments-shell .emoji-panel[hidden],
+body.layout-standard .moments-shell .public-comment-reaction-panel[hidden] {
+  display: none !important;
+}
+
+body.layout-standard .moments-shell .moments-wall-head {
+  display: block;
+  margin-bottom: clamp(28px, 5vw, 48px);
+  padding: 0;
+}
+
+body.layout-standard .moments-shell .moments-wall-head::after {
+  content: none;
+  display: none;
+}
+
+body.layout-standard .moments-shell .moments-wall-head h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: clamp(2.1rem, 4.5vw, 3.2rem);
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.035em;
+}
+
+body.layout-standard .moments-shell .moments-wall-head p {
+  max-width: 34rem;
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.78;
+  text-align: left;
+}
+
+body.layout-standard .moments-shell .moments-wall-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 34px;
+  padding: 0 0 14px;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  background: transparent;
+  box-shadow: none;
+}
+
+body.layout-standard .moments-shell .moments-wall-filter .cat-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  min-width: 0;
+}
+
+body.layout-standard .moments-shell .moments-wall-filter .pill {
+  position: relative;
+  min-height: 30px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 560;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+body.layout-standard .moments-shell .moments-wall-filter .pill::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -5px;
+  height: 2px;
+  border-radius: 0;
+  background: transparent;
+  transform: none;
+}
+
+body.layout-standard .moments-shell .moments-wall-filter .pill:hover,
+body.layout-standard .moments-shell .moments-wall-filter .pill:focus-visible,
+body.layout-standard .moments-shell .moments-wall-filter .pill.active {
+  color: var(--ink);
+  background: transparent;
+}
+
+body.layout-standard .moments-shell .moments-wall-filter .pill.active::after {
+  background: var(--accent);
+  transform: none;
+}
+
+body.layout-standard .moments-shell .moments-compose-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 4px 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 150ms ease;
+}
+
+body.layout-standard .moments-shell .moments-compose-trigger:hover,
+body.layout-standard .moments-shell .moments-compose-trigger:focus-visible {
+  color: var(--accent);
+  background: transparent;
+}
+
+body.layout-standard .moments-shell .moments-compose-trigger #toggle-icon {
+  width: auto;
+  height: auto;
+}
+
+body.layout-standard .moments-shell .publish-panel {
+  position: relative;
+  margin: -8px 0 42px;
+  padding: clamp(20px, 3vw, 28px) 0;
+  border: 0;
+  border-block: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+body.layout-standard .moments-shell .publish-panel::after {
+  content: none;
+  display: none;
+}
+
+body.layout-standard .moments-shell .panel-title {
+  color: var(--ink);
+}
+
+body.layout-standard .moments-shell .field-label,
+body.layout-standard .moments-shell .form-note,
+body.layout-standard .moments-shell .session-status,
+body.layout-standard .moments-shell .upload-progress {
+  color: var(--muted);
+}
+
+body.layout-standard .moments-shell .field input,
+body.layout-standard .moments-shell .field select,
+body.layout-standard .moments-shell .field textarea,
+body.layout-standard .moments-shell .session-login input {
+  border-bottom-color: var(--line);
+  color: var(--ink);
+}
+
+body.layout-standard .moments-shell .upload-dropzone {
+  border-color: color-mix(in srgb, var(--muted) 45%, transparent);
+  border-radius: 8px;
+  color: var(--muted);
+  background: var(--paper-soft);
+}
+
+body.layout-standard .moments-shell .preview-item {
+  border-color: var(--line);
+  border-radius: 8px;
+  background: var(--paper-soft);
+}
+
+body.layout-standard .moments-shell .emoji-panel,
+body.layout-standard .moments-shell .moment-reaction-panel,
+body.layout-standard .moments-shell .public-comment-reaction-panel {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--paper);
+  box-shadow: var(--shadow-paper);
+}
+
+body.layout-standard .moments-shell .moments-list {
+  display: block;
+}
+
+body.layout-standard .moments-shell .moment-day-stream {
+  display: grid;
+  gap: 0;
+}
+
+body.layout-standard .moments-shell .moment-day-mark {
+  color: var(--muted);
+  border-radius: 0;
+}
+
+body.layout-standard .moments-shell .moment-daypart {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  color: color-mix(in srgb, var(--muted) 82%, transparent);
+  font-size: 0.64rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+body.layout-standard .moments-shell .moment-daypart[data-daypart='morning'] {
+  color: color-mix(in srgb, #c89a55 62%, var(--muted));
+}
+
+body.layout-standard .moments-shell .moment-daypart[data-daypart='day'] {
+  color: color-mix(in srgb, var(--accent) 46%, var(--muted));
+}
+
+body.layout-standard .moments-shell .moment-daypart[data-daypart='evening'] {
+  color: color-mix(in srgb, #c77f70 58%, var(--muted));
+}
+
+body.layout-standard .moments-shell .moment-daypart[data-daypart='night'] {
+  color: color-mix(in srgb, #7f91c6 58%, var(--muted));
+}
+
+body.layout-standard .moments-shell .moment-card {
+  position: relative;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  overflow: visible;
+  padding-block: clamp(22px, 4vw, 36px);
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: none;
+  transition: border-color 150ms ease;
+}
+
+body.layout-standard .moments-shell .moment-card::after {
+  content: none;
+  display: none;
+}
+
+body.layout-standard .moments-shell .moment-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 28%, var(--line));
+  background: transparent;
+  transform: none;
+}
+
+body.layout-standard .moments-shell .moment-card .card-content {
+  padding: 0;
+}
+
+body.layout-standard .moments-shell .moment-card .card-meta {
+  margin-bottom: 10px;
+}
+
+body.layout-standard .moments-shell .moment-card .moment-category,
+body.layout-standard .moments-shell .moment-card .cat-pill {
+  color: var(--muted) !important;
+}
+
+body.layout-standard .moments-shell .moment-card .moment-category::before,
+body.layout-standard .moments-shell .moment-card .cat-pill::before {
+  width: 10px;
+  height: 2px;
+  border-radius: 0;
+  background: var(--moment-category);
+  opacity: 0.7;
+  transform: none;
+}
+
+body.layout-standard .moments-shell .moment-card .card-date {
+  color: color-mix(in srgb, var(--muted) 78%, transparent);
+  font-family: var(--font-mono);
+}
+
+body.layout-standard .moments-shell .moment-card .card-text {
+  max-width: 67ch;
+  margin: 0;
+  color: var(--ink);
+  font-size: 1rem;
+  line-height: 1.84;
+  letter-spacing: 0.004em;
+}
+
+body.layout-standard .moments-shell .moment--whisper .card-text {
+  max-width: 45ch;
+  font-size: 1.04rem;
+}
+
+body.layout-standard .moments-shell .moment-media,
+body.layout-standard .moments-shell .moment-card .card-images {
+  width: 100%;
+  margin: 18px 0 0;
+}
+
+body.layout-standard .moments-shell .moment-card .card-images img,
+body.layout-standard .moments-shell .moment-card .card-images video,
+body.layout-standard .moments-shell .moment-card .moment-media img,
+body.layout-standard .moments-shell .moment-card .moment-media video {
+  max-width: 100%;
+  border: 0;
+  border-radius: 5px;
+  box-shadow: none;
+  transform: none !important;
+}
+
+body.layout-standard .moments-shell .moment-card .card-link {
+  color: color-mix(in srgb, var(--accent) 82%, var(--ink));
+  text-decoration-color: color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+body.layout-standard .moments-shell .moment-actions,
+body.layout-standard .moments-shell .moment-card .card-actions {
+  color: var(--muted);
+  opacity: 0.58;
+  transition: opacity 150ms ease;
+}
+
+body.layout-standard .moments-shell .moment-card:hover .moment-actions,
+body.layout-standard .moments-shell .moment-card:focus-within .moment-actions,
+body.layout-standard .moments-shell .moment-card:hover .card-actions,
+body.layout-standard .moments-shell .moment-card:focus-within .card-actions {
+  opacity: 1;
+}
+
+body.layout-standard .moments-shell .moment-card .delete-moment-btn,
+body.layout-standard .moments-shell .moment-card .pin-moment-btn {
+  color: var(--muted);
+  opacity: 0.42;
+}
+
+body.layout-standard .moments-shell .moment-reactions {
+  margin-top: 14px;
+  padding-top: 9px;
+  border-top: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+body.layout-standard .moments-shell .moment-reaction-chip,
+body.layout-standard .moments-shell .moment-reaction-add,
+body.layout-standard .moments-shell .public-comment-reaction-chip,
+body.layout-standard .moments-shell .public-comment-reaction-add {
+  border-radius: 6px;
+  color: var(--muted);
+}
+
+body.layout-standard .moments-shell .moment-card .public-comments-toggle,
+body.layout-standard .moments-shell .moment-card .public-comment-item > p,
+body.layout-standard .moments-shell .moment-card .public-comment-empty,
+body.layout-standard .moments-shell .moment-card .public-comment-status,
+body.layout-standard .moments-shell .moment-card .public-comment-meta {
+  color: var(--muted);
+}
+
+body.layout-standard .moments-shell .moment-card .public-comments-body,
+body.layout-standard .moments-shell .moment-card .public-comment-item {
+  border-color: color-mix(in srgb, var(--line) 72%, transparent);
+}
+
+body.layout-standard .moments-shell .loading-skeleton {
+  gap: 0;
+}
+
+body.layout-standard .moments-shell .skeleton-card {
+  padding: 24px 0;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.layout-standard .moments-shell .moments-retry,
+body.layout-standard .moments-shell .empty-state {
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  body.layout-standard .moments-shell.moments-shell {
+    padding: 38px 16px 58px;
+  }
+
+  body.layout-standard .moments-shell .moments-wall-filter {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  body.layout-standard .moments-shell .moments-compose-trigger {
+    align-self: flex-start;
+  }
+
+  body.layout-standard .moments-shell .publish-panel {
+    margin-top: 0;
+  }
+
+  body.layout-standard .moments-shell .moment-card {
+    width: 100%;
+    transform: none !important;
+  }
+
+  body.layout-standard .moments-shell .moment-actions,
+  body.layout-standard .moments-shell .moment-card .card-actions {
+    opacity: 1;
+  }
+
+  body.layout-standard .moments-shell .moment-card .public-comment-form {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.layout-standard .moments-shell .moments-wall-filter .pill,
+  body.layout-standard .moments-shell .moments-compose-trigger,
+  body.layout-standard .moments-shell .moment-card,
+  body.layout-standard .moments-shell .moment-actions,
+  body.layout-standard .moments-shell .moment-card .card-actions {
+    transition: none;
+  }
+}
+
+html[data-reduce-motion='true'] body.layout-standard .moments-shell .moments-wall-filter .pill,
+html[data-reduce-motion='true'] body.layout-standard .moments-shell .moments-compose-trigger,
+html[data-reduce-motion='true'] body.layout-standard .moments-shell .moment-card,
+html[data-reduce-motion='true'] body.layout-standard .moments-shell .moment-actions,
+html[data-reduce-motion='true'] body.layout-standard .moments-shell .moment-card .card-actions {
+  transition: none;
+}
