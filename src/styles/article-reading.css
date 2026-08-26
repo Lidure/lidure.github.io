@@ -1,8 +1,8 @@
 body.layout-standard .article-publication {
   --article-progress: var(--article-reading-progress, 0);
   position: relative;
-  width: min(100%, 1160px);
-  max-width: 1160px;
+  width: min(100%, 1400px);
+  max-width: 1400px;
   margin: 0 auto;
   padding: clamp(52px, 7vw, 96px) clamp(18px, 4vw, 54px) 72px;
   color: var(--standard-text);
@@ -76,32 +76,32 @@ body.layout-standard .article-toc-mobile {
   margin: 0 auto 28px;
 }
 
+/* Keep the reading column centered. The desktop TOC lives in a detached left rail. */
 body.layout-standard .article-reading-canvas {
-  display: grid;
-  grid-template-columns: minmax(154px, 188px) minmax(0, 720px);
-  justify-content: center;
-  align-items: start;
-  gap: clamp(34px, 4.2vw, 58px);
   position: relative;
-}
-
-body.layout-standard .article-reading-canvas:not(:has(.article-toc)) {
-  grid-template-columns: minmax(0, 720px);
+  width: min(100%, 1280px);
+  max-width: 1280px;
+  margin: 0 auto;
 }
 
 body.layout-standard .article-toc {
-  position: sticky;
-  top: 104px;
-  align-self: start;
-  max-height: calc(100vh - 132px);
-  overflow: auto;
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--standard-line) 72%, transparent) transparent;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 190px;
+  height: 100%;
+  overflow: visible;
 }
 
 body.layout-standard .article-toc-inner {
+  position: sticky;
+  top: 104px;
+  max-height: calc(100vh - 132px);
   padding: 4px 0 10px;
+  overflow: auto;
   border-top: 1px solid color-mix(in srgb, var(--standard-line) 86%, transparent);
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--standard-line) 72%, transparent) transparent;
 }
 
 body.layout-standard .article-toc-heading {
@@ -193,7 +193,7 @@ body.layout-standard .article-prose {
   counter-reset: article-section;
   width: 100%;
   max-width: 720px;
-  margin: 0;
+  margin: 0 auto;
   overflow: visible;
   color: var(--standard-text);
   font-size: clamp(1rem, 0.18vw + 0.97rem, 1.055rem);
@@ -399,10 +399,7 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
   background: color-mix(in srgb, var(--standard-card-bg) var(--card-opacity-percent, 92%), transparent);
 }
 
-@media (max-width: 940px) {
-  body.layout-standard .article-reading-canvas {
-    display: block;
-  }
+@media (max-width: 1320px) {
   body.layout-standard .article-toc { display: none; }
   body.layout-standard .article-toc-mobile {
     display: block;
@@ -434,9 +431,6 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
   }
   body.layout-standard .article-toc-mobile .article-toc-link {
     padding-block: 7px;
-  }
-  body.layout-standard .article-prose {
-    margin-inline: auto;
   }
   body.layout-standard .article-prose h2::before {
     position: static;
