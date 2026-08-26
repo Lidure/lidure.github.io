@@ -21,9 +21,9 @@ test('article can opt out of the standard banner with a dedicated bannerless she
   assert.match(bannerlessCss, /color:\s*var\(--standard-text\)/);
 });
 
-test('article uses the personal-publication structure and retires PR 43 chrome', () => {
+test('article uses the personal-publication structure and shared toc', () => {
   assert.match(page, /const \{ Content, headings \} = await render\(post\)/);
-  assert.match(page, /const chapterHeadings = headings\.filter\(\(heading\) => heading\.depth === 2\)/);
+  assert.match(page, /ArticleToc/);
   assert.match(page, /class="article-publication"/);
   assert.match(page, /class="article-masthead"/);
   assert.match(page, /class="article-title"/);
@@ -31,9 +31,10 @@ test('article uses the personal-publication structure and retires PR 43 chrome',
   assert.match(page, /class="article-meta"/);
   assert.match(page, /class="article-tags"/);
   assert.match(page, /class="article-reading-canvas"/);
-  assert.match(page, /class="article-bookmark"/);
   assert.match(page, /class="article-end"/);
   assert.match(page, /class="article-comments"/);
+  assert.doesNotMatch(page, /class="article-bookmark"/);
+  assert.doesNotMatch(page, /article-bookmark-tick/);
   assert.doesNotMatch(page, /ISSUE\s*\{/);
   assert.doesNotMatch(page, /article-meta-rail/);
   assert.doesNotMatch(page, /article-comments-label/);
@@ -56,11 +57,10 @@ test('article stylesheet is publication-first rather than card-first', () => {
   assert.doesNotMatch(css, /box-shadow:\s*0 18px 60px/);
 });
 
-test('article bookmark rail follows headings and cleans up across Astro navigation', () => {
-  assert.match(page, /--article-reading-progress/);
-  assert.match(page, /--chapter-offset/);
-  assert.match(page, /AbortController/);
-  assert.match(page, /astro:page-load/);
-  assert.match(page, /astro:before-swap/);
+test('article page delegates toc and progress behavior out of the old inline bookmark controller', () => {
+  assert.doesNotMatch(page, /data-article-chapter/);
+  assert.doesNotMatch(page, /__articlePublicationCleanup/);
+  assert.doesNotMatch(page, /--chapter-offset/);
+  assert.doesNotMatch(page, /class="article-bookmark"/);
   assert.doesNotMatch(page, /--wallpaper-blur/);
 });
