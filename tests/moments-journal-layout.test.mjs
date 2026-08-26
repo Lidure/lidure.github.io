@@ -38,7 +38,18 @@ test('date helpers use the local calendar day', async () => {
   });
 });
 
-test('moments owns a quiet bannerless life-wall entrance', () => {
+test('sunlit notes derives a quiet time-of-day mark from the real timestamp', async () => {
+  const { getMomentDaypart } = await import(helpersUrl.href + `?p=${Date.now()}`);
+  assert.deepEqual(getMomentDaypart(new Date(2026, 7, 25, 6, 30)), { key: 'morning', label: '清晨', mark: '☼' });
+  assert.deepEqual(getMomentDaypart(new Date(2026, 7, 25, 12, 0)), { key: 'day', label: '白昼', mark: '·' });
+  assert.deepEqual(getMomentDaypart(new Date(2026, 7, 25, 18, 30)), { key: 'evening', label: '黄昏', mark: '◐' });
+  assert.deepEqual(getMomentDaypart(new Date(2026, 7, 25, 23, 0)), { key: 'night', label: '深夜', mark: '☾' });
+  assert.match(page, /getMomentDaypart/);
+  assert.match(page, /className = 'moment-daypart'/);
+  assert.match(page, /dataset\.daypart = daypart\.key/);
+});
+
+test('moments keeps a quiet bannerless entrance', () => {
   assert.match(page, /showBanner=\{false\}/);
   assert.doesNotMatch(page, /showTime=\{true\}/);
   assert.match(page, /class="moments-wall-head"/);
@@ -72,15 +83,25 @@ test('reaction picker stays collapsed until the user explicitly opens it', () =>
   assert.match(css, /\.emoji-panel\.hidden[\s\S]*?display:\s*none\s*!important/);
 });
 
-test('desktop moments use compact date dividers and cohesive cards instead of a left date rail', () => {
-  assert.doesNotMatch(css, /grid-template-columns:\s*124px\s+minmax\(0,\s*1fr\)/);
-  assert.doesNotMatch(css, /font:\s*650\s+clamp\(2rem,\s*4\.1vw,\s*3\.6rem\)/);
-  assert.match(css, /\.moment-day\s*\{[\s\S]*?grid-template-columns:\s*1fr/);
-  assert.match(css, /\.moment-day-mark\s*\{[\s\S]*?display:\s*flex/);
-  assert.match(css, /\.moment-card\s*\{[\s\S]*?border:\s*1px solid/);
-  assert.match(css, /\.moment-card\s*\{[\s\S]*?border-radius:\s*16px/);
-  assert.match(css, /\.moment-card\s*\{[\s\S]*?background:\s*color-mix/);
-  assert.match(css, /\.moment-card \.card-content\s*\{[\s\S]*?padding:\s*clamp\(/);
+test('sunlit notes uses paper-note motifs instead of dashboard cards', () => {
+  assert.match(css, /--note-paper:/);
+  assert.match(css, /--note-paper-soft:/);
+  assert.match(css, /\.moments-wall-head::after[\s\S]*?background:/);
+  assert.match(css, /\.moments-wall-filter \.pill\.active::after/);
+  assert.match(css, /\.moment-day-mark[\s\S]*?border-radius:/);
+  assert.match(css, /\.moment-card::after[\s\S]*?content:\s*['"]/);
+  assert.match(css, /\.moment-card[\s\S]*?transform:\s*translateX\(var\(--note-shift/);
+  assert.match(css, /\.moment-category::before[\s\S]*?width:\s*18px/);
+  assert.match(css, /\.moment-daypart\[data-daypart="morning"\]/);
+  assert.match(css, /\.moment-daypart\[data-daypart="evening"\]/);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*?--note-shift:\s*0px\s*!important/);
+  assert.doesNotMatch(css, /box-shadow:\s*0 13px 30px/);
+});
+
+test('note rhythm is deterministic and never randomized', () => {
+  assert.match(page, /const noteShifts = \[0, 8, -5, 11, -8, 4\]/);
+  assert.match(page, /--note-shift/);
+  assert.doesNotMatch(page, /Math\.random/);
 });
 
 test('moment reaction controls keep accessible names after the visual rewrite', () => {
