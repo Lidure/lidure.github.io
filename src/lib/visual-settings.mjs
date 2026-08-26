@@ -9,11 +9,12 @@ export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
   quality: 'high',
   sakura: true,
   wallpaperMode: 'banner',
-  backgroundBlur: 6,
+  bannerHeight: 65,
+  backgroundBlur: 5,
   cardOpacity: 0.92,
   bannerGradient: true,
   bannerTitle: true,
-  themeHue: 340,
+  themeHue: 255,
   cardBorder: true,
   cardFollowTheme: false,
   sakuraDensity: 0.65,
@@ -46,12 +47,15 @@ export function normalizeVisualSettings(raw = {}) {
       ? merged.quality
       : 'high',
     sakura: merged.sakura === true,
-    wallpaperMode: merged.wallpaperMode === 'fullscreen' ? 'fullscreen' : 'banner',
-    backgroundBlur: clamp(finiteOr(merged.backgroundBlur, 6), 0, 20),
+    wallpaperMode: ['fullscreen', 'overlay'].includes(merged.wallpaperMode)
+      ? merged.wallpaperMode
+      : 'banner',
+    bannerHeight: clamp(finiteOr(merged.bannerHeight, 65), 45, 80),
+    backgroundBlur: clamp(finiteOr(merged.backgroundBlur, 5), 0, 20),
     cardOpacity: clamp(finiteOr(merged.cardOpacity, 0.92), 0.2, 1),
     bannerGradient: merged.bannerGradient !== false,
     bannerTitle: merged.bannerTitle !== false,
-    themeHue: clamp(finiteOr(merged.themeHue, 340), 0, 360),
+    themeHue: clamp(finiteOr(merged.themeHue, 255), 0, 360),
     cardBorder: merged.cardBorder !== false,
     cardFollowTheme: merged.cardFollowTheme === true,
     sakuraDensity: clamp(finiteOr(merged.sakuraDensity, 0.65), 0, 1),
@@ -101,6 +105,10 @@ export function applyVisualSettingsToDocument(settings, doc) {
     `${Math.round(normalized.cardOpacity * 100)}%`,
   );
   root.style.setProperty('--theme-hue', String(normalized.themeHue));
+  root.style.setProperty('--user-banner-height', `${normalized.bannerHeight}vh`);
+  if (doc.body?.style?.setProperty) {
+    doc.body.style.setProperty('--blog-banner-height', `${normalized.bannerHeight}vh`);
+  }
   return normalized;
 }
 

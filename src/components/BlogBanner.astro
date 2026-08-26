@@ -1,4 +1,6 @@
 ---
+import BannerHeightSettingsEnhancer from './BannerHeightSettingsEnhancer.astro';
+
 interface Props {
   title: string;
   subtitle?: string;
@@ -7,6 +9,7 @@ interface Props {
 const { title, subtitle } = Astro.props;
 ---
 
+<BannerHeightSettingsEnhancer />
 <section class="blog-banner" aria-labelledby="blog-banner-title">
   <div class="blog-banner-copy">
     <h1 id="blog-banner-title">{title}</h1>
@@ -27,5 +30,130 @@ const { title, subtitle } = Astro.props;
 
   :global(html.no-hero-bg body.layout-standard) .blog-banner-copy p {
     color: var(--standard-muted);
+  }
+</style>
+
+<style is:global>
+  /* Firefly-style banner/content composition.
+     The content panel starts 3.5rem before the banner ends. The panel itself
+     stays transparent on the homepage; readable content is layered above the
+     waves while the body page color provides the continuous surface below. */
+  body.layout-standard {
+    --banner-surface-overlap: 3.5rem;
+    --home-banner-content-inset: 0.75rem;
+  }
+
+  /* Non-home banner pages retain the original stacking boundary. On the
+     homepage the stage must not create one, otherwise the content panel cannot
+     cross the banner seam like Firefly's z-30 content-panel. */
+  html[data-wallpaper-mode="banner"] body.layout-standard:not(.is-home) .blog-banner-stage {
+    z-index: 4;
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .blog-banner-stage {
+    z-index: auto;
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {
+    z-index: 3;
+    margin-top: calc(-1 * var(--banner-surface-overlap));
+  }
+
+  /* Firefly's content-panel is a positioning wrapper rather than an opaque
+     sheet. Keep this wrapper out of a stacking context; the body supplies the
+     page background and the inner content receives the actual z-index. */
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-page-surface {
+    z-index: auto;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-content {
+    position: relative;
+    z-index: 30;
+    padding-top: calc(var(--banner-surface-overlap) + 14px);
+  }
+
+  html[data-wallpaper-mode="banner"] body.layout-standard:not(.is-home) .standard-content {
+    padding-top: calc(var(--banner-surface-overlap) + 14px);
+  }
+
+  body.layout-standard.is-home .blog-banner-stage,
+  body.layout-standard.is-home .blog-banner,
+  body.layout-standard.is-home .banner-waves {
+    pointer-events: none;
+  }
+
+  body.layout-standard.is-home .blog-banner-copy {
+    transform: translateY(calc(-1 * clamp(20px, 4vh, 42px)));
+  }
+
+  /* Keep the home grid explicitly readable above decorative layers as an
+     additional local guarantee; the parent content panel now matches Firefly's
+     z-30 layer while waves remain at z-15. */
+  body.layout-standard.is-home .home-layout {
+    position: relative;
+    z-index: 20;
+  }
+
+  body.layout-standard.is-home .home-center-column {
+    grid-area: main;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    align-self: start;
+  }
+
+  body.layout-standard.is-home .home-category-bar {
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
+    justify-content: flex-start;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 14px;
+    background: color-mix(in oklch, var(--standard-card-bg) 97%, transparent);
+    box-shadow:
+      0 10px 30px color-mix(in oklch, var(--standard-page-bg) 38%, transparent),
+      0 0 0 1px color-mix(in oklch, var(--standard-accent) 8%, transparent);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Firefly makes waves and the wallpaper gradient mutually exclusive. Keep
+     the gradient only as the fallback when waves are not rendered on the
+     current device. */
+  @media (min-width: 1024px) {
+    html[data-wave-enabled="true"] body.layout-standard .standard-page-surface::before {
+      display: none;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    html[data-wave-enabled="true"][data-wave-mobile="true"] body.layout-standard .standard-page-surface::before {
+      display: none;
+    }
+  }
+
+  @media (max-width: 720px) {
+    body.layout-standard.is-home {
+      --banner-surface-overlap: 2.25rem;
+      --home-banner-content-inset: 0.5rem;
+    }
+
+    body.layout-standard.is-home .blog-banner-copy {
+      transform: translateY(calc(-1 * clamp(12px, 2.5vh, 24px)));
+    }
+
+    body.layout-standard.is-home .home-center-column {
+      gap: 16px;
+    }
+
+    body.layout-standard.is-home .home-category-bar {
+      overflow-x: auto;
+      overflow-y: hidden;
+      border-radius: 14px;
+    }
   }
 </style>

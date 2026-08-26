@@ -3,6 +3,7 @@ interface Props {
   title?: string;
   description?: string;
   showTime?: boolean;
+  showBanner?: boolean;
   layoutMode?: 'standard' | 'immersive';
   bannerTitle?: string;
   bannerSubtitle?: string;
@@ -16,6 +17,7 @@ const {
   title = '搁浅 的小窝',
   description = '一个使用 Astro 和 GitHub Pages 搭建的个人博客。',
   showTime = false,
+  showBanner = true,
   layoutMode = defaultLayoutMode,
   bannerTitle,
   bannerSubtitle,
@@ -32,6 +34,9 @@ import '../styles/firefly-v2.css';
 import '../styles/firefly-v2-pages.css';
 import '../styles/firefly-v4.css';
 import '../styles/firefly-v5-polish.css';
+import '../styles/firefly-v6-theme.css';
+import '../styles/firefly-wallpaper-modes.css';
+import '../styles/bannerless-pages.css';
 import '../styles/immersive-nav.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import BlogBanner from '../components/BlogBanner.astro';
@@ -45,6 +50,8 @@ import VisualSettingsPanel from '../components/VisualSettingsPanel.astro';
 import HeroSlideshow from '../components/HeroSlideshow.astro';
 import SekaiParticles from '../components/SekaiParticles.astro';
 import MomentsPinControls from '../components/MomentsPinControls.astro';
+import PageTransitionEnhancer from '../components/PageTransitionEnhancer.astro';
+import FullscreenWallpaperController from '../components/FullscreenWallpaperController.astro';
 
 const siteBase = Astro.site ?? new URL('https://lidure22.xyz');
 const canonicalUrl = new URL(Astro.url.pathname, siteBase);
@@ -83,11 +90,11 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
       try {
         var raw = JSON.parse(localStorage.getItem('hero_settings') || '{}');
         var root = document.documentElement;
-        var mode = raw.wallpaperMode === 'fullscreen' ? 'fullscreen' : 'banner';
+        var mode = raw.wallpaperMode === 'fullscreen' || raw.wallpaperMode === 'overlay' ? raw.wallpaperMode : 'banner';
         var opacity = Number.isFinite(Number(raw.opacity)) ? Math.max(0, Math.min(1, Number(raw.opacity))) : 0.45;
-        var blur = Number.isFinite(Number(raw.backgroundBlur)) ? Math.max(0, Math.min(20, Number(raw.backgroundBlur))) : 6;
+        var blur = Number.isFinite(Number(raw.backgroundBlur)) ? Math.max(0, Math.min(20, Number(raw.backgroundBlur))) : 5;
         var cardOpacity = Number.isFinite(Number(raw.cardOpacity)) ? Math.max(0.2, Math.min(1, Number(raw.cardOpacity))) : 0.92;
-        var hue = Number.isFinite(Number(raw.themeHue)) ? Math.max(0, Math.min(360, Number(raw.themeHue))) : 340;
+        var hue = Number.isFinite(Number(raw.themeHue)) ? Math.max(0, Math.min(360, Number(raw.themeHue))) : 255;
 
         root.dataset.wallpaperMode = mode;
         root.dataset.bannerGradient = String(raw.bannerGradient !== false);
@@ -169,8 +176,9 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         writeVisualSettings,
       } from '../lib/visual-settings.mjs';
 
+      const visualWindow = window as any;
+
       function installVisualSettingsBridge() {
-        const visualWindow = window as any;
         visualWindow.__lidureVisualSettings = {
           read() {
             return readVisualSettings(window.localStorage);
@@ -186,19 +194,45 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         applyVisualSettingsToDocument(visualWindow.__lidureVisualSettings.read(), document);
       }
 
-      const visualWindow = window as any;
+      function installVisualResetDefaultSync() {
+        if (visualWindow.__lidureVisualResetDefaultsBound) return;
+        visualWindow.__lidureVisualResetDefaultsBound = true;
+
+        document.addEventListener('click', (event) => {
+          const target = event.target as Element | null;
+          if (!target?.closest?.('#visual-reset-current')) return;
+
+          queueMicrotask(() => {
+            const bridge = visualWindow.__lidureVisualSettings;
+            if (!bridge) return;
+
+            if (document.getElementById('visual-panel-appearance')?.classList.contains('is-active')) {
+              bridge.write({ themeHue: 255 });
+              return;
+            }
+
+            if (document.getElementById('visual-panel-background')?.classList.contains('is-active')) {
+              bridge.write({ backgroundBlur: 5 });
+            }
+          });
+        });
+      }
+
       if (!visualWindow.__lidureVisualSettingsLifecycleBound) {
         visualWindow.__lidureVisualSettingsLifecycleBound = true;
         document.addEventListener('astro:page-load', installVisualSettingsBridge);
       }
       installVisualSettingsBridge();
+      installVisualResetDefaultSync();
     </script>
   </head>
-  <body class:list={[`layout-${layoutMode}`, { 'is-home': isHome }]}>
+  <body class:list={[`layout-${layoutMode}`, { 'is-home': isHome, 'is-bannerless': isStandard && !showBanner }]}>
     <VisualSettingsPanel />
     <HeroSlideshow />
     <SekaiParticles />
     <SekaiPlayer />
+    <PageTransitionEnhancer />
+    <FullscreenWallpaperController />
     <MomentsPinControls />
     <SiteHeader currentPath={Astro.url.pathname} />
     <FloatingControls />
@@ -206,9 +240,18 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
 
     {isStandard ? (
       <>
-        <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
-        <BannerWaves />
-        <div class="standard-page-surface">
+        {showBanner && (
+          <div class="blog-banner-stage">
+            <BlogBanner title={resolvedBannerTitle} subtitle={resolvedBannerSubtitle} />
+            <BannerWaves />
+            <button id="fullscreen-scroll-indicator" class="fullscreen-scroll-indicator" type="button" aria-label="向下浏览">
+              <svg class="fullscreen-scroll-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="m6.5 9.5 5.5 5.5 5.5-5.5" />
+              </svg>
+            </button>
+          </div>
+        )}
+        <div class="standard-page-surface" id="standard-page-surface">
           <main class="content-area standard-content">
             {showTime && <div class="clock-row"><ClockDisplay /></div>}
             <slot />
