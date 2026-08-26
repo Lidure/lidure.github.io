@@ -1,0 +1,62 @@
+name: Migrate Superseded Homepage Tests
+
+on:
+  push:
+    branches:
+      - redesign/window-desk-tide-paper
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  migrate:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: redesign/window-desk-tide-paper
+      - name: Replace only superseded homepage visual contracts
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+            'tests/firefly-ui-refresh.test.mjs': (
+              """test('homepage exposes left, main, and right regions', () => {\n  const home = readSource('src/pages/index.astro');\n  assert.match(home, /HomeLeftSidebar/);\n  assert.match(home, /home-main-column/);\n  assert.match(home, /HomeRightSidebar/);\n  assert.match(home, /HomePostCard/);\n  assert.match(home, /home-category-bar/);\n});""",
+              """test('homepage is a personal-first single editorial flow', () => {\n  const home = readSource('src/pages/index.astro');\n  assert.match(home, /home-presence/);\n  assert.match(home, /最近写下的东西/);\n  assert.match(home, /<HomeRecentMoments\\s*\\/>/);\n  assert.doesNotMatch(home, /HomeLeftSidebar|HomeRightSidebar|HomePostCard|home-category-bar/);\n});""",
+            ),
+            'tests/firefly-v3.test.mjs': (
+              """test('homepage music widget uses the approved large-cover composition', () => {\n  const music = readSource('src/components/MusicStatusWidget.astro');\n  assert.match(music, /class=\"music-status-art\"/);\n  assert.match(music, /class=\"music-status-cover-open\"/);\n  assert.match(music, /class=\"music-status-play-overlay/);\n  assert.match(music, /class=\"music-status-track-title\"/);\n  assert.match(music, /id=\"home-music-prev\"/);\n  assert.match(music, /id=\"home-music-play-pause\"/);\n  assert.match(music, /id=\"home-music-next\"/);\n  assert.match(music, /aspect-ratio:\\s*1/);\n  assert.match(music, /border-radius:\\s*22px/);\n  assert.match(music, /window\\.__sekaiOpenPlayer\\s*\\?\\.\\(\\)/);\n});""",
+              """test('homepage keeps music as a quiet presence link into the existing player', () => {\n  const home = readSource('src/pages/index.astro');\n  const presence = readSource('src/data/home-presence.ts');\n  assert.match(presence, /label:\\s*['\"]最近在听['\"]/);\n  assert.match(presence, /href:\\s*['\"]\\/player['\"]/);\n  assert.match(home, /homePresence\\.now/);\n  assert.doesNotMatch(home, /MusicStatusWidget/);\n});""",
+            ),
+            'tests/firefly-v4.test.mjs': (
+              """test('v4 home post cards use image-forward alternating layouts with stable cover ratios', () => {\n  const card = readSource('src/components/HomePostCard.astro');\n  const css = readSource('src/styles/firefly-v4.css');\n  const layout = readSource('src/layouts/BaseLayout.astro');\n\n  assert.match(card, /class=\"home-post-title\"/);\n  assert.match(card, /class=\"home-post-excerpt\"/);\n  assert.match(card, /class=\"home-post-cover-image\"/);\n  assert.match(card, /sizes=/);\n\n  assert.match(css, /\\.home-post-card\\.has-cover/);\n  assert.match(css, /grid-template-columns:\\s*minmax\\(220px,\\s*36%\\)\\s+minmax\\(0,\\s*1fr\\)/);\n  assert.match(css, /\\.home-post-card:nth-child\\(even\\)\\.has-cover/);\n  assert.match(css, /aspect-ratio:\\s*16\\s*\\/\\s*10/);\n  assert.match(css, /\\.home-post-card:hover\\s+\\.home-post-cover-image/);\n  assert.match(css, /-webkit-line-clamp:\\s*3/);\n  assert.match(css, /\\.home-post-card:not\\(\\.has-cover\\)/);\n  assert.match(layout, /firefly-v4\\.css/);\n});""",
+              """test('homepage writing uses one lead story followed by quiet editorial rows', () => {\n  const home = readSource('src/pages/index.astro');\n  const css = readSource('src/styles/home.css');\n  assert.match(home, /const leadPost = posts\\[0\\]/);\n  assert.match(home, /const supportingPosts = posts\\.slice\\(1, 5\\)/);\n  assert.match(home, /home-lead-story/);\n  assert.match(home, /home-story-row/);\n  assert.doesNotMatch(home, /HomePostCard/);\n  assert.doesNotMatch(home, /home-post-list/);\n  assert.match(css, /\\.home-lead-story/);\n  assert.match(css, /\\.home-story-row/);\n});""",
+            ),
+          }
+
+          changed = False
+          for name, (old, new) in replacements.items():
+            path = Path(name)
+            text = path.read_text()
+            if new in text:
+              continue
+            if old not in text:
+              raise SystemExit(f'expected old block not found in {name}')
+            path.write_text(text.replace(old, new, 1))
+            changed = True
+
+          if not changed:
+            print('No migration needed')
+      - name: Commit migration if needed
+        run: |
+          if git diff --quiet; then
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/firefly-ui-refresh.test.mjs tests/firefly-v3.test.mjs tests/firefly-v4.test.mjs
+          git commit -m "test: migrate homepage contracts to window desk design"
+          git push origin HEAD:redesign/window-desk-tide-paper
