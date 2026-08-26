@@ -1,1 +1,75 @@
 /* Follow-up fixes for article wide content and Moments controls. */
+
+/* Keep the TOC visually farther left without changing the safe three-column grid. */
+@media (min-width: 1381px) {
+  body.layout-standard .article-toc-inner {
+    width: calc(100% + 56px);
+    margin-left: -56px;
+    padding-right: 8px;
+  }
+
+  /* Wide article blocks must never expand symmetrically into the TOC rail. */
+  body.layout-standard .article-prose table {
+    display: table;
+    width: 100%;
+    max-width: 100%;
+    margin: 1.9em 0;
+    overflow: visible;
+    transform: none;
+  }
+
+  body.layout-standard .article-prose pre {
+    width: 100%;
+    max-width: 100%;
+    margin: 1.9em 0;
+    transform: none;
+  }
+
+  body.layout-standard .article-prose p:has(> img:only-child),
+  body.layout-standard .article-prose figure:has(img) {
+    width: 100%;
+    max-width: 100%;
+    margin: 2.25em 0;
+    transform: none;
+  }
+}
+
+/* On narrower article layouts, keep table cells from forcing page overflow. */
+body.layout-standard .article-prose table {
+  min-width: 0;
+}
+
+body.layout-standard .article-prose th,
+body.layout-standard .article-prose td {
+  overflow-wrap: anywhere;
+}
+
+/* The Moments top filter should read like notebook tabs, not a solid accent button. */
+body.layout-standard .moments-shell .moments-wall-filter .pill,
+body.layout-standard .moments-shell .moments-wall-filter .pill:hover,
+body.layout-standard .moments-shell .moments-wall-filter .pill:focus-visible,
+body.layout-standard .moments-shell .moments-wall-filter .pill.active {
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+body.layout-standard .moments-shell .moments-wall-filter .pill.active {
+  color: color-mix(in srgb, var(--standard-text, var(--text)) 92%, var(--standard-accent, var(--accent))) !important;
+  font-weight: 650;
+}
+
+body.layout-standard .moments-shell .moments-wall-filter .pill.active::after {
+  left: 10px;
+  right: 10px;
+  bottom: 2px;
+  height: 2px;
+  background: color-mix(in srgb, var(--standard-accent, var(--accent)) 52%, transparent) !important;
+  transform: rotate(-1.4deg) scaleX(0.92) !important;
+  box-shadow: 0 1px 0 color-mix(in srgb, var(--moment-paper, #fffaf0) 72%, transparent);
+}
+
+html[data-theme="dark"] body.layout-standard .moments-shell .moments-wall-filter .pill.active::after {
+  background: color-mix(in srgb, var(--standard-accent, var(--accent)) 46%, transparent) !important;
+}
