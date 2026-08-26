@@ -41,16 +41,16 @@ test('bannerless Moments keeps all core interaction hooks', () => {
   assert.match(page, /deleteMomentViaApi/);
 });
 
-test('Moments uses a three-column notebook shell with useful side companions', () => {
-  assert.match(page, /class="moments-page-grid"/);
-  assert.match(page, /class="moments-side moments-side--left"/);
-  assert.match(page, /class="moments-main-column"/);
-  assert.match(page, /class="moments-side moments-side--right"/);
-  for (const hook of ['moments-side-total', 'moments-side-month', 'moments-side-categories', 'moments-side-gallery']) {
-    assert.match(page, new RegExp(`id="${hook}"`));
+test('Moments enhancement builds a three-column notebook shell with useful side companions', () => {
+  for (const className of ['moments-page-grid', 'moments-side--left', 'moments-main-column', 'moments-side--right']) {
+    assert.match(pins, new RegExp(className));
   }
-  assert.match(page, /function syncMomentsCompanions\(/);
-  assert.match(page, /data-side-category/);
+  for (const hook of ['moments-side-total', 'moments-side-month', 'moments-side-categories', 'moments-side-gallery']) {
+    assert.match(pins, new RegExp(hook));
+  }
+  assert.match(pins, /function ensureMomentsCompanionShell\(/);
+  assert.match(pins, /function syncMomentsCompanions\(/);
+  assert.match(pins, /data-side-category/);
   assert.match(notebookCss, /\.moments-page-grid\s*\{[\s\S]*grid-template-columns:\s*210px\s+minmax\(0,\s*900px\)\s+210px/);
   assert.match(notebookCss, /@media \(max-width:\s*1280px\)[\s\S]*\.moments-side\s*\{\s*display:\s*none/);
 });
@@ -75,8 +75,8 @@ test('Moments microinteractions make paper, reactions, and side filters feel ali
   assert.match(notebookCss, /\.moment-reaction-chip\.just-reacted\s*\{[\s\S]*animation:/);
   assert.match(notebookCss, /\.moments-side-category:hover/);
   assert.match(notebookCss, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*\.moment-card:hover/);
-  assert.match(page, /sideCategoryButtons\.forEach/);
-  assert.match(page, /openLightbox\(img\)/);
+  assert.match(pins, /sideCategoryButtons\.forEach/);
+  assert.match(pins, /matchingImage\?\.click\(\)/);
 });
 
 test('emoji and reaction pickers stay collapsed until opened', () => {
