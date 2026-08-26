@@ -23,7 +23,6 @@ test('article can opt out of the standard banner with a dedicated bannerless she
 
 test('article uses the personal-publication structure and retires PR 43 chrome', () => {
   assert.match(page, /const \{ Content, headings \} = await render\(post\)/);
-  assert.match(page, /const chapterHeadings = headings\.filter\(\(heading\) => heading\.depth === 2\)/);
   assert.match(page, /class="article-publication"/);
   assert.match(page, /class="article-masthead"/);
   assert.match(page, /class="article-title"/);
@@ -31,7 +30,6 @@ test('article uses the personal-publication structure and retires PR 43 chrome',
   assert.match(page, /class="article-meta"/);
   assert.match(page, /class="article-tags"/);
   assert.match(page, /class="article-reading-canvas"/);
-  assert.match(page, /class="article-bookmark"/);
   assert.match(page, /class="article-end"/);
   assert.match(page, /class="article-comments"/);
   assert.doesNotMatch(page, /ISSUE\s*\{/);
@@ -39,6 +37,19 @@ test('article uses the personal-publication structure and retires PR 43 chrome',
   assert.doesNotMatch(page, /article-comments-label/);
   assert.doesNotMatch(page, /Discussion/);
   assert.doesNotMatch(page, /class="post-shell"/);
+});
+
+test('article renders a readable H2/H3 table of contents that stays out of the prose flow', () => {
+  assert.match(page, /const tocHeadings = headings\.filter\(\(heading\) => heading\.depth === 2 \|\| heading\.depth === 3\)/);
+  assert.match(page, /class="article-toc"/);
+  assert.match(page, /class="article-toc-link depth-\{heading\.depth\}"/);
+  assert.match(page, /class="article-toc-mobile"/);
+  assert.match(css, /\.article-reading-canvas\s*\{[\s\S]*grid-template-columns:/);
+  assert.match(css, /\.article-toc\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(css, /\.article-toc-mobile\s*\{[\s\S]*display:\s*none/);
+  assert.match(css, /@media \(max-width:\s*940px\)[\s\S]*\.article-toc\s*\{\s*display:\s*none/);
+  assert.match(css, /@media \(max-width:\s*940px\)[\s\S]*\.article-toc-mobile\s*\{[\s\S]*display:\s*block/);
+  assert.doesNotMatch(css, /\.article-toc[^\{]*\{[^\}]*position:\s*fixed/);
 });
 
 test('article stylesheet is publication-first rather than card-first', () => {
@@ -51,14 +62,13 @@ test('article stylesheet is publication-first rather than card-first', () => {
   assert.match(css, /\.article-prose blockquote/);
   assert.match(css, /\.article-prose pre/);
   assert.match(css, /\.article-prose table/);
-  assert.match(css, /\.article-bookmark/);
   assert.match(css, /@media \(max-width:\s*760px\)/);
   assert.doesNotMatch(css, /box-shadow:\s*0 18px 60px/);
 });
 
-test('article bookmark rail follows headings and cleans up across Astro navigation', () => {
-  assert.match(page, /--article-reading-progress/);
-  assert.match(page, /--chapter-offset/);
+test('article TOC follows headings and cleans up across Astro navigation', () => {
+  assert.match(page, /data-article-toc=/);
+  assert.match(page, /classList\.toggle\('is-current'/);
   assert.match(page, /AbortController/);
   assert.match(page, /astro:page-load/);
   assert.match(page, /astro:before-swap/);
