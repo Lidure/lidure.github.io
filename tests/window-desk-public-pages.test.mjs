@@ -17,3 +17,10 @@ test('posts page is writing-only and archive is a dedicated route', () => {
   assert.match(archive, /getCollection\('blog'/);
   assert.match(archive, /archive-year/);
 });
+
+test('tags are an index instead of a pill cloud', () => {
+  const tags = read('src/pages/tags/index.astro');
+  assert.match(tags, /tag-index-link/);
+  assert.doesNotMatch(tags, /tag-pill/);
+  assert.match(tags, /<sup>\{count\}<\/sup>/);
+});
