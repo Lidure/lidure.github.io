@@ -42,6 +42,18 @@ test('semantic compatibility variables exist independently of Firefly layers', (
   ]) assert.match(tokens, new RegExp(variable.replaceAll('-', '\\-')));
 });
 
+test('base layout owns shared semantic styles while route styles stay route-owned', () => {
+  const layout = read('src/layouts/BaseLayout.astro');
+  for (const shared of ['global.css', 'tokens.css', 'site-shell.css', 'pages.css']) {
+    assert.match(layout, new RegExp(shared.replace('.', '\\.')));
+  }
+  for (const routeOwned of ['home.css', 'article.css', 'moments.css']) {
+    assert.doesNotMatch(layout, new RegExp(routeOwned.replace('.', '\\.')));
+  }
+  assert.match(read('src/pages/posts/[slug].astro'), /styles\/article\.css/);
+  assert.match(read('src/pages/moments.astro'), /styles\/moments\.css/);
+});
+
 test('page-level migration styles are gone', () => {
   assert.equal(existsSync(new URL('../src/styles/article-reading.css', import.meta.url)), false);
   assert.equal(existsSync(new URL('../src/styles/moments-life-wall.css', import.meta.url)), false);
