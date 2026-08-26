@@ -61,3 +61,19 @@ test('toc controller supports scrollspy, reduced motion, mobile close, and Astro
   assert.match(toc, /astro:before-swap/);
   assert.match(toc, /--article-reading-progress/);
 });
+
+test('article css is reading-first and responsive', () => {
+  const css = read('src/styles/article.css');
+  assert.match(css, /\.article-prose\s*\{[\s\S]*max-width:\s*var\(--reading-max\)/);
+  assert.match(css, /\.article-toc-desktop[\s\S]*position:\s*sticky/);
+  assert.match(css, /\.article-toc-link\.is-current/);
+  assert.match(css, /li\[data-depth=['"]3['"]\]/);
+  assert.match(css, /max-height:\s*calc\(100vh/);
+  assert.match(css, /\.article-toc-mobile/);
+  assert.match(css, /@media \(max-width:\s*940px\)/);
+  assert.match(css, /\.article-prose blockquote/);
+  assert.match(css, /\.article-prose pre/);
+  assert.match(css, /\.article-prose table/);
+  assert.match(css, /scroll-margin-top/);
+  assert.doesNotMatch(css, /box-shadow:\s*0\s+18px\s+60px/);
+});
