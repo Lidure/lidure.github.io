@@ -34,3 +34,15 @@ test('about owns personal context and selected projects with graceful empty stat
   assert.match(about, /projects\.length\s*>\s*0/);
   assert.match(about, /about-projects/);
 });
+
+test('messages reads as a guestbook while preserving behavior hooks', () => {
+  const page = read('src/pages/messages.astro');
+  assert.match(page, /路过的话，留下一句话吧/);
+  assert.doesNotMatch(page, /GUESTBOOK/);
+  assert.doesNotMatch(page, /RECENT MESSAGES/);
+  for (const id of [
+    'message-form', 'message-user-id', 'message-text', 'message-status',
+    'message-submit', 'message-admin', 'message-session-status', 'message-login',
+    'message-count', 'messages-list',
+  ]) assert.match(page, new RegExp(`id="${id}"`));
+});
