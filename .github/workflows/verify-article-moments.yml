@@ -28,8 +28,8 @@ jobs:
       - name: Run focused contracts
         run: node --test tests/article-reading.test.mjs tests/moments-journal-layout.test.mjs
 
-      - name: Build
+      - name: Run full site suite
         env:
           PUBLIC_MOMENTS_API: ${{ vars.PUBLIC_MOMENTS_API }}
           PUBLIC_MEDIA_BASE_URL: ${{ vars.PUBLIC_MEDIA_BASE_URL }}
-        run: npm run build
+        run: npm test
