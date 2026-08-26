@@ -1,3 +1,32 @@
 <script>
-  // Snapshot preview bridge implementation follows after the RED contract is confirmed.
+  const snapshotWindow = window as typeof window & {
+    __momentsSnapshotPreviewBound?: boolean;
+  };
+
+  function openSnapshotFromSideRail(event: MouseEvent) {
+    const target = event.target as Element | null;
+    const button = target?.closest<HTMLButtonElement>('.moments-side-photo');
+    if (!button) return;
+
+    const gallery = button.closest<HTMLElement>('.moments-side-gallery');
+    const list = document.querySelector<HTMLElement>('.moments-list');
+    if (!gallery || !list) return;
+
+    const thumbnails = Array.from(gallery.querySelectorAll<HTMLButtonElement>('.moments-side-photo'));
+    const index = thumbnails.indexOf(button);
+    if (index < 0) return;
+
+    const sourceImages = Array.from(list.querySelectorAll<HTMLImageElement>('.card-images img')).slice(0, thumbnails.length);
+    const sourceImage = sourceImages[index];
+    if (!sourceImage) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    sourceImage?.click();
+  }
+
+  if (!snapshotWindow.__momentsSnapshotPreviewBound) {
+    snapshotWindow.__momentsSnapshotPreviewBound = true;
+    document.addEventListener('click', openSnapshotFromSideRail, { capture: true });
+  }
 </script>
