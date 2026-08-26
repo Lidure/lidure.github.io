@@ -19,3 +19,10 @@ test('homepage content is explicitly layered above the waves', () => {
     /body\.layout-standard\.is-home\s+\.home-layout\s*\{[^}]*position:\s*relative[^}]*z-index:\s*20/s,
   );
 });
+
+test('homepage content starts below the banner wave overlap', () => {
+  assert.match(
+    bannerSource,
+    /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.standard-content\s*\{[^}]*padding-top:\s*calc\(var\(--banner-surface-overlap\)\s*\+\s*14px\)/s,
+  );
+});
