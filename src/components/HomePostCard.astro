@@ -1,0 +1,64 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { resolvePostCover } from '../lib/post-cover.mjs';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+}
+
+const contentAssets = import.meta.glob('../content/blog/**/*.{png,jpg,jpeg,webp,gif,avif,svg}', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+}) as Record<string, string>;
+
+const { post } = Astro.props;
+const href = `/posts/${post.id.replace(/\.md$/, '')}`;
+const minutes = Math.max(1, Math.ceil((post.body ?? '').length / 800));
+const cover = resolvePostCover({
+  cover: post.data.cover,
+  body: post.body ?? '',
+  postId: post.id,
+  assets: contentAssets,
+});
+---
+
+<article class:list={['home-post-card', { 'has-cover': !!cover }]}>
+  <div class="home-post-copy">
+    <div class="home-post-meta">
+      <time datetime={post.data.pubDate.toISOString()}>{post.data.pubDate.toLocaleDateString('zh-CN')}</time>
+      <span aria-hidden="true">·</span>
+      <span>{minutes} 分钟阅读</span>
+    </div>
+
+    <h2 class="home-post-title">
+      <a href={href}>{post.data.title}</a>
+    </h2>
+
+    <p class="home-post-excerpt">{post.data.description}</p>
+
+    <div class="home-post-footer">
+      <div class="home-post-tags">
+        {post.data.tags.slice(0, 3).map((tag) => <a href={`/tags/${encodeURIComponent(tag)}`}>#{tag}</a>)}
+      </div>
+      <a class="home-post-read" href={href} aria-label={`阅读 ${post.data.title}`}>
+        <span>阅读</span>
+        <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+
+  {cover && (
+    <a class="home-post-cover" href={href} aria-label={`阅读 ${post.data.title}`}>
+      <img
+        class="home-post-cover-image"
+        src={cover}
+        alt=""
+        loading="lazy"
+        decoding="async"
+        sizes="(max-width: 760px) calc(100vw - 52px), (max-width: 1180px) 34vw, 320px"
+      />
+      <span class="home-post-cover-shade" aria-hidden="true"></span>
+    </a>
+  )}
+</article>

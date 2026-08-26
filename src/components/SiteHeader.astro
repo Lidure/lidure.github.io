@@ -9,14 +9,12 @@ const primaryLinks = [
   { href: '/', label: '首页' },
   { href: '/posts', label: '文章' },
   { href: '/moments', label: '碎碎念' },
-  { href: '/archive', label: '归档' },
-  { href: '/about', label: '关于' },
+  { href: '/messages', label: '留言' },
 ];
 
 const utilityLinks = [
-  { href: '/search', label: '搜索' },
-  { href: '/messages', label: '留言' },
   { href: '/tags', label: '标签' },
+  { href: '/search', label: '搜索' },
   { href: '/player', label: '沉浸' },
   { href: '/sekai-quest', label: '闯关' },
 ];
@@ -27,7 +25,7 @@ const isActive = (href: string) =>
 
 <header class="site-header" id="site-header">
   <div class="site-header-inner">
-    <a class="site-brand" href="/" aria-label="返回首页">搁浅的小窝</a>
+    <a class="site-brand" href="/" aria-label="返回首页">Lidure</a>
 
     <button
       class="site-nav-toggle"
@@ -48,7 +46,7 @@ const isActive = (href: string) =>
         ))}
       </nav>
 
-      <div class="site-nav-more" aria-label="更多入口">
+      <div class="site-nav-utilities">
         {utilityLinks.map((link) => (
           <a href={link.href} class:list={{ active: isActive(link.href) }}>
             {link.label}

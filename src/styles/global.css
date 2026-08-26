@@ -793,6 +793,40 @@ img {
   margin-top: 18px;
 }
 
+/* Tag Cloud */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  color: var(--tag-color);
+  font-weight: 700;
+  font-size: 0.92rem;
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.tag-pill:hover {
+  transform: translateY(-2px);
+  border-color: var(--hover-border);
+  box-shadow: var(--shadow-soft), 0 4px 16px rgba(var(--accent-rgb), 0.08);
+}
+
+.tag-pill sup {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
 /* Search */
 .search-bar {
   display: flex;
@@ -889,6 +923,75 @@ img {
 .sekai-badge.n25 { background: rgba(153, 68,170,0.10); color: #7a3890; }
 .sekai-badge.vs  { background: rgba( 51,170,221,0.10); color: #2a8ab5; }
 
+/* Timeline */
+.timeline {
+  position: relative;
+  margin-top: 28px;
+  padding-left: 36px;
+}
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 11px;
+  top: 8px;
+  bottom: 8px;
+  width: 2.5px;
+  background: linear-gradient(180deg, var(--accent), var(--accent-3), var(--accent-2));
+  border-radius: 999px;
+  opacity: 0.5;
+}
+
+.timeline-item {
+  position: relative;
+  padding: 16px 22px;
+  margin-bottom: 18px;
+  background: var(--panel-gradient);
+  border: 1px solid var(--panel-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  transition: transform 280ms ease, border-color 280ms ease, box-shadow 280ms ease;
+}
+
+.timeline-item:hover {
+  transform: translateX(3px);
+  border-color: var(--hover-border);
+  box-shadow: var(--shadow);
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -29px;
+  top: 24px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-3));
+  border: 2.5px solid var(--bg);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 255,143,179), 0.2);
+  z-index: 1;
+}
+
+.timeline-date {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 0.88rem;
+}
+
+.timeline-item h3 {
+  margin: 0 0 6px;
+  font-size: 1.15rem;
+}
+
+.timeline-item p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 /* SEKAI separator */
 .sekai-divider {
   display: flex;
@@ -965,7 +1068,7 @@ img {
 
 /* Theme transition */
 .hero, .card, .post-shell, .archive-shell,
-.nav a, .button, .project-card,
+.nav a, .button, .tag-pill, .project-card,
 .site-shell, .content-area, .footer,
 .clock-text, .mini-stats div, .tag,
 .search-bar input, .profile-card, .link-card,
@@ -1174,6 +1277,15 @@ img {
   .prose h3 {
     font-size: 1.15rem;
   }
+
+  .tag-cloud {
+    gap: 8px;
+  }
+
+  .tag-pill {
+    font-size: 0.82rem;
+    padding: 7px 14px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1217,9 +1329,45 @@ img {
     padding: 6px 8px;
   }
 
+  .timeline {
+    padding-left: 24px;
+  }
+
+  .timeline::before {
+    left: 7px;
+  }
+
+  .timeline-item {
+    padding: 12px 16px;
+    margin-bottom: 14px;
+  }
+
+  .timeline-item::before {
+    left: -21px;
+    width: 10px;
+    height: 10px;
+  }
+
+  .timeline-date {
+    font-size: 0.8rem;
+  }
+
+  .timeline-item h3 {
+    font-size: 1rem;
+  }
+
+  .timeline-item p {
+    font-size: 0.88rem;
+  }
+
   .tag {
     padding: 4px 9px;
     font-size: 0.76rem;
+  }
+
+  .tag-pill {
+    font-size: 0.78rem;
+    padding: 6px 12px;
   }
 
   .search-bar input[type="search"] {

@@ -1,0 +1,219 @@
+:root {
+  --visual-panel-bg: rgba(18, 18, 24, 0.96);
+  --visual-panel-surface: rgba(255, 255, 255, 0.07);
+  --visual-panel-soft: rgba(255, 255, 255, 0.055);
+  --visual-panel-control: rgba(8, 8, 12, 0.78);
+  --visual-panel-border: rgba(255, 255, 255, 0.16);
+  --visual-panel-text: #f7f7fa;
+  --visual-panel-muted: #b8b8c2;
+  --visual-panel-shadow: 0 24px 70px rgba(2, 4, 12, 0.38);
+}
+
+[data-theme="light"] {
+  --visual-panel-bg: rgba(255, 255, 255, 0.97);
+  --visual-panel-surface: rgba(63, 49, 57, 0.055);
+  --visual-panel-soft: rgba(63, 49, 57, 0.065);
+  --visual-panel-control: rgba(255, 255, 255, 0.96);
+  --visual-panel-border: rgba(81, 64, 72, 0.18);
+  --visual-panel-text: #29252b;
+  --visual-panel-muted: #69616a;
+  --visual-panel-shadow: 0 24px 64px rgba(126, 74, 99, 0.14);
+}
+
+/* The full-width page surface should meet the viewport edge cleanly. Rounded
+   corners here exposed the darker layer underneath and created black notches. */
+body.layout-standard .standard-page-surface {
+  border-radius: 0;
+}
+
+/* Bridge the v5 theme tokens into the variable names consumed inside the
+   Astro-scoped VisualSettingsPanel styles. This avoids relying on external
+   selector specificity: the scoped rules now resolve the correct light/dark
+   colors directly from their own var(--panel-bg), var(--text), etc. */
+html body .hero-settings-btn {
+  --panel-bg: var(--visual-panel-bg);
+  --text-soft: var(--visual-panel-text);
+  --border: var(--visual-panel-border);
+  color: var(--visual-panel-text);
+  background: color-mix(in srgb, var(--visual-panel-bg) 94%, transparent);
+  border-color: var(--visual-panel-border);
+  box-shadow: 0 12px 32px color-mix(in srgb, #000 16%, transparent);
+}
+
+html body .hero-settings-panel {
+  --panel-bg: var(--visual-panel-bg);
+  --text: var(--visual-panel-text);
+  --text-soft: color-mix(in srgb, var(--visual-panel-text) 86%, var(--visual-panel-muted));
+  --muted: var(--visual-panel-muted);
+  --border: var(--visual-panel-border);
+  color: var(--visual-panel-text);
+  background: var(--visual-panel-bg);
+  border-color: var(--visual-panel-border);
+  box-shadow: var(--visual-panel-shadow);
+}
+
+html body .settings-title,
+html body .setting-label,
+html body .settings-card-title > span,
+html body .media-library-copy strong,
+html body .upload-zone strong {
+  color: var(--visual-panel-text);
+}
+
+html body .settings-helper,
+html body .settings-card-title > small,
+html body .setting-row small,
+html body .upload-zone small,
+html body .media-library-copy small,
+html body .media-library-arrow {
+  color: var(--visual-panel-muted);
+}
+
+html body .visual-tabs,
+html body .segmented-control {
+  background: var(--visual-panel-soft);
+  border-color: var(--visual-panel-border);
+}
+
+html body .settings-card,
+html body .upload-zone,
+html body .media-manage-btn,
+html body .url-add-btn,
+html body .settings-reset {
+  background: var(--visual-panel-surface);
+  border-color: var(--visual-panel-border);
+  color: var(--visual-panel-text);
+}
+
+html body .quality-select,
+html body .url-row input {
+  color: var(--visual-panel-text);
+  background: var(--visual-panel-control);
+  border-color: var(--visual-panel-border);
+}
+
+html body .url-row input::placeholder {
+  color: color-mix(in srgb, var(--visual-panel-muted) 82%, transparent);
+}
+
+html body .visual-tab,
+html body .segment-option {
+  color: var(--visual-panel-muted);
+}
+
+html body .visual-tab.is-active,
+html body .segment-option.is-active {
+  color: hsl(var(--theme-hue, 340) 72% 58%);
+  background: color-mix(
+    in srgb,
+    hsl(var(--theme-hue, 340) 72% 62%) 12%,
+    var(--visual-panel-control)
+  );
+  box-shadow: inset 0 0 0 1px hsl(var(--theme-hue, 340) 66% 58% / 0.15);
+}
+
+html body .settings-close {
+  color: var(--visual-panel-muted);
+}
+
+html body .settings-close:hover,
+html body .url-add-btn:hover,
+html body .settings-reset:hover {
+  color: var(--visual-panel-text);
+  background: color-mix(in srgb, var(--visual-panel-text) 8%, transparent);
+}
+
+html body .toggle-track {
+  background: color-mix(in srgb, var(--visual-panel-text) 10%, transparent);
+  border-color: var(--visual-panel-border);
+}
+
+html body .toggle-track::after {
+  background: color-mix(in srgb, var(--visual-panel-text) 88%, #fff);
+}
+
+html body .upload-zone:hover,
+html body .media-manage-btn:hover {
+  background: color-mix(
+    in srgb,
+    hsl(var(--theme-hue, 340) 70% 60%) 7%,
+    var(--visual-panel-surface)
+  );
+  border-color: hsl(var(--theme-hue, 340) 60% 56% / 0.38);
+}
+
+html body .settings-body {
+  scrollbar-color: color-mix(in srgb, var(--visual-panel-muted) 42%, transparent) transparent;
+}
+
+/* Firefly-like hue spectrum: the track communicates the complete hue range
+   rather than showing a monochrome native range control. */
+html body #theme-hue-range {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    hsl(0 86% 64%) 0%,
+    hsl(38 90% 62%) 11%,
+    hsl(72 82% 58%) 20%,
+    hsl(128 67% 53%) 34%,
+    hsl(178 72% 50%) 47%,
+    hsl(214 84% 61%) 60%,
+    hsl(262 78% 66%) 73%,
+    hsl(310 76% 64%) 86%,
+    hsl(360 86% 64%) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.18),
+    0 1px 5px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+html body #theme-hue-range::-webkit-slider-runnable-track {
+  height: 10px;
+  border: 0;
+  background: transparent;
+}
+
+html body #theme-hue-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -4px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: hsl(var(--theme-hue, 340) 76% 58%);
+  box-shadow: 0 2px 9px rgba(0, 0, 0, 0.28);
+}
+
+html body #theme-hue-range::-moz-range-track {
+  height: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+}
+
+html body #theme-hue-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: hsl(var(--theme-hue, 340) 76% 58%);
+  box-shadow: 0 2px 9px rgba(0, 0, 0, 0.28);
+}
+
+html body #theme-hue-range:focus-visible {
+  outline: 2px solid hsl(var(--theme-hue, 340) 74% 62%);
+  outline-offset: 4px;
+}
+
+@media (max-width: 720px) {
+  html body .hero-settings-panel {
+    background: color-mix(in srgb, var(--visual-panel-bg) 98%, transparent);
+  }
+}

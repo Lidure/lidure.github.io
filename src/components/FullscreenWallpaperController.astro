@@ -140,14 +140,14 @@
       syncNativeWallpaperImage();
       if (!isFullscreen()) {
         resetHeroUi();
-        hero?.style.setProperty('--wallpaper-scroll-blur', '0px');
+        hero?.style.setProperty('--fullscreen-scroll-blur', '0px');
         return;
       }
 
       const maxBlur = readMaxBlur();
       if (!body.classList.contains('is-home')) {
         resetHeroUi();
-        hero?.style.setProperty('--wallpaper-scroll-blur', `${maxBlur}px`);
+        hero?.style.setProperty('--fullscreen-scroll-blur', `${maxBlur}px`);
         return;
       }
 
@@ -163,7 +163,7 @@
       const quantized = blurRatio >= 1
         ? maxBlur
         : Math.floor((maxBlur * blurRatio) / 2) * 2;
-      hero?.style.setProperty('--wallpaper-scroll-blur', `${quantized}px`);
+      hero?.style.setProperty('--fullscreen-scroll-blur', `${quantized}px`);
     }
 
     function requestSync() {
