@@ -1,0 +1,29 @@
+:root {
+  --font-body: 'Zen Maru Gothic', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-hand: 'Ma Shan Zheng', cursive;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --ink: hsl(var(--theme-hue, 255) 12% 18%);
+  --muted: hsl(var(--theme-hue, 255) 8% 43%);
+  --paper: hsl(var(--theme-hue, 255) 24% 99% / 0.90);
+  --paper-soft: hsl(var(--theme-hue, 255) 22% 98% / 0.72);
+  --line: hsl(var(--theme-hue, 255) 18% 72% / 0.45);
+  --accent: hsl(var(--theme-hue, 255) 64% 55%);
+  --accent-soft: hsl(var(--theme-hue, 255) 70% 70% / 0.20);
+
+  --content-max: 1120px;
+  --reading-max: 740px;
+  --space-page: clamp(20px, 4vw, 48px);
+  --radius-soft: 14px;
+  --shadow-paper: 0 10px 30px hsl(var(--theme-hue, 255) 18% 12% / 0.06);
+}
+
+html[data-theme='dark'] {
+  --ink: hsl(var(--theme-hue, 255) 12% 91%);
+  --muted: hsl(var(--theme-hue, 255) 9% 68%);
+  --paper: hsl(var(--theme-hue, 255) 14% 13% / 0.86);
+  --paper-soft: hsl(var(--theme-hue, 255) 13% 15% / 0.68);
+  --line: hsl(var(--theme-hue, 255) 14% 62% / 0.30);
+  --accent: hsl(var(--theme-hue, 255) 72% 70%);
+  --accent-soft: hsl(var(--theme-hue, 255) 72% 64% / 0.16);
+}
