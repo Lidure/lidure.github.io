@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const page = read('src/pages/posts/[slug].astro');
+const indexPage = read('src/pages/posts/index.astro');
 const layout = read('src/layouts/BaseLayout.astro');
 const css = read('src/styles/article-reading.css');
 const bannerlessCss = read('src/styles/bannerless-pages.css');
+const archiveCssUrl = new URL('../src/styles/article-archive.css', import.meta.url);
+const archiveCss = existsSync(archiveCssUrl) ? readFileSync(archiveCssUrl, 'utf8') : '';
 
 test('article can opt out of the standard banner with a dedicated bannerless shell', () => {
   assert.match(layout, /showBanner\?: boolean/);
@@ -19,6 +22,18 @@ test('article can opt out of the standard banner with a dedicated bannerless she
   assert.match(bannerlessCss, /body\.layout-standard\.is-bannerless \.standard-content\s*\{[\s\S]*padding-top:\s*96px/);
   assert.match(bannerlessCss, /data-wallpaper-mode="banner"[\s\S]*body\.layout-standard\.is-bannerless \.site-header/);
   assert.match(bannerlessCss, /color:\s*var\(--standard-text\)/);
+});
+
+test('article archive is content-first and keeps GitHub projects visibly secondary', () => {
+  assert.match(indexPage, /article-archive\.css/);
+  assert.match(indexPage, /showBanner=\{false\}/);
+  assert.match(indexPage, /class="article-archive"/);
+  assert.match(indexPage, /class="article-entry-link"/);
+  assert.match(indexPage, /class="article-projects-secondary"/);
+  assert.doesNotMatch(indexPage, /class="timeline"/);
+  assert.match(archiveCss, /\.article-entry-link\s*\{[\s\S]*grid-template-columns:/);
+  assert.match(archiveCss, /\.article-entry\s*\{[\s\S]*border-bottom:/);
+  assert.match(archiveCss, /\.article-projects-secondary\s*\{[\s\S]*border-top:/);
 });
 
 test('article uses the personal-publication structure and retires PR 43 chrome', () => {
