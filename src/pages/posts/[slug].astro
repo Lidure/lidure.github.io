@@ -1,7 +1,9 @@
 ---
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArticleToc from '../../components/ArticleToc.astro';
 import Comments from '../../components/Comments.astro';
+import { buildArticleToc, shouldShowArticleToc } from '../../lib/article-toc.mjs';
 import { estimateReadingMinutes } from '../../utils/article-reading';
 import '../../styles/article-reading.css';
 import 'katex/dist/katex.min.css';
@@ -17,9 +19,10 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content, headings } = await render(post);
+const tocEntries = buildArticleToc(headings);
+const showToc = shouldShowArticleToc(tocEntries);
 const updatedDate = post.data.updatedDate ?? post.data.pubDate;
 const readingMinutes = estimateReadingMinutes(post.body ?? '');
-const chapterHeadings = headings.filter((heading) => heading.depth === 2);
 const publishedMachine = post.data.pubDate.toISOString();
 const updatedMachine = updatedDate.toISOString();
 const publishedLabel = post.data.pubDate.toLocaleDateString('zh-CN', {
@@ -58,21 +61,7 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     </header>
 
     <div class="article-reading-canvas">
-      <nav class="article-bookmark" aria-label="文章章节">
-        <div class="article-bookmark-track">
-          <span class="article-bookmark-marker" aria-hidden="true"></span>
-          {chapterHeadings.map((heading) => (
-            <a
-              class="article-bookmark-tick"
-              href={`#${heading.slug}`}
-              data-article-chapter={heading.slug}
-              aria-label={heading.text}
-              title={heading.text}
-            ></a>
-          ))}
-        </div>
-      </nav>
-
+      {showToc && <ArticleToc entries={tocEntries} />}
       <div class="prose article-prose">
         <Content />
       </div>
@@ -82,95 +71,3 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     <section class="article-comments" aria-label="评论"><Comments /></section>
   </article>
 </BaseLayout>
-
-<script>
-  const articleWindow = window as typeof window & {
-    __articlePublicationCleanup?: () => void;
-    __articlePublicationLifecycleBound?: boolean;
-  };
-
-  function initArticlePublication() {
-    articleWindow.__articlePublicationCleanup?.();
-
-    const article = document.querySelector<HTMLElement>('.article-publication');
-    const prose = article?.querySelector<HTMLElement>('.article-prose');
-    if (!article || !prose) return;
-
-    const controller = new AbortController();
-    const { signal } = controller;
-    const ticks = Array.from(article.querySelectorAll<HTMLAnchorElement>('.article-bookmark-tick'));
-    let ticking = false;
-
-    const measureChapters = () => {
-      const proseTop = prose.getBoundingClientRect().top + window.scrollY;
-      const proseHeight = Math.max(1, prose.offsetHeight);
-
-      ticks.forEach((tick) => {
-        const id = tick.dataset.articleChapter;
-        const heading = id ? document.getElementById(id) : null;
-        if (!heading) return;
-        const headingTop = heading.getBoundingClientRect().top + window.scrollY;
-        const offset = Math.min(1, Math.max(0, (headingTop - proseTop) / proseHeight));
-        tick.style.setProperty('--chapter-offset', String(offset));
-      });
-    };
-
-    const sync = () => {
-      ticking = false;
-      const rect = prose.getBoundingClientRect();
-      const start = window.scrollY + rect.top;
-      const end = start + prose.offsetHeight - window.innerHeight;
-      const span = Math.max(1, end - start);
-      const progress = Math.min(1, Math.max(0, (window.scrollY - start) / span));
-      article.style.setProperty('--article-reading-progress', String(progress));
-
-      let current: HTMLAnchorElement | null = null;
-      ticks.forEach((tick) => {
-        const id = tick.dataset.articleChapter;
-        const heading = id ? document.getElementById(id) : null;
-        if (heading && heading.getBoundingClientRect().top <= Math.min(180, window.innerHeight * 0.28)) {
-          current = tick;
-        }
-      });
-      ticks.forEach((tick) => tick.classList.toggle('is-current', tick === current));
-    };
-
-    const requestSync = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(sync);
-    };
-
-    ticks.forEach((tick) => {
-      tick.addEventListener('click', (event) => {
-        const id = tick.dataset.articleChapter;
-        if (!id) return;
-        const heading = document.getElementById(id);
-        if (!heading) return;
-        event.preventDefault();
-        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-          || document.documentElement.dataset.reduceMotion === 'true';
-        heading.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
-        history.replaceState(null, '', `#${encodeURIComponent(id)}`);
-      }, { signal });
-    });
-
-    window.addEventListener('scroll', requestSync, { passive: true, signal });
-    window.addEventListener('resize', () => {
-      measureChapters();
-      requestSync();
-    }, { passive: true, signal });
-
-    articleWindow.__articlePublicationCleanup = () => controller.abort();
-    measureChapters();
-    sync();
-  }
-
-  if (!articleWindow.__articlePublicationLifecycleBound) {
-    articleWindow.__articlePublicationLifecycleBound = true;
-    document.addEventListener('astro:page-load', initArticlePublication);
-    document.addEventListener('astro:before-swap', () => articleWindow.__articlePublicationCleanup?.());
-  }
-
-  initArticlePublication();
-</script>
