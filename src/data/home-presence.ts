@@ -7,7 +7,7 @@ export type HomeNowItem = {
 export const homePresence = {
   intro: '把喜欢的东西，认真地收进小站里。',
   visual: {
-    src: '/site-icon-512.png',
+    src: '/p0-256.webp',
     alt: '搁浅的小窝',
   },
   now: [
