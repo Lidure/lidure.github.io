@@ -205,8 +205,32 @@
   font-size: 0.78rem;
 }
 
-.home-moments-slot {
-  min-height: 1px;
+.home-recent-moments[hidden] {
+  display: none !important;
+}
+
+.home-recent-moments-list {
+  display: grid;
+}
+
+.home-moment-preview {
+  display: grid;
+  grid-template-columns: 7rem minmax(0, 1fr);
+  gap: 18px;
+  align-items: baseline;
+  padding-block: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.home-moment-preview time {
+  color: var(--muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+
+.home-moment-preview p {
+  margin: 0;
+  line-height: 1.8;
 }
 
 .home-more {
@@ -245,7 +269,8 @@
 
   .home-now > div,
   .home-lead-story,
-  .home-story-row {
+  .home-story-row,
+  .home-moment-preview {
     grid-template-columns: 1fr;
   }
 
@@ -255,7 +280,8 @@
   }
 
   .home-lead-story,
-  .home-story-row {
+  .home-story-row,
+  .home-moment-preview {
     gap: 8px;
   }
 
