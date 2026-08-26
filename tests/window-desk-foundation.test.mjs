@@ -44,3 +44,15 @@ test('site header prioritizes the five human-facing sections and demotes utiliti
   assert.match(header, /\/sekai-quest/);
   assert.match(header, /aria-expanded/);
 });
+
+test('homepage is personal-first instead of a three-column portal', () => {
+  const home = read('src/pages/index.astro');
+  assert.match(home, /home-presence/);
+  assert.match(home, /最近在/);
+  assert.match(home, /最近写下的东西/);
+  assert.match(home, /最近的日常/);
+  assert.doesNotMatch(home, /HomeLeftSidebar/);
+  assert.doesNotMatch(home, /HomeRightSidebar/);
+  assert.doesNotMatch(home, /FEATURED/);
+  assert.doesNotMatch(home, /RECENT POSTS/);
+});
