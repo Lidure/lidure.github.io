@@ -71,7 +71,7 @@ const { title, subtitle } = Astro.props;
   html[data-wallpaper-mode="banner"] body.layout-standard.is-home .standard-content {
     position: relative;
     z-index: 30;
-    padding-top: 0;
+    padding-top: calc(var(--banner-surface-overlap) + 14px);
   }
 
   html[data-wallpaper-mode="banner"] body.layout-standard:not(.is-home) .standard-content {
