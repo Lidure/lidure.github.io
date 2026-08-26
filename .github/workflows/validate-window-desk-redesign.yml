@@ -1,0 +1,18 @@
+name: Validate Window Desk Redesign
+
+on:
+  push:
+    branches:
+      - redesign/window-desk-tide-paper
+  workflow_dispatch:
+
+jobs:
+  foundation-red:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run foundation contract
+        run: node --test tests/window-desk-foundation.test.mjs
