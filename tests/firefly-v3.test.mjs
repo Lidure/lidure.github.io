@@ -4,41 +4,42 @@ import test from 'node:test';
 
 const readSource = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('v3 banner geometry uses the approved desktop tablet and mobile dimensions', () => {
-  const css = readSource('src/styles/firefly-refresh.css');
-  assert.match(css, /--blog-banner-height:\s*62vh/);
+test('semantic banner geometry keeps the approved desktop tablet and mobile dimensions', () => {
+  const css = readSource('src/styles/site-shell.css');
+  assert.match(css, /--blog-banner-height:\s*var\(--user-banner-height,\s*62vh\)/);
   assert.match(css, /--blog-banner-overlap:\s*56px/);
   assert.match(css, /min-height:\s*360px/);
-  assert.match(css, /--blog-banner-height:\s*54vh/);
+  assert.match(css, /--blog-banner-height:\s*var\(--user-banner-height,\s*54vh\)/);
   assert.match(css, /--blog-banner-overlap:\s*44px/);
-  assert.match(css, /--blog-banner-height:\s*42vh/);
+  assert.match(css, /--blog-banner-height:\s*var\(--user-banner-height,\s*42vh\)/);
   assert.match(css, /--blog-banner-overlap:\s*28px/);
   assert.match(css, /\.blog-banner-copy[\s\S]*?1380px/);
 });
 
 test('standard layout distinguishes homepage fullscreen wallpaper from non-home pages', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
-  const css = readSource('src/styles/firefly-refresh.css');
+  const css = readSource('src/styles/site-shell.css');
   assert.match(layout, /const isHome\s*=/);
   assert.match(layout, /['"]is-home['"]\s*:\s*isHome/);
-  assert.match(css, /data-wallpaper-mode="fullscreen"/);
+  assert.match(css, /data-wallpaper-mode=['"]fullscreen['"]/);
   assert.match(css, /body\.layout-standard\.is-home/);
   assert.match(css, /body\.layout-standard:not\(\.is-home\)/);
-  assert.match(css, /height:\s*100vh/);
+  assert.match(css, /height:\s*100lvh/);
 });
 
-test('fullscreen cards use wallpaper-aware opacity and theme hue affects the primary accent', () => {
-  const css = readSource('src/styles/firefly-v2.css');
-  assert.match(css, /--standard-accent:\s*hsl\(var\(--theme-hue,\s*255\)/);
-  assert.match(css, /data-wallpaper-mode="fullscreen"/);
+test('wallpaper-aware semantic surfaces preserve opacity and theme settings', () => {
+  const tokens = readSource('src/styles/tokens.css');
+  const css = readSource('src/styles/site-shell.css');
+  assert.match(tokens, /--standard-accent:\s*oklch\([^;]*var\(--theme-hue/);
+  assert.match(css, /data-wallpaper-mode=['"]fullscreen['"]/);
   assert.match(css, /--card-opacity-percent/);
-  assert.match(css, /data-card-border="false"/);
-  assert.match(css, /data-card-follow-theme="true"/);
+  assert.match(css, /data-card-border=['"]false['"]/);
+  assert.match(css, /data-card-follow-theme=['"]true['"]/);
 });
 
-test('Firefly-aligned visual defaults stay synchronized across preload, reset, dim, and blur lifecycle', () => {
+test('visual defaults stay synchronized across preload reset dim and blur lifecycle', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
-  const wallpaperCss = readSource('src/styles/firefly-wallpaper-modes.css');
+  const shell = readSource('src/styles/site-shell.css');
   const controller = readSource('src/components/FullscreenWallpaperController.astro');
 
   assert.match(layout, /raw\.backgroundBlur[\s\S]*?:\s*5;/);
@@ -46,18 +47,20 @@ test('Firefly-aligned visual defaults stay synchronized across preload, reset, d
   assert.match(layout, /bridge\.write\(\{\s*themeHue:\s*255\s*\}\)/);
   assert.match(layout, /bridge\.write\(\{\s*backgroundBlur:\s*5\s*\}\)/);
 
-  assert.match(wallpaperCss, /calc\(var\(--wallpaper-overlay,\s*0\.45\)\s*\*\s*0\.44\)/);
-  assert.match(wallpaperCss, /var\(--wallpaper-blur,\s*5px\)/);
+  assert.match(shell, /calc\(var\(--wallpaper-overlay,\s*0\.45\)\s*\*\s*0\.44\)/);
+  assert.match(shell, /var\(--wallpaper-blur,\s*5px\)/);
+  assert.match(shell, /var\(--wallpaper-scroll-blur,\s*0px\)/);
 
   assert.match(controller, /const blurRatio = Math\.min\(scrollY \/ 300, 1\)/);
   assert.match(controller, /blurRatio\s*>=\s*1\s*\?\s*maxBlur/);
+  assert.match(controller, /--wallpaper-scroll-blur/);
 });
 
-test('fullscreen video follows Firefly native rendering without image blur or scale softening', () => {
-  const wallpaperCss = readSource('src/styles/firefly-wallpaper-modes.css');
-  const blocks = [...wallpaperCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+test('fullscreen video uses native rendering without media blur or scale softening', () => {
+  const shell = readSource('src/styles/site-shell.css');
+  const blocks = [...shell.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
   const fullscreenVideoBlocks = blocks.filter(([, selector]) =>
-    selector.includes('data-wallpaper-mode="fullscreen"') && selector.includes('.slideshow-video')
+    selector.includes('data-wallpaper-mode=') && selector.includes('fullscreen') && selector.includes('.slideshow-video')
   );
 
   assert.ok(fullscreenVideoBlocks.length > 0);
@@ -66,7 +69,7 @@ test('fullscreen video follows Firefly native rendering without image blur or sc
     assert.doesNotMatch(body, /filter:\s*blur/);
     assert.doesNotMatch(body, /transform:\s*scale/);
   }
-  assert.match(wallpaperCss, /data-wallpaper-mode="fullscreen"[\s\S]*?\.slideshow-canvas[\s\S]*?display:\s*none\s*!important/);
+  assert.match(shell, /data-wallpaper-mode=['"]fullscreen['"][\s\S]*?\.slideshow-canvas[\s\S]*?display:\s*none\s*!important/);
 });
 
 test('homepage keeps music as a quiet presence link into the existing player', () => {
@@ -95,7 +98,7 @@ test('sakura effect renders drawn petals through canvas worker with a safe fallb
   assert.doesNotMatch(particles, /🌸|🌷|🌹|🌺|❀/);
 });
 
-test('visual settings panel exposes dialog state, escape recovery, visible focus, and mobile viewport safety', () => {
+test('visual settings panel exposes dialog state escape recovery visible focus and mobile viewport safety', () => {
   const panel = readSource('src/components/VisualSettingsPanel.astro');
 
   assert.match(panel, /aria-controls="hero-settings-panel"/);
