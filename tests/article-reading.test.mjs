@@ -54,22 +54,25 @@ test('article uses the personal-publication structure and retires PR 43 chrome',
   assert.doesNotMatch(page, /class="post-shell"/);
 });
 
-test('article renders a readable H2/H3 table of contents that stays out of the prose flow', () => {
+test('article renders a readable H2/H3 table of contents in a detached left rail', () => {
   assert.match(page, /const tocHeadings = headings\.filter\(\(heading\) => heading\.depth === 2 \|\| heading\.depth === 3\)/);
   assert.match(page, /class="article-toc"/);
   assert.match(page, /class="article-toc-link"/);
   assert.match(page, /data-depth=\{heading\.depth\}/);
   assert.match(page, /class="article-toc-mobile"/);
-  assert.match(css, /\.article-reading-canvas\s*\{[\s\S]*grid-template-columns:/);
-  assert.match(css, /\.article-toc\s*\{[\s\S]*position:\s*sticky/);
+  assert.match(css, /\.article-reading-canvas\s*\{[\s\S]*position:\s*relative/);
+  assert.doesNotMatch(css, /\.article-reading-canvas\s*\{[^}]*grid-template-columns:/);
+  assert.match(css, /\.article-prose\s*\{[\s\S]*margin:\s*0 auto/);
+  assert.match(css, /\.article-toc\s*\{[\s\S]*position:\s*absolute[\s\S]*left:\s*0/);
+  assert.match(css, /\.article-toc-inner\s*\{[\s\S]*position:\s*sticky/);
   assert.match(css, /\.article-toc-mobile\s*\{[\s\S]*display:\s*none/);
-  assert.match(css, /@media \(max-width:\s*940px\)[\s\S]*\.article-toc\s*\{\s*display:\s*none/);
-  assert.match(css, /@media \(max-width:\s*940px\)[\s\S]*\.article-toc-mobile\s*\{[\s\S]*display:\s*block/);
+  assert.match(css, /@media \(max-width:\s*1320px\)[\s\S]*\.article-toc\s*\{\s*display:\s*none/);
+  assert.match(css, /@media \(max-width:\s*1320px\)[\s\S]*\.article-toc-mobile\s*\{[\s\S]*display:\s*block/);
   assert.doesNotMatch(css, /\.article-toc[^\{]*\{[^\}]*position:\s*fixed/);
 });
 
 test('article stylesheet is publication-first rather than card-first', () => {
-  assert.match(css, /\.article-publication\s*\{[\s\S]*max-width:\s*1160px/);
+  assert.match(css, /\.article-publication\s*\{[\s\S]*max-width:\s*1400px/);
   assert.match(css, /\.article-prose\s*\{[\s\S]*max-width:\s*720px/);
   assert.match(css, /counter-reset:\s*article-section/);
   assert.match(css, /counter-increment:\s*article-section/);

@@ -74,15 +74,29 @@ test('sunlit notes uses a paper-note visual language', () => {
   assert.doesNotMatch(css, /box-shadow:\s*0 13px 30px/);
 });
 
-test('moments notebook refresh turns the feed into lined paper with real sticky-note accents', () => {
+test('moments notebook gives every text and media moment the same paper-note material', () => {
   assert.match(baseLayout, /moments-notebook-refresh\.css/);
+  assert.match(notebookCss, /--moment-paper:/);
+  assert.match(notebookCss, /--moment-paper-border:/);
   assert.match(notebookCss, /\.moments-list\s*\{[\s\S]*repeating-linear-gradient/);
   assert.match(notebookCss, /\.moments-list::before\s*\{[\s\S]*background:/);
-  assert.match(notebookCss, /\.moment-card\s*\{[\s\S]*border:\s*0\s*!important/);
-  assert.match(notebookCss, /\.moment--whisper\s*\{[\s\S]*background:/);
-  assert.match(notebookCss, /\.moment--photo-one[\s\S]*background:\s*transparent\s*!important/);
+  assert.match(notebookCss, /\.moment-card\s*\{[\s\S]*background:[\s\S]*var\(--moment-paper\)/);
+  assert.match(notebookCss, /\.moment-card::after\s*\{[\s\S]*display:\s*block\s*!important/);
+  assert.match(notebookCss, /\.moment--whisper\s*\{[\s\S]*background:[\s\S]*var\(--sticky-paper\)/);
+  for (const layout of ['photo-one', 'photo-two', 'photo-three', 'gallery', 'video', 'text']) {
+    assert.doesNotMatch(notebookCss, new RegExp(`\\.moment--${layout}[^}]*background:\\s*transparent\\s*!important`));
+  }
+  assert.match(notebookCss, /\.moment--photo-one[\s\S]*\.moment--video[\s\S]*--moment-card-paper:/);
   assert.match(notebookCss, /\.publish-panel\s*\{[\s\S]*box-shadow:/);
-  assert.doesNotMatch(notebookCss, /border-radius:\s*18px/);
+});
+
+test('dark Moments uses a warm neutral paper palette instead of accent-tinted blue cards', () => {
+  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--notebook-paper:\s*#[0-9a-fA-F]{6}/);
+  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--moment-paper:\s*#[0-9a-fA-F]{6}/);
+  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--sticky-paper:\s*#[0-9a-fA-F]{6}/);
+  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--moment-paper-border:/);
+  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--moment-tape:/);
+  assert.doesNotMatch(notebookCss, /html\[data-theme="dark"\][\s\S]*--sticky-paper:\s*color-mix\([^;]*var\(--standard-accent/);
 });
 
 test('note rhythm uses a fixed sequence rather than random layout', () => {
