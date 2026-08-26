@@ -38,8 +38,10 @@ test('sunlit notes derives time-of-day metadata from real timestamps', async () 
   assert.match(pins, /dataset\.daypart = daypart\.key/);
 });
 
-test('bannerless Moments keeps all core interaction hooks', () => {
+test('bannerless Moments keeps all core interaction hooks and one semantic stylesheet', () => {
   assert.match(page, /showBanner=\{false\}/);
+  assert.match(page, /styles\/moments\.css/);
+  assert.doesNotMatch(page, /moments-life-wall\.css/);
   for (const hook of ['publish-toggle', 'publish-box', 'publish-form', 'image-input', 'image-previews', 'moments-session-status', 'moment-lightbox', 'moments-login']) {
     assert.match(page, new RegExp(`id="${hook}"`));
   }
@@ -54,6 +56,17 @@ test('emoji and reaction pickers stay collapsed until opened', () => {
   assert.match(page, /picker\.hidden = true/);
   assert.match(css, /\.moment-reaction-panel\[hidden\][\s\S]*?display:\s*none\s*!important/);
   assert.match(css, /\.emoji-panel\.hidden[\s\S]*?display:\s*none\s*!important/);
+});
+
+test('semantic moments stylesheet owns interaction and media foundations', () => {
+  for (const selector of [
+    '.publish-form', '.emoji-input-wrap', '.emoji-panel', '.image-previews', '.preview-item',
+    '.moment-reactions', '.moment-reaction-panel', '.public-comment-form',
+    '.moment--photo-two', '.moment--photo-three', '.moment--gallery',
+    '.moments-toast', '.lightbox-overlay', '.lightbox-stage', '.lightbox-nav',
+  ]) assert.match(css, new RegExp(selector.replaceAll('.', '\\.')));
+  assert.match(css, /body\.lightbox-open[\s\S]*?overflow:\s*hidden/);
+  assert.match(css, /\.lightbox-overlay\[hidden\][\s\S]*?display:\s*none\s*!important/);
 });
 
 test('moments uses a content-first life-slice visual language', () => {

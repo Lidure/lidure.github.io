@@ -42,4 +42,13 @@ test('semantic compatibility variables exist independently of Firefly layers', (
   ]) assert.match(tokens, new RegExp(variable.replaceAll('-', '\\-')));
 });
 
+test('page-level migration styles are gone', () => {
+  assert.equal(existsSync(new URL('../src/styles/article-reading.css', import.meta.url)), false);
+  assert.equal(existsSync(new URL('../src/styles/moments-life-wall.css', import.meta.url)), false);
+  assert.doesNotMatch(read('src/pages/posts/[slug].astro'), /article-reading\.css/);
+  const moments = read('src/pages/moments.astro');
+  assert.doesNotMatch(moments, /moments-life-wall\.css/);
+  assert.match(moments, /styles\/moments\.css/);
+});
+
 export { existsSync };
