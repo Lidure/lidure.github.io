@@ -25,3 +25,28 @@ jobs:
         run: npm run build
       - name: Run full site regression suite
         run: npm run test:site
+
+  regression-diagnose:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - group: core-and-player
+            tests: tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs tests/firefly-v3.test.mjs
+          - group: firefly-polish
+            tests: tests/firefly-v4.test.mjs tests/firefly-polish.test.mjs tests/firefly-alignment.test.mjs tests/firefly-profile-banner.test.mjs tests/music-cover-transition.test.mjs
+          - group: wallpaper-and-banner
+            tests: tests/banner-waves.test.mjs tests/visual-settings.test.mjs tests/post-cover.test.mjs tests/native-wallpaper-image.test.mjs tests/fullscreen-navbar-top.test.mjs
+          - group: reading-and-journal
+            tests: tests/article-reading.test.mjs tests/article-toc.test.mjs tests/moments-journal-layout.test.mjs tests/window-desk-foundation.test.mjs
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run ${{ matrix.group }} regression group
+        run: node --test ${{ matrix.tests }}
