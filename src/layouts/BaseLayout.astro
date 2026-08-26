@@ -38,6 +38,8 @@ import '../styles/firefly-v6-theme.css';
 import '../styles/firefly-wallpaper-modes.css';
 import '../styles/bannerless-pages.css';
 import '../styles/immersive-nav.css';
+import '../styles/tokens.css';
+import '../styles/site-shell.css';
 import ClockDisplay from '../components/ClockDisplay.astro';
 import BlogBanner from '../components/BlogBanner.astro';
 import BannerWaves from '../components/BannerWaves.astro';
@@ -76,9 +78,9 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" />
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@400;500;600;700&family=ZCOOL+KuaiLe&display=swap" rel="stylesheet" /></noscript>
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zen+Maru+Gothic:wght@400;500;600;700&display=swap" />
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zen+Maru+Gothic:wght@400;500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'" />
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zen+Maru+Gothic:wght@400;500;600;700&display=swap" rel="stylesheet" /></noscript>
     <ClientRouter />
     <script is:inline>
     (function() {
