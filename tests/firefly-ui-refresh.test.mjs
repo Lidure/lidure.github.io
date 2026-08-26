@@ -23,21 +23,22 @@ test('player route defaults to immersive layout with trailing slash tolerance', 
   assert.match(layout, /['"]immersive['"]\s*:\s*['"]standard['"]/);
 });
 
-test('standard banner keeps approved v3 desktop and mobile heights', () => {
-  const css = readSource('src/styles/firefly-refresh.css');
-  assert.match(css, /--blog-banner-height:\s*62vh/);
-  assert.match(css, /--blog-banner-height:\s*42vh/);
+test('standard banner keeps the approved desktop and mobile heights in the semantic shell', () => {
+  const css = readSource('src/styles/site-shell.css');
+  assert.match(css, /--blog-banner-height:\s*var\(--user-banner-height,\s*62vh\)/);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*--blog-banner-height:\s*var\(--user-banner-height,\s*42vh\)/);
   assert.match(css, /body\.layout-standard/);
-  assert.doesNotMatch(css, /body\.layout-immersive\s+\.post-card/);
+  assert.doesNotMatch(css, /grid-template-columns:\s*232px\s+minmax\(0,\s*1fr\)\s+286px/);
 });
 
 test('standard banner stays readable when the background is disabled', () => {
   const styles = [
-    readSource('src/styles/firefly-refresh.css'),
+    readSource('src/styles/site-shell.css'),
     readSource('src/components/BlogBanner.astro'),
   ].join('\n');
   assert.match(styles, /html\.no-hero-bg\s+body\.layout-standard/);
   assert.match(styles, /color:\s*var\(--standard-text\)/);
+  assert.match(styles, /background:\s*var\(--standard-page-bg\)/);
 });
 
 test('site header replaces its global scroll listener after Astro navigation', () => {
@@ -136,14 +137,15 @@ test('home music card proxies previous, play-pause, and next to the existing pla
   assert.match(music, /audio\.paused\s*\?\s*['"]▶['"]\s*:\s*['"]❚❚['"]/);
 });
 
-test('v2 visual layer defines semantic colors and responsive Firefly grid', () => {
-  const css = readSource('src/styles/firefly-v2.css');
-  assert.match(css, /--standard-purple:/);
-  assert.match(css, /--standard-cyan:/);
-  assert.match(css, /--standard-warm:/);
-  assert.match(css, /grid-template-columns:\s*232px\s+minmax\(0,\s*1fr\)\s+286px/);
-  assert.match(css, /@media \(max-width:\s*1199px\) and \(min-width:\s*850px\)/);
-  assert.match(css, /@media \(max-width:\s*849px\)/);
+test('semantic visual layer keeps hue-compatible slots without the retired three-column grid', () => {
+  const tokens = readSource('src/styles/tokens.css');
+  const shell = readSource('src/styles/site-shell.css');
+  assert.match(tokens, /--standard-purple:/);
+  assert.match(tokens, /--standard-cyan:/);
+  assert.match(tokens, /--standard-warm:/);
+  assert.match(shell, /@media \(max-width:\s*900px\)/);
+  assert.match(shell, /@media \(max-width:\s*720px\)/);
+  assert.doesNotMatch(shell, /grid-template-columns:\s*232px\s+minmax\(0,\s*1fr\)\s+286px/);
 });
 
 test('guestbook uses a quiet single-flow writing surface', () => {
@@ -158,14 +160,22 @@ test('guestbook uses a quiet single-flow writing surface', () => {
   assert.doesNotMatch(messages, /GUESTBOOK|RECENT MESSAGES/);
 });
 
-test('ordinary pages load the v2 cohesion layer', () => {
+test('ordinary pages opt into the shared quiet pages stylesheet', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
-  const css = readSource('src/styles/firefly-v2-pages.css');
-  assert.match(layout, /firefly-v2-pages\.css/);
-  assert.match(css, /\.timeline-item::before/);
-  assert.match(css, /\.tag-pill:nth-child/);
-  assert.match(css, /\.moments-shell/);
-  assert.match(css, /\.post-shell/);
+  const posts = readSource('src/pages/posts/index.astro');
+  const archive = readSource('src/pages/archive.astro');
+  const messages = readSource('src/pages/messages.astro');
+  const css = readSource('src/styles/pages.css');
+
+  assert.doesNotMatch(layout, /firefly-v2-pages\.css/);
+  assert.match(posts, /styles\/pages\.css/);
+  assert.match(archive, /styles\/pages\.css/);
+  assert.match(messages, /styles\/pages\.css/);
+  assert.match(css, /\.page-reading-shell,[\s\S]*\.archive-shell,[\s\S]*\.messages-shell/);
+  assert.match(css, /\.tag-index/);
+  assert.match(css, /\.writing-entry/);
+  assert.match(css, /\.guestbook-compose/);
+  assert.doesNotMatch(css, /\.tag-pill:nth-child/);
 });
 
 test('built immersive page keeps core controls without standard chrome', () => {
