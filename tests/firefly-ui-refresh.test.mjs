@@ -98,13 +98,12 @@ test('BaseLayout installs the immersive UI controller only for immersive mode', 
   assert.match(layout, /!isStandard\s*&&\s*<ImmersiveUiController\s*\/>/);
 });
 
-test('homepage exposes left, main, and right regions', () => {
+test('homepage is a personal-first single editorial flow', () => {
   const home = readSource('src/pages/index.astro');
-  assert.match(home, /HomeLeftSidebar/);
-  assert.match(home, /home-main-column/);
-  assert.match(home, /HomeRightSidebar/);
-  assert.match(home, /HomePostCard/);
-  assert.match(home, /home-category-bar/);
+  assert.match(home, /home-presence/);
+  assert.match(home, /最近写下的东西/);
+  assert.match(home, /<HomeRecentMoments\s*\/>/);
+  assert.doesNotMatch(home, /HomeLeftSidebar|HomeRightSidebar|HomePostCard|home-category-bar/);
 });
 
 test('homepage widgets consume real tag, moments, player, and visitor sources', () => {

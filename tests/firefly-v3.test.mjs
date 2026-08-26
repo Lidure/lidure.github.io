@@ -69,18 +69,13 @@ test('fullscreen video follows Firefly native rendering without image blur or sc
   assert.match(wallpaperCss, /data-wallpaper-mode="fullscreen"[\s\S]*?\.slideshow-canvas[\s\S]*?display:\s*none\s*!important/);
 });
 
-test('homepage music widget uses the approved large-cover composition', () => {
-  const music = readSource('src/components/MusicStatusWidget.astro');
-  assert.match(music, /class="music-status-art"/);
-  assert.match(music, /class="music-status-cover-open"/);
-  assert.match(music, /class="music-status-play-overlay/);
-  assert.match(music, /class="music-status-track-title"/);
-  assert.match(music, /id="home-music-prev"/);
-  assert.match(music, /id="home-music-play-pause"/);
-  assert.match(music, /id="home-music-next"/);
-  assert.match(music, /aspect-ratio:\s*1/);
-  assert.match(music, /border-radius:\s*22px/);
-  assert.match(music, /window\.__sekaiOpenPlayer\s*\?\.\(\)/);
+test('homepage keeps music as a quiet presence link into the existing player', () => {
+  const home = readSource('src/pages/index.astro');
+  const presence = readSource('src/data/home-presence.ts');
+  assert.match(presence, /label:\s*['"]最近在听['"]/);
+  assert.match(presence, /href:\s*['"]\/player['"]/);
+  assert.match(home, /homePresence\.now/);
+  assert.doesNotMatch(home, /MusicStatusWidget/);
 });
 
 test('sakura effect renders drawn petals through canvas worker with a safe fallback', () => {
