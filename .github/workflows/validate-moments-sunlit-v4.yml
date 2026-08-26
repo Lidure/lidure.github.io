@@ -11,7 +11,7 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -19,4 +19,5 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: node --test tests/moments-journal-layout.test.mjs
+      - run: npm run build
+      - run: npm run test:site
