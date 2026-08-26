@@ -1,4 +1,4 @@
-/* Moments only: a lined notebook with one coherent paper-note material for every entry. */
+/* Moments only: a lined notebook with coherent paper notes and quiet companion rails. */
 body.layout-standard .moments-shell {
   --notebook-line: color-mix(in srgb, var(--note-line) 58%, transparent);
   --notebook-margin: color-mix(in srgb, var(--standard-accent, var(--accent)) 26%, transparent);
@@ -10,30 +10,143 @@ body.layout-standard .moments-shell {
   --moment-tape: rgba(235, 214, 178, 0.54);
   --moment-comment-paper: rgba(255, 255, 255, 0.34);
   --moment-card-paper: var(--moment-paper);
+  width: min(100%, 1500px) !important;
+  max-width: 1500px !important;
 }
 
 body.layout-standard .moments-shell .moments-wall-head {
-  margin-bottom: 14px;
+  width: min(100%, 900px);
+  margin: 0 auto 14px;
   padding-bottom: 18px;
 }
-
 body.layout-standard .moments-shell .moments-wall-head h1 {
   font-family: 'Ma Shan Zheng', 'Noto Sans SC', sans-serif;
   font-size: clamp(2.55rem, 5.5vw, 4rem);
   font-weight: 500;
   letter-spacing: 0.01em;
 }
+body.layout-standard .moments-shell .moments-wall-head p { max-width: 28ch; font-size: 0.78rem; }
 
-body.layout-standard .moments-shell .moments-wall-head p {
-  max-width: 28ch;
-  font-size: 0.78rem;
+body.layout-standard .moments-shell .moments-page-grid {
+  display: grid;
+  grid-template-columns: 210px minmax(0, 900px) 210px;
+  justify-content: center;
+  align-items: start;
+  gap: clamp(26px, 3vw, 45px);
+  width: 100%;
+}
+body.layout-standard .moments-shell .moments-main-column { min-width: 0; }
+body.layout-standard .moments-shell .moments-side { min-width: 0; align-self: stretch; }
+body.layout-standard .moments-shell .moments-side-stack {
+  position: sticky;
+  top: 104px;
+  display: grid;
+  gap: 14px;
+}
+body.layout-standard .moments-shell .moments-side-note {
+  position: relative;
+  padding: 15px 14px 16px;
+  border: 1px solid color-mix(in srgb, var(--moment-paper-border) 78%, transparent);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--moment-paper) 78%, transparent);
+  color: var(--standard-muted, var(--muted));
+  box-shadow: 0 4px 12px color-mix(in srgb, #000 5%, transparent);
+}
+body.layout-standard .moments-shell .moments-side-note::before {
+  content: '';
+  position: absolute;
+  top: -5px;
+  right: 20px;
+  width: 36px;
+  height: 9px;
+  background: var(--moment-tape);
+  opacity: 0.64;
+  transform: rotate(1.2deg);
+}
+body.layout-standard .moments-shell .moments-side-kicker {
+  display: block;
+  margin-bottom: 8px;
+  color: color-mix(in srgb, var(--standard-accent, var(--accent)) 58%, var(--standard-muted, var(--muted)));
+  font: 650 0.58rem/1.2 ui-monospace, 'SFMono-Regular', Consolas, monospace;
+  letter-spacing: 0.14em;
+}
+body.layout-standard .moments-shell .moments-side-overview strong {
+  display: block;
+  color: var(--standard-text, var(--text));
+  font: 560 2rem/1 ui-monospace, 'SFMono-Regular', Consolas, monospace;
+}
+body.layout-standard .moments-shell .moments-side-overview > span:last-child,
+body.layout-standard .moments-shell .moments-side-note p {
+  margin: 7px 0 0;
+  font-size: 0.72rem;
+  line-height: 1.65;
+}
+body.layout-standard .moments-shell .moments-side-categories { display: grid; gap: 2px; }
+body.layout-standard .moments-shell .moments-side-category {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 7px 0 7px 10px;
+  border: 0;
+  border-left: 2px solid transparent;
+  background: transparent;
+  color: var(--standard-muted, var(--muted));
+  font: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: color 150ms ease, transform 150ms ease, border-color 150ms ease;
+}
+body.layout-standard .moments-shell .moments-side-category small {
+  font-size: 0.62rem;
+  opacity: 0.64;
+  font-variant-numeric: tabular-nums;
+}
+body.layout-standard .moments-shell .moments-side-category:hover,
+body.layout-standard .moments-shell .moments-side-category:focus-visible,
+body.layout-standard .moments-shell .moments-side-category.is-active {
+  color: var(--standard-text, var(--text));
+  border-left-color: color-mix(in srgb, var(--standard-accent, var(--accent)) 64%, transparent);
+  transform: translateX(3px);
+  outline: none;
+}
+body.layout-standard .moments-shell .moments-side-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 5px;
+}
+body.layout-standard .moments-shell .moments-side-gallery.is-empty::before {
+  content: '有照片时，会在这里留下几张。';
+  grid-column: 1 / -1;
+  color: var(--standard-muted, var(--muted));
+  font-size: 0.66rem;
+  line-height: 1.6;
+}
+body.layout-standard .moments-shell .moments-side-photo {
+  aspect-ratio: 1;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--moment-paper-border) 70%, transparent);
+  border-radius: 4px;
+  background: transparent;
+  cursor: zoom-in;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+body.layout-standard .moments-shell .moments-side-photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+body.layout-standard .moments-shell .moments-side-photo:hover,
+body.layout-standard .moments-shell .moments-side-photo:focus-visible {
+  transform: translateY(-2px) rotate(-0.5deg);
+  box-shadow: 0 5px 12px color-mix(in srgb, #000 12%, transparent);
+  outline: none;
 }
 
-body.layout-standard .moments-shell .moments-wall-filter {
-  margin-bottom: 28px;
-  padding-bottom: 8px;
-}
-
+body.layout-standard .moments-shell .moments-wall-filter { margin-bottom: 28px; padding-bottom: 8px; }
 body.layout-standard .moments-shell .moments-list {
   position: relative;
   display: grid;
@@ -44,20 +157,13 @@ body.layout-standard .moments-shell .moments-list {
   border: 1px solid color-mix(in srgb, var(--moment-paper-border) 80%, transparent);
   border-radius: 5px;
   background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 31px,
-      var(--notebook-line) 31px,
-      var(--notebook-line) 32px
-    ),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--notebook-line) 31px, var(--notebook-line) 32px),
     linear-gradient(115deg, color-mix(in srgb, white 2%, transparent), transparent 34%),
     var(--notebook-paper);
   box-shadow: 0 8px 22px color-mix(in srgb, #000 8%, transparent);
   backdrop-filter: blur(3px);
   -webkit-backdrop-filter: blur(3px);
 }
-
 body.layout-standard .moments-shell .moments-list::before {
   content: '';
   position: absolute;
@@ -69,7 +175,6 @@ body.layout-standard .moments-shell .moments-list::before {
   background: var(--notebook-margin);
   pointer-events: none;
 }
-
 body.layout-standard .moments-shell .moments-list::after {
   content: '';
   position: absolute;
@@ -85,13 +190,7 @@ body.layout-standard .moments-shell .moments-list::after {
   opacity: 0.76;
   pointer-events: none;
 }
-
-body.layout-standard .moments-shell .moment-day {
-  position: relative;
-  z-index: 1;
-  gap: 10px;
-}
-
+body.layout-standard .moments-shell .moment-day { position: relative; z-index: 1; gap: 10px; }
 body.layout-standard .moments-shell .moment-day-mark {
   margin: 0 0 8px -17px;
   padding: 5px 9px 4px;
@@ -102,11 +201,7 @@ body.layout-standard .moments-shell .moment-day-mark {
   box-shadow: 1px 2px 5px color-mix(in srgb, #000 5%, transparent);
   transform: rotate(-0.25deg);
 }
-
-body.layout-standard .moments-shell .moment-day-stream {
-  display: grid;
-  gap: 24px;
-}
+body.layout-standard .moments-shell .moment-day-stream { display: grid; gap: 24px; }
 
 body.layout-standard .moments-shell .moment-card {
   --moment-card-paper: var(--moment-paper);
@@ -122,20 +217,15 @@ body.layout-standard .moments-shell .moment-card {
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
   transform: translateX(var(--note-shift, 0px)) !important;
-  transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
 }
-
 body.layout-standard .moments-shell .moment-card:hover {
-  border-color: color-mix(in srgb, var(--moment-paper-border) 76%, var(--moment-category)) !important;
+  border-color: color-mix(in srgb, var(--moment-paper-border) 70%, var(--moment-category)) !important;
   background: var(--moment-card-paper) !important;
-  box-shadow: var(--moment-paper-shadow) !important;
-  transform: translateX(var(--note-shift, 0px)) translateY(-1px) !important;
+  box-shadow: 0 10px 24px color-mix(in srgb, #000 11%, transparent) !important;
+  transform: translateX(var(--note-shift, 0px)) translateY(-2px) rotate(-0.08deg) !important;
 }
-
-body.layout-standard .moments-shell .moment-card::before {
-  display: none !important;
-}
-
+body.layout-standard .moments-shell .moment-card::before { display: none !important; }
 body.layout-standard .moments-shell .moment-card::after {
   content: '';
   display: block !important;
@@ -149,35 +239,23 @@ body.layout-standard .moments-shell .moment-card::after {
   background: var(--moment-tape);
   opacity: 0.84;
   transform: rotate(1.1deg);
+  transition: transform 180ms ease, opacity 180ms ease;
   pointer-events: none;
 }
-
+body.layout-standard .moments-shell .moment-card:hover::after {
+  transform: rotate(-1deg) translateY(-1px);
+  opacity: 0.96;
+}
 body.layout-standard .moments-shell .moment-card .card-content {
   position: relative;
   padding: clamp(20px, 2.8vw, 28px);
   border-bottom: 0;
 }
-
-body.layout-standard .moments-shell .moment-card .card-meta {
-  margin-bottom: 10px;
-}
-
-body.layout-standard .moments-shell .moment-card .card-text {
-  max-width: 66ch;
-  font-size: 0.96rem;
-  line-height: 1.84;
-}
-
-body.layout-standard .moments-shell .moment-card .card-date {
-  opacity: 0.78;
-}
-
+body.layout-standard .moments-shell .moment-card .card-meta { margin-bottom: 10px; }
+body.layout-standard .moments-shell .moment-card .card-text { max-width: 66ch; font-size: 0.96rem; line-height: 1.84; }
+body.layout-standard .moments-shell .moment-card .card-date { opacity: 0.78; }
 body.layout-standard .moments-shell .moment-card .card-images,
-body.layout-standard .moments-shell .moment-card .moment-media {
-  margin-top: 14px;
-  padding-top: 4px;
-}
-
+body.layout-standard .moments-shell .moment-card .moment-media { margin-top: 14px; padding-top: 4px; }
 body.layout-standard .moments-shell .moment-card .card-images img,
 body.layout-standard .moments-shell .moment-card .card-images video,
 body.layout-standard .moments-shell .moment-card .moment-media img,
@@ -186,8 +264,8 @@ body.layout-standard .moments-shell .moment-card .moment-media video {
   border-radius: 5px;
   box-shadow: 0 2px 8px color-mix(in srgb, #000 7%, transparent);
 }
+body.layout-standard .moments-shell .moment-card .card-images img { cursor: zoom-in; }
 
-/* Every normal text/media moment keeps the same paper surface; media only gets more room. */
 body.layout-standard .moments-shell .moment--photo-one,
 body.layout-standard .moments-shell .moment--photo-two,
 body.layout-standard .moments-shell .moment--photo-three,
@@ -198,16 +276,12 @@ body.layout-standard .moments-shell .moment--text {
   max-width: 880px !important;
   background: var(--moment-card-paper) !important;
 }
-
 body.layout-standard .moments-shell .moment--photo-one .card-content,
 body.layout-standard .moments-shell .moment--photo-two .card-content,
 body.layout-standard .moments-shell .moment--photo-three .card-content,
 body.layout-standard .moments-shell .moment--gallery .card-content,
-body.layout-standard .moments-shell .moment--video .card-content {
-  padding-bottom: clamp(22px, 3vw, 30px);
-}
+body.layout-standard .moments-shell .moment--video .card-content { padding-bottom: clamp(22px, 3vw, 30px); }
 
-/* Short thoughts remain a smaller sticky-note variation, not a different component language. */
 body.layout-standard .moments-shell .moment--whisper {
   --moment-card-paper: var(--sticky-paper);
   width: min(72%, 560px) !important;
@@ -218,71 +292,49 @@ body.layout-standard .moments-shell .moment--whisper {
   box-shadow: var(--moment-paper-shadow) !important;
   transform: translateX(var(--note-shift, 0px)) rotate(-0.18deg) !important;
 }
-
 body.layout-standard .moments-shell .moment--whisper:hover {
   background: var(--sticky-paper) !important;
-  box-shadow: var(--moment-paper-shadow) !important;
-  transform: translateX(var(--note-shift, 0px)) rotate(-0.18deg) translateY(-1px) !important;
+  box-shadow: 0 10px 22px color-mix(in srgb, #000 11%, transparent) !important;
+  transform: translateX(var(--note-shift, 0px)) rotate(-0.12deg) translateY(-2px) !important;
 }
-
-body.layout-standard .moments-shell .moment--whisper::after {
-  background: var(--moment-tape);
-  right: 24px;
-  width: 52px;
-}
-
-body.layout-standard .moments-shell .moment--whisper .card-content {
-  padding: 20px 22px 19px;
-}
-
-body.layout-standard .moments-shell .moment--whisper .card-text {
-  max-width: 40ch;
-  font-size: 1rem;
-  line-height: 1.8;
-}
+body.layout-standard .moments-shell .moment--whisper::after { background: var(--moment-tape); right: 24px; width: 52px; }
+body.layout-standard .moments-shell .moment--whisper .card-content { padding: 20px 22px 19px; }
+body.layout-standard .moments-shell .moment--whisper .card-text { max-width: 40ch; font-size: 1rem; line-height: 1.8; }
 
 body.layout-standard .moments-shell .moment-reactions {
   margin-top: 12px;
   padding-top: 8px;
   border-top-color: color-mix(in srgb, var(--moment-paper-border) 72%, transparent);
 }
-
-body.layout-standard .moments-shell .moment-card .public-comments-body {
-  margin-top: 3px;
-  padding-top: 9px;
+@keyframes moment-reaction-pop {
+  0% { transform: scale(0.88); }
+  48% { transform: scale(1.14) rotate(-2deg); }
+  100% { transform: scale(1); }
 }
-
+body.layout-standard .moments-shell .moment-reaction-chip.just-reacted {
+  animation: moment-reaction-pop 360ms cubic-bezier(.2,.85,.35,1.2) both;
+}
+body.layout-standard .moments-shell .moment-card .public-comments-body { margin-top: 3px; padding-top: 9px; }
 body.layout-standard .moments-shell .moment-card .public-comment-item {
   padding: 9px 10px;
   border: 1px solid color-mix(in srgb, var(--moment-paper-border) 76%, transparent);
   border-radius: 5px;
   background: var(--moment-comment-paper);
 }
+body.layout-standard .moments-shell .moment-card .public-comment-item + .public-comment-item { margin-top: 7px; }
 
-body.layout-standard .moments-shell .moment-card .public-comment-item + .public-comment-item {
-  margin-top: 7px;
-}
-
-/* Composer reads as a loose sheet from the same notebook. */
 body.layout-standard .moments-shell .publish-panel {
   margin: -10px 8px 34px;
   padding: clamp(20px, 3vw, 28px);
   border: 1px solid var(--moment-paper-border);
   border-radius: 6px 6px 4px 6px;
   background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 31px,
-      color-mix(in srgb, var(--notebook-line) 64%, transparent) 31px,
-      color-mix(in srgb, var(--notebook-line) 64%, transparent) 32px
-    ),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, color-mix(in srgb, var(--notebook-line) 64%, transparent) 31px, color-mix(in srgb, var(--notebook-line) 64%, transparent) 32px),
     var(--moment-paper);
   box-shadow: var(--moment-paper-shadow);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
 }
-
 body.layout-standard .moments-shell .publish-panel::after {
   top: -7px;
   right: clamp(24px, 7vw, 66px);
@@ -304,8 +356,6 @@ html[data-theme="light"] body.layout-standard .moments-shell {
   --notebook-line: rgba(122, 145, 166, 0.12);
   --notebook-margin: rgba(218, 120, 146, 0.25);
 }
-
-/* Dark mode uses warm charcoal paper, not accent-tinted blue panels. */
 html[data-theme="dark"] body.layout-standard .moments-shell {
   --notebook-paper: #111517;
   --moment-paper: #1b1c1b;
@@ -317,12 +367,14 @@ html[data-theme="dark"] body.layout-standard .moments-shell {
   --notebook-line: rgba(211, 220, 218, 0.055);
   --notebook-margin: rgba(126, 157, 170, 0.22);
 }
-
+html[data-theme="dark"] body.layout-standard .moments-shell .moments-side-note {
+  background: rgba(27, 28, 27, 0.72);
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.18);
+}
 html[data-theme="dark"] body.layout-standard .moments-shell .moment-day-mark {
   background: rgba(31, 34, 34, 0.9);
   box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.22);
 }
-
 html[data-theme="dark"] body.layout-standard .moments-shell .moment-card .card-images img,
 html[data-theme="dark"] body.layout-standard .moments-shell .moment-card .card-images video,
 html[data-theme="dark"] body.layout-standard .moments-shell .moment-card .moment-media img,
@@ -333,91 +385,67 @@ html[data-theme="dark"] body.layout-standard .moments-shell .moment-card .moment
 html[data-wallpaper-mode="fullscreen"] body.layout-standard .moments-shell .moments-list,
 html[data-wallpaper-mode="overlay"] body.layout-standard .moments-shell .moments-list {
   background:
-    repeating-linear-gradient(
-      to bottom,
-      transparent 0,
-      transparent 31px,
-      var(--notebook-line) 31px,
-      var(--notebook-line) 32px
-    ),
+    repeating-linear-gradient(to bottom, transparent 0, transparent 31px, var(--notebook-line) 31px, var(--notebook-line) 32px),
     color-mix(in srgb, var(--notebook-paper) var(--card-opacity-percent, 92%), transparent);
 }
 
+@media (max-width: 1280px) {
+  body.layout-standard .moments-shell .moments-page-grid {
+    display: block;
+    width: min(100%, 900px);
+    margin: 0 auto;
+  }
+  body.layout-standard .moments-shell .moments-side { display: none; }
+}
+
 @media (max-width: 720px) {
-  body.layout-standard .moments-shell .moments-wall-head {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  body.layout-standard .moments-shell .moments-wall-head p {
-    text-align: left;
-  }
-
-  body.layout-standard .moments-shell .moments-list {
-    padding: 24px 10px 32px 30px;
-    border-inline: 0;
-  }
-
-  body.layout-standard .moments-shell .moments-list::before {
-    left: 18px;
-  }
-
-  body.layout-standard .moments-shell .moments-list::after {
-    display: none;
-  }
-
-  body.layout-standard .moments-shell .moment-day-mark {
-    margin-left: -12px;
-  }
-
-  body.layout-standard .moments-shell .moment-day-stream {
-    gap: 18px;
-  }
-
+  body.layout-standard .moments-shell .moments-wall-head { grid-template-columns: 1fr; gap: 10px; }
+  body.layout-standard .moments-shell .moments-wall-head p { text-align: left; }
+  body.layout-standard .moments-shell .moments-list { padding: 24px 10px 32px 30px; border-inline: 0; }
+  body.layout-standard .moments-shell .moments-list::before { left: 18px; }
+  body.layout-standard .moments-shell .moments-list::after { display: none; }
+  body.layout-standard .moments-shell .moment-day-mark { margin-left: -12px; }
+  body.layout-standard .moments-shell .moment-day-stream { gap: 18px; }
   body.layout-standard .moments-shell .moment-card {
     --note-shift: 0px !important;
     width: calc(100% - 8px) !important;
     margin-inline: 0 8px !important;
     transform: none !important;
   }
-
-  body.layout-standard .moments-shell .moment-card:hover {
-    transform: none !important;
-  }
-
-  body.layout-standard .moments-shell .moment-card .card-content {
-    padding: 18px 14px 19px;
-  }
-
+  body.layout-standard .moments-shell .moment-card:hover { transform: none !important; }
+  body.layout-standard .moments-shell .moment-card .card-content { padding: 18px 14px 19px; }
   body.layout-standard .moments-shell .moment--whisper {
     width: calc(100% - 12px) !important;
     margin: 0 12px 0 0 !important;
     transform: none !important;
   }
-
-  body.layout-standard .moments-shell .moment--whisper:hover {
-    transform: none !important;
-  }
-
-  body.layout-standard .moments-shell .publish-panel {
-    margin-inline: 0;
-  }
+  body.layout-standard .moments-shell .moment--whisper:hover { transform: none !important; }
+  body.layout-standard .moments-shell .publish-panel { margin-inline: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   body.layout-standard .moments-shell .moment-card,
   body.layout-standard .moments-shell .moment-card:hover,
+  body.layout-standard .moments-shell .moment-card::after,
+  body.layout-standard .moments-shell .moment-card:hover::after,
   body.layout-standard .moments-shell .moment--whisper,
-  body.layout-standard .moments-shell .moment--whisper:hover {
+  body.layout-standard .moments-shell .moment--whisper:hover,
+  body.layout-standard .moments-shell .moments-side-category,
+  body.layout-standard .moments-shell .moments-side-photo,
+  body.layout-standard .moments-shell .moment-reaction-chip.just-reacted {
     transition: none;
+    animation: none;
     transform: none !important;
   }
 }
-
 html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment-card,
 html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment-card:hover,
+html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment-card::after,
+html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment-card:hover::after,
 html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment--whisper,
-html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment--whisper:hover {
+html[data-reduce-motion="true"] body.layout-standard .moments-shell .moment--whisper:hover,
+html[data-reduce-motion="true"] body.layout-standard .moments-shell .moments-side-category,
+html[data-reduce-motion="true"] body.layout-standard .moments-shell .moments-side-photo {
   transition: none;
   transform: none !important;
 }
