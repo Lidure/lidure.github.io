@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/pages.css';
 
 const posts = await getCollection('blog', ({ data }) => !data.draft);
 
@@ -11,24 +12,27 @@ for (const post of posts) {
   }
 }
 
-const sortedTags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]);
+const sortedTags = [...tagCounts.entries()].sort((a, b) =>
+  b[1] - a[1] || a[0].localeCompare(b[0], 'zh-CN')
+);
 ---
 <BaseLayout
   title="标签 | 搁浅 的小窝"
-  description="按标签分类浏览博客文章。"
-  bannerTitle="标签"
-  bannerSubtitle="按主题浏览站内文章。"
+  description="按标签浏览写下来的文章。"
+  showBanner={false}
 >
-  <section class="archive-shell">
-    <p class="page-intro">共有 {sortedTags.length} 个标签，点击可查看对应文章。</p>
+  <section class="tags-shell">
+    <header class="page-heading">
+      <h1>标签</h1>
+      <p>共有 {sortedTags.length} 个标签，沿着这些词去翻文章。</p>
+    </header>
 
-    <div class="tag-cloud">
+    <nav class="tag-index" aria-label="文章标签">
       {sortedTags.map(([tag, count]) => (
-        <a class="tag-pill" href={`/tags/${encodeURIComponent(tag)}`}>
-          {tag}
-          <sup>{count}</sup>
+        <a class="tag-index-link" href={`/tags/${encodeURIComponent(tag)}`}>
+          <span>{tag}</span><sup>{count}</sup>
         </a>
       ))}
-    </div>
+    </nav>
   </section>
 </BaseLayout>
