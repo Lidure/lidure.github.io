@@ -25,3 +25,22 @@ test('window-desk foundation exposes one semantic token layer and Zen Maru body 
   }
   assert.match(tokens, /--accent:\s*hsl\(var\(--theme-hue(?:,\s*255)?\)/);
 });
+
+test('site header prioritizes the five human-facing sections and demotes utilities', () => {
+  const header = read('src/components/SiteHeader.astro');
+  for (const link of [
+    "{ href: '/', label: '首页' }",
+    "{ href: '/posts', label: '文章' }",
+    "{ href: '/moments', label: '碎碎念' }",
+    "{ href: '/archive', label: '归档' }",
+    "{ href: '/about', label: '关于' }",
+  ]) assert.ok(header.includes(link));
+
+  assert.match(header, /class="site-nav-more"/);
+  assert.match(header, /\/search/);
+  assert.match(header, /\/messages/);
+  assert.match(header, /\/tags/);
+  assert.match(header, /\/player/);
+  assert.match(header, /\/sekai-quest/);
+  assert.match(header, /aria-expanded/);
+});
