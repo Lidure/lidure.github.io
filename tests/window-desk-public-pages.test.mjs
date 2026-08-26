@@ -46,3 +46,16 @@ test('messages reads as a guestbook while preserving behavior hooks', () => {
     'message-count', 'messages-list',
   ]) assert.match(page, new RegExp(`id="${id}"`));
 });
+
+test('footer and search use quiet shared page language', () => {
+  const layout = read('src/layouts/BaseLayout.astro');
+  const search = read('src/pages/search.astro');
+  assert.match(layout, /搁浅的小窝 · 2026/);
+  assert.match(layout, /在自己的角落里慢慢记录/);
+  assert.match(layout, /\/rss\.xml/);
+  assert.match(layout, /\/messages/);
+  assert.doesNotMatch(layout, />Built with Astro and GitHub Pages\.<\/p>/);
+  assert.match(search, /search-shell/);
+  assert.match(search, /search-result-entry/);
+  assert.doesNotMatch(search, /<article class="card">/);
+});
