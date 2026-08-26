@@ -46,3 +46,18 @@ test('article page renders the shared H2/H3 toc component', () => {
   assert.match(toc, /data-article-heading=\{entry\.slug\}/);
   assert.match(toc, /href=\{`#\$\{entry\.slug\}`\}/);
 });
+
+test('toc controller supports scrollspy, reduced motion, mobile close, and Astro cleanup', () => {
+  const toc = read('src/components/ArticleToc.astro');
+  assert.match(toc, /__articleTocCleanup/);
+  assert.match(toc, /AbortController/);
+  assert.match(toc, /prefers-reduced-motion:\s*reduce/);
+  assert.match(toc, /dataset\.reduceMotion/);
+  assert.match(toc, /classList\.toggle\('is-current'/);
+  assert.match(toc, /history\.replaceState/);
+  assert.match(toc, /scrollIntoView/);
+  assert.match(toc, /closest\('details'/);
+  assert.match(toc, /astro:page-load/);
+  assert.match(toc, /astro:before-swap/);
+  assert.match(toc, /--article-reading-progress/);
+});
