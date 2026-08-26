@@ -56,3 +56,13 @@ test('homepage is personal-first instead of a three-column portal', () => {
   assert.doesNotMatch(home, /FEATURED/);
   assert.doesNotMatch(home, /RECENT POSTS/);
 });
+
+test('home recent moments progressively enhances and hides on API failure', () => {
+  assert.equal(existsSync(url('src/components/HomeRecentMoments.astro')), true, 'HomeRecentMoments.astro should exist');
+  const component = read('src/components/HomeRecentMoments.astro');
+  assert.match(component, /data-home-recent-moments/);
+  assert.match(component, /fetchMoments\(\{\s*limit:\s*3/);
+  assert.match(component, /root\.hidden\s*=\s*false/);
+  assert.match(component, /catch[\s\S]*root\.hidden\s*=\s*true/);
+  assert.doesNotMatch(component, /uploadMomentMedia|createMoment|deleteMoment|setMomentPinned/);
+});
