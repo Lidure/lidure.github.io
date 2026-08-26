@@ -65,6 +65,11 @@ test('feed renderer owns date groups and deterministic content variants', () => 
   assert.match(page, /moments:pin-order-changed/);
 });
 
+test('moment reaction controls keep accessible names after the visual rewrite', () => {
+  assert.match(page, /option\.setAttribute\('aria-label', selectedEmoji === emoji \? `取消 \$\{emoji\}` : `贴 \$\{emoji\}`\)/);
+  assert.match(page, /reaction\.setAttribute\('aria-label', selectedEmoji === emoji \? `取消 \$\{emoji\}` : `贴 \$\{emoji\}`\)/);
+});
+
 test('core moments behavior hooks stay present while the presentation changes', () => {
   for (const hook of [
     'id="publish-toggle"', 'id="publish-box"', 'id="publish-form"', 'id="image-input"',
