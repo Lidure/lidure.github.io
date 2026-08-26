@@ -9,19 +9,22 @@ test('homepage no longer renders the clock strip', () => {
   assert.doesNotMatch(home, /showTime=\{true\}/);
 });
 
-test('visual settings polish is loaded and exposes theme-aware panel tokens plus a spectrum hue slider', () => {
+test('visual settings use semantic theme tokens and a spectrum hue slider', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
-  assert.match(layout, /firefly-v5-polish\.css/);
+  const tokens = readSource('src/styles/tokens.css');
+  const css = readSource('src/styles/visual-settings.css');
 
-  const css = readSource('src/styles/firefly-v5-polish.css');
-  assert.match(css, /--visual-panel-bg:/);
-  assert.match(css, /\[data-theme="light"\][\s\S]*--visual-panel-bg:/);
-  assert.match(css, /#theme-hue-range[\s\S]*linear-gradient\(90deg/);
-  assert.match(css, /\.hero-settings-panel[\s\S]*var\(--visual-panel-text\)/);
+  assert.match(layout, /visual-settings\.css/);
+  assert.doesNotMatch(layout, /firefly-v5-polish\.css/);
+  assert.match(tokens, /--visual-panel-bg:/);
+  assert.match(tokens, /html\[data-theme='light'\][\s\S]*--visual-panel-bg:/);
+  assert.match(tokens, /--color-selection-bar:\s*linear-gradient/);
+  assert.match(css, /\.hero-settings-panel[\s\S]*--panel-bg:\s*var\(--visual-panel-bg\)/);
+  assert.match(css, /#theme-hue-range[\s\S]*background:\s*var\(--color-selection-bar\)/);
 });
 
-test('visual panel provides the theme variables consumed by its scoped component styles', () => {
-  const css = readSource('src/styles/firefly-v5-polish.css');
+test('visual panel bridges semantic variables into its scoped component styles', () => {
+  const css = readSource('src/styles/visual-settings.css');
   const panelRule = css.match(/html body \.hero-settings-panel\s*\{([^}]*)\}/)?.[1] ?? '';
   const buttonRule = css.match(/html body \.hero-settings-btn\s*\{([^}]*)\}/)?.[1] ?? '';
 
@@ -33,12 +36,16 @@ test('visual panel provides the theme variables consumed by its scoped component
   assert.match(buttonRule, /--text-soft:\s*var\(--visual-panel-text\)/);
 });
 
-test('outer page surface no longer rounds the full viewport edge', () => {
+test('outer page surface stays flush with the viewport edge', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
-  assert.match(layout, /firefly-v5-polish\.css/);
+  const css = readSource('src/styles/site-shell.css');
+  const surfaceRule = css.match(/body\.layout-standard \.standard-page-surface\s*\{([^}]*)\}/)?.[1] ?? '';
+  const radius = surfaceRule.match(/border-radius:\s*([^;]+)/)?.[1]?.trim();
 
-  const css = readSource('src/styles/firefly-v5-polish.css');
-  assert.match(css, /body\.layout-standard\s+\.standard-page-surface\s*\{[\s\S]*border-radius:\s*0/);
+  assert.match(layout, /site-shell\.css/);
+  assert.doesNotMatch(layout, /firefly-v5-polish\.css/);
+  assert.ok(surfaceRule.length > 0, 'semantic shell should own the outer page surface');
+  assert.ok(radius == null || radius === '0', 'outer page surface must not expose rounded viewport corners');
 });
 
 test('banner waves use the current Firefly-compatible layered translation model', () => {
