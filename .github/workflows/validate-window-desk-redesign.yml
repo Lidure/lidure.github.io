@@ -23,9 +23,18 @@ jobs:
         run: node --test tests/article-toc.test.mjs
       - name: Build site
         run: npm run build
-      - name: Run built-site contracts
-        run: node --test tests/site-build.test.mjs
-      - name: Run core player and legacy contracts
-        run: node --test tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs tests/firefly-v3.test.mjs
+      - name: Diagnose homepage and rendered output contracts
+        if: always()
+        run: node --test --test-name-pattern="search embeds|public URLs|source configuration|optical-flow|optimized identity|rendered background" tests/site-build.test.mjs
+      - name: Diagnose moments contracts
+        if: always()
+        run: node --test --test-name-pattern="rendered moments|moments page|moments publishing|moments video|moments browser|moment delete|moments api|moments single-item" tests/site-build.test.mjs
+      - name: Diagnose media lifecycle contracts
+        if: always()
+        run: node --test --test-name-pattern="guestbook|hero slideshow|Astro swaps|persistent layout|layout mounts|sakura|Busuanzi|background video" tests/site-build.test.mjs
+      - name: Diagnose player import contracts
+        if: always()
+        run: node --test --test-name-pattern="QQ playlist|online playlist" tests/site-build.test.mjs
       - name: Run full site regression suite
+        if: always()
         run: npm run test:site
