@@ -17,7 +17,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Run foundation contract
-        run: node --test tests/window-desk-foundation.test.mjs
+      - name: Run foundation and regression contracts
+        run: node --test tests/window-desk-foundation.test.mjs tests/visual-settings.test.mjs tests/moments-journal-layout.test.mjs
       - name: Astro check
         run: npm run check
