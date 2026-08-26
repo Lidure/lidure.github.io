@@ -51,4 +51,15 @@ test('page-level migration styles are gone', () => {
   assert.match(moments, /styles\/moments\.css/);
 });
 
+test('retired portal homepage components are removed', () => {
+  for (const path of [
+    'src/components/HomeLeftSidebar.astro',
+    'src/components/HomeRightSidebar.astro',
+    'src/components/HomePostCard.astro',
+    'src/components/HomeProfileSidebar.astro',
+    'src/components/RecentMomentsWidget.astro',
+    'src/components/MusicStatusWidget.astro',
+  ]) assert.equal(existsSync(new URL(`../${path}`, import.meta.url)), false, path);
+});
+
 export { existsSync };
