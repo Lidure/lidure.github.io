@@ -1,6 +1,8 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/pages.css';
+import '../styles/search.css';
 
 const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
@@ -18,19 +20,23 @@ const jsonData = JSON.stringify(
 <BaseLayout
   title="搜索 | 搁浅 的小窝"
   description="在全站文章中搜索关键字。"
-  bannerTitle="搜索"
-  bannerSubtitle="找到你想看的内容。"
+  showBanner={false}
 >
-  <section class="archive-shell search-shell">
-    <div class="search-bar">
-      <input type="search" id="search-input" placeholder="输入关键字搜索文章…" autofocus />
-      <span id="search-count" class="search-count"></span>
+  <section class="search-shell">
+    <header class="page-heading">
+      <h1>搜索</h1>
+      <p>从写下来的文章里，找一个记得的词。</p>
+    </header>
+
+    <div class="search-bar" role="search">
+      <input type="search" id="search-input" placeholder="输入关键字搜索文章…" aria-label="搜索文章" autofocus />
+      <span id="search-count" class="search-count" aria-live="polite"></span>
     </div>
 
-    <div id="search-results" class="archive-list"></div>
+    <div id="search-results" class="search-results"></div>
 
     <noscript>
-      <p>需要启用 JavaScript 才能使用搜索功能。</p>
+      <p class="search-empty">需要启用 JavaScript 才能使用搜索功能。</p>
     </noscript>
   </section>
 </BaseLayout>
@@ -84,19 +90,19 @@ function render(items: PostDoc[]): void {
   count.textContent = `${items.length} 篇匹配`;
 
   results.innerHTML = items
-    .map(
-      (p: PostDoc) => `
-    <article class="card">
-      <div class="meta">
-        <span>${new Date(p.pubDate).toLocaleDateString('zh-CN')}</span>
+    .map((p: PostDoc) => {
+      const date = new Date(p.pubDate);
+      const dateLabel = date.toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit' }).replaceAll('/', '.');
+      return `
+    <article class="search-result-entry">
+      <time datetime="${date.toISOString()}">${dateLabel}</time>
+      <div class="search-result-copy">
+        <h2><a href="/posts/${p.slug}">${p.title}</a></h2>
+        <p>${p.description}</p>
+        <p class="search-result-tags">${p.tags.map((t: string) => `<span>#${t}</span>`).join('')}</p>
       </div>
-      <h3><a href="/posts/${p.slug}">${p.title}</a></h3>
-      <p>${p.description}</p>
-      <div class="tag-list">
-        ${p.tags.map((t: string) => `<span class="tag">#${t}</span>`).join('')}
-      </div>
-    </article>`,
-    )
+    </article>`;
+    })
     .join('');
 }
 

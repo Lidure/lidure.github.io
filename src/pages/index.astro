@@ -1,74 +1,100 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import HomePostCard from '../components/HomePostCard.astro';
-import HomeLeftSidebar from '../components/HomeLeftSidebar.astro';
-import HomeRightSidebar from '../components/HomeRightSidebar.astro';
+import HomeRecentMoments from '../components/HomeRecentMoments.astro';
+import { homePresence } from '../data/home-presence';
+import '../styles/home.css';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-const featuredPost = posts.find((post) => post.data.featured) ?? posts[0];
-const latestPosts = posts.slice(0, 6);
-const tagCounts = new Map<string, number>();
-posts.forEach((post) => {
-  post.data.tags.forEach((tag) => tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1));
-});
-const topTags = [...tagCounts.entries()]
-  .map(([tag, count]) => ({ tag, count }))
-  .sort((a, b) => b.count - a.count || a.tag.localeCompare(b.tag, 'zh-CN'));
-const tagCount = tagCounts.size;
-const featuredHref = featuredPost
-  ? `/posts/${featuredPost.id.replace(/\.md$/, '')}`
-  : '/posts';
+const leadPost = posts[0];
+const supportingPosts = posts.slice(1, 5);
+const postHref = (id: string) => `/posts/${id.replace(/\.md$/, '')}`;
+const dateLabel = (date: Date) => date.toLocaleDateString('zh-CN', {
+  month: '2-digit',
+  day: '2-digit',
+}).replaceAll('/', '.');
 ---
 
 <BaseLayout
   title="搁浅 的小窝"
   description="一个充满二次元氛围的个人博客，记录游戏、音乐、项目与日常。"
-  bannerTitle="搁浅的小窝"
-  bannerSubtitle="把喜欢的东西，认真地收进小站里。"
+  showBanner={false}
 >
-  <div class="home-layout">
-    <HomeLeftSidebar
-      postCount={posts.length}
-      tagCount={tagCount}
-      featuredHref={featuredHref}
-      topTags={topTags}
-    />
+  <div class="home-page">
+    <section class="home-presence" aria-labelledby="home-name">
+      <div class="home-presence-copy">
+        <p class="home-eyebrow">你好，这里是</p>
+        <h1 id="home-name">搁浅</h1>
+        <p class="home-intro">{homePresence.intro}</p>
 
-    <div class="home-center-column">
-      <nav class="home-category-bar" aria-label="首页内容导航">
-        <a class="is-featured" href={featuredHref}>✦ 精选</a>
-        <a href="#latest-posts-title">最新</a>
-        <a href="/tags">标签</a>
-        <a href="/moments">碎碎念</a>
-        <a href="/messages">留言</a>
-      </nav>
+        <dl class="home-now" aria-label="最近在做的事">
+          {homePresence.now.map((item) => (
+            <div>
+              <dt>{item.label}</dt>
+              <dd>{item.href ? <a href={item.href}>{item.value}</a> : item.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
 
-      <section class="home-main-column" aria-labelledby="latest-posts-title">
-        {featuredPost && (
-          <a class="home-featured-card" href={featuredHref}>
-            <span class="home-featured-label">FEATURED · 精选</span>
-            <strong>{featuredPost.data.title}</strong>
-            <p>{featuredPost.data.description}</p>
-            <span class="home-featured-link">阅读全文 →</span>
-          </a>
-        )}
+      <div class="home-presence-visual-wrap" aria-hidden="true">
+        <img
+          class="home-presence-visual"
+          src={homePresence.visual.src}
+          alt={homePresence.visual.alt}
+          width="256"
+          height="256"
+        />
+      </div>
+    </section>
 
-        <header class="home-section-header">
+    <section class="home-writing" aria-labelledby="home-writing-title">
+      <header class="home-section-header">
+        <h2 id="home-writing-title">最近写下的东西</h2>
+        <a href="/posts">更多文章</a>
+      </header>
+
+      {leadPost && (
+        <a class="home-lead-story" href={postHref(leadPost.id)}>
           <div>
-            <span class="home-section-kicker">RECENT POSTS</span>
-            <h2 id="latest-posts-title">最新文章</h2>
+            <time class="home-story-date" datetime={leadPost.data.pubDate.toISOString()}>
+              {dateLabel(leadPost.data.pubDate)}
+            </time>
+            <h3 class="home-story-title">{leadPost.data.title}</h3>
           </div>
-          <a href="/posts">全部文章 →</a>
-        </header>
-        <div class="home-post-list">
-          {latestPosts.map((post) => <HomePostCard post={post} />)}
-        </div>
-      </section>
-    </div>
+          <p>{leadPost.data.description}</p>
+        </a>
+      )}
 
-    <HomeRightSidebar topTags={topTags} postCount={posts.length} tagCount={tagCount} />
+      {supportingPosts.length > 0 && (
+        <div class="home-story-list">
+          {supportingPosts.map((post) => (
+            <a class="home-story-row" href={postHref(post.id)}>
+              <time class="home-story-date" datetime={post.data.pubDate.toISOString()}>
+                {dateLabel(post.data.pubDate)}
+              </time>
+              <span class="home-story-row-title">{post.data.title}</span>
+              {post.data.tags[0] && <span class="home-story-tag">#{post.data.tags[0]}</span>}
+            </a>
+          ))}
+        </div>
+      )}
+    </section>
+
+    <section class="home-moments" aria-labelledby="home-moments-title">
+      <header class="home-section-header">
+        <h2 id="home-moments-title">最近的日常</h2>
+        <a href="/moments">去碎碎念</a>
+      </header>
+      <HomeRecentMoments />
+    </section>
+
+    <nav class="home-more" aria-label="更多内容">
+      <a href="/archive">归档</a>
+      <a href="/messages">留言</a>
+      <a href="/about">关于</a>
+    </nav>
   </div>
 </BaseLayout>

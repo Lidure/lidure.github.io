@@ -1,0 +1,94 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { homePresence } from '../data/home-presence';
+import { getGitHubProjects } from '../lib/github-projects';
+import '../styles/pages.css';
+
+const projects = await getGitHubProjects();
+---
+<BaseLayout
+  title="关于 | 搁浅 的小窝"
+  description="关于我和这个小站。"
+  showBanner={false}
+>
+  <article class="about-shell">
+    <header class="page-heading about-heading">
+      <img
+        class="about-avatar"
+        src={homePresence.visual.src}
+        alt={homePresence.visual.alt}
+        width="256"
+        height="256"
+        loading="eager"
+        decoding="async"
+      />
+      <div>
+        <h1>关于</h1>
+        <p>如果你还想多认识我一点，或者想知道这个小站为什么会长成现在这样。</p>
+      </div>
+    </header>
+
+    <div class="about-sections">
+      <section class="about-section">
+        <h2>这里是谁</h2>
+        <p>这里是搁浅的小窝。学习、项目、游戏、音乐和日常里值得留下来的东西，会慢慢被收进这里。</p>
+      </section>
+
+      <section class="about-section">
+        <h2>最近在做</h2>
+        <div class="about-now-list">
+          {homePresence.now.map((item) => (
+            <p>
+              <span>{item.label}</span>
+              {item.href ? <a href={item.href}>{item.value}</a> : <strong>{item.value}</strong>}
+            </p>
+          ))}
+        </div>
+      </section>
+
+      <section class="about-section">
+        <h2>喜欢</h2>
+        <p>游戏、音乐、动画，还有那些值得反复折腾、反复回看的小东西。这个博客也会随着这些兴趣慢慢变化。</p>
+      </section>
+
+      {projects.length > 0 && (
+        <section class="about-section about-projects">
+          <header class="about-section-heading">
+            <h2>一些项目</h2>
+            <p>最近仍在维护或折腾的公开仓库。</p>
+          </header>
+          <div class="about-project-list">
+            {projects.map((project) => (
+              <article class="about-project-row">
+                <div>
+                  <h3>
+                    <a href={project.htmlUrl} target="_blank" rel="noreferrer">{project.name}</a>
+                  </h3>
+                  <p>{project.description}</p>
+                </div>
+                <div class="about-project-meta">
+                  <span>{project.language}</span>
+                  <time datetime={project.pushedAt}>
+                    {new Date(project.pushedAt).toLocaleDateString('zh-CN', { year: 'numeric', month: '2-digit' })}
+                  </time>
+                  {project.homepage && <a href={project.homepage} target="_blank" rel="noreferrer">站点</a>}
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <section class="about-section">
+        <h2>找到我</h2>
+        <p class="about-links">
+          <a href="https://github.com/Lidure" target="_blank" rel="noreferrer">GitHub</a>
+          <span aria-hidden="true">·</span>
+          <a href="/messages">留言</a>
+          <span aria-hidden="true">·</span>
+          <a href="/rss.xml">RSS</a>
+        </p>
+      </section>
+    </div>
+  </article>
+</BaseLayout>

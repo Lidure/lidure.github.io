@@ -11,18 +11,17 @@ test('base layout installs the shared page transition enhancer', () => {
   assert.match(layout, /<PageTransitionEnhancer\s*\/>/);
 });
 
-test('music widget owns a deterministic default cover without page-level races', () => {
-  const widget = readSource('src/components/MusicStatusWidget.astro');
+test('global player owns music cover presentation without page-level races', () => {
+  const layout = readSource('src/layouts/BaseLayout.astro');
+  const player = readSource('src/components/SekaiPlayer.astro');
   const enhancer = readSource('src/components/PageTransitionEnhancer.astro');
 
-  assert.match(widget, /DEFAULT_MUSIC_COVER\s*=\s*['"]\/assets\/music\/default-cover\.webp['"]/);
-  assert.match(widget, /<img[^>]*data-music-cover[^>]*src="\/assets\/music\/default-cover\.webp"/);
-  assert.match(widget, /coverSrc\s*\|\|\s*DEFAULT_MUSIC_COVER/);
-  assert.match(widget, /cover\.addEventListener\(['"]error['"]/);
-  assert.doesNotMatch(widget, /cover\.removeAttribute\(['"]src['"]\)/);
-  assert.doesNotMatch(widget, /cover\.style\.display\s*=\s*['"]none['"]/);
-  assert.doesNotMatch(enhancer, /DEFAULT_MUSIC_COVER|__homeMusicDefaultCoverCleanup|bindDefaultMusicCover/);
-  assert.ok(existsSync(new URL('../public/assets/music/default-cover.webp', import.meta.url)));
+  assert.equal(existsSync(new URL('../src/components/MusicStatusWidget.astro', import.meta.url)), false);
+  assert.match(layout, /<SekaiPlayer\s*\/>/);
+  assert.match(player, /id="sekaiDockCover"[^>]*class="sekai-dock-cover"/);
+  assert.match(player, /class="sekai-cover"[^>]*id="sekaiCover"/);
+  assert.match(player, /id="sekaiCoverFallback"/);
+  assert.doesNotMatch(enhancer, /sekaiCover|sekaiDockCover|MusicStatusWidget|DEFAULT_MUSIC_COVER|__homeMusicDefaultCoverCleanup|bindDefaultMusicCover/);
 });
 
 test('page transition uses short Firefly-style compositor animations and a persistent theme progress bar', () => {

@@ -1,0 +1,145 @@
+---
+type Entry = {
+  depth: number;
+  slug: string;
+  text: string;
+};
+
+interface Props {
+  entries: Entry[];
+}
+
+const { entries } = Astro.props;
+---
+
+<div class="article-reading-progress" aria-hidden="true"><span></span></div>
+
+<nav class="article-toc article-toc-desktop" aria-label="文章目录">
+  <p class="article-toc-title">目录</p>
+  <ol>
+    {entries.map((entry) => (
+      <li data-depth={entry.depth}>
+        <a
+          class="article-toc-link"
+          href={`#${entry.slug}`}
+          data-article-heading={entry.slug}
+        >
+          {entry.text}
+        </a>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<details class="article-toc article-toc-mobile">
+  <summary>目录</summary>
+  <ol>
+    {entries.map((entry) => (
+      <li data-depth={entry.depth}>
+        <a
+          class="article-toc-link"
+          href={`#${entry.slug}`}
+          data-article-heading={entry.slug}
+        >
+          {entry.text}
+        </a>
+      </li>
+    ))}
+  </ol>
+</details>
+
+<script>
+  const tocWindow = window as typeof window & {
+    __articleTocCleanup?: () => void;
+    __articleTocLifecycleBound?: boolean;
+  };
+
+  function initArticleToc() {
+    tocWindow.__articleTocCleanup?.();
+
+    const article = document.querySelector<HTMLElement>('.article-publication');
+    const prose = article?.querySelector<HTMLElement>('.article-prose');
+    const links = Array.from(
+      article?.querySelectorAll<HTMLAnchorElement>('.article-toc-link') ?? [],
+    );
+    if (!article || !prose || !links.length) return;
+
+    const controller = new AbortController();
+    const { signal } = controller;
+    const ids = [...new Set(
+      links
+        .map((link) => link.dataset.articleHeading)
+        .filter((id): id is string => Boolean(id)),
+    )];
+    let frame = 0;
+
+    const sync = () => {
+      frame = 0;
+
+      const proseRect = prose.getBoundingClientRect();
+      const start = window.scrollY + proseRect.top;
+      const end = start + prose.offsetHeight - window.innerHeight;
+      const progress = Math.min(
+        1,
+        Math.max(0, (window.scrollY - start) / Math.max(1, end - start)),
+      );
+      article.style.setProperty('--article-reading-progress', String(progress));
+
+      let currentId = ids[0] ?? '';
+      const threshold = Math.min(180, window.innerHeight * 0.28);
+      for (const id of ids) {
+        const heading = document.getElementById(id);
+        if (heading && heading.getBoundingClientRect().top <= threshold) {
+          currentId = id;
+        }
+      }
+
+      for (const link of links) {
+        link.classList.toggle('is-current', link.dataset.articleHeading === currentId);
+      }
+    };
+
+    const requestSync = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(sync);
+    };
+
+    for (const link of links) {
+      link.addEventListener('click', (event) => {
+        const id = link.dataset.articleHeading;
+        const heading = id ? document.getElementById(id) : null;
+        if (!id || !heading) return;
+
+        event.preventDefault();
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+          || document.documentElement.dataset.reduceMotion === 'true';
+        heading.scrollIntoView({
+          behavior: reduced ? 'auto' : 'smooth',
+          block: 'start',
+        });
+        history.replaceState(null, '', `#${encodeURIComponent(id)}`);
+
+        const details = link.closest('details');
+        if (details) details.open = false;
+      }, { signal });
+    }
+
+    window.addEventListener('scroll', requestSync, { passive: true, signal });
+    window.addEventListener('resize', requestSync, { passive: true, signal });
+
+    tocWindow.__articleTocCleanup = () => {
+      if (frame) cancelAnimationFrame(frame);
+      controller.abort();
+    };
+
+    sync();
+  }
+
+  if (!tocWindow.__articleTocLifecycleBound) {
+    tocWindow.__articleTocLifecycleBound = true;
+    document.addEventListener('astro:page-load', initArticleToc);
+    document.addEventListener('astro:before-swap', () => tocWindow.__articleTocCleanup?.());
+  }
+
+  initArticleToc();
+</script>

@@ -5,7 +5,7 @@ import test from 'node:test';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const page = read('src/pages/moments.astro');
 const pins = read('src/components/MomentsPinControls.astro');
-const css = read('src/styles/moments-life-wall.css');
+const css = read('src/styles/moments.css');
 const helpersUrl = new URL('../src/lib/moments-life-wall.mjs', import.meta.url);
 
 test('legacy journal enhancer stays retired', () => {
@@ -38,8 +38,10 @@ test('sunlit notes derives time-of-day metadata from real timestamps', async () 
   assert.match(pins, /dataset\.daypart = daypart\.key/);
 });
 
-test('bannerless Moments keeps all core interaction hooks', () => {
+test('bannerless Moments keeps all core interaction hooks and one semantic stylesheet', () => {
   assert.match(page, /showBanner=\{false\}/);
+  assert.match(page, /styles\/moments\.css/);
+  assert.doesNotMatch(page, /moments-life-wall\.css/);
   for (const hook of ['publish-toggle', 'publish-box', 'publish-form', 'image-input', 'image-previews', 'moments-session-status', 'moment-lightbox', 'moments-login']) {
     assert.match(page, new RegExp(`id="${hook}"`));
   }
@@ -56,18 +58,26 @@ test('emoji and reaction pickers stay collapsed until opened', () => {
   assert.match(css, /\.emoji-panel\.hidden[\s\S]*?display:\s*none\s*!important/);
 });
 
-test('sunlit notes uses a paper-note visual language', () => {
-  assert.match(css, /--note-paper:/);
-  assert.match(css, /--note-paper-soft:/);
-  assert.match(css, /\.moments-wall-head::after[\s\S]*?background:/);
+test('semantic moments stylesheet owns interaction and media foundations', () => {
+  for (const selector of [
+    '.publish-form', '.emoji-input-wrap', '.emoji-panel', '.image-previews', '.preview-item',
+    '.moment-reactions', '.moment-reaction-panel', '.public-comment-form',
+    '.moment--photo-two', '.moment--photo-three', '.moment--gallery',
+    '.moments-toast', '.lightbox-overlay', '.lightbox-stage', '.lightbox-nav',
+  ]) assert.match(css, new RegExp(selector.replaceAll('.', '\\.')));
+  assert.match(css, /body\.lightbox-open[\s\S]*?overflow:\s*hidden/);
+  assert.match(css, /\.lightbox-overlay\[hidden\][\s\S]*?display:\s*none\s*!important/);
+});
+
+test('moments uses a content-first life-slice visual language', () => {
+  assert.match(css, /\.moments-shell/);
   assert.match(css, /\.moments-wall-filter \.pill\.active::after/);
-  assert.match(css, /\.moment-day-mark[\s\S]*?border-radius:/);
-  assert.match(css, /\.moment-card::after[\s\S]*?content:\s*['"]/);
-  assert.match(css, /\.moment-card[\s\S]*?transform:\s*translateX\(var\(--note-shift/);
-  assert.match(css, /\.moment-category::before[\s\S]*?width:\s*18px/);
-  assert.match(css, /\.moment-daypart\[data-daypart="morning"\]/);
-  assert.match(css, /\.moment-daypart\[data-daypart="evening"\]/);
-  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*?--note-shift:\s*0px\s*!important/);
+  assert.match(css, /\.moment-card/);
+  assert.match(css, /\.moment-media/);
+  assert.match(css, /\.moment-actions/);
+  assert.match(css, /\.moment-daypart/);
+  assert.match(css, /@media \(max-width:\s*720px\)/);
+  assert.doesNotMatch(css, /rotate\(/);
   assert.doesNotMatch(css, /box-shadow:\s*0 13px 30px/);
 });
 
