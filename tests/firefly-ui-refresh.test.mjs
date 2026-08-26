@@ -146,14 +146,16 @@ test('v2 visual layer defines semantic colors and responsive Firefly grid', () =
   assert.match(css, /@media \(max-width:\s*849px\)/);
 });
 
-test('guestbook uses a wide two-column desktop shell', () => {
+test('guestbook uses a quiet single-flow writing surface', () => {
   const messages = readSource('src/pages/messages.astro');
-  assert.match(messages, /messages-layout/);
-  assert.match(messages, /messages-composer-column/);
-  assert.match(messages, /messages-stream-column/);
-  assert.match(messages, /width:\s*min\(100%,\s*1220px\)/);
-  assert.match(messages, /grid-template-columns:\s*minmax\(340px,\s*370px\)\s+minmax\(0,\s*1fr\)/);
-  assert.doesNotMatch(messages, /max-width:\s*760px/);
+  const css = readSource('src/styles/pages.css');
+  assert.match(messages, /guestbook-compose/);
+  assert.match(messages, /guestbook-stream/);
+  assert.match(messages, /路过的话，留下一句话吧/);
+  assert.match(css, /body\.layout-standard \.guestbook-compose/);
+  assert.match(css, /body\.layout-standard \.message-card/);
+  assert.doesNotMatch(messages, /messages-layout|messages-composer-column|messages-stream-column/);
+  assert.doesNotMatch(messages, /GUESTBOOK|RECENT MESSAGES/);
 });
 
 test('ordinary pages load the v2 cohesion layer', () => {
