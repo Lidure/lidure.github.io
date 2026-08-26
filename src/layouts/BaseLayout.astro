@@ -229,7 +229,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
       installVisualResetDefaultSync();
     </script>
   </head>
-  <body class:list={[`layout-${layoutMode}`, { 'is-home': isHome, 'is-bannerless': isStandard && !showBanner }]}>
+  <body id="top" class:list={[`layout-${layoutMode}`, { 'is-home': isHome, 'is-bannerless': isStandard && !showBanner }]}>
     <VisualSettingsPanel />
     <HeroSlideshow />
     <SekaiParticles />
@@ -261,7 +261,17 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
           </main>
           <footer class="footer">
             <div class="footer-inner">
-              <p>Built with Astro and GitHub Pages.</p>
+              <div class="footer-note">
+                <strong>搁浅的小窝 · 2026</strong>
+                <p>在自己的角落里慢慢记录。</p>
+              </div>
+              <nav class="footer-links" aria-label="页脚链接">
+                <a href="/rss.xml">RSS</a>
+                <a href="https://github.com/Lidure" target="_blank" rel="noreferrer">GitHub</a>
+                <a href="/messages">留言</a>
+                <a href="#top">返回顶部</a>
+              </nav>
+              <small>Built with Astro · Hosted on GitHub Pages</small>
             </div>
           </footer>
         </div>
