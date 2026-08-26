@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const readSource = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('banner stage anchors Firefly-style waves inside the banner instead of overlapping page UI', () => {
+test('banner stage anchors the four-layer waves inside the banner instead of overlapping page UI', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
   const waves = readSource('src/components/BannerWaves.astro');
 
@@ -16,7 +16,7 @@ test('banner stage anchors Firefly-style waves inside the banner instead of over
   assert.doesNotMatch(waves, /margin-top:\s*calc\(-1\s*\*/);
 });
 
-test('Firefly wave geometry keeps the reference four-layer timing and opacity', () => {
+test('wave geometry keeps the approved four-layer timing and opacity', () => {
   const model = readSource('src/lib/banner-waves.mjs');
   assert.match(model, /alpha:\s*0\.25[\s\S]*duration:\s*8/);
   assert.match(model, /alpha:\s*0\.5[\s\S]*duration:\s*9/);
@@ -26,19 +26,23 @@ test('Firefly wave geometry keeps the reference four-layer timing and opacity', 
   assert.match(model, /TRANSLATE_TO\s*=\s*85/);
 });
 
-test('homepage palette is derived from theme hue with Firefly-like OKLCH semantic tokens', () => {
-  const css = readSource('src/styles/firefly-v6-theme.css');
-  assert.match(css, /--firefly-primary:\s*oklch\([^;]*var\(--theme-hue/);
-  assert.match(css, /--firefly-page-bg:\s*oklch\([^;]*var\(--theme-hue/);
-  assert.match(css, /--firefly-btn-bg:\s*oklch\([^;]*var\(--theme-hue/);
-  assert.match(css, /--standard-accent:\s*var\(--firefly-primary\)/);
-  assert.match(css, /\.sidebar-widget[\s\S]*var\(--firefly-card-bg\)/);
-  assert.match(css, /\.home-featured-card[\s\S]*var\(--firefly-primary\)/);
-  assert.match(css, /\.home-post-card[\s\S]*var\(--firefly-card-bg\)/);
+test('homepage palette derives from theme hue through semantic tokens', () => {
+  const tokens = readSource('src/styles/tokens.css');
+  const home = readSource('src/styles/home.css');
+
+  assert.match(tokens, /--standard-accent:\s*oklch\([^;]*var\(--theme-hue/);
+  assert.match(tokens, /--standard-page-bg:\s*oklch\([^;]*var\(--theme-hue/);
+  assert.match(tokens, /--paper:\s*hsl\(var\(--theme-hue/);
+  assert.match(tokens, /--accent:\s*hsl\(var\(--theme-hue/);
+  assert.match(home, /var\(--accent\)/);
+  assert.match(home, /var\(--muted\)/);
+  assert.match(home, /var\(--ink\)/);
+  assert.doesNotMatch(tokens, /--firefly-/);
 });
 
-test('theme hue slider uses Firefly-style OKLCH spectrum', () => {
-  const css = readSource('src/styles/firefly-v6-theme.css');
-  assert.match(css, /--color-selection-bar:\s*linear-gradient\([^;]*oklch\(/s);
+test('theme hue slider uses the shared OKLCH spectrum', () => {
+  const tokens = readSource('src/styles/tokens.css');
+  const css = readSource('src/styles/visual-settings.css');
+  assert.match(tokens, /--color-selection-bar:\s*linear-gradient\([\s\S]*?oklch\(/);
   assert.match(css, /#theme-hue-range[\s\S]*background:\s*var\(--color-selection-bar\)/);
 });
