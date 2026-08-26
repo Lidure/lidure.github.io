@@ -1,0 +1,49 @@
+---
+type Entry = {
+  depth: number;
+  slug: string;
+  text: string;
+};
+
+interface Props {
+  entries: Entry[];
+}
+
+const { entries } = Astro.props;
+---
+
+<div class="article-reading-progress" aria-hidden="true"><span></span></div>
+
+<nav class="article-toc article-toc-desktop" aria-label="文章目录">
+  <p class="article-toc-title">目录</p>
+  <ol>
+    {entries.map((entry) => (
+      <li data-depth={entry.depth}>
+        <a
+          class="article-toc-link"
+          href={`#${entry.slug}`}
+          data-article-heading={entry.slug}
+        >
+          {entry.text}
+        </a>
+      </li>
+    ))}
+  </ol>
+</nav>
+
+<details class="article-toc article-toc-mobile">
+  <summary>目录</summary>
+  <ol>
+    {entries.map((entry) => (
+      <li data-depth={entry.depth}>
+        <a
+          class="article-toc-link"
+          href={`#${entry.slug}`}
+          data-article-heading={entry.slug}
+        >
+          {entry.text}
+        </a>
+      </li>
+    ))}
+  </ol>
+</details>
