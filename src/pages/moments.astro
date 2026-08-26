@@ -131,6 +131,8 @@ import '../styles/moments-life-wall.css';
   const maxVideoBytes = 100 * 1024 * 1024;
   let adminMode = false;
 
+  type MomentMedia = { kind: 'image' | 'video' | 'poster'; url: string };
+
   type RenderMoment = {
     id?: string;
     date: string;
@@ -138,7 +140,7 @@ import '../styles/moments-life-wall.css';
     text: string;
     link?: string;
     images: string[];
-    media: Array<{ kind: 'image' | 'video' | 'poster'; url: string }>;
+    media: MomentMedia[];
     createdAt?: number;
     reactions?: Record<string, number>;
   };
@@ -260,15 +262,15 @@ import '../styles/moments-life-wall.css';
       ? raw.images.map((src: unknown) => String(src ?? '').trim()).filter(Boolean)
       : [];
     const rawMedia = Array.isArray(raw.media) ? raw.media : [];
-    const media = rawMedia
+    const media: MomentMedia[] = rawMedia
       .map((item: any) => ({
         kind: item?.kind === 'video' || item?.kind === 'poster' ? item.kind : 'image',
         url: String(item?.url ?? '').trim(),
       }))
-      .filter((item: { kind: 'image' | 'video' | 'poster'; url: string }) => Boolean(item.url));
+      .filter((item: MomentMedia) => Boolean(item.url));
 
     for (const imageUrl of legacyImages) {
-      if (!media.some((item: { kind: string; url: string }) => item.kind === 'image' && item.url === imageUrl)) {
+      if (!media.some((item) => item.kind === 'image' && item.url === imageUrl)) {
         media.push({ kind: 'image', url: imageUrl });
       }
     }
@@ -1065,7 +1067,7 @@ import '../styles/moments-life-wall.css';
     }
 
     async function uploadSelectedMedia() {
-      const media: Array<{ kind: 'image' | 'video' | 'poster'; url: string }> = [];
+      const media: MomentMedia[] = [];
       for (const item of selectedImages) {
         if (item.kind === 'video' && !item.posterBlob && !item.posterRemoteUrl) {
           item.posterRequired = true;
