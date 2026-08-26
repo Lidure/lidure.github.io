@@ -24,3 +24,13 @@ test('tags are an index instead of a pill cloud', () => {
   assert.doesNotMatch(tags, /tag-pill/);
   assert.match(tags, /<sup>\{count\}<\/sup>/);
 });
+
+test('about owns personal context and selected projects with graceful empty state', () => {
+  const about = read('src/pages/about.astro');
+  assert.match(about, /getGitHubProjects/);
+  assert.match(about, /关于/);
+  assert.match(about, /最近在做/);
+  assert.match(about, /喜欢/);
+  assert.match(about, /projects\.length\s*>\s*0/);
+  assert.match(about, /about-projects/);
+});
