@@ -62,4 +62,12 @@ test('retired portal homepage components are removed', () => {
   ]) assert.equal(existsSync(new URL(`../${path}`, import.meta.url)), false, path);
 });
 
+test('global css no longer owns retired ordinary-page components', () => {
+  const global = read('src/styles/global.css');
+  for (const selector of [
+    '.home-layout', '.home-featured-card', '.timeline-item', '.tag-pill',
+    '.moment-card', '.article-bookmark', '.messages-layout',
+  ]) assert.doesNotMatch(global, new RegExp(selector.replace('.', '\\.')));
+});
+
 export { existsSync };
