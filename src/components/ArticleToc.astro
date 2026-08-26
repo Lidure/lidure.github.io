@@ -119,7 +119,7 @@ const { entries } = Astro.props;
         });
         history.replaceState(null, '', `#${encodeURIComponent(id)}`);
 
-        const details = link.closest<HTMLDetailsElement>('details');
+        const details = link.closest('details');
         if (details) details.open = false;
       }, { signal });
     }
