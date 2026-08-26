@@ -20,12 +20,7 @@
     transform: translate(-50%, 8px);
     transition: opacity 160ms ease, transform 160ms ease;
   }
-
-  .moments-pin-status.is-visible {
-    opacity: 1;
-    transform: translate(-50%, 0);
-  }
-
+  .moments-pin-status.is-visible { opacity: 1; transform: translate(-50%, 0); }
   .moment-pin-badge {
     display: inline-flex;
     align-items: center;
@@ -39,13 +34,7 @@
     font-weight: 650;
     white-space: nowrap;
   }
-
-  .moment-pin-badge svg {
-    width: 10px;
-    height: 10px;
-    fill: currentColor;
-  }
-
+  .moment-pin-badge svg { width: 10px; height: 10px; fill: currentColor; }
   .pin-moment-btn {
     padding: 3px 7px;
     border: 0;
@@ -58,24 +47,18 @@
     opacity: 0.62;
     transition: color 150ms ease, background 150ms ease, opacity 150ms ease;
   }
-
   .pin-moment-btn:hover,
   .pin-moment-btn[aria-pressed="true"] {
     color: var(--standard-accent, var(--accent));
     background: color-mix(in srgb, var(--standard-accent-soft, var(--tag-bg)) 55%, transparent);
     opacity: 1;
   }
-
   .pin-moment-btn:disabled { cursor: wait; opacity: 0.45; }
   .pin-moment-btn:focus-visible {
     outline: 2px solid color-mix(in srgb, var(--standard-accent, var(--accent)) 58%, transparent);
     outline-offset: 2px;
   }
-
-  @media (max-width: 620px) {
-    .pin-moment-btn { min-height: 32px; opacity: 0.9; }
-  }
-
+  @media (max-width: 620px) { .pin-moment-btn { min-height: 32px; opacity: 0.9; } }
   @media (prefers-reduced-motion: reduce) {
     .moments-pin-status,
     .pin-moment-btn { transition: none; }
@@ -97,6 +80,7 @@
   };
 
   const noteShifts = [0, 8, -5, 11, -8, 4];
+  const sideCategories = ['all', '游戏', '音乐', '生活', '吐槽'];
   let statusTimer = 0;
 
   function showPinStatus(message: string) {
@@ -108,12 +92,84 @@
     statusTimer = window.setTimeout(() => status.classList.remove('is-visible'), 2200);
   }
 
+  function ensureMomentsCompanionShell(listRoot: HTMLElement) {
+    const shell = listRoot.closest<HTMLElement>('.moments-shell');
+    if (!shell) return null;
+    const existing = shell.querySelector<HTMLElement>('.moments-page-grid');
+    if (existing) return existing;
+
+    const grid = document.createElement('div');
+    grid.className = 'moments-page-grid';
+
+    const left = document.createElement('aside');
+    left.className = 'moments-side moments-side--left';
+    left.setAttribute('aria-label', '碎碎念概览');
+    left.innerHTML = `
+      <div class="moments-side-stack">
+        <section class="moments-side-note moments-side-overview">
+          <span class="moments-side-kicker">NOTEBOOK</span>
+          <strong id="moments-side-total">--</strong>
+          <span>条生活记录</span>
+        </section>
+        <section class="moments-side-note">
+          <span class="moments-side-kicker">RECENT</span>
+          <p id="moments-side-month">最近的日子</p>
+        </section>
+        <section class="moments-side-note">
+          <span class="moments-side-kicker">INDEX</span>
+          <div class="moments-side-categories" id="moments-side-categories"></div>
+        </section>
+      </div>`;
+
+    const main = document.createElement('div');
+    main.className = 'moments-main-column';
+
+    const right = document.createElement('aside');
+    right.className = 'moments-side moments-side--right';
+    right.setAttribute('aria-label', '生活边角');
+    right.innerHTML = `
+      <div class="moments-side-stack">
+        <section class="moments-side-note moments-side-quote">
+          <span class="moments-side-kicker">TODAY</span>
+          <p>普通的一天，也值得被记下来。</p>
+        </section>
+        <section class="moments-side-note">
+          <span class="moments-side-kicker">SNAPSHOTS</span>
+          <div class="moments-side-gallery" id="moments-side-gallery" aria-label="最近图片"></div>
+        </section>
+      </div>`;
+
+    const categoryRoot = left.querySelector<HTMLElement>('#moments-side-categories');
+    sideCategories.forEach((category) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'moments-side-category';
+      button.dataset.sideCategory = category;
+      button.setAttribute('data-side-category', category);
+      button.innerHTML = `<span>${category === 'all' ? '全部' : category}</span><small>0</small>`;
+      categoryRoot?.appendChild(button);
+    });
+
+    const filter = shell.querySelector<HTMLElement>('.moments-wall-filter');
+    const composer = shell.querySelector<HTMLElement>('#publish-box');
+    const retry = shell.querySelector<HTMLElement>('#moments-retry');
+    const insertionPoint = filter || listRoot;
+    shell.insertBefore(grid, insertionPoint);
+    grid.append(left, main, right);
+    if (filter) main.appendChild(filter);
+    if (composer) main.appendChild(composer);
+    main.appendChild(listRoot);
+    if (retry) main.appendChild(retry);
+    return grid;
+  }
+
   function initMomentsPinControls() {
     pinWindow.__momentsPinCleanup?.();
 
     const list = document.getElementById('moments-list');
     if (!list) return;
     const listRoot = list;
+    ensureMomentsCompanionShell(listRoot);
 
     const controller = new AbortController();
     const { signal } = controller;
@@ -134,11 +190,9 @@
 
     function syncSunlitDecoration(card: HTMLElement, index: number) {
       card.style.setProperty('--note-shift', `${noteShifts[index % noteShifts.length]}px`);
-
       const actions = card.querySelector<HTMLElement>('.card-actions');
       const time = actions?.querySelector<HTMLTimeElement>('.card-date');
       if (!actions || !time) return;
-
       const daypart = getMomentDaypart(time.dateTime || time.textContent || '');
       let label = actions.querySelector<HTMLElement>('.moment-daypart');
       if (!label) {
@@ -161,7 +215,6 @@
       const leftMeta = card.querySelector<HTMLElement>('.card-meta-left');
       const actions = card.querySelector<HTMLElement>('.card-actions');
       let badge = leftMeta?.querySelector<HTMLElement>('.moment-pin-badge') ?? null;
-
       if (item?.pinned === true) {
         if (!badge && leftMeta) {
           badge = createPinBadge();
@@ -177,14 +230,12 @@
         button?.remove();
         return;
       }
-
       if (!button && actions) {
         button = document.createElement('button');
         button.type = 'button';
         button.className = 'pin-moment-btn';
         actions.insertBefore(button, actions.querySelector('.delete-moment-btn'));
       }
-
       if (!button || !item) return;
       button.dataset.momentId = item.id;
       button.dataset.pinned = String(item.pinned === true);
@@ -194,12 +245,64 @@
       button.textContent = item.pinned === true ? '取消置顶' : '置顶';
     }
 
+    function syncMomentsCompanions() {
+      const total = document.getElementById('moments-side-total');
+      if (total) total.textContent = String(items.length || cards().length);
+
+      const newest = items[0] as (MomentApiItem & { date?: string; createdAt?: number }) | undefined;
+      const dateValue = newest?.date ? new Date(newest.date) : newest?.createdAt ? new Date(newest.createdAt) : new Date();
+      const month = document.getElementById('moments-side-month');
+      if (month && !Number.isNaN(dateValue.getTime())) {
+        month.textContent = dateValue.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long' });
+      }
+
+      const counts = new Map<string, number>();
+      items.forEach((item) => {
+        const category = String((item as MomentApiItem & { category?: string }).category || '生活');
+        counts.set(category, (counts.get(category) || 0) + 1);
+      });
+      const activeCategory = document.querySelector<HTMLElement>('.pill[data-category].active')?.dataset.category || 'all';
+      const sideCategoryButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-side-category]'));
+      sideCategoryButtons.forEach((button) => {
+        const category = button.dataset.sideCategory || 'all';
+        const small = button.querySelector('small');
+        if (small) small.textContent = String(category === 'all' ? items.length : (counts.get(category) || 0));
+        button.classList.toggle('is-active', category === activeCategory);
+        button.setAttribute('aria-pressed', String(category === activeCategory));
+      });
+
+      const gallery = document.getElementById('moments-side-gallery');
+      if (gallery) {
+        const sourceImages = Array.from(listRoot.querySelectorAll<HTMLImageElement>('.card-images img')).slice(0, 4);
+        gallery.replaceChildren(...sourceImages.map((sourceImage) => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'moments-side-photo';
+          button.setAttribute('aria-label', '打开最近图片');
+          const img = document.createElement('img');
+          img.src = sourceImage.currentSrc || sourceImage.src;
+          img.alt = sourceImage.alt || '最近的碎碎念图片';
+          img.loading = 'lazy';
+          button.appendChild(img);
+          button.addEventListener('click', () => {
+            const source = img.currentSrc || img.src;
+            const matchingImage = Array.from(listRoot.querySelectorAll<HTMLImageElement>('.card-images img'))
+              .find((candidate) => (candidate.currentSrc || candidate.src) === source);
+            matchingImage?.click();
+          }, { signal });
+          return button;
+        }));
+        gallery.classList.toggle('is-empty', sourceImages.length === 0);
+      }
+    }
+
     function decorate() {
       decorateQueued = false;
       cards().forEach((card, index) => {
         syncSunlitDecoration(card, index);
         syncCardDecoration(card, itemForCard(card, index));
       });
+      syncMomentsCompanions();
     }
 
     function queueDecorate() {
@@ -228,7 +331,6 @@
       const oldText = button.textContent || (nextPinned ? '置顶' : '取消置顶');
       button.disabled = true;
       button.textContent = nextPinned ? '置顶中…' : '取消中…';
-
       try {
         await setMomentPinnedViaApi(momentId, nextPinned, { signal });
         await refreshItems({ reorder: true });
@@ -253,11 +355,21 @@
       void togglePin(button);
     }, { signal });
 
+    const sideCategoryButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-side-category]'));
+    sideCategoryButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const category = button.dataset.sideCategory || 'all';
+        const targetTab = document.querySelector<HTMLButtonElement>(`.pill[data-category="${CSS.escape(category)}"]`);
+        targetTab?.click();
+        sideCategoryButtons.forEach((candidate) => candidate.classList.toggle('is-active', candidate === button));
+      }, { signal });
+    });
+
     const observer = new MutationObserver(() => queueDecorate());
     observer.observe(listRoot, { childList: true, subtree: true });
 
     void refreshItems().catch(() => {
-      // The moments page owns loading/error UI. Pin controls fail quietly.
+      // The moments page owns loading/error UI. Companion/pin enhancements fail quietly.
       queueDecorate();
     });
 
