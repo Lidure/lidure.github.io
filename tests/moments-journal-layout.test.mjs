@@ -5,6 +5,7 @@ import test from 'node:test';
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const page = read('src/pages/moments.astro');
 const pins = read('src/components/MomentsPinControls.astro');
+const css = read('src/styles/moments-life-wall.css');
 const helpersUrl = new URL('../src/lib/moments-life-wall.mjs', import.meta.url);
 
 test('moments v2 retires the PR 43 journal enhancer', () => {
@@ -59,10 +60,27 @@ test('feed renderer owns date groups and deterministic content variants', () => 
   assert.match(page, /classifyMomentLayout\(/);
   for (const variant of ['whisper', 'text', 'photo-one', 'photo-two', 'photo-three', 'gallery', 'video']) {
     assert.match(page, new RegExp(`moment--\\$\\{layout\\}`));
-    assert.match(read('src/styles/moments-life-wall.css'), new RegExp(`moment--${variant}`));
+    assert.match(css, new RegExp(`moment--${variant}`));
   }
   assert.match(page, /function applyMomentFilter/);
   assert.match(page, /moments:pin-order-changed/);
+});
+
+test('reaction picker stays collapsed until the user explicitly opens it', () => {
+  assert.match(page, /picker\.hidden = true/);
+  assert.match(css, /\.moment-reaction-panel\[hidden\][\s\S]*?display:\s*none\s*!important/);
+  assert.match(css, /\.emoji-panel\.hidden[\s\S]*?display:\s*none\s*!important/);
+});
+
+test('desktop moments use compact date dividers and cohesive cards instead of a left date rail', () => {
+  assert.doesNotMatch(css, /grid-template-columns:\s*124px\s+minmax\(0,\s*1fr\)/);
+  assert.doesNotMatch(css, /font:\s*650\s+clamp\(2rem,\s*4\.1vw,\s*3\.6rem\)/);
+  assert.match(css, /\.moment-day\s*\{[\s\S]*?grid-template-columns:\s*1fr/);
+  assert.match(css, /\.moment-day-mark\s*\{[\s\S]*?display:\s*flex/);
+  assert.match(css, /\.moment-card\s*\{[\s\S]*?border:\s*1px solid/);
+  assert.match(css, /\.moment-card\s*\{[\s\S]*?border-radius:\s*16px/);
+  assert.match(css, /\.moment-card\s*\{[\s\S]*?background:\s*color-mix/);
+  assert.match(css, /\.moment-card \.card-content\s*\{[\s\S]*?padding:\s*clamp\(/);
 });
 
 test('moment reaction controls keep accessible names after the visual rewrite', () => {
