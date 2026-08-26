@@ -10,12 +10,14 @@
 
   /* Wide article blocks must never expand symmetrically into the TOC rail. */
   body.layout-standard .article-prose table {
-    display: table;
+    display: block;
     width: 100%;
     max-width: 100%;
     margin: 1.9em 0;
-    overflow: visible;
+    overflow-x: auto;
+    overflow-y: hidden;
     transform: none;
+    scrollbar-width: thin;
   }
 
   body.layout-standard .article-prose pre {
