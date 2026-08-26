@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const readSource = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('v4 early bootstrap exposes wave settings before hydration', () => {
+test('early bootstrap exposes wave settings before hydration', () => {
   const layout = readSource('src/layouts/BaseLayout.astro');
   assert.match(layout, /dataset\.waveEnabled/);
   assert.match(layout, /dataset\.waveStrength/);
@@ -12,7 +12,7 @@ test('v4 early bootstrap exposes wave settings before hydration', () => {
   assert.match(layout, /dataset\.waveMobile/);
 });
 
-test('v4 waves provide static SVG first paint and Canvas runtime', () => {
+test('waves provide static SVG first paint and Canvas runtime', () => {
   const waves = readSource('src/components/BannerWaves.astro');
   const layout = readSource('src/layouts/BaseLayout.astro');
   assert.match(waves, /class="banner-waves-static"/);
@@ -23,7 +23,7 @@ test('v4 waves provide static SVG first paint and Canvas runtime', () => {
   assert.match(layout, /<BannerWaves/);
 });
 
-test('v4 settings center groups wave controls under Background and uses mobile bottom sheet', () => {
+test('settings center groups wave controls under Background and uses mobile bottom sheet', () => {
   const panel = readSource('src/components/VisualSettingsPanel.astro');
   assert.match(panel, /id="toggle-wave-enabled"/);
   assert.match(panel, /id="wave-strength-soft"/);
@@ -37,7 +37,7 @@ test('v4 settings center groups wave controls under Background and uses mobile b
   assert.match(panel, /max-height:\s*86dvh/);
 });
 
-test('v4 moments expose authenticated pin controls and preserve server pin ordering', () => {
+test('moments expose authenticated pin controls and preserve server pin ordering', () => {
   const api = readSource('src/lib/moments-api.ts');
   const pins = readSource('src/components/MomentsPinControls.astro');
   const layout = readSource('src/layouts/BaseLayout.astro');
@@ -57,7 +57,7 @@ test('v4 moments expose authenticated pin controls and preserve server pin order
   assert.match(layout, /<MomentsPinControls\s*\/>/);
 });
 
-test('v4 music card reveals play control on fine-pointer hover and flows color while playing', () => {
+test('music card reveals play control on fine-pointer hover and flows color while playing', () => {
   const music = readSource('src/components/MusicStatusWidget.astro');
 
   assert.match(music, /@media\s*\(hover:\s*hover\)\s*and\s*\(pointer:\s*fine\)/);
@@ -84,7 +84,7 @@ test('homepage writing uses one lead story followed by quiet editorial rows', ()
   assert.match(css, /\.home-story-row/);
 });
 
-test('v4 profile exposes compact GitHub and QQ contact controls', () => {
+test('profile exposes compact GitHub and QQ contact controls', () => {
   const left = readSource('src/components/HomeLeftSidebar.astro');
   assert.match(left, /profile-social-links/);
   assert.match(left, /https:\/\/github\.com\/Lidure/);
@@ -94,7 +94,7 @@ test('v4 profile exposes compact GitHub and QQ contact controls', () => {
   assert.match(left, /aria-label=\{item\.label\}/);
 });
 
-test('v4 activity rail inserts Recent Messages between Moments and Music', () => {
+test('activity rail inserts Recent Messages between Moments and Music', () => {
   const right = readSource('src/components/HomeRightSidebar.astro');
   const messages = readSource('src/components/RecentMessagesWidget.astro');
   assert.match(right, /RecentMessagesWidget/);
@@ -105,16 +105,16 @@ test('v4 activity rail inserts Recent Messages between Moments and Music', () =>
   assert.doesNotMatch(messages, /createCommentsWidget|deleteGuestMessage|createGuestMessage/);
 });
 
-test('v4 social and activity links expose visible focus and reduced-motion-safe styling', () => {
+test('social and activity links expose visible focus and reduced-motion-safe styling', () => {
   const left = readSource('src/components/HomeLeftSidebar.astro');
   const messages = readSource('src/components/RecentMessagesWidget.astro');
   const music = readSource('src/components/MusicStatusWidget.astro');
-  const posts = readSource('src/styles/firefly-v4.css');
-  const combined = `${left}\n${messages}\n${music}\n${posts}`;
+  const shell = readSource('src/styles/site-shell.css');
+  const combined = `${left}\n${messages}\n${music}\n${shell}`;
 
   assert.match(left, /\.profile-social-link:focus-visible/);
   assert.match(messages, /\.recent-message-item:focus-visible/);
   assert.match(music, /\.music-status-play-overlay:focus-visible/);
   assert.match(combined, /prefers-reduced-motion:\s*reduce/);
-  assert.match(combined, /html\[data-reduce-motion="true"\]/);
+  assert.match(combined, /data-reduce-motion=['"]true['"]/);
 });
