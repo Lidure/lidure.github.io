@@ -29,11 +29,44 @@ test('standard layout distinguishes homepage fullscreen wallpaper from non-home 
 
 test('fullscreen cards use wallpaper-aware opacity and theme hue affects the primary accent', () => {
   const css = readSource('src/styles/firefly-v2.css');
-  assert.match(css, /--standard-accent:\s*hsl\(var\(--theme-hue,\s*340\)/);
+  assert.match(css, /--standard-accent:\s*hsl\(var\(--theme-hue,\s*255\)/);
   assert.match(css, /data-wallpaper-mode="fullscreen"/);
   assert.match(css, /--card-opacity-percent/);
   assert.match(css, /data-card-border="false"/);
   assert.match(css, /data-card-follow-theme="true"/);
+});
+
+test('Firefly-aligned visual defaults stay synchronized across preload, reset, dim, and blur lifecycle', () => {
+  const layout = readSource('src/layouts/BaseLayout.astro');
+  const wallpaperCss = readSource('src/styles/firefly-wallpaper-modes.css');
+  const controller = readSource('src/components/FullscreenWallpaperController.astro');
+
+  assert.match(layout, /raw\.backgroundBlur[\s\S]*?:\s*5;/);
+  assert.match(layout, /raw\.themeHue[\s\S]*?:\s*255;/);
+  assert.match(layout, /bridge\.write\(\{\s*themeHue:\s*255\s*\}\)/);
+  assert.match(layout, /bridge\.write\(\{\s*backgroundBlur:\s*5\s*\}\)/);
+
+  assert.match(wallpaperCss, /calc\(var\(--wallpaper-overlay,\s*0\.45\)\s*\*\s*0\.44\)/);
+  assert.match(wallpaperCss, /var\(--wallpaper-blur,\s*5px\)/);
+
+  assert.match(controller, /const blurRatio = Math\.min\(scrollY \/ 300, 1\)/);
+  assert.match(controller, /blurRatio\s*>=\s*1\s*\?\s*maxBlur/);
+});
+
+test('fullscreen video follows Firefly native rendering without image blur or scale softening', () => {
+  const wallpaperCss = readSource('src/styles/firefly-wallpaper-modes.css');
+  const blocks = [...wallpaperCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+  const fullscreenVideoBlocks = blocks.filter(([, selector]) =>
+    selector.includes('data-wallpaper-mode="fullscreen"') && selector.includes('.slideshow-video')
+  );
+
+  assert.ok(fullscreenVideoBlocks.length > 0);
+  assert.ok(fullscreenVideoBlocks.some(([, , body]) => /object-fit:\s*cover/.test(body)));
+  for (const [, , body] of fullscreenVideoBlocks) {
+    assert.doesNotMatch(body, /filter:\s*blur/);
+    assert.doesNotMatch(body, /transform:\s*scale/);
+  }
+  assert.match(wallpaperCss, /data-wallpaper-mode="fullscreen"[\s\S]*?\.slideshow-canvas[\s\S]*?display:\s*none\s*!important/);
 });
 
 test('homepage music widget uses the approved large-cover composition', () => {

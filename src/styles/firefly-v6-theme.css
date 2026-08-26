@@ -1,0 +1,424 @@
+/* Firefly-aligned hue system for the standard blog UI.
+   Reference palette model: CuteLeaf/Firefly (MIT). */
+
+:root {
+  --color-selection-bar: linear-gradient(
+    to right,
+    oklch(0.80 0.10 0),
+    oklch(0.80 0.10 30),
+    oklch(0.80 0.10 60),
+    oklch(0.80 0.10 90),
+    oklch(0.80 0.10 120),
+    oklch(0.80 0.10 150),
+    oklch(0.80 0.10 180),
+    oklch(0.80 0.10 210),
+    oklch(0.80 0.10 240),
+    oklch(0.80 0.10 270),
+    oklch(0.80 0.10 300),
+    oklch(0.80 0.10 330),
+    oklch(0.80 0.10 360)
+  );
+
+  --visual-panel-bg: oklch(0.19 0.015 var(--theme-hue, 340) / 0.97);
+  --visual-panel-surface: oklch(0.28 0.028 var(--theme-hue, 340) / 0.72);
+  --visual-panel-soft: oklch(0.25 0.022 var(--theme-hue, 340) / 0.68);
+  --visual-panel-control: oklch(0.15 0.018 var(--theme-hue, 340) / 0.84);
+  --visual-panel-border: oklch(0.82 0.035 var(--theme-hue, 340) / 0.16);
+  --visual-panel-text: oklch(0.95 0.015 var(--theme-hue, 340));
+  --visual-panel-muted: oklch(0.72 0.03 var(--theme-hue, 340));
+}
+
+[data-theme="light"] {
+  --color-selection-bar: linear-gradient(
+    to right,
+    oklch(0.80 0.10 0),
+    oklch(0.80 0.10 30),
+    oklch(0.80 0.10 60),
+    oklch(0.80 0.10 90),
+    oklch(0.80 0.10 120),
+    oklch(0.80 0.10 150),
+    oklch(0.80 0.10 180),
+    oklch(0.80 0.10 210),
+    oklch(0.80 0.10 240),
+    oklch(0.80 0.10 270),
+    oklch(0.80 0.10 300),
+    oklch(0.80 0.10 330),
+    oklch(0.80 0.10 360)
+  );
+
+  --visual-panel-bg: oklch(0.985 0.008 var(--theme-hue, 340) / 0.97);
+  --visual-panel-surface: oklch(0.965 0.018 var(--theme-hue, 340) / 0.86);
+  --visual-panel-soft: oklch(0.955 0.02 var(--theme-hue, 340) / 0.82);
+  --visual-panel-control: oklch(0.995 0.006 var(--theme-hue, 340) / 0.96);
+  --visual-panel-border: oklch(0.48 0.04 var(--theme-hue, 340) / 0.18);
+  --visual-panel-text: oklch(0.26 0.025 var(--theme-hue, 340));
+  --visual-panel-muted: oklch(0.50 0.028 var(--theme-hue, 340));
+}
+
+body.layout-standard {
+  --firefly-primary: oklch(0.75 0.14 var(--theme-hue, 340));
+  --firefly-page-bg: oklch(0.16 0.014 var(--theme-hue, 340));
+  --firefly-card-bg: oklch(0.23 0.015 var(--theme-hue, 340));
+  --firefly-card-elevated: oklch(0.27 0.022 var(--theme-hue, 340));
+  --firefly-btn-content: oklch(0.75 0.10 var(--theme-hue, 340));
+  --firefly-btn-bg: oklch(0.33 0.035 var(--theme-hue, 340));
+  --firefly-btn-bg-hover: oklch(0.38 0.04 var(--theme-hue, 340));
+  --firefly-btn-bg-active: oklch(0.43 0.045 var(--theme-hue, 340));
+  --firefly-deep-text: oklch(0.94 0.016 var(--theme-hue, 340));
+  --firefly-muted-text: oklch(0.72 0.026 var(--theme-hue, 340));
+  --firefly-title-active: oklch(0.80 0.10 var(--theme-hue, 340));
+  --firefly-selection: oklch(0.40 0.08 var(--theme-hue, 340));
+  --firefly-line: rgb(255 255 255 / 0.10);
+  --firefly-soft-line: rgb(255 255 255 / 0.075);
+
+  --standard-page-bg: var(--firefly-page-bg);
+  --standard-card-bg: var(--firefly-card-bg);
+  --standard-card-soft: var(--firefly-btn-bg);
+  --standard-card-elevated: var(--firefly-card-elevated);
+  --standard-text: var(--firefly-deep-text);
+  --standard-muted: var(--firefly-muted-text);
+  --standard-line: var(--firefly-line);
+  --standard-accent: var(--firefly-primary);
+  --standard-accent-soft: color-mix(in oklch, var(--firefly-primary) 16%, transparent);
+
+  /* Legacy semantic slots now stay on the selected hue instead of fixed
+     purple/cyan/warm colors, so every homepage module follows the slider. */
+  --standard-purple: var(--firefly-primary);
+  --standard-purple-soft: var(--firefly-btn-bg);
+  --standard-cyan: var(--firefly-btn-content);
+  --standard-cyan-soft: color-mix(in oklch, var(--firefly-btn-bg) 82%, transparent);
+  --standard-warm: var(--firefly-title-active);
+  --standard-warm-soft: color-mix(in oklch, var(--firefly-btn-bg-hover) 70%, transparent);
+
+  background: var(--firefly-page-bg);
+  color: var(--firefly-deep-text);
+}
+
+[data-theme="light"] body.layout-standard {
+  --firefly-primary: oklch(0.70 0.14 var(--theme-hue, 340));
+  --firefly-page-bg: oklch(0.95 0.01 var(--theme-hue, 340));
+  --firefly-card-bg: white;
+  --firefly-card-elevated: oklch(0.985 0.008 var(--theme-hue, 340));
+  --firefly-btn-content: oklch(0.55 0.12 var(--theme-hue, 340));
+  --firefly-btn-bg: oklch(0.95 0.025 var(--theme-hue, 340));
+  --firefly-btn-bg-hover: oklch(0.90 0.05 var(--theme-hue, 340));
+  --firefly-btn-bg-active: oklch(0.85 0.08 var(--theme-hue, 340));
+  --firefly-deep-text: oklch(0.25 0.02 var(--theme-hue, 340));
+  --firefly-muted-text: oklch(0.50 0.025 var(--theme-hue, 340));
+  --firefly-title-active: oklch(0.60 0.10 var(--theme-hue, 340));
+  --firefly-selection: oklch(0.90 0.05 var(--theme-hue, 340));
+  --firefly-line: rgb(0 0 0 / 0.10);
+  --firefly-soft-line: rgb(0 0 0 / 0.065);
+}
+
+html[data-theme="light"][data-card-follow-theme="true"] body.layout-standard {
+  --firefly-card-bg: oklch(0.99 0.01 var(--theme-hue, 340));
+}
+
+body.layout-standard ::selection {
+  background: var(--firefly-selection);
+}
+
+body.layout-standard .standard-page-surface {
+  margin-top: 0;
+  background: var(--firefly-page-bg);
+}
+
+body.layout-standard .site-header.is-scrolled {
+  color: var(--firefly-deep-text);
+  background: color-mix(in oklch, var(--firefly-page-bg) 86%, transparent);
+  border-color: var(--firefly-soft-line);
+}
+
+body.layout-standard .site-header.is-scrolled .site-nav-primary a:hover,
+body.layout-standard .site-header.is-scrolled .site-nav-utilities a:hover,
+body.layout-standard .site-header.is-scrolled .site-nav-primary a.active,
+body.layout-standard .site-header.is-scrolled .site-nav-utilities a.active {
+  color: var(--firefly-btn-content);
+  background: var(--firefly-btn-bg);
+}
+
+/* Homepage navigation */
+body.layout-standard .home-category-bar {
+  border-color: var(--firefly-soft-line);
+  background: color-mix(in oklch, var(--firefly-card-bg) 96%, transparent);
+  box-shadow: 0 8px 24px color-mix(in oklch, var(--firefly-primary) 7%, transparent);
+}
+
+body.layout-standard .home-category-bar a {
+  color: var(--firefly-muted-text);
+}
+
+body.layout-standard .home-category-bar a:hover,
+body.layout-standard .home-category-bar .is-featured {
+  color: var(--firefly-btn-content);
+  background: var(--firefly-btn-bg);
+}
+
+/* Sidebar modules */
+body.layout-standard .sidebar-widget {
+  border-color: color-mix(in oklch, var(--firefly-primary) 11%, var(--firefly-line));
+  background: var(--firefly-card-bg);
+  box-shadow: 0 10px 28px color-mix(in oklch, var(--firefly-primary) 6%, transparent);
+}
+
+body.layout-standard .sidebar-widget-header {
+  border-color: var(--firefly-soft-line);
+  background: color-mix(in oklch, var(--firefly-btn-bg) 48%, var(--firefly-card-bg));
+}
+
+body.layout-standard .sidebar-widget-header h2 {
+  color: color-mix(in oklch, var(--firefly-deep-text) 78%, var(--firefly-primary));
+}
+
+body.layout-standard .sidebar-widget-icon,
+body.layout-standard .sidebar-widget.is-pink .sidebar-widget-icon,
+body.layout-standard .sidebar-widget.is-purple .sidebar-widget-icon,
+body.layout-standard .sidebar-widget.is-cyan .sidebar-widget-icon,
+body.layout-standard .sidebar-widget.is-warm .sidebar-widget-icon,
+body.layout-standard .sidebar-widget.is-neutral .sidebar-widget-icon {
+  color: var(--firefly-btn-content);
+  background: var(--firefly-btn-bg);
+}
+
+body.layout-standard .sidebar-profile img {
+  border-color: color-mix(in oklch, var(--firefly-primary) 42%, var(--firefly-card-bg));
+  box-shadow: 0 0 0 5px color-mix(in oklch, var(--firefly-primary) 8%, transparent);
+}
+
+body.layout-standard .sidebar-profile-copy strong,
+body.layout-standard .sidebar-stats-grid dd,
+body.layout-standard .music-status-copy strong {
+  color: var(--firefly-deep-text);
+}
+
+body.layout-standard .sidebar-profile-copy p,
+body.layout-standard .sidebar-stats-grid dt,
+body.layout-standard .popular-tag-list small,
+body.layout-standard .sidebar-tag-cloud small,
+body.layout-standard .music-status-copy span,
+body.layout-standard .sidebar-note,
+body.layout-standard .sidebar-widget-placeholder {
+  color: var(--firefly-muted-text);
+}
+
+body.layout-standard .sidebar-stats-grid div,
+body.layout-standard .site-stat-summary span {
+  background: var(--firefly-btn-bg);
+  color: var(--firefly-muted-text);
+}
+
+body.layout-standard .sidebar-stats-grid dd,
+body.layout-standard .site-stat-summary strong,
+body.layout-standard .popular-tag-rank,
+body.layout-standard .recent-moment-meta {
+  color: var(--firefly-btn-content);
+}
+
+body.layout-standard .sidebar-link-list a,
+body.layout-standard .popular-tag-list a,
+body.layout-standard .recent-moment-item {
+  color: var(--firefly-muted-text);
+}
+
+body.layout-standard .sidebar-link-list a:hover,
+body.layout-standard .popular-tag-list a:hover,
+body.layout-standard .recent-moment-item:hover {
+  color: var(--firefly-btn-content);
+  background: var(--firefly-btn-bg);
+}
+
+body.layout-standard .sidebar-tag-cloud a {
+  color: var(--firefly-btn-content);
+  background: var(--firefly-btn-bg);
+}
+
+body.layout-standard .sidebar-widget-more,
+body.layout-standard .music-status-copy small,
+body.layout-standard .music-status-open {
+  color: var(--firefly-btn-content);
+}
+
+body.layout-standard .music-status-cover {
+  color: var(--firefly-btn-content);
+  background: linear-gradient(135deg, var(--firefly-btn-bg), var(--firefly-btn-bg-hover));
+}
+
+body.layout-standard .music-status-widget:hover .music-status-copy strong {
+  color: var(--firefly-btn-content);
+}
+
+/* Featured area */
+body.layout-standard .home-featured-card {
+  border-color: color-mix(in oklch, var(--firefly-primary) 35%, var(--firefly-line));
+  background:
+    linear-gradient(115deg, color-mix(in oklch, var(--firefly-primary) 13%, transparent), transparent 48%),
+    var(--firefly-card-bg);
+  box-shadow: 0 10px 30px color-mix(in oklch, var(--firefly-primary) 6%, transparent);
+}
+
+body.layout-standard .home-featured-card::after,
+body.layout-standard .home-featured-label,
+body.layout-standard .home-featured-link {
+  color: var(--firefly-primary);
+  background-color: var(--firefly-primary);
+}
+
+body.layout-standard .home-featured-card::after {
+  background: var(--firefly-primary);
+}
+
+body.layout-standard .home-featured-label,
+body.layout-standard .home-featured-link {
+  background: transparent;
+  color: var(--firefly-btn-content);
+}
+
+body.layout-standard .home-featured-card strong {
+  color: color-mix(in oklch, var(--firefly-deep-text) 82%, var(--firefly-primary));
+}
+
+body.layout-standard .home-featured-card p {
+  color: var(--firefly-muted-text);
+}
+
+/* Article cards */
+body.layout-standard .home-section-header h2 {
+  color: color-mix(in oklch, var(--firefly-deep-text) 82%, var(--firefly-primary));
+}
+
+body.layout-standard .home-section-header a {
+  color: var(--firefly-btn-content);
+}
+
+body.layout-standard .home-post-card {
+  border-color: color-mix(in oklch, var(--firefly-primary) 10%, var(--firefly-line));
+  background: var(--firefly-card-bg);
+  box-shadow: 0 10px 30px color-mix(in oklch, var(--firefly-primary) 5%, transparent);
+}
+
+body.layout-standard .home-post-card::after {
+  background:
+    radial-gradient(circle at 18% 10%, color-mix(in oklch, var(--firefly-primary) 9%, transparent), transparent 34%),
+    radial-gradient(circle at 88% 92%, color-mix(in oklch, var(--firefly-btn-content) 7%, transparent), transparent 34%);
+}
+
+body.layout-standard .home-post-card:hover {
+  border-color: color-mix(in oklch, var(--firefly-primary) 34%, var(--firefly-line));
+  background: color-mix(in oklch, var(--firefly-card-bg) 96%, var(--firefly-primary));
+  box-shadow: 0 16px 40px color-mix(in oklch, var(--firefly-primary) 10%, transparent);
+}
+
+body.layout-standard .home-post-title,
+body.layout-standard .home-post-title a {
+  color: var(--firefly-deep-text);
+}
+
+body.layout-standard .home-post-card:hover .home-post-title a,
+body.layout-standard .home-post-read,
+body.layout-standard .home-post-card:hover .home-post-read {
+  color: var(--firefly-btn-content);
+}
+
+body.layout-standard .home-post-meta,
+body.layout-standard .home-post-excerpt {
+  color: var(--firefly-muted-text);
+}
+
+body.layout-standard .home-post-tags a {
+  color: var(--firefly-btn-content);
+  background: var(--firefly-btn-bg);
+}
+
+body.layout-standard .home-post-tags a:hover {
+  color: var(--firefly-deep-text);
+  background: var(--firefly-btn-bg-hover);
+}
+
+body.layout-standard .home-post-card:not(.has-cover)::before {
+  background: linear-gradient(180deg, var(--firefly-primary), var(--firefly-btn-content));
+}
+
+body.layout-standard .home-post-cover {
+  background: var(--firefly-btn-bg);
+}
+
+/* Standard cards outside the homepage also inherit the selected hue. */
+body.layout-standard .card,
+body.layout-standard .archive-shell,
+body.layout-standard .post-shell,
+body.layout-standard .timeline-item,
+body.layout-standard .project-card {
+  border-color: color-mix(in oklch, var(--firefly-primary) 9%, var(--firefly-line));
+  background: var(--firefly-card-bg);
+}
+
+/* Firefly-style hue control. */
+html body #theme-hue-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-selection-bar);
+  box-shadow: none;
+}
+
+html body #theme-hue-range::-webkit-slider-runnable-track {
+  height: 1.5rem;
+  border: 0;
+  background: transparent;
+}
+
+html body #theme-hue-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 0.5rem;
+  height: 1rem;
+  margin-top: 0.25rem;
+  border: 0;
+  border-radius: 0.125rem;
+  background: rgb(255 255 255 / 0.72);
+  box-shadow: none;
+}
+
+html body #theme-hue-range::-webkit-slider-thumb:hover {
+  background: rgb(255 255 255 / 0.82);
+}
+
+html body #theme-hue-range::-moz-range-track {
+  height: 1.5rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-selection-bar);
+}
+
+html body #theme-hue-range::-moz-range-thumb {
+  width: 0.5rem;
+  height: 1rem;
+  border: 0;
+  border-radius: 0.125rem;
+  background: rgb(255 255 255 / 0.72);
+  box-shadow: none;
+}
+
+html body #theme-hue-range:focus-visible {
+  outline: 2px solid var(--firefly-primary, oklch(0.70 0.14 var(--theme-hue, 340)));
+  outline-offset: 3px;
+}
+
+html body .range-value {
+  color: var(--firefly-btn-content, oklch(0.70 0.12 var(--theme-hue, 340)));
+}
+
+@media (max-width: 720px) {
+  body.layout-standard .home-category-bar {
+    box-shadow: none;
+  }
+
+  body.layout-standard .sidebar-widget,
+  body.layout-standard .home-post-card,
+  body.layout-standard .home-featured-card {
+    box-shadow: 0 6px 18px color-mix(in oklch, var(--firefly-primary) 5%, transparent);
+  }
+}

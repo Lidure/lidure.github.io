@@ -758,9 +758,10 @@ const DEFAULT_OPACITY = 0.45;
       posterNeededEl = document.createElement('div');
       posterNeededEl.className = 'poster-needed-placeholder';
       posterNeededEl.setAttribute('aria-hidden', 'true');
-      posterNeededEl.textContent = 'VIDEO_CORS_REQUIRED · needs-poster';
       container.appendChild(posterNeededEl);
     }
+    posterNeededEl.setAttribute('aria-hidden', 'true');
+    posterNeededEl.textContent = '';
     // Use the persistent <video> element directly (survives page transitions without stuttering)
     var videoEl = document.getElementById('slideshowVideo');
     if (!videoEl) {

@@ -1,0 +1,258 @@
+<script>
+  const wallpaperWindow = window as typeof window & {
+    __fullscreenWallpaperController?: AbortController;
+    __fullscreenWallpaperLifecycleBound?: boolean;
+    __nativeWallpaperImageObserver?: MutationObserver;
+  };
+
+  const TARGET_CLEARANCE = 104;
+
+  function initFullscreenWallpaperController() {
+    wallpaperWindow.__fullscreenWallpaperController?.abort();
+    wallpaperWindow.__nativeWallpaperImageObserver?.disconnect();
+    const controller = typeof AbortController === 'function' ? new AbortController() : null;
+    if (controller) wallpaperWindow.__fullscreenWallpaperController = controller;
+    const options = controller ? { signal: controller.signal } : undefined;
+
+    const root = document.documentElement;
+    const body = document.body;
+    const hero = document.querySelector<HTMLElement>('.hero-slideshow');
+    const legacyLayer = hero?.querySelector<HTMLElement>('.slideshow-layer') ?? null;
+    const stage = document.querySelector<HTMLElement>('.blog-banner-stage');
+    const title = document.querySelector<HTMLElement>('.blog-banner-copy');
+    const indicator = document.querySelector<HTMLElement>('.fullscreen-scroll-indicator');
+    const content = document.getElementById('standard-page-surface');
+    let nativeImage = hero?.querySelector<HTMLImageElement>('.slideshow-image') ?? null;
+    let ticking = false;
+
+    function isFullscreen() {
+      return root.dataset.wallpaperMode === 'fullscreen';
+    }
+
+    function isNativeImageMode() {
+      return root.dataset.wallpaperMode === 'fullscreen'
+        || root.dataset.wallpaperMode === 'overlay';
+    }
+
+    function isFullscreenHome() {
+      return isFullscreen() && body.classList.contains('is-home');
+    }
+
+    function prefersReducedMotion() {
+      return root.dataset.reduceMotion === 'true'
+        || window.matchMedia?.('(prefers-reduced-motion: reduce)').matches === true;
+    }
+
+    function extractBackgroundImageUrl(backgroundImage: string) {
+      const value = backgroundImage.trim();
+      if (!value || value === 'none' || !value.startsWith('url(')) return '';
+      return value.slice(4, -1).trim().replace(/^['"]|['"]$/g, '');
+    }
+
+    function ensureNativeImage() {
+      if (!hero) return null;
+      if (nativeImage?.isConnected) return nativeImage;
+      nativeImage = document.createElement('img');
+      nativeImage.className = 'slideshow-image';
+      nativeImage.alt = '';
+      nativeImage.decoding = 'async';
+      nativeImage.draggable = false;
+      nativeImage.setAttribute('aria-hidden', 'true');
+      const canvas = hero.querySelector('.slideshow-canvas');
+      hero.insertBefore(nativeImage, canvas || legacyLayer?.nextSibling || hero.firstChild);
+      return nativeImage;
+    }
+
+    function syncNativeWallpaperImage() {
+      const image = ensureNativeImage();
+      if (!image) return;
+
+      const activeMode = isNativeImageMode();
+      image.style.display = activeMode ? '' : 'none';
+      if (!activeMode || !legacyLayer) {
+        image.classList.remove('visible');
+        return;
+      }
+
+      const backgroundImage = legacyLayer.style.backgroundImage
+        || getComputedStyle(legacyLayer).backgroundImage;
+      const nextSrc = extractBackgroundImageUrl(backgroundImage);
+      const currentSrc = image.getAttribute('src') || '';
+
+      if (nextSrc && currentSrc !== nextSrc) {
+        image.classList.remove('visible');
+        image.onload = () => syncNativeWallpaperImage();
+        image.onerror = () => image.classList.remove('visible');
+        image.src = nextSrc;
+      }
+
+      const shouldShow = Boolean(nextSrc) && legacyLayer.classList.contains('visible');
+      if (!shouldShow) {
+        image.classList.remove('visible');
+      } else if (image.complete && image.naturalWidth > 0) {
+        image.classList.add('visible');
+      }
+    }
+
+    if (legacyLayer && typeof MutationObserver === 'function') {
+      const imageObserver = new MutationObserver(syncNativeWallpaperImage);
+      imageObserver.observe(legacyLayer, {
+        attributes: true,
+        attributeFilter: ['class', 'style'],
+      });
+      wallpaperWindow.__nativeWallpaperImageObserver = imageObserver;
+    }
+
+    function getToolbarOverlap() {
+      const viewport = window.visualViewport;
+      if (!stage || !viewport) return 0;
+      const visibleBottom = viewport.offsetTop + viewport.height;
+      return Math.max(0, stage.getBoundingClientRect().bottom - visibleBottom);
+    }
+
+    function updateIndicatorPosition() {
+      if (!indicator || !isFullscreenHome()) {
+        indicator?.style.removeProperty('bottom');
+        return;
+      }
+      if (window.innerWidth > 1023 || !/EdgA\//i.test(navigator.userAgent)) {
+        indicator.style.removeProperty('bottom');
+        return;
+      }
+      const overlap = getToolbarOverlap() || 48;
+      indicator.style.bottom = `${TARGET_CLEARANCE + overlap}px`;
+    }
+
+    function resetHeroUi() {
+      title?.style.removeProperty('--fullscreen-title-scroll');
+      title?.style.removeProperty('--fullscreen-title-opacity');
+      indicator?.classList.remove('hide');
+      indicator?.style.removeProperty('bottom');
+    }
+
+    function readMaxBlur() {
+      const blurRaw = getComputedStyle(root).getPropertyValue('--wallpaper-blur');
+      return Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
+    }
+
+    function sync() {
+      ticking = false;
+      syncNativeWallpaperImage();
+      if (!isFullscreen()) {
+        resetHeroUi();
+        hero?.style.setProperty('--fullscreen-scroll-blur', '0px');
+        return;
+      }
+
+      const maxBlur = readMaxBlur();
+      if (!body.classList.contains('is-home')) {
+        resetHeroUi();
+        hero?.style.setProperty('--fullscreen-scroll-blur', `${maxBlur}px`);
+        return;
+      }
+
+      const scrollY = window.scrollY || document.documentElement.scrollTop || 0;
+      const fadeDistance = Math.max(1, window.innerHeight * 0.5);
+      const titleRatio = Math.min(scrollY / fadeDistance, 1);
+      title?.style.setProperty('--fullscreen-title-scroll', `${-scrollY}px`);
+      title?.style.setProperty('--fullscreen-title-opacity', String(1 - titleRatio));
+      if (scrollY > 100) indicator?.classList.add('hide');
+      else indicator?.classList.remove('hide');
+
+      const blurRatio = Math.min(scrollY / 300, 1);
+      const quantized = blurRatio >= 1
+        ? maxBlur
+        : Math.floor((maxBlur * blurRatio) / 2) * 2;
+      hero?.style.setProperty('--fullscreen-scroll-blur', `${quantized}px`);
+    }
+
+    function requestSync() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(sync);
+    }
+
+    indicator?.addEventListener('click', function (event) {
+      if (!isFullscreenHome() || !content) return;
+      event.preventDefault();
+      content.scrollIntoView({ behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
+    }, options);
+
+    window.addEventListener('scroll', requestSync, { passive: true, ...(options || {}) });
+    window.addEventListener('resize', function () {
+      requestSync();
+      updateIndicatorPosition();
+    }, { passive: true, ...(options || {}) });
+    document.addEventListener('lidure:visual-settings-change', function () {
+      sync();
+      updateIndicatorPosition();
+    }, options);
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateIndicatorPosition, { passive: true, ...(options || {}) });
+      window.visualViewport.addEventListener('scroll', updateIndicatorPosition, { passive: true, ...(options || {}) });
+    }
+
+    stage?.addEventListener('transitionend', updateIndicatorPosition, options);
+    updateIndicatorPosition();
+    sync();
+  }
+
+  if (!wallpaperWindow.__fullscreenWallpaperLifecycleBound) {
+    wallpaperWindow.__fullscreenWallpaperLifecycleBound = true;
+    document.addEventListener('astro:page-load', initFullscreenWallpaperController);
+    document.addEventListener('astro:before-swap', () => {
+      wallpaperWindow.__fullscreenWallpaperController?.abort();
+      wallpaperWindow.__nativeWallpaperImageObserver?.disconnect();
+    });
+  }
+
+  initFullscreenWallpaperController();
+</script>
+
+<style is:global>
+  /* Keep the fullscreen homepage top visually open so the wallpaper stays
+     readable. Once the existing header scroll state activates, strengthen the
+     glass for content readability without changing overlay mode. */
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header {
+    background: color-mix(in oklch, var(--standard-card-bg) 18%, transparent);
+    border-color: color-mix(in oklch, var(--standard-line) 28%, transparent);
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.04);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transition:
+      background-color 0.28s ease,
+      border-color 0.28s ease,
+      box-shadow 0.28s ease,
+      backdrop-filter 0.28s ease,
+      -webkit-backdrop-filter 0.28s ease;
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header.is-scrolled {
+    background: color-mix(in oklch, var(--standard-card-bg) 68%, transparent);
+    border-color: color-mix(in oklch, var(--standard-line) 82%, transparent);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+    backdrop-filter: blur(18px) saturate(1.15);
+    -webkit-backdrop-filter: blur(18px) saturate(1.15);
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header-inner {
+    min-height: 66px;
+  }
+
+  @media (max-width: 849px) {
+    html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header-inner {
+      min-height: 58px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html[data-wallpaper-mode="fullscreen"] body.layout-standard .site-header {
+      transition: none;
+    }
+  }
+
+  html[data-reduce-motion="true"] body.layout-standard .site-header {
+    transition: none;
+  }
+</style>

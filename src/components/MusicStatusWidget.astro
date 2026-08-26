@@ -1,7 +1,7 @@
 <div class="music-status-widget" id="home-music-status" aria-label="SEKAI 播放器快捷控制">
   <div class="music-status-art">
     <button class="music-status-cover-open" id="home-music-open" type="button" aria-label="打开 SEKAI 播放器">
-      <img data-music-cover alt="" />
+      <img data-music-cover src="/assets/music/default-cover.webp" alt="默认音乐封面" />
       <span class="music-status-cover-fallback" data-music-fallback aria-hidden="true">♪</span>
       <span class="music-status-cover-shade" aria-hidden="true"></span>
     </button>
@@ -112,7 +112,7 @@
   body.layout-standard .music-status-cover-open img {
     width: 100%;
     height: 100%;
-    display: none;
+    display: block;
     object-fit: cover;
     transition: transform 220ms ease, filter 220ms ease;
   }
@@ -125,7 +125,7 @@
   body.layout-standard .music-status-cover-fallback {
     position: absolute;
     inset: 0;
-    display: grid;
+    display: none;
     place-items: center;
     color: color-mix(in srgb, var(--standard-purple) 80%, var(--standard-text));
     font-size: clamp(3.6rem, 8vw, 5.4rem);
@@ -307,6 +307,8 @@
 
 <script is:inline>
 (function () {
+  var DEFAULT_MUSIC_COVER = '/assets/music/default-cover.webp';
+
   function cleanupMusicStatus() {
     if (window.__homeMusicStatusObserver) {
       window.__homeMusicStatusObserver.disconnect();
@@ -340,6 +342,14 @@
     var fallback = root.querySelector('[data-music-fallback]');
     var audio = document.getElementById('sekaiAudio');
 
+    function showCover(src) {
+      if (!cover) return;
+      var nextSrc = src || DEFAULT_MUSIC_COVER;
+      if (cover.getAttribute('src') !== nextSrc) cover.setAttribute('src', nextSrc);
+      cover.style.display = 'block';
+      if (fallback) fallback.style.display = 'none';
+    }
+
     function sync() {
       var sourceTitle = document.getElementById('sekaiTrackTitle');
       var sourceArtist = document.getElementById('sekaiTrackArtist');
@@ -359,15 +369,14 @@
       }
 
       var coverSrc = sourceCover && (sourceCover.currentSrc || sourceCover.src) ? (sourceCover.currentSrc || sourceCover.src) : '';
-      if (cover && coverSrc) {
-        cover.src = coverSrc;
-        cover.style.display = 'block';
-        if (fallback) fallback.style.display = 'none';
-      } else if (cover) {
-        cover.removeAttribute('src');
-        cover.style.display = 'none';
-        if (fallback) fallback.style.display = '';
-      }
+      showCover(coverSrc || DEFAULT_MUSIC_COVER);
+    }
+
+    if (cover) {
+      cover.addEventListener('error', function () {
+        var currentSrc = cover.getAttribute('src') || '';
+        if (currentSrc !== DEFAULT_MUSIC_COVER) showCover(DEFAULT_MUSIC_COVER);
+      });
     }
 
     open?.addEventListener('click', function () {
