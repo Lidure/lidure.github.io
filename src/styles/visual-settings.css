@@ -1,0 +1,80 @@
+/* Theme bridge for the persistent Background & Appearance dialog.
+   Layout and interaction stay scoped to VisualSettingsPanel.astro; this file
+   only connects the shared semantic palette to that component and owns the
+   hue-spectrum control. */
+
+html body .hero-settings-btn {
+  --panel-bg: var(--visual-panel-bg);
+  --text-soft: var(--visual-panel-text);
+  --border: var(--visual-panel-border);
+}
+
+html body .hero-settings-panel {
+  --panel-bg: var(--visual-panel-bg);
+  --text: var(--visual-panel-text);
+  --text-soft: color-mix(in srgb, var(--visual-panel-text) 86%, var(--visual-panel-muted));
+  --muted: var(--visual-panel-muted);
+  --border: var(--visual-panel-border);
+}
+
+html body #theme-hue-range {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  height: 18px;
+  margin: 0;
+  border: 0;
+  border-radius: 999px;
+  background: var(--color-selection-bar);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.18),
+    0 1px 5px rgb(0 0 0 / 0.12);
+  cursor: pointer;
+}
+
+html body #theme-hue-range::-webkit-slider-runnable-track {
+  height: 10px;
+  border: 0;
+  background: transparent;
+}
+
+html body #theme-hue-range::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -4px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: hsl(var(--theme-hue, 255) 76% 58%);
+  box-shadow: 0 2px 9px rgb(0 0 0 / 0.28);
+}
+
+html body #theme-hue-range::-moz-range-track {
+  height: 10px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+}
+
+html body #theme-hue-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: hsl(var(--theme-hue, 255) 76% 58%);
+  box-shadow: 0 2px 9px rgb(0 0 0 / 0.28);
+}
+
+html body #theme-hue-range:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html body .hero-settings-btn,
+  html body .hero-settings-panel,
+  html body #theme-hue-range {
+    transition: none;
+  }
+}
