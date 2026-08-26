@@ -144,7 +144,8 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     ticks.forEach((tick) => {
       tick.addEventListener('click', (event) => {
         const id = tick.dataset.articleChapter;
-        const heading = id ? document.getElementById(id) : null;
+        if (!id) return;
+        const heading = document.getElementById(id);
         if (!heading) return;
         event.preventDefault();
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
