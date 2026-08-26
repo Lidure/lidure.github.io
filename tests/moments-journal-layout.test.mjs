@@ -4,8 +4,11 @@ import test from 'node:test';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const page = read('src/pages/moments.astro');
+const baseLayout = read('src/layouts/BaseLayout.astro');
 const pins = read('src/components/MomentsPinControls.astro');
 const css = read('src/styles/moments-life-wall.css');
+const notebookCssUrl = new URL('../src/styles/moments-notebook-refresh.css', import.meta.url);
+const notebookCss = existsSync(notebookCssUrl) ? readFileSync(notebookCssUrl, 'utf8') : '';
 const helpersUrl = new URL('../src/lib/moments-life-wall.mjs', import.meta.url);
 
 test('legacy journal enhancer stays retired', () => {
@@ -69,6 +72,17 @@ test('sunlit notes uses a paper-note visual language', () => {
   assert.match(css, /\.moment-daypart\[data-daypart="evening"\]/);
   assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*?--note-shift:\s*0px\s*!important/);
   assert.doesNotMatch(css, /box-shadow:\s*0 13px 30px/);
+});
+
+test('moments notebook refresh turns the feed into lined paper with real sticky-note accents', () => {
+  assert.match(baseLayout, /moments-notebook-refresh\.css/);
+  assert.match(notebookCss, /\.moments-list\s*\{[\s\S]*repeating-linear-gradient/);
+  assert.match(notebookCss, /\.moments-list::before\s*\{[\s\S]*background:/);
+  assert.match(notebookCss, /\.moment-card\s*\{[\s\S]*border:\s*0\s*!important/);
+  assert.match(notebookCss, /\.moment--whisper\s*\{[\s\S]*background:/);
+  assert.match(notebookCss, /\.moment--photo-one[\s\S]*background:\s*transparent\s*!important/);
+  assert.match(notebookCss, /\.publish-panel\s*\{[\s\S]*box-shadow:/);
+  assert.doesNotMatch(notebookCss, /border-radius:\s*18px/);
 });
 
 test('note rhythm uses a fixed sequence rather than random layout', () => {
