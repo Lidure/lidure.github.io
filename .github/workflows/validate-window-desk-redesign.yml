@@ -19,5 +19,7 @@ jobs:
         run: npm ci
       - name: Build site
         run: npm run build
+      - name: Check Astro templates and types
+        run: npm run check
       - name: Run full site regression suite
         run: npm run test:site
