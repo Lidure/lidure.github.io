@@ -26,7 +26,7 @@ body.layout-immersive .site-header-inner {
 body.layout-immersive .site-brand {
   flex: 0 0 auto;
   color: inherit;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-body);
   font-size: 1.08rem;
   font-weight: 700;
   letter-spacing: 0.02em;

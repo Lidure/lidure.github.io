@@ -9,6 +9,7 @@ body.layout-standard .moments-shell {
   margin: 0 auto;
   padding: clamp(38px, 5.6vw, 70px) clamp(14px, 3vw, 30px) 76px;
   color: var(--standard-text, var(--text));
+  font-family: var(--font-body);
 }
 
 body.layout-standard .moments-shell .hidden,
@@ -42,7 +43,7 @@ body.layout-standard .moments-wall-head::after {
 body.layout-standard .moments-wall-head h1 {
   margin: 0;
   color: var(--standard-text, var(--text));
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-body);
   font-size: clamp(2.45rem, 5.7vw, 4.2rem);
   font-weight: 680;
   line-height: 1.04;

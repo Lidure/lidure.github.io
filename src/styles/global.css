@@ -1,5 +1,7 @@
 /* ===== 🌙 暗色模式（默认） ===== */
 :root {
+  --font-body: 'Zen Maru Gothic', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-hand: 'Ma Shan Zheng', cursive;
   color-scheme: dark;
   --bg: #0E0C1A;
   --bg-soft: rgba(14, 12, 26, 0.55);
@@ -127,8 +129,9 @@ body {
   margin: 0;
   min-height: 100vh;
   color: var(--text);
-  font-family: 'Noto Sans SC', sans-serif;
-  line-height: 1.7;
+  font-family: var(--font-body);
+  font-weight: 500;
+  line-height: 1.75;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

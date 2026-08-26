@@ -89,7 +89,7 @@ body.layout-standard .site-header-inner {
 body.layout-standard .site-brand {
   flex: 0 0 auto;
   color: inherit;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-body);
   font-size: 1.08rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -310,7 +310,7 @@ body.layout-standard .home-post-card h2 {
   position: relative;
   margin: 0;
   padding-left: 13px;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-body);
   font-size: 1.42rem;
   line-height: 1.4;
 }
@@ -404,7 +404,7 @@ body.layout-standard .home-profile-copy {
 
 body.layout-standard .home-profile-copy h2 {
   margin: 0;
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-body);
   font-size: 1.3rem;
 }
 
@@ -560,7 +560,7 @@ body.layout-standard .prose {
 
 body.layout-standard .prose h2,
 body.layout-standard .prose h3 {
-  font-family: 'Noto Sans SC', sans-serif;
+  font-family: var(--font-body);
 }
 
 body.layout-standard .prose h2 {
