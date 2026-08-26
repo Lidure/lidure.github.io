@@ -42,7 +42,8 @@ test('article uses the personal-publication structure and retires PR 43 chrome',
 test('article renders a readable H2/H3 table of contents that stays out of the prose flow', () => {
   assert.match(page, /const tocHeadings = headings\.filter\(\(heading\) => heading\.depth === 2 \|\| heading\.depth === 3\)/);
   assert.match(page, /class="article-toc"/);
-  assert.match(page, /class="article-toc-link depth-\{heading\.depth\}"/);
+  assert.match(page, /class="article-toc-link"/);
+  assert.match(page, /data-depth=\{heading\.depth\}/);
   assert.match(page, /class="article-toc-mobile"/);
   assert.match(css, /\.article-reading-canvas\s*\{[\s\S]*grid-template-columns:/);
   assert.match(css, /\.article-toc\s*\{[\s\S]*position:\s*sticky/);
