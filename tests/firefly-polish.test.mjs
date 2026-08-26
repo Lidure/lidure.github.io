@@ -41,13 +41,18 @@ test('outer page surface no longer rounds the full viewport edge', () => {
   assert.match(css, /body\.layout-standard\s+\.standard-page-surface\s*\{[\s\S]*border-radius:\s*0/);
 });
 
-test('banner waves use multi-harmonic asymmetric drift for a softer Firefly-like boundary', () => {
+test('banner waves use the current Firefly-compatible layered translation model', () => {
   const waves = readSource('src/components/BannerWaves.astro');
   const model = readSource('src/lib/banner-waves.mjs');
-  assert.match(model, /drift:/);
-  assert.match(model, /harmonic:/);
-  assert.match(waves, /tertiaryPeriod/);
-  assert.match(waves, /layer\.drift/);
-  assert.match(waves, /layer\.harmonic/);
-  assert.match(waves, /Math\.cos/);
+
+  assert.match(model, /WAVE_LAYERS\s*=\s*Object\.freeze/);
+  assert.match(model, /duration:\s*8/);
+  assert.match(model, /duration:\s*11/);
+  assert.match(model, /const EASE\s*=\s*Object\.freeze/);
+  assert.match(model, /cubicBezier\(\.\.\.EASE, phase\)/);
+  assert.match(model, /TRANSLATE_FROM/);
+  assert.match(model, /TRANSLATE_TO/);
+  assert.match(waves, /WAVE_LAYERS\.forEach/);
+  assert.match(waves, /waveUseX\(layer, elapsed, preset\.speed\)/);
+  assert.match(waves, /layer\.alpha \* preset\.alpha/);
 });

@@ -63,10 +63,12 @@ test('source configuration uses configured public domains and no stale publishin
 
 test('optical-flow article has one h1 and no unparsed inline delimiters', () => {
   const html = read('posts/视觉光流公式推导与文献/index.html');
-  const prose = html.match(/<div class="prose">([\s\S]*?)<\/div>\s*<section\b/)?.[1];
+  const proseStart = html.indexOf('<div class="prose article-prose">');
+  const proseEnd = html.indexOf('<div class="article-end"', proseStart);
 
   assert.equal((html.match(/<h1\b/g) ?? []).length, 1);
-  assert.ok(prose, 'article body should be present');
+  assert.ok(proseStart >= 0 && proseEnd > proseStart, 'article body should be present');
+  const prose = html.slice(proseStart, proseEnd);
   assert.doesNotMatch(prose, /\\\(/);
 });
 
