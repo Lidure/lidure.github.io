@@ -21,10 +21,11 @@ test('article can opt out of the standard banner through the semantic shell', ()
   assert.match(shellCss, /body\.layout-standard\.is-bannerless \.site-header[\s\S]*?color:\s*var\(--standard-text\)/);
 });
 
-test('article uses the personal-publication structure and shared toc', () => {
+test('article uses the personal-publication structure and one semantic reading stylesheet', () => {
   assert.match(page, /const \{ Content, headings \} = await render\(post\)/);
   assert.match(page, /ArticleToc/);
-  assert.match(page, /article-reading\.css['"];[\s\S]*article\.css['"];/);
+  assert.match(page, /styles\/article\.css/);
+  assert.doesNotMatch(page, /article-reading\.css/);
   assert.match(page, /class="article-publication"/);
   assert.match(page, /class="article-masthead"/);
   assert.match(page, /class="article-title"/);
@@ -55,6 +56,7 @@ test('final article stylesheet is reading-first rather than card-first', () => {
   assert.match(css, /\.article-prose table/);
   assert.match(css, /\.article-toc-desktop/);
   assert.match(css, /\.article-toc-mobile/);
+  assert.match(css, /\.article-reading-progress/);
   assert.match(css, /@media \(max-width:\s*760px\)/);
   assert.doesNotMatch(css, /\.article-bookmark/);
   assert.doesNotMatch(css, /box-shadow:\s*0\s+18px\s+60px/);
