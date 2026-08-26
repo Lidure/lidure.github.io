@@ -1,0 +1,67 @@
+<div class="home-recent-moments" data-home-recent-moments hidden>
+  <div class="home-recent-moments-list"></div>
+</div>
+
+<script>
+  import { fetchMoments } from '../lib/moments-api';
+
+  const homeWindow = window as typeof window & {
+    __homeMomentsCleanup?: () => void;
+    __homeMomentsLifecycleBound?: boolean;
+  };
+
+  function formatMomentDate(value: string) {
+    const date = new Date(value);
+    if (Number.isNaN(date.valueOf())) return value;
+    return date.toLocaleDateString('zh-CN', {
+      month: '2-digit',
+      day: '2-digit',
+    }).replaceAll('/', '.');
+  }
+
+  async function initHomeMoments() {
+    homeWindow.__homeMomentsCleanup?.();
+
+    const root = document.querySelector<HTMLElement>('[data-home-recent-moments]');
+    const list = root?.querySelector<HTMLElement>('.home-recent-moments-list');
+    if (!root || !list) return;
+
+    const controller = new AbortController();
+    homeWindow.__homeMomentsCleanup = () => controller.abort();
+    root.hidden = true;
+    list.replaceChildren();
+
+    try {
+      const { items } = await fetchMoments({ limit: 3, signal: controller.signal });
+      const visible = items.slice(0, 3);
+      if (!visible.length) return;
+
+      for (const item of visible) {
+        const article = document.createElement('article');
+        article.className = 'home-moment-preview';
+
+        const time = document.createElement('time');
+        time.dateTime = item.date;
+        time.textContent = formatMomentDate(item.date);
+
+        const text = document.createElement('p');
+        text.textContent = item.text || '一张最近留下的照片。';
+
+        article.append(time, text);
+        list.append(article);
+      }
+
+      root.hidden = false;
+    } catch {
+      root.hidden = true;
+    }
+  }
+
+  if (!homeWindow.__homeMomentsLifecycleBound) {
+    homeWindow.__homeMomentsLifecycleBound = true;
+    document.addEventListener('astro:page-load', initHomeMoments);
+    document.addEventListener('astro:before-swap', () => homeWindow.__homeMomentsCleanup?.());
+  }
+
+  initHomeMoments();
+</script>
