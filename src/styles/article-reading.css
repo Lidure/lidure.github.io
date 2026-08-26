@@ -11,7 +11,7 @@ body.layout-standard .article-publication {
 body.layout-standard .article-masthead {
   position: relative;
   width: min(100%, 980px);
-  margin: 0 auto clamp(54px, 8vw, 92px);
+  margin: 0 auto clamp(42px, 6vw, 68px);
   padding-bottom: 26px;
 }
 
@@ -70,13 +70,130 @@ body.layout-standard .article-masthead::after {
   background: color-mix(in srgb, var(--standard-accent) 58%, transparent);
 }
 
-body.layout-standard .article-reading-canvas { position: relative; }
+body.layout-standard .article-toc-mobile {
+  display: none;
+  width: min(100%, 720px);
+  margin: 0 auto 28px;
+}
+
+body.layout-standard .article-reading-canvas {
+  display: grid;
+  grid-template-columns: minmax(154px, 188px) minmax(0, 720px);
+  justify-content: center;
+  align-items: start;
+  gap: clamp(34px, 4.2vw, 58px);
+  position: relative;
+}
+
+body.layout-standard .article-reading-canvas:not(:has(.article-toc)) {
+  grid-template-columns: minmax(0, 720px);
+}
+
+body.layout-standard .article-toc {
+  position: sticky;
+  top: 104px;
+  align-self: start;
+  max-height: calc(100vh - 132px);
+  overflow: auto;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--standard-line) 72%, transparent) transparent;
+}
+
+body.layout-standard .article-toc-inner {
+  padding: 4px 0 10px;
+  border-top: 1px solid color-mix(in srgb, var(--standard-line) 86%, transparent);
+}
+
+body.layout-standard .article-toc-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 0 10px;
+  color: var(--standard-muted);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+}
+
+body.layout-standard .article-toc-heading span:first-child {
+  color: var(--standard-text);
+  font-weight: 650;
+  letter-spacing: 0.12em;
+}
+
+body.layout-standard .article-toc nav {
+  display: grid;
+  gap: 2px;
+}
+
+body.layout-standard .article-toc-link {
+  position: relative;
+  display: block;
+  padding: 6px 0 6px 12px;
+  color: color-mix(in srgb, var(--standard-muted) 92%, transparent);
+  font-size: 0.75rem;
+  line-height: 1.52;
+  overflow-wrap: anywhere;
+  transition: color 150ms ease, transform 150ms ease;
+}
+
+body.layout-standard .article-toc-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.92em;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--standard-line) 92%, transparent);
+  transition: background-color 150ms ease, transform 150ms ease;
+}
+
+body.layout-standard .article-toc-link[data-depth="3"] {
+  padding-left: 22px;
+  font-size: 0.7rem;
+  color: color-mix(in srgb, var(--standard-muted) 76%, transparent);
+}
+
+body.layout-standard .article-toc-link[data-depth="3"]::before {
+  left: 10px;
+  width: 3px;
+  height: 3px;
+}
+
+body.layout-standard .article-toc-link:hover,
+body.layout-standard .article-toc-link:focus-visible,
+body.layout-standard .article-toc-link.is-current {
+  color: var(--standard-text);
+  transform: translateX(2px);
+  outline: none;
+}
+
+body.layout-standard .article-toc-link.is-current::before {
+  background: var(--standard-accent);
+  transform: scale(1.35);
+}
+
+body.layout-standard .article-toc-progress {
+  height: 1px;
+  margin-top: 12px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--standard-line) 72%, transparent);
+}
+
+body.layout-standard .article-toc-progress span {
+  display: block;
+  width: calc(var(--article-progress) * 100%);
+  height: 100%;
+  background: var(--standard-accent);
+  transition: width 120ms linear;
+}
 
 body.layout-standard .article-prose {
   counter-reset: article-section;
   width: 100%;
   max-width: 720px;
-  margin: 0 auto;
+  margin: 0;
   overflow: visible;
   color: var(--standard-text);
   font-size: clamp(1rem, 0.18vw + 0.97rem, 1.055rem);
@@ -95,7 +212,7 @@ body.layout-standard .article-prose h4 {
   color: var(--standard-text);
   font-family: 'Noto Sans SC', sans-serif;
   text-wrap: balance;
-  scroll-margin-top: 96px;
+  scroll-margin-top: 104px;
 }
 body.layout-standard .article-prose h2 {
   counter-increment: article-section;
@@ -255,53 +372,6 @@ body.layout-standard .article-prose .katex-display {
   overflow-y: hidden;
 }
 
-body.layout-standard .article-bookmark {
-  position: absolute;
-  left: max(0px, calc(50% - 465px));
-  top: 8px;
-  bottom: 8px;
-  width: 32px;
-  pointer-events: none;
-}
-body.layout-standard .article-bookmark-track {
-  position: sticky;
-  top: 112px;
-  width: 18px;
-  height: min(52vh, 430px);
-  margin-inline: auto;
-  border-left: 1px solid color-mix(in srgb, var(--standard-line) 72%, transparent);
-  pointer-events: auto;
-}
-body.layout-standard .article-bookmark-marker {
-  position: absolute;
-  left: -3px;
-  top: calc(var(--article-progress) * 100%);
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--standard-accent);
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--standard-accent) 10%, transparent);
-  transition: top 120ms linear;
-}
-body.layout-standard .article-bookmark-tick {
-  position: absolute;
-  left: -1px;
-  top: calc(var(--chapter-offset, 0) * 100%);
-  width: 9px;
-  height: 1px;
-  background: color-mix(in srgb, var(--standard-muted) 46%, transparent);
-  transform: translateY(-50%);
-  transition: width 140ms ease, background-color 140ms ease;
-}
-body.layout-standard .article-bookmark-tick:hover,
-body.layout-standard .article-bookmark-tick:focus-visible,
-body.layout-standard .article-bookmark-tick.is-current {
-  width: 14px;
-  background: var(--standard-accent);
-  outline: none;
-}
-
 body.layout-standard .article-end {
   display: flex;
   justify-content: center;
@@ -330,7 +400,44 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
 }
 
 @media (max-width: 940px) {
-  body.layout-standard .article-bookmark { display: none; }
+  body.layout-standard .article-reading-canvas {
+    display: block;
+  }
+  body.layout-standard .article-toc { display: none; }
+  body.layout-standard .article-toc-mobile {
+    display: block;
+    border-top: 1px solid color-mix(in srgb, var(--standard-line) 82%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--standard-line) 82%, transparent);
+  }
+  body.layout-standard .article-toc-mobile summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-height: 46px;
+    color: var(--standard-text);
+    font-size: 0.82rem;
+    font-weight: 630;
+    cursor: pointer;
+    list-style: none;
+  }
+  body.layout-standard .article-toc-mobile summary::-webkit-details-marker { display: none; }
+  body.layout-standard .article-toc-mobile summary span {
+    color: var(--standard-muted);
+    font-size: 0.69rem;
+    font-weight: 500;
+  }
+  body.layout-standard .article-toc-mobile nav {
+    display: grid;
+    gap: 2px;
+    padding: 2px 0 14px;
+  }
+  body.layout-standard .article-toc-mobile .article-toc-link {
+    padding-block: 7px;
+  }
+  body.layout-standard .article-prose {
+    margin-inline: auto;
+  }
   body.layout-standard .article-prose h2::before {
     position: static;
     display: block;
@@ -345,7 +452,7 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
 @media (max-width: 760px) {
   body.layout-standard .article-publication { padding: 38px 16px 52px; }
   body.layout-standard .article-masthead {
-    margin-bottom: 52px;
+    margin-bottom: 38px;
     padding-bottom: 18px;
   }
   body.layout-standard .article-title {
@@ -359,6 +466,7 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
     padding-left: 14px;
   }
   body.layout-standard .article-meta { margin-top: 24px; }
+  body.layout-standard .article-toc-mobile { margin-bottom: 30px; }
   body.layout-standard .article-prose {
     max-width: none;
     font-size: 0.98rem;
@@ -382,31 +490,6 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
     transform: none;
   }
   body.layout-standard .article-prose img { border-radius: 6px; }
-  body.layout-standard .article-bookmark {
-    display: block;
-    position: fixed;
-    z-index: 80;
-    inset: 0 0 auto;
-    width: 100%;
-    height: 2px;
-    pointer-events: none;
-  }
-  body.layout-standard .article-bookmark-track {
-    position: static;
-    width: 100%;
-    height: 2px;
-    border: 0;
-    background: transparent;
-  }
-  body.layout-standard .article-bookmark-track::before {
-    content: '';
-    display: block;
-    width: calc(var(--article-progress) * 100%);
-    height: 100%;
-    background: var(--standard-accent);
-  }
-  body.layout-standard .article-bookmark-marker,
-  body.layout-standard .article-bookmark-tick { display: none; }
   html[data-wallpaper-mode="fullscreen"] body.layout-standard .article-publication::before,
   html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::before {
     inset: 14px 4px 18px;
@@ -415,10 +498,10 @@ html[data-wallpaper-mode="overlay"] body.layout-standard .article-publication::b
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body.layout-standard .article-bookmark-marker,
-  body.layout-standard .article-bookmark-tick,
+  body.layout-standard .article-toc-link,
+  body.layout-standard .article-toc-progress span,
   body.layout-standard .article-prose a { transition: none; }
 }
-html[data-reduce-motion="true"] body.layout-standard .article-bookmark-marker,
-html[data-reduce-motion="true"] body.layout-standard .article-bookmark-tick,
+html[data-reduce-motion="true"] body.layout-standard .article-toc-link,
+html[data-reduce-motion="true"] body.layout-standard .article-toc-progress span,
 html[data-reduce-motion="true"] body.layout-standard .article-prose a { transition: none; }
