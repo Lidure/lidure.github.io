@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  foundation:
+  checkpoint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,5 +19,7 @@ jobs:
         run: npm ci
       - name: Run foundation and regression contracts
         run: node --test tests/window-desk-foundation.test.mjs tests/visual-settings.test.mjs tests/moments-journal-layout.test.mjs
-      - name: Astro check
-        run: npm run check
+      - name: Build site
+        run: npm run build
+      - name: Run full site regression suite
+        run: npm run test:site
