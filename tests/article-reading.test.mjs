@@ -6,19 +6,19 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf
 const page = read('src/pages/posts/[slug].astro');
 const layout = read('src/layouts/BaseLayout.astro');
 const css = read('src/styles/article.css');
-const bannerlessCss = read('src/styles/bannerless-pages.css');
+const shellCss = read('src/styles/site-shell.css');
 
-test('article can opt out of the standard banner with a dedicated bannerless shell', () => {
+test('article can opt out of the standard banner through the semantic shell', () => {
   assert.match(layout, /showBanner\?: boolean/);
   assert.match(layout, /showBanner\s*=\s*true/);
   assert.match(layout, /\{showBanner\s*&&\s*\(/);
   assert.match(layout, /'is-bannerless':\s*isStandard\s*&&\s*!showBanner/);
-  assert.match(layout, /bannerless-pages\.css/);
+  assert.match(layout, /site-shell\.css/);
+  assert.doesNotMatch(layout, /bannerless-pages\.css/);
   assert.match(page, /showBanner=\{false\}/);
-  assert.match(bannerlessCss, /body\.layout-standard\.is-bannerless \.standard-page-surface\s*\{[\s\S]*margin-top:\s*0/);
-  assert.match(bannerlessCss, /body\.layout-standard\.is-bannerless \.standard-content\s*\{[\s\S]*padding-top:\s*96px/);
-  assert.match(bannerlessCss, /data-wallpaper-mode="banner"[\s\S]*body\.layout-standard\.is-bannerless \.site-header/);
-  assert.match(bannerlessCss, /color:\s*var\(--standard-text\)/);
+  assert.match(shellCss, /body\.layout-standard\.is-bannerless \.standard-page-surface\s*\{[\s\S]*?margin-top:\s*0/);
+  assert.match(shellCss, /body\.layout-standard\.is-bannerless \.standard-content\s*\{[\s\S]*?padding-top:\s*96px/);
+  assert.match(shellCss, /body\.layout-standard\.is-bannerless \.site-header[\s\S]*?color:\s*var\(--standard-text\)/);
 });
 
 test('article uses the personal-publication structure and shared toc', () => {
