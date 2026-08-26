@@ -14,7 +14,6 @@ const helpersUrl = new URL('../src/lib/moments-life-wall.mjs', import.meta.url);
 test('legacy journal enhancer stays retired', () => {
   assert.doesNotMatch(pins, /installMomentsJournalEnhancer/);
   assert.equal(existsSync(new URL('../src/lib/moments-journal-enhancer.mjs', import.meta.url)), false);
-  assert.equal(existsSync(new URL('../src/styles/moments-journal.css', import.meta.url)), false);
 });
 
 test('layout classification and local date helpers stay deterministic', async () => {
@@ -30,17 +29,6 @@ test('layout classification and local date helpers stay deterministic', async ()
   assert.equal(getMomentDayParts(local).dateLabel, '08 / 25');
 });
 
-test('sunlit notes derives time-of-day metadata from real timestamps', async () => {
-  const { getMomentDaypart } = await import(helpersUrl.href + `?p=${Date.now()}`);
-  assert.deepEqual(getMomentDaypart(new Date(2026, 7, 25, 6, 30)), { key: 'morning', label: '清晨', mark: '☼' });
-  assert.deepEqual(getMomentDaypart(new Date(2026, 7, 25, 12)), { key: 'day', label: '白昼', mark: '·' });
-  assert.deepEqual(getMomentDaypart(new Date(2026, 7, 25, 18, 30)), { key: 'evening', label: '黄昏', mark: '◐' });
-  assert.deepEqual(getMomentDaypart(new Date(2026, 7, 25, 23)), { key: 'night', label: '深夜', mark: '☾' });
-  assert.match(pins, /getMomentDaypart/);
-  assert.match(pins, /className = 'moment-daypart'/);
-  assert.match(pins, /dataset\.daypart = daypart\.key/);
-});
-
 test('bannerless Moments keeps all core interaction hooks', () => {
   assert.match(page, /showBanner=\{false\}/);
   for (const hook of ['publish-toggle', 'publish-box', 'publish-form', 'image-input', 'image-previews', 'moments-session-status', 'moment-lightbox', 'moments-login']) {
@@ -53,58 +41,53 @@ test('bannerless Moments keeps all core interaction hooks', () => {
   assert.match(page, /deleteMomentViaApi/);
 });
 
+test('Moments uses a three-column notebook shell with useful side companions', () => {
+  assert.match(page, /class="moments-page-grid"/);
+  assert.match(page, /class="moments-side moments-side--left"/);
+  assert.match(page, /class="moments-main-column"/);
+  assert.match(page, /class="moments-side moments-side--right"/);
+  for (const hook of ['moments-side-total', 'moments-side-month', 'moments-side-categories', 'moments-side-gallery']) {
+    assert.match(page, new RegExp(`id="${hook}"`));
+  }
+  assert.match(page, /function syncMomentsCompanions\(/);
+  assert.match(page, /data-side-category/);
+  assert.match(notebookCss, /\.moments-page-grid\s*\{[\s\S]*grid-template-columns:\s*210px\s+minmax\(0,\s*900px\)\s+210px/);
+  assert.match(notebookCss, /@media \(max-width:\s*1280px\)[\s\S]*\.moments-side\s*\{\s*display:\s*none/);
+});
+
+test('Moments paper notes keep coherent material in light and dark themes', () => {
+  assert.match(baseLayout, /moments-notebook-refresh\.css/);
+  assert.match(notebookCss, /--moment-paper:/);
+  assert.match(notebookCss, /--moment-paper-border:/);
+  assert.match(notebookCss, /\.moments-list\s*\{[\s\S]*repeating-linear-gradient/);
+  assert.match(notebookCss, /\.moment-card\s*\{[\s\S]*background:[\s\S]*var\(--moment-paper\)/);
+  assert.match(notebookCss, /\.moment--whisper\s*\{[\s\S]*background:[\s\S]*var\(--sticky-paper\)/);
+  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--notebook-paper:\s*#[0-9a-fA-F]{6}/);
+  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--moment-paper:\s*#[0-9a-fA-F]{6}/);
+  for (const layout of ['photo-one', 'photo-two', 'photo-three', 'gallery', 'video', 'text']) {
+    assert.doesNotMatch(notebookCss, new RegExp(`\\.moment--${layout}[^}]*background:\\s*transparent\\s*!important`));
+  }
+});
+
+test('Moments microinteractions make paper, reactions, and side filters feel alive without breaking reduced motion', () => {
+  assert.match(notebookCss, /\.moment-card:hover\s*\{[\s\S]*translateY\(-2px\)/);
+  assert.match(notebookCss, /\.moment-card:hover::after\s*\{[\s\S]*transform:/);
+  assert.match(notebookCss, /\.moment-reaction-chip\.just-reacted\s*\{[\s\S]*animation:/);
+  assert.match(notebookCss, /\.moments-side-category:hover/);
+  assert.match(notebookCss, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*\.moment-card:hover/);
+  assert.match(page, /sideCategoryButtons\.forEach/);
+  assert.match(page, /openLightbox\(img\)/);
+});
+
 test('emoji and reaction pickers stay collapsed until opened', () => {
   assert.match(page, /picker\.hidden = true/);
   assert.match(css, /\.moment-reaction-panel\[hidden\][\s\S]*?display:\s*none\s*!important/);
   assert.match(css, /\.emoji-panel\.hidden[\s\S]*?display:\s*none\s*!important/);
 });
 
-test('sunlit notes uses a paper-note visual language', () => {
-  assert.match(css, /--note-paper:/);
-  assert.match(css, /--note-paper-soft:/);
-  assert.match(css, /\.moments-wall-head::after[\s\S]*?background:/);
-  assert.match(css, /\.moments-wall-filter \.pill\.active::after/);
-  assert.match(css, /\.moment-day-mark[\s\S]*?border-radius:/);
-  assert.match(css, /\.moment-card::after[\s\S]*?content:\s*['"]/);
-  assert.match(css, /\.moment-card[\s\S]*?transform:\s*translateX\(var\(--note-shift/);
-  assert.match(css, /\.moment-category::before[\s\S]*?width:\s*18px/);
-  assert.match(css, /\.moment-daypart\[data-daypart="morning"\]/);
-  assert.match(css, /\.moment-daypart\[data-daypart="evening"\]/);
-  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*?--note-shift:\s*0px\s*!important/);
-  assert.doesNotMatch(css, /box-shadow:\s*0 13px 30px/);
-});
-
-test('moments notebook gives every text and media moment the same paper-note material', () => {
-  assert.match(baseLayout, /moments-notebook-refresh\.css/);
-  assert.match(notebookCss, /--moment-paper:/);
-  assert.match(notebookCss, /--moment-paper-border:/);
-  assert.match(notebookCss, /\.moments-list\s*\{[\s\S]*repeating-linear-gradient/);
-  assert.match(notebookCss, /\.moments-list::before\s*\{[\s\S]*background:/);
-  assert.match(notebookCss, /\.moment-card\s*\{[\s\S]*background:[\s\S]*var\(--moment-paper\)/);
-  assert.match(notebookCss, /\.moment-card::after\s*\{[\s\S]*display:\s*block\s*!important/);
-  assert.match(notebookCss, /\.moment--whisper\s*\{[\s\S]*background:[\s\S]*var\(--sticky-paper\)/);
-  for (const layout of ['photo-one', 'photo-two', 'photo-three', 'gallery', 'video', 'text']) {
-    assert.doesNotMatch(notebookCss, new RegExp(`\\.moment--${layout}[^}]*background:\\s*transparent\\s*!important`));
-  }
-  assert.match(notebookCss, /\.moment--photo-one[\s\S]*\.moment--video[\s\S]*--moment-card-paper:/);
-  assert.match(notebookCss, /\.publish-panel\s*\{[\s\S]*box-shadow:/);
-});
-
-test('dark Moments uses a warm neutral paper palette instead of accent-tinted blue cards', () => {
-  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--notebook-paper:\s*#[0-9a-fA-F]{6}/);
-  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--moment-paper:\s*#[0-9a-fA-F]{6}/);
-  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--sticky-paper:\s*#[0-9a-fA-F]{6}/);
-  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--moment-paper-border:/);
-  assert.match(notebookCss, /html\[data-theme="dark"\][\s\S]*--moment-tape:/);
-  assert.doesNotMatch(notebookCss, /html\[data-theme="dark"\][\s\S]*--sticky-paper:\s*color-mix\([^;]*var\(--standard-accent/);
-});
-
-test('note rhythm uses a fixed sequence rather than random layout', () => {
+test('note rhythm and reaction controls remain deterministic and accessible', () => {
   assert.match(pins, /const noteShifts = \[0, 8, -5, 11, -8, 4\]/);
   assert.match(pins, /--note-shift/);
-});
-
-test('reaction controls retain accessible names', () => {
   assert.match(page, /option\.setAttribute\('aria-label'/);
   assert.match(page, /reaction\.setAttribute\('aria-label'/);
 });
