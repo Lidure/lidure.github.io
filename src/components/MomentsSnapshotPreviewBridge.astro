@@ -9,14 +9,13 @@
     if (!button) return;
 
     const gallery = button.closest<HTMLElement>('.moments-side-gallery');
-    const list = document.querySelector<HTMLElement>('.moments-list');
-    if (!gallery || !list) return;
+    if (!gallery) return;
 
     const thumbnails = Array.from(gallery.querySelectorAll<HTMLButtonElement>('.moments-side-photo'));
     const index = thumbnails.indexOf(button);
     if (index < 0) return;
 
-    const sourceImages = Array.from(list.querySelectorAll<HTMLImageElement>('.card-images img')).slice(0, thumbnails.length);
+    const sourceImages = Array.from(document.querySelectorAll<HTMLImageElement>('.moments-list .card-images img')).slice(0, thumbnails.length);
     const sourceImage = sourceImages[index];
     if (!sourceImage) return;
 
