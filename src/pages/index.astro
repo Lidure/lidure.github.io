@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import HomeRecentMoments from '../components/HomeRecentMoments.astro';
 import { homePresence } from '../data/home-presence';
 import '../styles/home.css';
 
@@ -87,7 +88,7 @@ const dateLabel = (date: Date) => date.toLocaleDateString('zh-CN', {
         <h2 id="home-moments-title">最近的日常</h2>
         <a href="/moments">去碎碎念</a>
       </header>
-      <div class="home-moments-slot" data-home-moments-slot></div>
+      <HomeRecentMoments />
     </section>
 
     <nav class="home-more" aria-label="更多内容">
