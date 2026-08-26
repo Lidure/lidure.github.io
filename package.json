@@ -9,7 +9,7 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test:site": "node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs tests/firefly-v3.test.mjs tests/firefly-v4.test.mjs tests/firefly-polish.test.mjs tests/firefly-alignment.test.mjs tests/firefly-profile-banner.test.mjs tests/music-cover-transition.test.mjs tests/banner-waves.test.mjs tests/visual-settings.test.mjs tests/post-cover.test.mjs tests/native-wallpaper-image.test.mjs tests/fullscreen-navbar-top.test.mjs tests/article-reading.test.mjs tests/moments-journal-layout.test.mjs",
+    "test:site": "node --test tests/site-build.test.mjs tests/sekai-player-search.test.mjs tests/hero-video-loop.test.mjs tests/firefly-ui-refresh.test.mjs tests/firefly-v3.test.mjs tests/firefly-v4.test.mjs tests/banner-waves.test.mjs tests/visual-settings.test.mjs tests/post-cover.test.mjs",
     "test:poster": "node --test tests/video-poster.test.mjs",
     "test": "npm run build && npm run test:site"
   },

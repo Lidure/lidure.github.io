@@ -1,61 +1,76 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import { categoryOrder } from '../data/moments';
-import '../styles/moments-life-wall.css';
+import { categoryMeta, categoryOrder } from '../data/moments';
 ---
-<BaseLayout
-  title="碎碎念 | 搁浅 的小窝"
-  description="游戏，音乐、生活、吐槽，随时碎碎念。"
-  showBanner={false}
->
+<BaseLayout title="碎碎念 | 搁浅 的小窝" description="游戏，音乐、生活、吐槽，随时碎碎念。" showTime={true}>
   <section class="moments-shell" data-moments-api>
-    <header class="moments-wall-head">
-      <h1>碎碎念</h1>
-      <p>随手记下路过脑海和生活里的小事。</p>
-    </header>
 
-    <div class="controls-bar moments-wall-filter" aria-label="筛选碎碎念">
+    <!-- Hero -->
+    <div class="moments-hero">
+      <div class="hero-bubbles">
+        <span class="bubble b1"></span>
+        <span class="bubble b2"></span>
+        <span class="bubble b3"></span>
+      </div>
+      <span class="kicker">✨ Moments</span>
+      <h1>碎碎念</h1>
+      <p>随手记下的碎片，游戏 · 音乐 · 生活 · 吐槽。随时更新，想到什么说什么。</p>
+      <div class="hero-stats" id="hero-stats">
+        <span class="stat-badge"><strong id="stat-total">—</strong> 条动态</span>
+        <span class="stat-badge">🎮 <strong id="stat-game">—</strong></span>
+        <span class="stat-badge">🎵 <strong id="stat-music">—</strong></span>
+        <span class="stat-badge">☕ <strong id="stat-life">—</strong></span>
+        <span class="stat-badge">💬 <strong id="stat-rant">—</strong></span>
+      </div>
+    </div>
+
+    <!-- 控制栏：筛选 + 发布 -->
+    <div class="controls-bar">
       <div class="cat-pills">
         <button class="pill active" data-category="all">全部</button>
-        {categoryOrder.map((cat) => <button class="pill" data-category={cat}>{cat}</button>)}
+        {categoryOrder.map((cat) => (
+          <button class="pill" data-category={cat}>
+            {categoryMeta[cat].icon}
+          </button>
+        ))}
       </div>
-      <button class="fab moments-compose-trigger" id="publish-toggle" aria-label="写一条碎碎念" aria-expanded="false">
-        <span id="toggle-icon" aria-hidden="true">✎</span>
-        <span class="moments-compose-label">今天想记点什么？</span>
+      <button class="fab" id="publish-toggle" aria-label="发布新动态">
+        <span id="toggle-icon">✏️</span>
       </button>
     </div>
 
+    <!-- 发布面板 -->
     <div class="publish-panel hidden" id="publish-box">
       <div class="panel-topbar">
-        <span class="panel-title">写点什么</span>
-        <button type="button" class="icon-btn" id="close-btn" aria-label="关闭">×</button>
+        <span class="panel-title">📝 发布新动态</span>
+        <button type="button" class="icon-btn" id="close-btn" aria-label="关闭">✕</button>
       </div>
       <form id="publish-form" class="publish-form">
         <div class="form-row">
           <label class="field">
-            <span class="field-label">时间</span>
+            <span class="field-label">🕒 时间</span>
             <input type="datetime-local" name="date" required />
           </label>
           <label class="field">
-            <span class="field-label">分类</span>
+            <span class="field-label">🏷️ 分类</span>
             <select name="category" required>
               <option value="">选择分类</option>
-              {categoryOrder.map((cat) => <option value={cat}>{cat}</option>)}
+              {categoryOrder.map((cat) => (
+                <option value={cat}>{categoryMeta[cat].icon} {cat}</option>
+              ))}
             </select>
           </label>
         </div>
-
         <label class="field full">
-          <span class="field-label">内容</span>
+          <span class="field-label">✏️ 内容</span>
           <div class="emoji-input-wrap">
-            <textarea name="text" rows="4" placeholder="现在脑子里在想什么？" required></textarea>
-            <button type="button" class="emoji-toggle" id="moment-emoji-toggle" title="插入 emoji" aria-label="插入 emoji" aria-expanded="false">☺</button>
+            <textarea name="text" rows="3" placeholder="想说点什么..." required></textarea>
+            <button type="button" class="emoji-toggle" id="moment-emoji-toggle" title="插入 emoji" aria-label="插入 emoji" aria-expanded="false">😊</button>
             <div class="emoji-panel hidden" id="moment-emoji-panel"></div>
           </div>
         </label>
-
         <label class="field full">
-          <span class="field-label">链接（可选）</span>
+          <span class="field-label">🔗 链接（可选）</span>
           <input type="url" name="link" placeholder="https://..." />
         </label>
 
@@ -64,7 +79,7 @@ import '../styles/moments-life-wall.css';
           <input type="file" id="manual-poster-input" accept="image/jpeg" hidden />
           <input type="range" id="video-poster-range" min="0.1" max="1" step="0.1" value="0.1" hidden aria-label="video poster time" />
           <div class="upload-dropzone" id="upload-placeholder">
-            <span>点击、拖入或粘贴图片 / 视频，最多 9 个</span>
+            <span>📷 点击上传 / 拖入 / Ctrl+V 粘贴图片（最多 9 张）</span>
           </div>
           <div class="image-previews" id="image-previews"></div>
         </div>
@@ -80,31 +95,1460 @@ import '../styles/moments-life-wall.css';
           </div>
         </div>
 
-        <button type="submit" class="submit-btn" id="submit-btn">发布</button>
-        <p class="form-note">登录状态由安全 Cookie 保存，不在浏览器保存管理密钥。</p>
+        <button type="submit" class="submit-btn" id="submit-btn">🚀 发布</button>
+        <p class="form-note">登录状态由安全 Cookie 保存，不再在浏览器保存管理密钥。</p>
       </form>
       <div id="form-message"></div>
     </div>
 
+    <!-- 时间线 -->
     <div class="moments-list" id="moments-list">
-      <div class="loading-skeleton" aria-label="正在加载碎碎念">
-        <div class="skeleton-card"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
-        <div class="skeleton-card"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+      <div class="loading-skeleton">
+        <div class="skeleton-card" style="--delay: 0ms"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+        <div class="skeleton-card" style="--delay: 80ms"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
+        <div class="skeleton-card" style="--delay: 160ms"><div class="skeleton-bar"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>
       </div>
     </div>
-    <button type="button" id="moments-retry" class="moments-retry" hidden>重新加载</button>
+    <button type="button" id="moments-retry" class="moments-retry" hidden>重试加载</button>
 
     <div class="lightbox-overlay" id="moment-lightbox" aria-hidden="true" hidden>
-      <button type="button" class="lightbox-close" id="lightbox-close" aria-label="关闭图片预览">&times;</button>
-      <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="上一张">&#8249;</button>
+      <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close image preview">&times;</button>
+      <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous image">&#8249;</button>
       <figure class="lightbox-stage" id="lightbox-stage">
         <img class="lightbox-image" id="lightbox-image" src="" alt="" decoding="async" />
         <figcaption class="lightbox-counter" id="lightbox-counter"></figcaption>
       </figure>
-      <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="下一张">&#8250;</button>
+      <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next image">&#8250;</button>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  /* ===== 页面框架 ===== */
+  .moments-shell {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+
+  /* ===== Hero 区域 ===== */
+  .moments-hero {
+    position: relative;
+    padding: 40px 36px 32px;
+    margin-bottom: 28px;
+    background: var(--panel-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    text-align: center;
+  }
+
+  .hero-bubbles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.15;
+    filter: blur(30px);
+  }
+
+  .b1 {
+    width: 200px; height: 200px;
+    background: var(--accent);
+    top: -60px; left: -40px;
+    animation: bubble-float 8s ease-in-out infinite;
+  }
+
+  .b2 {
+    width: 160px; height: 160px;
+    background: var(--accent-2);
+    bottom: -40px; right: 10%;
+    animation: bubble-float 10s ease-in-out infinite reverse;
+  }
+
+  .b3 {
+    width: 120px; height: 120px;
+    background: var(--accent-3);
+    top: 20px; right: -30px;
+    animation: bubble-float 7s ease-in-out infinite 2s;
+  }
+
+  @keyframes bubble-float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-15px) scale(1.05); }
+  }
+
+  .moments-hero .kicker {
+    position: relative;
+    z-index: 1;
+  }
+
+  .moments-hero h1 {
+    position: relative;
+    z-index: 1;
+    margin: 10px 0 10px;
+    font-family: 'Ma Shan Zheng', cursive;
+    font-size: 4.2rem;
+    letter-spacing: 0;
+  }
+
+  .moments-hero p {
+    position: relative;
+    z-index: 1;
+    color: var(--muted);
+    margin: 0 0 20px;
+    font-size: 1.02rem;
+  }
+
+  .hero-stats {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .stat-badge {
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--tag-bg);
+    border: 1px solid var(--panel-border);
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  .stat-badge strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ===== 控制栏 ===== */
+  .controls-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .cat-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    padding: 7px 16px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--text-soft);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 180ms ease;
+  }
+
+  .pill:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .pill.active {
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3);
+  }
+
+  .fab {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.35);
+    transition: transform 200ms ease, box-shadow 200ms ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .fab:hover {
+    transform: scale(1.08);
+    box-shadow: 0 6px 24px rgba(var(--accent-rgb), 0.45);
+  }
+
+  .fab:active {
+    transform: scale(0.95);
+  }
+
+  /* ===== 发布面板 ===== */
+  .publish-panel {
+    background: var(--panel-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow);
+    padding: 24px 26px;
+    margin-bottom: 28px;
+    backdrop-filter: blur(14px);
+  }
+
+  .panel-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .panel-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--muted);
+    padding: 4px 10px;
+    border-radius: 8px;
+    transition: all 180ms ease;
+  }
+
+  .icon-btn:hover {
+    color: var(--text);
+    background: var(--tag-bg);
+  }
+
+  .publish-form {
+    display: grid;
+    gap: 14px;
+  }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field.full {
+    grid-column: 1 / -1;
+  }
+
+  .field-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--muted);
+    letter-spacing: 0.03em;
+  }
+
+  .field input,
+  .field select,
+  .field textarea {
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.93rem;
+    font-family: inherit;
+    transition: border-color 180ms ease;
+  }
+
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .field textarea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .emoji-input-wrap {
+    position: relative;
+  }
+
+  .emoji-input-wrap textarea {
+    width: 100%;
+    padding-right: 48px;
+  }
+
+  .emoji-toggle {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: var(--tag-bg);
+    color: var(--text);
+    cursor: pointer;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .emoji-toggle:hover {
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.1);
+  }
+
+  .emoji-panel {
+    position: absolute;
+    right: 0;
+    top: 48px;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(6, 34px);
+    gap: 4px;
+    padding: 8px;
+    border: 1px solid var(--panel-border);
+    border-radius: 12px;
+    background: var(--panel);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .emoji-panel.hidden {
+    display: none;
+  }
+
+  .emoji-panel button {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+
+  .emoji-panel button:hover {
+    background: var(--tag-bg);
+  }
+
+  /* 图片上传 */
+  .image-upload-area {
+    grid-column: 1 / -1;
+  }
+
+  .upload-dropzone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    border: 2px dashed var(--panel-border);
+    border-radius: 14px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    color: var(--muted);
+    transition: all 180ms ease;
+  }
+
+  .upload-dropzone:hover,
+  .upload-dropzone.drag-over {
+    border-color: var(--accent);
+    background: var(--tag-bg);
+    color: var(--accent);
+  }
+
+  .image-previews {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .preview-item {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid var(--panel-border);
+  }
+
+  .preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .preview-item .remove-img {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(0,0,0,0.65);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 0.65rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .preview-item .upload-progress {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.75rem;
+    border-radius: 10px;
+  }
+
+  .preview-item .upload-progress.hidden {
+    display: none;
+  }
+
+  .preview-item.uploaded .upload-progress {
+    background: rgba(40, 140, 80, 0.72);
+  }
+
+  .preview-item.failed .upload-progress {
+    background: rgba(160, 30, 30, 0.72);
+  }
+
+  /* Session */
+  .session-field {
+    grid-column: 1 / -1;
+  }
+
+  .session-status-row,
+  .session-login {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .session-status-row {
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .session-status {
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.86rem;
+  }
+
+  .session-status.authenticated {
+    color: #3aaa5a;
+  }
+
+  .session-status.error {
+    color: #d94040;
+  }
+
+  .session-login[hidden],
+  .session-secondary[hidden] {
+    display: none;
+  }
+
+  .session-login input {
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.93rem;
+    font-family: inherit;
+    transition: border-color 180ms ease;
+  }
+
+  .session-login input:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+
+  .session-secondary {
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg-soft);
+    color: var(--text-soft);
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 700;
+    padding: 8px 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 180ms ease;
+  }
+
+  .session-secondary:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(var(--accent-rgb), 0.08);
+  }
+
+  .submit-btn {
+    grid-column: 1 / -1;
+    padding: 13px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, var(--accent), var(--accent-3));
+    color: white;
+    font-size: 0.97rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(var(--accent-rgb), 0.3);
+    transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.4);
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .form-note {
+    grid-column: 1 / -1;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin: 0;
+    text-align: center;
+  }
+
+  #form-message {
+    grid-column: 1 / -1;
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    text-align: center;
+    margin-top: -4px;
+  }
+
+  #form-message.success {
+    background: rgba(80, 200, 120, 0.15);
+    color: #3aaa5a;
+  }
+
+  #form-message.error {
+    background: rgba(255, 80, 80, 0.12);
+    color: #d94040;
+  }
+
+  /* 隐藏/展开动画 */
+  .publish-panel.hidden {
+    display: none;
+  }
+
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .publish-panel:not(.hidden) {
+    animation: slide-down 250ms ease both;
+  }
+
+  /* ===== 加载骨架屏 ===== */
+  .loading-skeleton {
+    display: grid;
+    gap: 16px;
+  }
+
+  .skeleton-card {
+    background: var(--panel-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    padding: 20px 26px;
+    margin-left: 20px;
+    animation: skeleton-pulse 1.4s ease-in-out infinite;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  .skeleton-bar {
+    width: 80px;
+    height: 20px;
+    border-radius: 999px;
+    background: var(--tag-bg);
+    margin-bottom: 14px;
+  }
+
+  .skeleton-line {
+    height: 14px;
+    border-radius: 7px;
+    background: var(--tag-bg);
+    margin-bottom: 8px;
+  }
+
+  .skeleton-line.short {
+    width: 55%;
+  }
+
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 0.8; }
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--muted);
+    font-size: 1rem;
+    padding: 48px 20px;
+    margin-left: 20px;
+  }
+
+  .error-state {
+    color: #d94040;
+  }
+
+  .moments-retry {
+    margin: 14px auto 0;
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 700;
+  }
+
+  .moments-retry[hidden] {
+    display: none;
+  }
+
+  /* ===== 时间线卡片 ===== */
+  .moments-list {
+    display: grid;
+    gap: 16px;
+    padding-left: 20px;
+    border-left: 2px solid var(--panel-border);
+    margin-left: 4px;
+  }
+
+  .moment-card {
+    position: relative;
+    margin-left: 20px;
+    background: var(--panel-gradient);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    backdrop-filter: blur(14px);
+    transition: transform 220ms ease, box-shadow 220ms ease;
+    animation: card-in 400ms ease both;
+    animation-delay: var(--delay, 0ms);
+  }
+
+  @keyframes card-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .moment-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+
+  .moment-card:has(.moment-reaction-panel:not([hidden])) {
+    z-index: 120;
+  }
+
+  .moment-card::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 22px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 2px solid var(--bg);
+    box-shadow: 0 0 0 2px var(--accent);
+  }
+
+  .card-glow {
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px;
+    height: 100%;
+    border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+  }
+
+  .glow-游戏 { background: linear-gradient(to bottom, #FF6B9D, #7C8CF8); }
+  .glow-音乐 { background: linear-gradient(to bottom, #FFB347, #FF6B9D); }
+  .glow-生活 { background: linear-gradient(to bottom, #7C8CF8, #FFB347); }
+  .glow-吐槽 { background: linear-gradient(to bottom, #50C878, #FFB347); }
+
+  .card-content {
+    padding: 20px 22px 20px 26px;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .card-meta-left,
+  .card-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .cat-pill {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  .pill-游戏 { background: rgba(255, 107, 157, 0.12); color: #E0456E; }
+  .pill-音乐 { background: rgba(255, 179, 71, 0.12); color: #CC8820; }
+  .pill-生活 { background: rgba(124, 140, 248, 0.12); color: #5566CC; }
+  .pill-吐槽 { background: rgba(80, 200, 120, 0.12); color: #2F9D58; }
+
+  [data-theme="light"] .pill-游戏 { background: rgba(255, 107, 157, 0.18); color: #FF9EBE; }
+  [data-theme="light"] .pill-音乐 { background: rgba(255, 179, 71, 0.18); color: #FFCC77; }
+  [data-theme="light"] .pill-生活 { background: rgba(124, 140, 248, 0.18); color: #A0AEFF; }
+  [data-theme="light"] .pill-吐槽 { background: rgba(80, 200, 120, 0.18); color: #72D68C; }
+
+  .card-date {
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+
+  .delete-moment-btn {
+    padding: 3px 9px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-size: 0.76rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease;
+  }
+
+  .delete-moment-btn:hover {
+    color: #d94040;
+    border-color: rgba(217, 64, 64, 0.3);
+    background: rgba(217, 64, 64, 0.08);
+    transform: translateY(-1px);
+  }
+
+  .delete-moment-btn:disabled {
+    cursor: wait;
+    opacity: 0.6;
+    transform: none;
+  }
+
+  .card-text {
+    margin: 0 0 10px;
+    color: var(--text);
+    font-size: 1.02rem;
+    line-height: 1.75;
+  }
+
+  .card-images {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 8px;
+    max-width: 430px;
+    margin: 0 0 10px;
+  }
+
+  .card-images[data-count="1"] {
+    grid-template-columns: minmax(0, 420px);
+  }
+
+  .card-images[data-count="2"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    max-width: 430px;
+  }
+
+  .card-images img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg-soft);
+    cursor: pointer;
+    transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  }
+
+  .card-images img:hover {
+    transform: translateY(-2px);
+    border-color: var(--hover-border);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .card-images img.image-load-failed {
+    min-height: 110px;
+    background: linear-gradient(135deg, var(--bg-soft), var(--panel));
+    opacity: 0.55;
+    filter: grayscale(1);
+    object-fit: contain;
+  }
+
+  .card-images video,
+  .preview-item video {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    border: 1px solid var(--panel-border);
+    background: var(--bg-soft);
+  }
+
+  .poster-needed-placeholder,
+  .video-poster-needed {
+    display: flex;
+    min-height: 96px;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    border: 1px dashed var(--panel-border);
+    border-radius: 10px;
+    background: var(--bg-soft);
+    color: var(--muted);
+    font-size: 0.82rem;
+    text-align: center;
+  }
+
+  .preview-item.video-preview {
+    width: 168px;
+    height: auto;
+    min-height: 118px;
+    padding: 6px;
+    background: var(--bg-soft);
+  }
+
+  .preview-item.video-preview video,
+  .preview-item.video-preview img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+  }
+
+  .poster-controls {
+    display: grid;
+    gap: 4px;
+    margin-top: 6px;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .poster-controls input[type="range"] {
+    width: 100%;
+  }
+
+  .poster-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+
+  .poster-actions button {
+    border: 1px solid var(--panel-border);
+    border-radius: 999px;
+    background: var(--panel);
+    color: var(--text-soft);
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 3px 7px;
+  }
+
+  .card-link {
+    font-size: 0.85rem;
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    transition: color 180ms ease;
+  }
+
+  .card-link:hover {
+    color: var(--accent-hover);
+  }
+
+  .moment-reactions {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    max-width: 100%;
+    margin: 13px 0 0;
+    z-index: 1;
+  }
+
+  .moment-reaction-panel {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 10px);
+    z-index: 2000;
+    display: grid;
+    grid-template-columns: repeat(6, 38px);
+    justify-items: center;
+    gap: 3px;
+    padding: 6px 7px;
+    max-height: min(58vh, 260px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: color-mix(in srgb, var(--panel) 96%, transparent);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.12);
+    backdrop-filter: blur(20px) saturate(1.15);
+    transform-origin: 22px calc(100% + 8px);
+    animation: tg-reaction-panel-in 170ms cubic-bezier(.2, .9, .25, 1.25);
+  }
+
+  .moment-reaction-panel[hidden] {
+    display: none;
+  }
+
+  .moment-reaction-panel::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .moment-reaction-panel::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(var(--accent-rgb), 0.28);
+  }
+
+  .moment-reaction-panel::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    left: 22px;
+    bottom: -5px;
+    width: 10px;
+    height: 10px;
+    background: color-mix(in srgb, var(--panel) 96%, transparent);
+    border-right: 1px solid rgba(255,255,255,0.12);
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    transform: rotate(45deg);
+  }
+
+  .moment-reaction-choice {
+    position: relative;
+    z-index: 1;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font: inherit;
+    font-size: 1.3rem;
+    line-height: 1;
+    transform: translateY(0) scale(1);
+    animation: tg-reaction-choice-in 220ms cubic-bezier(.2, 1.5, .42, 1) both;
+    animation-delay: calc(var(--index, 0) * 22ms);
+    transition: background 120ms ease, transform 150ms cubic-bezier(.2, 1.6, .42, 1);
+  }
+
+  .moment-reaction-choice:hover,
+  .moment-reaction-choice.active {
+    background: rgba(var(--accent-rgb), 0.08);
+    transform: translateY(-9px) scale(1.24);
+  }
+
+  .moment-reaction-chips {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .moment-reaction-chip,
+  .moment-reaction-add {
+    height: 30px;
+    border-radius: 999px;
+    border: 1px solid var(--panel-border);
+    background: color-mix(in srgb, var(--tag-bg) 86%, transparent);
+    color: var(--text-soft);
+    cursor: pointer;
+    font: inherit;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 150ms ease, border-color 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 150ms ease;
+  }
+
+  .moment-reaction-chip {
+    min-width: 42px;
+    padding: 0 10px;
+    gap: 5px;
+    font-size: 0.84rem;
+  }
+
+  .moment-reaction-chip:hover,
+  .moment-reaction-chip.active {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.55);
+    background: rgba(var(--accent-rgb), 0.12);
+    box-shadow: 0 8px 20px rgba(var(--accent-rgb), 0.12);
+    transform: translateY(-1px);
+  }
+
+  .moment-reaction-chip.just-reacted {
+    animation: tg-reaction-chip-pop 360ms cubic-bezier(.18, 1.55, .36, 1);
+  }
+
+  .moment-reaction-add {
+    position: relative;
+    width: 34px;
+    padding: 0;
+    overflow: visible;
+  }
+
+  .moment-reaction-add:hover,
+  .moment-reaction-add[aria-expanded="true"] {
+    color: var(--accent);
+    border-color: rgba(var(--accent-rgb), 0.55);
+    background: rgba(var(--accent-rgb), 0.1);
+    transform: translateY(-1px);
+  }
+
+  .moment-reaction-add-icon {
+    font-size: 1rem;
+    transform: translateY(-1px);
+  }
+
+  .moment-reaction-add-plus {
+    position: absolute;
+    right: 5px;
+    bottom: 3px;
+    width: 11px;
+    height: 11px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.64rem;
+    line-height: 10px;
+    font-weight: 800;
+  }
+
+  .moment-reaction-burst {
+    position: absolute;
+    left: 12px;
+    top: -20px;
+    z-index: 45;
+    font-size: 1.45rem;
+    pointer-events: none;
+    filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+    animation: tg-reaction-burst 620ms cubic-bezier(.18, .9, .22, 1) forwards;
+  }
+
+  @keyframes tg-reaction-panel-in {
+    from {
+      opacity: 0;
+      transform: translateY(7px) scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes tg-reaction-choice-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px) scale(0.78);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes tg-reaction-chip-pop {
+    0% { transform: scale(0.78); }
+    62% { transform: scale(1.16); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes tg-reaction-burst {
+    0% {
+      opacity: 0;
+      transform: translateY(10px) scale(0.7);
+    }
+    18% {
+      opacity: 1;
+      transform: translateY(-4px) scale(1.2);
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-42px) scale(0.95);
+    }
+  }
+
+  .moment-card.hidden {
+    display: none !important;
+  }
+
+  .moments-toast {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 10001;
+    max-width: min(320px, calc(100vw - 36px));
+    padding: 10px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--panel-border);
+    background: var(--panel);
+    color: var(--text);
+    box-shadow: var(--shadow);
+    font-size: 0.9rem;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 180ms ease, transform 180ms ease;
+  }
+
+  .moments-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .moments-toast.error {
+    color: #d94040;
+    border-color: rgba(217, 64, 64, 0.25);
+  }
+
+  /* ===== 图片灯箱 ===== */
+  :global(body.lightbox-open) {
+    overflow: hidden;
+  }
+
+  .lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    grid-template-columns: minmax(48px, 1fr) minmax(0, auto) minmax(48px, 1fr);
+    align-items: center;
+    justify-items: center;
+    gap: 18px;
+    padding: 28px;
+    background: rgba(8, 8, 12, 0.88);
+    backdrop-filter: blur(10px);
+  }
+
+  .lightbox-overlay[hidden],
+  .lightbox-nav[hidden] {
+    display: none;
+  }
+
+  .lightbox-stage {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: min(92vw, 1080px);
+    max-height: 90vh;
+    margin: 0;
+  }
+
+  .lightbox-image {
+    display: block;
+    max-width: min(92vw, 1080px);
+    max-height: calc(90vh - 38px);
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: 12px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.52);
+    background: rgba(255, 255, 255, 0.04);
+  }
+
+  .lightbox-counter {
+    min-height: 20px;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 0.86rem;
+    line-height: 1.2;
+  }
+
+  .lightbox-close,
+  .lightbox-nav {
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 180ms ease, transform 180ms ease, border-color 180ms ease;
+  }
+
+  .lightbox-close:hover,
+  .lightbox-nav:hover {
+    background: rgba(255, 255, 255, 0.24);
+    border-color: rgba(255, 255, 255, 0.34);
+  }
+
+  .lightbox-close:active,
+  .lightbox-nav:active {
+    transform: scale(0.96);
+  }
+
+  .lightbox-close {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    font-size: 1.55rem;
+    line-height: 1;
+  }
+
+  .lightbox-nav {
+    width: 46px;
+    height: 64px;
+    border-radius: 999px;
+    font-size: 2.2rem;
+    line-height: 1;
+  }
+
+  .lightbox-prev {
+    grid-column: 1;
+    justify-self: end;
+  }
+
+  .lightbox-next {
+    grid-column: 3;
+    justify-self: start;
+  }
+
+  @media (max-width: 640px) {
+    .moments-hero {
+      padding: 32px 20px 26px;
+    }
+
+    .moments-hero h1 {
+      font-size: 3rem;
+      line-height: 1.08;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .controls-bar {
+      align-items: flex-start;
+    }
+
+    .card-images,
+    .card-images[data-count="2"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: none;
+    }
+
+    .card-images[data-count="1"] {
+      grid-template-columns: 1fr;
+    }
+
+    .lightbox-overlay {
+      grid-template-columns: 1fr;
+      gap: 0;
+      padding: 54px 12px 74px;
+    }
+
+    .lightbox-stage {
+      grid-column: 1;
+      max-width: 96vw;
+      max-height: calc(100vh - 132px);
+    }
+
+    .lightbox-image {
+      max-width: 96vw;
+      max-height: calc(100vh - 154px);
+      border-radius: 8px;
+    }
+
+    .lightbox-close {
+      top: 12px;
+      right: 12px;
+      width: 40px;
+      height: 40px;
+    }
+
+    .lightbox-nav {
+      position: fixed;
+      bottom: 16px;
+      width: 44px;
+      height: 44px;
+      font-size: 1.8rem;
+    }
+
+    .lightbox-prev {
+      left: calc(50% - 54px);
+    }
+
+    .lightbox-next {
+      right: calc(50% - 54px);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .moments-shell {
+      padding: 0 2px;
+    }
+
+    .moments-hero {
+      padding: 24px 16px 20px;
+    }
+
+    .moments-hero h1 {
+      font-size: 2.3rem;
+    }
+
+    .moments-hero p {
+      font-size: 0.88rem;
+    }
+
+    .hero-stats {
+      gap: 8px;
+    }
+
+    .stat-badge {
+      font-size: 0.78rem;
+      padding: 4px 11px;
+    }
+
+    .controls-bar {
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .controls-bar .pill {
+      font-size: 0.78rem;
+      padding: 6px 12px;
+    }
+
+    .moments-list {
+      padding-left: 12px;
+      margin-left: 2px;
+    }
+
+    .moment-card {
+      margin-left: 14px;
+      border-radius: 14px;
+    }
+
+    .moment-card::before {
+      left: -19px;
+      width: 8px;
+      height: 8px;
+    }
+
+    .card-content {
+      padding: 14px 16px 14px 18px;
+    }
+
+    .card-date {
+      font-size: 0.75rem;
+    }
+
+    .card-actions {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .card-text {
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .cat-pill {
+      font-size: 0.68rem;
+      padding: 3px 9px;
+    }
+
+    .card-images,
+    .card-images[data-count="2"] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      max-width: none;
+    }
+
+    .card-images[data-count="1"] {
+      grid-template-columns: 1fr;
+    }
+
+    .publish-panel {
+      padding: 16px 14px;
+    }
+
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+
+    .session-login {
+      flex-wrap: wrap;
+    }
+
+    .session-login input {
+      font-size: 0.82rem;
+    }
+
+    .upload-dropzone {
+      font-size: 0.8rem;
+      padding: 14px;
+    }
+
+    .icon-btn {
+      min-width: 44px;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+</style>
 
 <script>
   import { uploadToR2 } from '../lib/r2-upload';
@@ -119,53 +1563,29 @@ import '../styles/moments-life-wall.css';
     MomentApiError,
   } from '../lib/moments-api';
   import { createCommentsWidget } from '../lib/public-interactions';
-  import { classifyMomentLayout, getMomentDateKey, getMomentDayParts } from '../lib/moments-life-wall.mjs';
 
+  // === Config ===
   const DEFAULT_DANMAKU_API_BASE = 'https://api.lidure22.xyz/api';
   const API_BASE = (import.meta.env.PUBLIC_MOMENTS_API || DEFAULT_DANMAKU_API_BASE).replace(/\/$/, '');
   const MOMENT_REACTIONS_API_URL = `${API_BASE}/moment-reactions`;
   const IMAGE_PUBLIC_BASE = (import.meta.env.PUBLIC_MEDIA_BASE_URL || 'https://api.lidure22.xyz/media').replace(/\/$/, '');
   const MOMENT_REACTION_STORAGE_KEY = 'moment_reactions_v1';
+  const maxImages = 9;
   const maxMediaItems = 9;
   const maxImageBytes = 8 * 1024 * 1024;
   const maxVideoBytes = 100 * 1024 * 1024;
   let adminMode = false;
 
-  type MomentMedia = { kind: 'image' | 'video' | 'poster'; url: string };
-
-  type RenderMoment = {
-    id?: string;
-    date: string;
-    category: string;
-    text: string;
-    link?: string;
-    images: string[];
-    media: MomentMedia[];
-    createdAt?: number;
-    reactions?: Record<string, number>;
-  };
-
-  const knownCategories = new Set(['游戏', '音乐', '生活', '吐槽']);
-  const MOMENT_EMOJIS = ['😀', '😂', '😭', '🥺', '😎', '🤔', '👍', '👏', '🎉', '✨', '💯', '❤️'];
-  const MOMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '👎', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯', '😍', '😎', '🥺', '😡', '😴', '🙏', '💪', '🌟', '🍀', '🫶', '😆', '🤯', '😱', '😢', '🤣', '🤩', '🙌', '👌', '😋', '😇', '🤗', '😤', '😐', '😵', '😳', '🤓', '👀', '💔', '⚡', '🏆', '🎁', '🍻', '☕', '🌈', '💤'];
-  let currentMoments: RenderMoment[] = [];
-  let toastTimer: number | undefined;
-  let scopedStyleAttribute: string | null | undefined;
-
-  function reducedMotionPreferred() {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      || document.documentElement.dataset.reduceMotion === 'true';
-  }
-
+  // === Helpers ===
   function resolveImageCandidates(src: string) {
     if (!src) return [];
     if (src.startsWith('http://') || src.startsWith('https://')) return [src];
+
     const normalized = src.replace(/^\/+/, '');
-    return Array.from(new Set([
-      `${IMAGE_PUBLIC_BASE}/${normalized}`,
-      `${API_BASE}/${normalized}`,
-      `${window.location.origin}/${normalized}`,
-    ]));
+    const sameOrigin = `${window.location.origin}/${normalized}`;
+    const apiOrigin = `${API_BASE}/${normalized}`;
+    const publicBase = `${IMAGE_PUBLIC_BASE}/${normalized}`;
+    return Array.from(new Set([publicBase, apiOrigin, sameOrigin]));
   }
 
   function attachImageFallback(img: HTMLImageElement, candidates: string[]) {
@@ -184,10 +1604,9 @@ import '../styles/moments-life-wall.css';
     });
   }
 
-  function formatMomentTime(value: string) {
-    const parsed = new Date(value);
-    if (Number.isNaN(parsed.getTime())) return value.split('T')[1]?.slice(0, 5) || '';
-    return parsed.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit', hour12: false });
+  function formatMomentDate(value: string) {
+    const [datePart, timePart] = value.split('T');
+    return timePart ? `${datePart} ${timePart.slice(0, 5)}` : datePart;
   }
 
   function localDateTimeValue(date = new Date()) {
@@ -202,21 +1621,6 @@ import '../styles/moments-life-wall.css';
     const nextPos = start + text.length;
     input.focus();
     input.setSelectionRange(nextPos, nextPos);
-  }
-
-  function getScopedStyleAttribute() {
-    if (scopedStyleAttribute !== undefined) return scopedStyleAttribute;
-    const anchor = document.querySelector<HTMLElement>('.moments-shell');
-    scopedStyleAttribute = anchor?.getAttributeNames().find((name) => name.startsWith('data-astro-cid-')) ?? null;
-    return scopedStyleAttribute;
-  }
-
-  function applyScopedStyles(root: Element) {
-    const attr = getScopedStyleAttribute();
-    if (!attr) return root;
-    root.setAttribute(attr, '');
-    root.querySelectorAll('*').forEach((node) => node.setAttribute(attr, ''));
-    return root;
   }
 
   function readMomentReactionState(): Record<string, string> {
@@ -235,8 +1639,11 @@ import '../styles/moments-life-wall.css';
 
   function setStoredMomentReaction(momentId: string, emoji: string) {
     const state = readMomentReactionState();
-    if (emoji) state[momentId] = emoji;
-    else delete state[momentId];
+    if (emoji) {
+      state[momentId] = emoji;
+    } else {
+      delete state[momentId];
+    }
     try { localStorage.setItem(MOMENT_REACTION_STORAGE_KEY, JSON.stringify(state)); } catch {}
   }
 
@@ -246,12 +1653,51 @@ import '../styles/moments-life-wall.css';
       nextCounts[previousEmoji] = Math.max(0, (nextCounts[previousEmoji] || 0) - 1);
       if (nextCounts[previousEmoji] <= 0) delete nextCounts[previousEmoji];
     }
-    if (nextEmoji) nextCounts[nextEmoji] = (nextCounts[nextEmoji] || 0) + 1;
+    if (nextEmoji) {
+      nextCounts[nextEmoji] = (nextCounts[nextEmoji] || 0) + 1;
+    }
     return nextCounts;
+  }
+
+  type RenderMoment = {
+    id?: string;
+    date: string;
+    category: string;
+    text: string;
+    link?: string;
+    images: string[];
+    media: Array<{ kind: 'image' | 'video' | 'poster'; url: string }>;
+    createdAt?: number;
+    reactions?: Record<string, number>;
+  };
+
+  const knownCategories = new Set(['游戏', '音乐', '生活', '吐槽']);
+  const categoryIcons: Record<string, string> = { '游戏': '🎮', '音乐': '🎵', '生活': '☕', '吐槽': '💬' };
+  const MOMENT_EMOJIS = ['😀', '😂', '😭', '🥺', '😎', '🤔', '👍', '👏', '🎉', '✨', '💯', '❤️'];
+  const MOMENT_REACTION_EMOJIS = ['❤️', '😂', '😭', '👍', '👎', '✨', '🔥', '🥰', '👏', '😮', '🤔', '🎉', '💯', '😍', '😎', '🥺', '😡', '😴', '🙏', '💪', '🌟', '🍀', '🫶', '😆', '🤯', '😱', '😢', '🤣', '🤩', '🙌', '👌', '😋', '😇', '🤗', '😤', '😐', '😵', '😳', '🤓', '👀', '💔', '⚡', '🏆', '🎁', '🍻', '☕', '🌈', '💤'];
+  let currentMoments: RenderMoment[] = [];
+  let toastTimer: number | undefined;
+
+  let scopedStyleAttribute: string | null | undefined;
+
+  function getScopedStyleAttribute() {
+    if (scopedStyleAttribute !== undefined) return scopedStyleAttribute;
+    const anchor = document.querySelector<HTMLElement>('.moments-shell');
+    scopedStyleAttribute = anchor?.getAttributeNames().find((name) => name.startsWith('data-astro-cid-')) ?? null;
+    return scopedStyleAttribute;
+  }
+
+  function applyScopedStyles(root: Element) {
+    const attr = getScopedStyleAttribute();
+    if (!attr) return root;
+    root.setAttribute(attr, '');
+    root.querySelectorAll('*').forEach((node) => node.setAttribute(attr, ''));
+    return root;
   }
 
   function normalizeMoment(raw: any): RenderMoment | null {
     if (!raw || typeof raw !== 'object') return null;
+
     const category = String(raw.category ?? '').trim();
     const text = String(raw.text ?? '').trim();
     if (!text) return null;
@@ -262,21 +1708,22 @@ import '../styles/moments-life-wall.css';
       ? raw.images.map((src: unknown) => String(src ?? '').trim()).filter(Boolean)
       : [];
     const rawMedia = Array.isArray(raw.media) ? raw.media : [];
-    const media: MomentMedia[] = rawMedia
+    const media = rawMedia
       .map((item: any) => ({
         kind: item?.kind === 'video' || item?.kind === 'poster' ? item.kind : 'image',
         url: String(item?.url ?? '').trim(),
       }))
-      .filter((item: MomentMedia) => Boolean(item.url));
-
+      .filter((item: { kind: 'image' | 'video' | 'poster'; url: string }) => Boolean(item.url));
     for (const imageUrl of legacyImages) {
-      if (!media.some((item) => item.kind === 'image' && item.url === imageUrl)) {
+      if (!media.some((item: { kind: string; url: string }) => item.kind === 'image' && item.url === imageUrl)) {
         media.push({ kind: 'image', url: imageUrl });
       }
     }
-
-    const images = media.filter((item) => item.kind === 'image').map((item) => item.url);
+    const images = media
+      .filter((item: { kind: 'image' | 'video' | 'poster'; url: string }) => item.kind === 'image')
+      .map((item: { kind: 'image' | 'video' | 'poster'; url: string }) => item.url);
     const link = String(raw.link ?? '').trim();
+
     return {
       id: raw.id ? String(raw.id) : undefined,
       date,
@@ -312,8 +1759,10 @@ import '../styles/moments-life-wall.css';
       toast.id = 'moments-toast';
       toast.className = 'moments-toast';
       toast.setAttribute('role', 'status');
+      applyScopedStyles(toast);
       document.body.appendChild(toast);
     }
+
     toast.textContent = text;
     toast.className = `moments-toast show ${text.includes('失败') ? 'error' : 'success'}`;
     window.clearTimeout(toastTimer);
@@ -333,6 +1782,7 @@ import '../styles/moments-life-wall.css';
     if (logoutBtn) logoutBtn.hidden = true;
   }
 
+  // === API Fetch & Render ===
   async function fetchMomentsFromApi(signal?: AbortSignal) {
     return (await fetchMoments({ limit: 200, signal })).items;
   }
@@ -344,7 +1794,9 @@ import '../styles/moments-life-wall.css';
       body: JSON.stringify({ momentId, emoji, previousEmoji }),
     });
     const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(typeof data.error === 'string' ? data.error : `API 错误 (${res.status})`);
+    if (!res.ok) {
+      throw new Error(typeof data.error === 'string' ? data.error : `API 错误 (${res.status})`);
+    }
     return {
       reactions: data.reactions && typeof data.reactions === 'object' ? data.reactions as Record<string, number> : {},
       selectedEmoji: typeof data.selectedEmoji === 'string' ? data.selectedEmoji : (previousEmoji === emoji ? '' : emoji),
@@ -353,7 +1805,8 @@ import '../styles/moments-life-wall.css';
 
   function closeMomentReactionPanel(panel: HTMLElement) {
     panel.hidden = true;
-    panel.parentElement?.querySelector<HTMLButtonElement>('.moment-reaction-add')?.setAttribute('aria-expanded', 'false');
+    const toggle = panel.parentElement?.querySelector<HTMLButtonElement>('.moment-reaction-add');
+    toggle?.setAttribute('aria-expanded', 'false');
   }
 
   function closeMomentReactionPanels(except?: HTMLElement) {
@@ -385,6 +1838,14 @@ import '../styles/moments-life-wall.css';
     picker.className = 'moment-reaction-panel';
     picker.hidden = true;
 
+    function openPicker(event: MouseEvent) {
+      event.stopPropagation();
+      const shouldOpen = picker.hidden;
+      closeMomentReactionPanels(picker);
+      picker.hidden = !shouldOpen;
+      addButton.setAttribute('aria-expanded', String(shouldOpen));
+    }
+
     async function chooseReaction(emoji: string) {
       if (!moment.id) return;
       const previousEmoji = getStoredMomentReaction(moment.id);
@@ -410,7 +1871,7 @@ import '../styles/moments-life-wall.css';
         const rollbackUi = renderMomentReactions(moment);
         nextUi.replaceWith(rollbackUi);
         applyScopedStyles(rollbackUi);
-        notifyMomentAction('贴表情失败：' + (err instanceof Error ? err.message : String(err)).slice(0, 120));
+        notifyMomentAction('贴表情失败: ' + (err instanceof Error ? err.message : String(err)).slice(0, 120));
       }
     }
 
@@ -419,6 +1880,7 @@ import '../styles/moments-life-wall.css';
       option.type = 'button';
       option.className = 'moment-reaction-choice';
       option.classList.toggle('active', selectedEmoji === emoji);
+      option.style.setProperty('--index', String(MOMENT_REACTION_EMOJIS.indexOf(emoji)));
       option.textContent = emoji;
       option.title = selectedEmoji === emoji ? `取消 ${emoji}` : `贴 ${emoji}`;
       option.setAttribute('aria-label', selectedEmoji === emoji ? `取消 ${emoji}` : `贴 ${emoji}`);
@@ -441,62 +1903,18 @@ import '../styles/moments-life-wall.css';
       chips.appendChild(reaction);
     });
 
-    addButton.addEventListener('click', (event) => {
-      event.stopPropagation();
-      const shouldOpen = picker.hidden;
-      closeMomentReactionPanels(picker);
-      picker.hidden = !shouldOpen;
-      addButton.setAttribute('aria-expanded', String(shouldOpen));
-    });
-
+    addButton.addEventListener('click', openPicker);
     chips.appendChild(addButton);
     reactions.append(chips, picker);
+
     if (burstEmoji) {
       const burst = document.createElement('span');
       burst.className = 'moment-reaction-burst';
       burst.textContent = burstEmoji;
       reactions.appendChild(burst);
     }
+
     return reactions;
-  }
-
-  function buildMomentDayGroup(dayMoments: RenderMoment[], startIndex: number, activeCategory: string) {
-    const first = dayMoments[0];
-    const parts = getMomentDayParts(first.date);
-    const day = document.createElement('section');
-    day.className = 'moment-day';
-    day.dataset.date = parts.key;
-    day.classList.toggle('is-today', parts.key === getMomentDateKey(new Date()));
-
-    const mark = document.createElement('header');
-    mark.className = 'moment-day-mark';
-    const date = document.createElement('time');
-    date.className = 'moment-day-date';
-    date.dateTime = parts.machineDate;
-    date.textContent = parts.dateLabel;
-    const weekday = document.createElement('span');
-    weekday.className = 'moment-day-weekday';
-    weekday.textContent = parts.weekdayLabel;
-    mark.append(date, weekday);
-
-    const stream = document.createElement('div');
-    stream.className = 'moment-day-stream';
-    dayMoments.forEach((moment, index) => stream.appendChild(buildMomentCard(moment, startIndex + index, activeCategory)));
-    day.append(mark, stream);
-    applyScopedStyles(day);
-    return day;
-  }
-
-  function applyMomentFilter(category: string) {
-    document.querySelectorAll<HTMLElement>('.moment-day').forEach((day) => {
-      let visible = 0;
-      day.querySelectorAll<HTMLElement>('.moment-card').forEach((card) => {
-        const hidden = category !== 'all' && card.dataset.category !== category;
-        card.classList.toggle('hidden', hidden);
-        if (!hidden) visible += 1;
-      });
-      day.hidden = visible === 0;
-    });
   }
 
   function syncMoments(apiMoments: any[]) {
@@ -507,59 +1925,63 @@ import '../styles/moments-life-wall.css';
     const moments = apiMoments.map(normalizeMoment).filter((moment): moment is RenderMoment => Boolean(moment));
     currentMoments = moments;
     if (moments.length === 0) {
-      renderListMessage('暂时还没有记录。');
+      renderListMessage('暂时没有碎碎念，敬请期待 ✨');
+      updateStats([]);
       return;
     }
 
+    // Get current active filter
     const activeTab = document.querySelector('.pill[data-category].active') as HTMLElement | null;
     const activeCategory = activeTab?.dataset?.category || 'all';
-    const fragment = document.createDocumentFragment();
 
-    let start = 0;
-    while (start < moments.length) {
-      const key = getMomentDateKey(moments[start].date);
-      let end = start + 1;
-      while (end < moments.length && getMomentDateKey(moments[end].date) === key) end += 1;
-      fragment.appendChild(buildMomentDayGroup(moments.slice(start, end), start, activeCategory));
-      start = end;
-    }
+    list.innerHTML = '';
+    moments.forEach((moment, idx) => {
+      const card = buildMomentCard(moment, idx, activeCategory);
+      if (card) list.appendChild(card);
+    });
 
-    list.replaceChildren(fragment);
-    applyMomentFilter(activeCategory);
+    updateStats(moments);
     setupLightboxForNewCards();
   }
 
   function buildMomentCard(moment: RenderMoment, idx: number, activeCategory: string) {
-    const videos = (moment.media || []).filter((item) => item.kind === 'video');
-    const layout = classifyMomentLayout({ text: moment.text, imageCount: moment.images.length, videoCount: videos.length });
     const card = document.createElement('article');
-    card.className = `moment-card moment--${layout}`;
+    card.className = 'moment-card';
     card.dataset.category = moment.category;
-    card.dataset.layout = layout;
-    card.style.setProperty('--delay', `${idx * 24}ms`);
-    if (moment.id) card.dataset.id = moment.id;
-    if (activeCategory !== 'all' && moment.category !== activeCategory) card.classList.add('hidden');
+    card.style.setProperty('--delay', `${idx * 40}ms`);
+
+    if (activeCategory !== 'all' && moment.category !== activeCategory) {
+      card.classList.add('hidden');
+    }
+
+    const glow = document.createElement('div');
+    glow.className = `card-glow glow-${moment.category}`;
 
     const content = document.createElement('div');
     content.className = 'card-content';
+
+    // Meta
     const meta = document.createElement('div');
     meta.className = 'card-meta';
+
     const leftMeta = document.createElement('div');
     leftMeta.className = 'card-meta-left';
-    const category = document.createElement('span');
-    category.className = 'cat-pill moment-category';
-    category.textContent = moment.category;
-    leftMeta.appendChild(category);
 
-    const actions = document.createElement('div');
-    actions.className = 'card-actions';
+    const catPill = document.createElement('span');
+    catPill.className = `cat-pill pill-${moment.category}`;
+    catPill.textContent = `${categoryIcons[moment.category] || ''} ${moment.category}`;
+
     const dateEl = document.createElement('time');
     dateEl.className = 'card-date';
     dateEl.dateTime = moment.date;
-    dateEl.textContent = formatMomentTime(moment.date);
+    dateEl.textContent = formatMomentDate(moment.date);
+
+    const actions = document.createElement('div');
+    actions.className = 'card-actions';
     actions.appendChild(dateEl);
 
     if (adminMode && moment.id) {
+      card.dataset.id = moment.id;
       const deleteBtn = document.createElement('button');
       deleteBtn.type = 'button';
       deleteBtn.className = 'delete-moment-btn';
@@ -570,19 +1992,22 @@ import '../styles/moments-life-wall.css';
       actions.appendChild(deleteBtn);
     }
 
+    leftMeta.appendChild(catPill);
     meta.append(leftMeta, actions);
     content.appendChild(meta);
 
+    // Text
     const text = document.createElement('p');
     text.className = 'card-text';
     text.textContent = moment.text;
     content.appendChild(text);
 
-    if (moment.images.length > 0) {
+    // Images
+    if (moment.images && moment.images.length > 0) {
       const imgDiv = document.createElement('div');
-      imgDiv.className = 'card-images moment-media moment-media--images';
+      imgDiv.className = 'card-images';
       imgDiv.dataset.count = String(moment.images.length);
-      moment.images.forEach((imgSrc, imageIndex) => {
+      moment.images.forEach((imgSrc: string) => {
         const img = document.createElement('img');
         const resolvedCandidates = resolveImageCandidates(imgSrc);
         img.src = resolvedCandidates[0];
@@ -596,27 +2021,26 @@ import '../styles/moments-life-wall.css';
         img.decoding = 'async';
         img.setAttribute('role', 'button');
         img.tabIndex = 0;
-        if ((layout === 'photo-three' && imageIndex > 0) || (layout === 'gallery' && imageIndex > 0)) {
-          img.dataset.secondary = 'true';
-        }
         imgDiv.appendChild(img);
       });
       content.appendChild(imgDiv);
     }
 
+    const videos = (moment.media || []).filter((item) => item.kind === 'video');
     if (videos.length > 0) {
       const videoDiv = document.createElement('div');
-      videoDiv.className = 'card-images moment-media moment-media--video';
+      videoDiv.className = 'card-images';
       videoDiv.dataset.count = String(videos.length);
       videos.forEach((videoItem) => {
         const poster = (moment.media || []).find((item) => item.kind === 'poster' && item.url)?.url || '';
         if (!poster) {
           const placeholder = document.createElement('div');
           placeholder.className = 'poster-needed-placeholder';
-          placeholder.textContent = '这段视频暂时没有可用封面。';
+          placeholder.textContent = '封面生成失败：需要上传封面';
           videoDiv.appendChild(placeholder);
           return;
         }
+
         const video = document.createElement('video');
         video.src = videoItem.url;
         video.poster = poster;
@@ -632,13 +2056,14 @@ import '../styles/moments-life-wall.css';
       content.appendChild(videoDiv);
     }
 
+    // Link
     if (moment.link) {
       const link = document.createElement('a');
       link.className = 'card-link';
       link.href = moment.link;
       link.target = '_blank';
       link.rel = 'noreferrer';
-      link.textContent = moment.link.replace(/^https?:\/\//, '').split('/')[0];
+      link.textContent = `🔗 ${moment.link.replace(/^https?:\/\//, '').split('/')[0]}`;
       content.appendChild(link);
     }
 
@@ -647,9 +2072,28 @@ import '../styles/moments-life-wall.css';
       content.appendChild(createCommentsWidget('moment', moment.id, undefined, 2));
     }
 
-    card.appendChild(content);
+    card.append(glow, content);
     applyScopedStyles(card);
     return card;
+  }
+
+  function updateStats(moments: RenderMoment[]) {
+    const totalEl = document.getElementById('stat-total');
+    const gameEl = document.getElementById('stat-game');
+    const musicEl = document.getElementById('stat-music');
+    const lifeEl = document.getElementById('stat-life');
+    const rantEl = document.getElementById('stat-rant');
+
+    const catCounts: Record<string, number> = {};
+    moments.forEach((m) => {
+      catCounts[m.category] = (catCounts[m.category] || 0) + 1;
+    });
+
+    if (totalEl) totalEl.textContent = String(moments.length);
+    if (gameEl) gameEl.textContent = String(catCounts['游戏'] || 0);
+    if (musicEl) musicEl.textContent = String(catCounts['音乐'] || 0);
+    if (lifeEl) lifeEl.textContent = String(catCounts['生活'] || 0);
+    if (rantEl) rantEl.textContent = String(catCounts['吐槽'] || 0);
   }
 
   async function deleteMoment(momentId: string, trigger: HTMLButtonElement) {
@@ -660,23 +2104,31 @@ import '../styles/moments-life-wall.css';
     trigger.disabled = true;
     const originalText = trigger.textContent || '删除';
     trigger.textContent = '删除中...';
+
     try {
       await deleteMomentViaApi(momentId);
       currentMoments = currentMoments.filter((moment) => moment.id !== momentId);
       syncMoments(currentMoments);
-      notifyMomentAction('已删除。');
+      notifyMomentAction('✅ 删除成功');
+
       setTimeout(async () => {
-        try { syncMoments(await fetchMomentsFromApi()); } catch {}
+        try {
+          const fresh = await fetchMomentsFromApi();
+          syncMoments(fresh);
+        } catch {}
       }, 800);
     } catch (err) {
       const detail = err instanceof Error ? err.message : String(err);
-      notifyMomentAction('删除失败：' + detail.slice(0, 200));
-      if (err instanceof MomentApiError && err.code === 'AUTH_REQUIRED') markMomentsSessionRequired();
+      notifyMomentAction('❌ 删除失败: ' + detail.slice(0, 200));
+      if (err instanceof MomentApiError && err.code === 'AUTH_REQUIRED') {
+        markMomentsSessionRequired();
+      }
       trigger.disabled = false;
       trigger.textContent = originalText;
     }
   }
 
+  // === Lightbox ===
   let lightbox: HTMLElement | null = null;
   let lightboxImage: HTMLImageElement | null = null;
   let lightboxCounter: HTMLElement | null = null;
@@ -777,10 +2229,6 @@ import '../styles/moments-life-wall.css';
     let nextPosterGenerationId = 0;
     let manualPosterTargetId = '';
 
-    function invalidateVideoPosterGeneration(item: SelectedMediaItem) {
-      item.posterGenerationId = ++nextPosterGenerationId;
-    }
-
     function cleanupPageState() {
       selectedImages.forEach((item) => {
         invalidateVideoPosterGeneration(item);
@@ -792,53 +2240,44 @@ import '../styles/moments-life-wall.css';
       if (cleanupMomentsPage === controller) cleanupMomentsPage = undefined;
       controller.abort();
     }
+
     document.addEventListener('astro:before-swap', cleanupPageState, { once: true, signal });
 
-    const loadMoments = async () => {
-      try {
-        const items = await fetchMomentsFromApi(signal);
+    // Load from API on page load and after Astro client-side navigation.
+    fetchMomentsFromApi()
+      .then((items) => {
         if (signal.aborted) return;
-        if (items.length === 0) renderListMessage('暂时还没有记录。');
-        else syncMoments(items);
-      } catch (err) {
+        if (items.length === 0) {
+          renderListMessage('暂时没有碎碎念，敬请期待 ✨');
+          return;
+        }
+        syncMoments(items);
+      })
+      .catch((err) => {
         if (signal.aborted) return;
         console.warn('Failed to fetch moments from API:', err);
-        renderListMessage('加载失败，可以稍后再试。', 'error-state');
-        setMomentsRetryVisible(true);
-      }
-    };
-    void loadMoments();
+        renderListMessage('加载失败，请刷新页面重试 😢', 'error-state');
+      });
 
+    // === Category filter ===
     const tabs = document.querySelectorAll<HTMLButtonElement>('.pill[data-category]');
     tabs.forEach((tab) => {
       tab.addEventListener('click', () => {
-        tabs.forEach((item) => item.classList.remove('active'));
+        tabs.forEach((t) => t.classList.remove('active'));
         tab.classList.add('active');
-        applyMomentFilter(tab.dataset.category ?? 'all');
+        const selected = tab.dataset.category ?? 'all';
+        const cards = document.querySelectorAll<HTMLElement>('.moment-card');
+        cards.forEach((card) => {
+          card.classList.toggle('hidden', selected !== 'all' && card.dataset.category !== selected);
+        });
       }, { signal });
     });
 
-    document.getElementById('moments-retry')?.addEventListener('click', () => {
-      setMomentsRetryVisible(false);
-      void loadMoments();
-    }, { signal });
-
-    const listRoot = document.getElementById('moments-list');
-    listRoot?.addEventListener('click', (event) => {
+    document.getElementById('moments-list')?.addEventListener('click', (event) => {
       const button = (event.target as HTMLElement).closest<HTMLButtonElement>('.delete-moment-btn');
       if (!button?.dataset.momentId) return;
       event.preventDefault();
-      void deleteMoment(button.dataset.momentId, button);
-    }, { signal });
-
-    listRoot?.addEventListener('moments:pin-order-changed', (event) => {
-      const orderedIds = (event as CustomEvent<{ orderedIds?: string[] }>).detail?.orderedIds || [];
-      if (orderedIds.length === 0) return;
-      const byId = new Map(currentMoments.filter((moment) => moment.id).map((moment) => [moment.id as string, moment]));
-      const ordered = orderedIds.map((id) => byId.get(id)).filter((moment): moment is RenderMoment => Boolean(moment));
-      const seen = new Set(ordered.map((moment) => moment.id));
-      const rest = currentMoments.filter((moment) => !moment.id || !seen.has(moment.id));
-      syncMoments([...ordered, ...rest]);
+      deleteMoment(button.dataset.momentId, button);
     }, { signal });
 
     document.addEventListener('click', (event) => {
@@ -847,24 +2286,25 @@ import '../styles/moments-life-wall.css';
       closeMomentReactionPanels();
     }, { signal });
 
+    // === Publish panel toggle ===
     const toggleBtn = document.getElementById('publish-toggle');
     const publishBox = document.getElementById('publish-box');
     const closeBtnEl = document.getElementById('close-btn');
     const toggleIcon = document.getElementById('toggle-icon');
 
-    function setComposerOpen(open: boolean) {
-      publishBox?.classList.toggle('hidden', !open);
-      toggleBtn?.setAttribute('aria-expanded', String(open));
-      if (toggleIcon) toggleIcon.textContent = open ? '×' : '✎';
-    }
-
     toggleBtn?.addEventListener('click', () => {
-      const open = publishBox?.classList.contains('hidden') ?? true;
-      setComposerOpen(open);
-      if (open) publishBox?.scrollIntoView({ behavior: reducedMotionPreferred() ? 'auto' : 'smooth', block: 'nearest' });
+      publishBox?.classList.toggle('hidden');
+      const isOpen = !publishBox?.classList.contains('hidden');
+      if (toggleIcon) toggleIcon.textContent = isOpen ? '🔼' : '✏️';
+      if (isOpen) publishBox?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }, { signal });
-    closeBtnEl?.addEventListener('click', () => setComposerOpen(false), { signal });
 
+    closeBtnEl?.addEventListener('click', () => {
+      publishBox?.classList.add('hidden');
+      if (toggleIcon) toggleIcon.textContent = '✏️';
+    }, { signal });
+
+    // === Image upload (R2 client-side) ===
     const imageInput = document.getElementById('image-input') as HTMLInputElement | null;
     const uploadPlaceholder = document.getElementById('upload-placeholder');
     const imagePreviews = document.getElementById('image-previews');
@@ -889,10 +2329,12 @@ import '../styles/moments-life-wall.css';
         emojiPanel.appendChild(button);
       });
     }
+
     emojiToggle?.addEventListener('click', () => {
       emojiPanel?.classList.toggle('hidden');
       emojiToggle.setAttribute('aria-expanded', String(!emojiPanel?.classList.contains('hidden')));
     }, { signal });
+
     document.addEventListener('click', (event) => {
       if (emojiPanel?.classList.contains('hidden')) return;
       const target = event.target as Node;
@@ -917,6 +2359,78 @@ import '../styles/moments-life-wall.css';
       progress.textContent = text;
     }
 
+    function renderPreviews() {
+      if (!imagePreviews) return;
+      imagePreviews.innerHTML = '';
+      selectedImages.forEach((item) => {
+        const div = document.createElement('div');
+        div.className = 'preview-item';
+        div.id = `preview-${item.id}`;
+        const img = document.createElement('img');
+        img.src = item.previewUrl;
+        img.alt = item.file.name;
+        const progress = document.createElement('div');
+        progress.className = 'upload-progress hidden';
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-img';
+        removeBtn.textContent = '✕';
+        removeBtn.addEventListener('click', () => {
+          const index = selectedImages.findIndex((image) => image.id === item.id);
+          if (index > -1) {
+            invalidateVideoPosterGeneration(selectedImages[index]);
+            URL.revokeObjectURL(selectedImages[index].previewUrl);
+            selectedImages.splice(index, 1);
+            renderPreviews();
+          }
+        }, { signal });
+        div.append(img, progress, removeBtn);
+        applyScopedStyles(div);
+        imagePreviews.appendChild(div);
+        if (item.remoteUrl) setPreviewStatus(item.id, '已上传', 'uploaded');
+      });
+    }
+
+    async function uploadImagesToR2() {
+      const urls: string[] = [];
+      for (const item of selectedImages) {
+        if (item.remoteUrl) { urls.push(item.remoteUrl); continue; }
+        setPreviewStatus(item.id, '上传中...', 'uploading');
+        if (item.file.size > maxImageBytes) {
+          setPreviewStatus(item.id, '过大', 'failed');
+          throw new Error('图片过大，请控制在 8 MB 以内');
+        }
+        try {
+          const url = await uploadToR2(item.file, { signal });
+          item.remoteUrl = url;
+          urls.push(url);
+          setPreviewStatus(item.id, '已上传', 'uploaded');
+        } catch (err) {
+          setPreviewStatus(item.id, '失败', 'failed');
+          throw err;
+        }
+      }
+      return urls;
+    }
+
+    function handleFiles(files: File[]) {
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        if (selectedImages.length >= maxImages) {
+          setMessage(`最多选择 ${maxImages} 张图片`, 'error');
+          break;
+        }
+        selectedImages.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+          file,
+          kind: 'image',
+          previewUrl: URL.createObjectURL(file),
+          posterTime: 0.1,
+        });
+      }
+      renderPreviews();
+    }
+
     function clearSelectedMedia() {
       selectedImages.forEach((item) => {
         invalidateVideoPosterGeneration(item);
@@ -935,6 +2449,10 @@ import '../styles/moments-life-wall.css';
     function startVideoPosterGeneration(item: SelectedMediaItem) {
       item.posterGenerationId = ++nextPosterGenerationId;
       return item.posterGenerationId;
+    }
+
+    function invalidateVideoPosterGeneration(item: SelectedMediaItem) {
+      item.posterGenerationId = ++nextPosterGenerationId;
     }
 
     function isCurrentVideoPosterGeneration(item: SelectedMediaItem, generationId: number) {
@@ -964,8 +2482,8 @@ import '../styles/moments-life-wall.css';
         item.posterRequired = true;
         const code = err instanceof VideoPosterError ? err.code : '';
         item.error = code === 'VIDEO_CORS_REQUIRED'
-          ? '此视频源不允许浏览器取帧，请上传 JPEG 封面。'
-          : err instanceof Error ? err.message : '封面生成失败，请重试或上传 JPEG 封面。';
+          ? 'VIDEO_CORS_REQUIRED: 此视频源不允许浏览器取帧，请上传手动 JPEG 封面。'
+          : err instanceof Error ? err.message : '封面生成失败，请重试或上传手动 JPEG 封面。';
       }
       renderMediaPreviews();
     }
@@ -1020,6 +2538,7 @@ import '../styles/moments-life-wall.css';
           const range = document.createElement('input');
           range.type = 'range';
           range.className = 'video-poster-range';
+          range.id = 'video-poster-range';
           range.min = '0.1';
           range.max = String(Math.max(0.1, (item.duration || 1) - 0.1));
           range.step = '0.1';
@@ -1069,7 +2588,7 @@ import '../styles/moments-life-wall.css';
     }
 
     async function uploadSelectedMedia() {
-      const media: MomentMedia[] = [];
+      const media: Array<{ kind: 'image' | 'video' | 'poster'; url: string }> = [];
       for (const item of selectedImages) {
         if (item.kind === 'video' && !item.posterBlob && !item.posterRemoteUrl) {
           item.posterRequired = true;
@@ -1138,22 +2657,18 @@ import '../styles/moments-life-wall.css';
     }
 
     uploadPlaceholder?.addEventListener('click', () => imageInput?.click(), { signal });
-    uploadArea?.addEventListener('dragover', (event) => {
-      event.preventDefault();
-      uploadPlaceholder?.classList.add('drag-over');
-    }, { signal });
-    uploadArea?.addEventListener('dragleave', () => uploadPlaceholder?.classList.remove('drag-over'), { signal });
-    uploadArea?.addEventListener('drop', (event) => {
-      event.preventDefault();
+    uploadArea?.addEventListener('dragover', (e) => { e.preventDefault(); uploadPlaceholder?.classList.add('drag-over'); }, { signal });
+    uploadArea?.addEventListener('dragleave', () => { uploadPlaceholder?.classList.remove('drag-over'); }, { signal });
+    uploadArea?.addEventListener('drop', (e) => {
+      e.preventDefault();
       uploadPlaceholder?.classList.remove('drag-over');
-      const files = (event as DragEvent).dataTransfer?.files;
+      const files = (e as DragEvent).dataTransfer?.files;
       if (files) handleMediaFiles(Array.from(files));
     }, { signal });
     imageInput?.addEventListener('change', () => {
       if (imageInput.files) handleMediaFiles(Array.from(imageInput.files));
       imageInput.value = '';
     }, { signal });
-
     document.getElementById('manual-poster-input')?.addEventListener('change', (event) => {
       const input = event.currentTarget as HTMLInputElement;
       const file = input.files?.[0];
@@ -1174,9 +2689,10 @@ import '../styles/moments-life-wall.css';
       renderMediaPreviews();
     }, { signal });
 
-    document.addEventListener('paste', (event) => {
+    // Paste images
+    document.addEventListener('paste', (e) => {
       if (publishBox?.classList.contains('hidden')) return;
-      const items = event.clipboardData?.items;
+      const items = e.clipboardData?.items;
       if (!items) return;
       const files: File[] = [];
       for (let i = 0; i < items.length; i++) {
@@ -1186,20 +2702,21 @@ import '../styles/moments-life-wall.css';
         }
       }
       if (files.length > 0) {
-        event.preventDefault();
+        e.preventDefault();
         handleMediaFiles(files);
-        setMessage(`已粘贴 ${files.length} 张图片`, 'success');
+        setMessage(`📷 已粘贴 ${files.length} 张图片`, 'success');
       }
     }, { signal });
 
     function updateSessionUi(authenticated: boolean, message?: string) {
       adminMode = authenticated;
       if (currentMoments.length > 0) syncMoments(currentMoments);
+
       const sessionStatus = document.getElementById('moments-session-status');
       const loginBox = document.getElementById('moments-login');
       const logoutBtn = document.getElementById('moments-logout') as HTMLButtonElement | null;
       if (sessionStatus) {
-        sessionStatus.textContent = message || (authenticated ? '已登录，可以发布和管理动态。' : '请登录后发布或管理动态。');
+        sessionStatus.textContent = message || (authenticated ? '已登录，可以发布和删除动态。' : '请登录后发布或删除动态。');
         sessionStatus.classList.toggle('authenticated', authenticated);
         sessionStatus.classList.toggle('error', !authenticated && Boolean(message));
       }
@@ -1231,6 +2748,7 @@ import '../styles/moments-life-wall.css';
         loginPassword?.focus();
         return;
       }
+
       loginSubmit.disabled = true;
       loginSubmit.textContent = '登录中...';
       try {
@@ -1266,14 +2784,16 @@ import '../styles/moments-life-wall.css';
 
     void refreshSessionState();
 
+    // === Form submit → API ===
     if (form && msg && submitBtn) {
       const dateInput = form.querySelector<HTMLInputElement>('input[name="date"]');
       if (dateInput) dateInput.value = localDateTimeValue();
       updateSessionUi(false, '检查登录状态中...');
 
-      form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
         const fd = new FormData(form);
+
         submitBtn.disabled = true;
         submitBtn.textContent = selectedImages.length > 0 ? '上传媒体...' : '发布中...';
         setMessage('', '');
@@ -1283,10 +2803,14 @@ import '../styles/moments-life-wall.css';
           const date = String(fd.get('date') ?? '').trim();
           const category = String(fd.get('category') ?? '').trim();
           const text = String(fd.get('text') ?? '').trim();
+
           if (!date || !category || !text) throw new Error('请填写时间、分类和内容');
 
           const media = selectedImages.length > 0 ? await uploadSelectedMedia() : [];
-          const imageUrls = media.filter((item) => item.kind === 'image').map((item) => item.url);
+          const imageUrls = media
+            .filter((item: { kind: 'image' | 'video' | 'poster'; url: string }) => item.kind === 'image')
+            .map((item: { kind: 'image' | 'video' | 'poster'; url: string }) => item.url);
+
           submitBtn.textContent = '发布中...';
           const created = await createMomentViaApi({
             date,
@@ -1297,9 +2821,10 @@ import '../styles/moments-life-wall.css';
             ...(media.length > 0 && { media }),
           }, { signal });
 
-          setMessage('发布成功。', 'success');
+          setMessage('✅ 发布成功！', 'success');
           currentMoments = [normalizeMoment(created), ...currentMoments].filter((moment): moment is RenderMoment => Boolean(moment));
           syncMoments(currentMoments);
+
           setTimeout(async () => {
             if (signal.aborted) return;
             try {
@@ -1313,16 +2838,17 @@ import '../styles/moments-life-wall.css';
           if (dateInput) dateInput.value = localDateTimeValue();
         } catch (err) {
           const detail = err instanceof Error ? err.message : String(err);
-          setMessage('发布失败：' + detail.slice(0, 200), 'error');
-          if (err instanceof MomentApiError && err.code === 'AUTH_REQUIRED') updateSessionUi(false, '登录已失效，请重新登录。');
+          setMessage('❌ 发布失败: ' + detail.slice(0, 200), 'error');
+          if (err instanceof MomentApiError && err.code === 'AUTH_REQUIRED') {
+            updateSessionUi(false, '登录已失效，请重新登录。');
+          }
         } finally {
           const authenticated = (await getSession({ signal }).catch(() => ({ authenticated: false }))).authenticated;
           updateSessionUi(authenticated);
-          submitBtn.textContent = '发布';
+          submitBtn.textContent = '🚀 发布';
         }
       }, { signal });
     }
-
     lightbox = document.getElementById('moment-lightbox') as HTMLElement | null;
     lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
     lightboxCounter = document.getElementById('lightbox-counter');
@@ -1330,7 +2856,10 @@ import '../styles/moments-life-wall.css';
     lightboxClose = document.getElementById('lightbox-close') as HTMLButtonElement | null;
     lightboxPrev = document.getElementById('lightbox-prev') as HTMLButtonElement | null;
     lightboxNext = document.getElementById('lightbox-next') as HTMLButtonElement | null;
+
+    // Bind lightbox to initially rendered cards.
     setupLightboxForNewCards();
+
     lightbox?.addEventListener('click', closeLightbox, { signal });
     lightboxStage?.addEventListener('click', (event) => event.stopPropagation(), { signal });
     lightboxClose?.addEventListener('click', (event) => { event.stopPropagation(); closeLightbox(); }, { signal });
@@ -1344,7 +2873,10 @@ import '../styles/moments-life-wall.css';
     }, { signal });
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initMomentsPage, { once: true });
-  else initMomentsPage();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMomentsPage, { once: true });
+  } else {
+    initMomentsPage();
+  }
   document.addEventListener('astro:page-load', initMomentsPage);
 </script>

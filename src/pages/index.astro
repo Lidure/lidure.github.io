@@ -29,6 +29,14 @@ const featuredHref = featuredPost
   bannerTitle="搁浅的小窝"
   bannerSubtitle="把喜欢的东西，认真地收进小站里。"
 >
+  <nav class="home-category-bar" aria-label="首页内容导航">
+    <a class="is-featured" href={featuredHref}>✦ 精选</a>
+    <a href="#latest-posts-title">最新</a>
+    <a href="/tags">标签</a>
+    <a href="/moments">碎碎念</a>
+    <a href="/messages">留言</a>
+  </nav>
+
   <div class="home-layout">
     <HomeLeftSidebar
       postCount={posts.length}
@@ -37,37 +45,27 @@ const featuredHref = featuredPost
       topTags={topTags}
     />
 
-    <div class="home-center-column">
-      <nav class="home-category-bar" aria-label="首页内容导航">
-        <a class="is-featured" href={featuredHref}>✦ 精选</a>
-        <a href="#latest-posts-title">最新</a>
-        <a href="/tags">标签</a>
-        <a href="/moments">碎碎念</a>
-        <a href="/messages">留言</a>
-      </nav>
+    <section class="home-main-column" aria-labelledby="latest-posts-title">
+      {featuredPost && (
+        <a class="home-featured-card" href={featuredHref}>
+          <span class="home-featured-label">FEATURED · 精选</span>
+          <strong>{featuredPost.data.title}</strong>
+          <p>{featuredPost.data.description}</p>
+          <span class="home-featured-link">阅读全文 →</span>
+        </a>
+      )}
 
-      <section class="home-main-column" aria-labelledby="latest-posts-title">
-        {featuredPost && (
-          <a class="home-featured-card" href={featuredHref}>
-            <span class="home-featured-label">FEATURED · 精选</span>
-            <strong>{featuredPost.data.title}</strong>
-            <p>{featuredPost.data.description}</p>
-            <span class="home-featured-link">阅读全文 →</span>
-          </a>
-        )}
-
-        <header class="home-section-header">
-          <div>
-            <span class="home-section-kicker">RECENT POSTS</span>
-            <h2 id="latest-posts-title">最新文章</h2>
-          </div>
-          <a href="/posts">全部文章 →</a>
-        </header>
-        <div class="home-post-list">
-          {latestPosts.map((post) => <HomePostCard post={post} />)}
+      <header class="home-section-header">
+        <div>
+          <span class="home-section-kicker">RECENT POSTS</span>
+          <h2 id="latest-posts-title">最新文章</h2>
         </div>
-      </section>
-    </div>
+        <a href="/posts">全部文章 →</a>
+      </header>
+      <div class="home-post-list">
+        {latestPosts.map((post) => <HomePostCard post={post} />)}
+      </div>
+    </section>
 
     <HomeRightSidebar topTags={topTags} postCount={posts.length} tagCount={tagCount} />
   </div>
