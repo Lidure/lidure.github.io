@@ -17,6 +17,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Run article checkpoint tests
+        run: node --test tests/article-toc.test.mjs tests/article-reading.test.mjs tests/post-cover.test.mjs
       - name: Build site
         run: npm run build
       - name: Check Astro templates and types
