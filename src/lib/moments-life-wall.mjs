@@ -36,5 +36,9 @@ export function classifyMomentLayout({ text = '', imageCount = 0, videoCount = 0
   if (imageCount === 3) return 'photo-three';
   if (imageCount === 2) return 'photo-two';
   if (imageCount === 1) return 'photo-one';
-  return Array.from(String(text).trim()).length <= 32 ? 'whisper' : 'text';
+
+  const textLength = Array.from(String(text).trim()).length;
+  if (textLength <= 32) return 'whisper';
+  if (textLength <= 72) return 'compact';
+  return 'text';
 }
