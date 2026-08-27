@@ -1,16 +1,22 @@
 import {
+  PUBLIC_API_BASE,
   createCommentsWidget,
   createGuestMessage,
+  deleteGuestMessage,
   deleteOwnedGuestMessage,
   fetchGuestMessagePage,
   formatPublicTime,
+  getStoredGuestMessageReaction,
   getStoredUserId,
   hasGuestMessageOwnership,
+  reactToGuestMessage,
   setStoredUserId,
   updateOwnedGuestMessage,
   type GuestMessage,
+  type GuestMessagePatch,
   type MessageNoteMeta,
 } from './public-interactions';
+import { getSession, login, logout } from './moments-api';
 import {
   BOARD_LOGICAL_WIDTH,
   computeBoardHeight,
@@ -26,6 +32,7 @@ import {
 
 const QUICK_REACTIONS = ['❤️', '😂', '✨', '👍'] as const;
 const NOTE_COLORS: MessageNoteMeta['color'][] = ['yellow', 'pink', 'blue', 'green', 'purple'];
+const MESSAGE_POLL_MS = 15_000;
 
 type BoardState = {
   messages: Map<string, GuestMessage>;
@@ -83,15 +90,18 @@ function createNoteElement(message: GuestMessage) {
   meta.textContent = `${message.commentCount || 0} 条评论`;
   footer.append(time, meta);
 
+  const selectedEmoji = getStoredGuestMessageReaction(message.id);
   const reactions = document.createElement('div');
   reactions.className = 'sticky-note-quick-reactions';
   reactions.setAttribute('aria-label', '快捷回应');
   QUICK_REACTIONS.forEach((emoji) => {
     const button = document.createElement('button');
     button.type = 'button';
-    button.textContent = emoji;
     button.dataset.messageReaction = emoji;
-    button.setAttribute('aria-label', `用 ${emoji} 回应`);
+    button.classList.toggle('active', selectedEmoji === emoji);
+    const count = message.reactions?.[emoji] || 0;
+    button.textContent = count > 0 ? `${emoji} ${count}` : emoji;
+    button.setAttribute('aria-label', selectedEmoji === emoji ? `取消 ${emoji} 回应` : `用 ${emoji} 回应`);
     reactions.appendChild(button);
   });
 
@@ -117,6 +127,22 @@ function friendlyError(error: unknown) {
   return error instanceof Error ? error.message : '操作失败，请稍后再试';
 }
 
+async function updateAdminGuestMessage(messageId: string, patch: GuestMessagePatch) {
+  const response = await fetch(`${PUBLIC_API_BASE}/messages`, {
+    method: 'PATCH',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ id: messageId, ...patch }),
+  });
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const error = new Error(typeof data.error === 'string' ? data.error : `API 错误 (${response.status})`) as Error & { status?: number };
+    error.status = response.status;
+    throw error;
+  }
+  return data.item as GuestMessage;
+}
+
 export function initMessageBoard() {
   const root = byId<HTMLElement>('message-board-root');
   const viewport = byId<HTMLElement>('message-board-viewport');
@@ -134,6 +160,10 @@ export function initMessageBoard() {
   const composerStatus = byId<HTMLElement>('message-composer-status');
   const composerSubmit = byId<HTMLButtonElement>('message-composer-submit');
   const colorOptions = byId<HTMLElement>('message-color-options');
+  const adminStatus = byId<HTMLElement>('message-admin-status');
+  const adminPassword = byId<HTMLInputElement>('message-admin-password');
+  const adminLogin = byId<HTMLButtonElement>('message-admin-login');
+  const adminLogout = byId<HTMLButtonElement>('message-admin-logout');
 
   if (!root || !viewport || !stage || !status || !count) return () => {};
 
@@ -144,10 +174,15 @@ export function initMessageBoard() {
   const boardCount = count;
   const state: BoardState = { messages: new Map(), syncCursor: 0 };
   const serverConfirmed = new Map<string, { x: number; y: number }>();
+  const interactionLocks = new Set<string>();
+  const deferredRemote = new Map<string, GuestMessage>();
   const controller = new AbortController();
   const suppressClick = new Set<string>();
   let dragSession: DragSession | null = null;
   let destroyed = false;
+  let adminMode = false;
+  let pollTimer = 0;
+  let lastFocus: HTMLElement | null = null;
   let selectedColor: MessageNoteMeta['color'] = NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)];
   let editingMessageId = '';
 
@@ -191,17 +226,30 @@ export function initMessageBoard() {
     setSelectedColor(selectedColor);
   }
 
+  function reconcileDeferred(messageId: string) {
+    interactionLocks.delete(messageId);
+    const deferred = deferredRemote.get(messageId);
+    if (!deferred) return;
+    deferredRemote.delete(messageId);
+    state.messages.set(messageId, deferred);
+    serverConfirmed.set(messageId, { x: deferred.note.x, y: deferred.note.y });
+    renderAll();
+  }
+
   function closeComposer() {
     if (!composer) return;
+    const lockedId = editingMessageId;
     composer.hidden = true;
     editingMessageId = '';
     if (composerUser) composerUser.disabled = false;
     if (composerSubmit) composerSubmit.textContent = '贴到墙上';
+    if (lockedId) reconcileDeferred(lockedId);
   }
 
   function openComposer(message?: GuestMessage) {
     if (!composer) return;
     editingMessageId = message?.id || '';
+    if (editingMessageId) interactionLocks.add(editingMessageId);
     if (composerUser) {
       composerUser.value = message?.userId || getStoredUserId();
       composerUser.disabled = Boolean(message);
@@ -214,18 +262,61 @@ export function initMessageBoard() {
     requestAnimationFrame(() => (message ? composerText : composerUser)?.focus());
   }
 
+  function closeDrawer(restoreFocus = true) {
+    if (!drawer || drawer.hidden) return;
+    drawer.classList.remove('open');
+    drawer.hidden = true;
+    if (restoreFocus) lastFocus?.focus();
+    lastFocus = null;
+  }
+
   function removeMessage(id: string) {
     state.messages.delete(id);
     serverConfirmed.delete(id);
+    deferredRemote.delete(id);
+    interactionLocks.delete(id);
     renderAll();
-    if (drawer && !drawer.hidden) {
-      drawer.classList.remove('open');
-      drawer.hidden = true;
+    closeDrawer(false);
+  }
+
+  async function chooseReaction(messageId: string, emoji: string) {
+    const current = state.messages.get(messageId);
+    if (!current) return;
+    interactionLocks.add(messageId);
+    try {
+      const result = await reactToGuestMessage(messageId, emoji);
+      current.reactions = result.reactions;
+      state.messages.set(messageId, current);
+      renderAll();
+      if (drawer && !drawer.hidden) openDrawer(current, false);
+    } catch (error) {
+      setStatus(friendlyError(error), true);
+    } finally {
+      reconcileDeferred(messageId);
     }
   }
 
-  function openDrawer(message: GuestMessage) {
+  function createReactionStrip(message: GuestMessage) {
+    const strip = document.createElement('div');
+    strip.className = 'message-drawer-reactions';
+    strip.setAttribute('aria-label', '回应这张便签');
+    const selectedEmoji = getStoredGuestMessageReaction(message.id);
+    QUICK_REACTIONS.forEach((emoji) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.classList.toggle('active', selectedEmoji === emoji);
+      const reactionCount = message.reactions?.[emoji] || 0;
+      button.textContent = reactionCount > 0 ? `${emoji} ${reactionCount}` : emoji;
+      button.setAttribute('aria-label', selectedEmoji === emoji ? `取消 ${emoji} 回应` : `用 ${emoji} 回应`);
+      button.addEventListener('click', () => void chooseReaction(message.id, emoji), { signal: controller.signal });
+      strip.appendChild(button);
+    });
+    return strip;
+  }
+
+  function openDrawer(message: GuestMessage, rememberFocus = true) {
     if (!drawer || !drawerContent) return;
+    if (rememberFocus && document.activeElement instanceof HTMLElement) lastFocus = document.activeElement;
     drawerContent.innerHTML = '';
     const title = document.createElement('h3');
     title.id = 'message-drawer-title';
@@ -236,10 +327,10 @@ export function initMessageBoard() {
     const meta = document.createElement('p');
     meta.className = 'message-drawer-meta';
     const owned = hasGuestMessageOwnership(message.id);
-    meta.textContent = `${formatPublicTime(message.createdAt)}${owned ? ' · 这是你贴的便签' : ''}`;
-    drawerContent.append(title, body, meta);
+    meta.textContent = `${formatPublicTime(message.createdAt)}${owned ? ' · 这是你贴的便签' : ''}${adminMode ? ' · 管理模式' : ''}`;
+    drawerContent.append(title, body, meta, createReactionStrip(message));
 
-    if (owned) {
+    if (owned || adminMode) {
       const actions = document.createElement('div');
       actions.className = 'message-drawer-actions';
       const edit = document.createElement('button');
@@ -253,13 +344,16 @@ export function initMessageBoard() {
       remove.addEventListener('click', async () => {
         if (!window.confirm('确定删除这张便签吗？删除后不可恢复。')) return;
         remove.disabled = true;
+        interactionLocks.add(message.id);
         try {
-          await deleteOwnedGuestMessage(message.id);
+          if (adminMode) await deleteGuestMessage(message.id);
+          else await deleteOwnedGuestMessage(message.id);
           removeMessage(message.id);
           setStatus('便签已取下。');
         } catch (error) {
           remove.disabled = false;
           setStatus(friendlyError(error), true);
+          reconcileDeferred(message.id);
         }
       }, { signal: controller.signal });
       actions.append(edit, remove);
@@ -269,7 +363,10 @@ export function initMessageBoard() {
     const comments = createCommentsWidget('message', message.id, message.commentCount || 0);
     drawerContent.appendChild(comments);
     drawer.hidden = false;
-    requestAnimationFrame(() => drawer.classList.add('open'));
+    requestAnimationFrame(() => {
+      drawer.classList.add('open');
+      drawer.querySelector<HTMLButtonElement>('[data-message-close="drawer"]')?.focus();
+    });
   }
 
   function logicalDelta(clientDelta: number) {
@@ -296,6 +393,7 @@ export function initMessageBoard() {
     if (session.activated) return;
     session.activated = true;
     session.gesture = { ...session.gesture, phase: 'dragging' };
+    interactionLocks.add(session.id);
     suppressClick.add(session.id);
     element.classList.add('dragging');
     element.setPointerCapture?.(session.pointerId);
@@ -307,7 +405,10 @@ export function initMessageBoard() {
     element.classList.remove('dragging');
     if (!session.activated) return;
     const message = state.messages.get(session.id);
-    if (!message) return;
+    if (!message) {
+      reconcileDeferred(session.id);
+      return;
+    }
     const occupied = [...state.messages.values()]
       .filter((item) => item.id !== session.id)
       .map((item) => ({ x: item.note.x, y: item.note.y, size: item.note.size }));
@@ -316,14 +417,18 @@ export function initMessageBoard() {
     message.note.y = corrected.y;
     renderAll();
 
-    if (!hasGuestMessageOwnership(session.id)) {
+    const owned = hasGuestMessageOwnership(session.id);
+    if (!owned && !adminMode) {
       setStatus('已在当前浏览器临时挪动；只有作者的位置会保存到公共留言板。');
+      reconcileDeferred(session.id);
       return;
     }
 
     const rollback = serverConfirmed.get(session.id) || { x: session.startNoteX, y: session.startNoteY };
     try {
-      const saved = await updateOwnedGuestMessage(session.id, { posX: corrected.x, posY: corrected.y });
+      const saved = adminMode && !owned
+        ? await updateAdminGuestMessage(session.id, { posX: corrected.x, posY: corrected.y })
+        : await updateOwnedGuestMessage(session.id, { posX: corrected.x, posY: corrected.y });
       state.messages.set(saved.id, saved);
       serverConfirmed.set(saved.id, { x: saved.note.x, y: saved.note.y });
       renderAll();
@@ -333,11 +438,20 @@ export function initMessageBoard() {
       message.note.y = rollback.y;
       renderAll();
       setStatus(`${friendlyError(error)}，已恢复原来的位置。`, true);
+    } finally {
+      reconcileDeferred(session.id);
     }
   }
 
   function bindNote(note: HTMLElement, message: GuestMessage) {
     const open = () => openDrawer(state.messages.get(message.id) || message);
+    note.querySelectorAll<HTMLButtonElement>('[data-message-reaction]').forEach((button) => {
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const emoji = button.dataset.messageReaction;
+        if (emoji) void chooseReaction(message.id, emoji);
+      }, { signal: controller.signal });
+    });
     note.addEventListener('click', (event) => {
       if ((event.target as HTMLElement).closest('button')) return;
       if (suppressClick.delete(message.id)) return;
@@ -368,8 +482,11 @@ export function initMessageBoard() {
         activated: gesture.phase === 'dragging',
       };
       if (dragSession.activated) {
+        interactionLocks.add(message.id);
+        suppressClick.add(message.id);
+        note.classList.add('dragging');
+        note.setPointerCapture?.(event.pointerId);
         event.preventDefault();
-        activateDrag(dragSession, note, event.clientX, event.clientY);
       } else {
         dragSession.holdTimer = window.setTimeout(() => {
           if (!dragSession || dragSession.id !== message.id || dragSession.pointerId !== event.pointerId) return;
@@ -387,6 +504,7 @@ export function initMessageBoard() {
       if (result.decision === 'scroll') {
         if (session.holdTimer) window.clearTimeout(session.holdTimer);
         dragSession = null;
+        reconcileDeferred(message.id);
         return;
       }
       if (result.decision === 'drag-start') activateDrag(session, note, event.clientX, event.clientY);
@@ -427,22 +545,79 @@ export function initMessageBoard() {
     updateStageHeight();
   }
 
+  function acceptRemoteMessage(message: GuestMessage) {
+    if (interactionLocks.has(message.id)) {
+      deferredRemote.set(message.id, message);
+      return false;
+    }
+    state.messages.set(message.id, message);
+    serverConfirmed.set(message.id, { x: message.note.x, y: message.note.y });
+    return true;
+  }
+
   async function loadPage(before?: number) {
     try {
       const page = await fetchGuestMessagePage(before ? { limit: 100, before } : { limit: 100 });
       if (destroyed) return;
-      page.items.forEach((message) => {
-        state.messages.set(message.id, message);
-        serverConfirmed.set(message.id, { x: message.note.x, y: message.note.y });
-      });
+      page.items.forEach(acceptRemoteMessage);
       state.nextBefore = page.nextBefore;
-      state.syncCursor = page.nextCursor;
+      state.syncCursor = Math.max(state.syncCursor, page.nextCursor);
       renderAll();
       setStatus(state.messages.size ? '拖一拖便签试试看，点一下可以展开详情。手机端长按后再拖动。' : '还没有人贴便签。');
     } catch (error) {
       setStatus(friendlyError(error), true);
       boardStage.innerHTML = '<button type="button" class="message-board-retry">重新加载</button>';
       boardStage.querySelector<HTMLButtonElement>('.message-board-retry')?.addEventListener('click', () => loadPage(), { once: true, signal: controller.signal });
+    }
+  }
+
+  async function pollMessages() {
+    if (destroyed || document.hidden || !state.syncCursor) return;
+    try {
+      const page = await fetchGuestMessagePage({ since: state.syncCursor, limit: 100 });
+      if (destroyed) return;
+      let changed = false;
+      page.items.forEach((message) => {
+        changed = acceptRemoteMessage(message) || changed;
+      });
+      state.syncCursor = Math.max(state.syncCursor, page.nextCursor);
+      if (changed) renderAll();
+    } catch {
+      // Polling is deliberately quiet; the next interval will retry.
+    }
+  }
+
+  function stopPolling() {
+    if (!pollTimer) return;
+    window.clearInterval(pollTimer);
+    pollTimer = 0;
+  }
+
+  function startPolling() {
+    stopPolling();
+    if (document.hidden) return;
+    pollTimer = window.setInterval(() => void pollMessages(), MESSAGE_POLL_MS);
+  }
+
+  function syncAdminUi(authenticated: boolean) {
+    adminMode = authenticated;
+    if (adminStatus) adminStatus.textContent = authenticated ? '已登录，可移动和删除任意便签。' : '未登录';
+    if (adminLogin) adminLogin.hidden = authenticated;
+    if (adminLogout) adminLogout.hidden = !authenticated;
+    if (adminPassword) adminPassword.hidden = authenticated;
+    if (drawer && !drawer.hidden) {
+      const id = drawerContent?.querySelector<HTMLElement>('[data-drawer-message-id]')?.dataset.drawerMessageId;
+      const message = id ? state.messages.get(id) : undefined;
+      if (message) openDrawer(message, false);
+    }
+  }
+
+  async function refreshAdminSession() {
+    try {
+      const session = await getSession({ signal: controller.signal });
+      if (!destroyed) syncAdminUi(session.authenticated);
+    } catch {
+      if (!destroyed) syncAdminUi(false);
     }
   }
 
@@ -456,9 +631,13 @@ export function initMessageBoard() {
     if (!text || (!editingMessageId && !userId)) return;
     if (composerSubmit) composerSubmit.disabled = true;
     if (composerStatus) composerStatus.textContent = editingMessageId ? '正在保存…' : '正在贴上去…';
+    const messageId = editingMessageId;
     try {
-      if (editingMessageId) {
-        const saved = await updateOwnedGuestMessage(editingMessageId, { text, noteColor: selectedColor });
+      if (messageId) {
+        const owned = hasGuestMessageOwnership(messageId);
+        const saved = adminMode && !owned
+          ? await updateAdminGuestMessage(messageId, { text, noteColor: selectedColor })
+          : await updateOwnedGuestMessage(messageId, { text, noteColor: selectedColor });
         state.messages.set(saved.id, saved);
         serverConfirmed.set(saved.id, { x: saved.note.x, y: saved.note.y });
         setStatus('便签已经更新。');
@@ -467,6 +646,7 @@ export function initMessageBoard() {
         const created = await createGuestMessage(userId, text, selectedColor);
         state.messages.set(created.id, created);
         serverConfirmed.set(created.id, { x: created.note.x, y: created.note.y });
+        state.syncCursor = Math.max(state.syncCursor, created.updatedAt || created.createdAt || 0);
         setStatus('啪——便签贴上去了。');
       }
       renderAll();
@@ -476,19 +656,60 @@ export function initMessageBoard() {
       if (composerStatus) composerStatus.textContent = friendlyError(error);
     } finally {
       if (composerSubmit) composerSubmit.disabled = false;
+      if (messageId && editingMessageId === messageId) interactionLocks.add(messageId);
     }
   }, { signal: controller.signal });
 
   boardRoot.querySelectorAll<HTMLElement>('[data-message-close]').forEach((button) => {
     button.addEventListener('click', () => {
       const target = button.dataset.messageClose;
-      if (target === 'drawer' && drawer) {
-        drawer.classList.remove('open');
-        drawer.hidden = true;
-      }
+      if (target === 'drawer') closeDrawer();
       if (target === 'composer') closeComposer();
     }, { signal: controller.signal });
   });
+
+  adminLogin?.addEventListener('click', async () => {
+    const password = adminPassword?.value || '';
+    if (!password) return;
+    adminLogin.disabled = true;
+    if (adminStatus) adminStatus.textContent = '正在登录…';
+    try {
+      const session = await login(password, { signal: controller.signal });
+      if (adminPassword) adminPassword.value = '';
+      syncAdminUi(session.authenticated);
+    } catch (error) {
+      if (adminStatus) adminStatus.textContent = friendlyError(error);
+    } finally {
+      adminLogin.disabled = false;
+    }
+  }, { signal: controller.signal });
+
+  adminLogout?.addEventListener('click', async () => {
+    adminLogout.disabled = true;
+    try {
+      await logout({ signal: controller.signal });
+      syncAdminUi(false);
+    } catch (error) {
+      if (adminStatus) adminStatus.textContent = friendlyError(error);
+    } finally {
+      adminLogout.disabled = false;
+    }
+  }, { signal: controller.signal });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+    if (composer && !composer.hidden) closeComposer();
+    else closeDrawer();
+  }, { signal: controller.signal });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopPolling();
+      return;
+    }
+    void pollMessages();
+    startPolling();
+  }, { signal: controller.signal });
 
   loadOlder?.addEventListener('click', () => {
     if (!state.nextBefore) return;
@@ -498,10 +719,12 @@ export function initMessageBoard() {
 
   const resizeObserver = new ResizeObserver(() => updateStageHeight());
   resizeObserver.observe(boardViewport);
-  loadPage();
+  void loadPage().then(startPolling);
+  void refreshAdminSession();
 
   return () => {
     destroyed = true;
+    stopPolling();
     if (dragSession?.holdTimer) window.clearTimeout(dragSession.holdTimer);
     controller.abort();
     resizeObserver.disconnect();
