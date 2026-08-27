@@ -4,7 +4,6 @@ import test from 'node:test';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const css = read('src/styles/article-moments-followup.css');
-const interactions = read('src/lib/public-interactions.ts');
 const helpersUrl = new URL('../src/lib/moments-life-wall.mjs', import.meta.url);
 
 test('short text-only Moments notes use compact paper widths without narrowing the main column', async () => {
@@ -24,9 +23,7 @@ test('media and long Moments notes keep the full center-column width', async () 
   assert.match(css, /\.moment--photo-one[\s\S]*\.moment--text\s*\{[\s\S]*width:\s*100%\s*!important/);
 });
 
-test('preview comments stay hidden when a Moment has no comments', () => {
-  assert.match(interactions, /const hideWhenEmpty\s*=\s*previewCount\s*>\s*0/);
-  assert.match(interactions, /root\.hidden\s*=\s*hideWhenEmpty/);
-  assert.match(interactions, /if\s*\(!comments\.length\)[\s\S]*root\.hidden\s*=\s*true/);
-  assert.match(interactions, /root\.hidden\s*=\s*false/);
+test('comment area is invisible until at least one real comment exists', () => {
+  assert.match(css, /\.moment-card \.public-comments\s*\{[\s\S]*display:\s*none/);
+  assert.match(css, /\.moment-card \.public-comments:has\(\.public-comment-item\)\s*\{[\s\S]*display:\s*block/);
 });
