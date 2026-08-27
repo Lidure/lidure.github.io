@@ -11,6 +11,7 @@ import {
   validateUpload,
 } from "./media";
 import { createMoment, deleteMoment, listMoments, setMomentPinned, type CreateMomentInput } from "./moments";
+import { handleStickyMessageRequest } from "./message-routes";
 
 interface Env {
   DB: D1Database;
@@ -82,7 +83,8 @@ export default {
       }
 
       if (url.pathname === "/api/messages") {
-        if (request.method === "GET") return handleMessagesList(url, request, env);
+        const stickyResponse = await handleStickyMessageRequest(request, url, env);
+        if (stickyResponse) return stickyResponse;
         if (request.method === "POST") return handleMessagesCreate(request, env);
         if (request.method === "DELETE") return handleMessagesDelete(request, env);
         return errorResponse("Method not allowed", "METHOD_NOT_ALLOWED", 405, request, env);
