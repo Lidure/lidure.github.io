@@ -9,20 +9,19 @@ const layout = read('src/layouts/BaseLayout.astro');
 const css = read('src/styles/article-reading.css');
 const tocCss = read('src/styles/article-toc-sayori.css');
 const followupCss = read('src/styles/article-moments-followup.css');
-const bannerlessCss = read('src/styles/bannerless-pages.css');
 const archiveCssUrl = new URL('../src/styles/article-archive.css', import.meta.url);
 const archiveCss = existsSync(archiveCssUrl) ? readFileSync(archiveCssUrl, 'utf8') : '';
 const safetyCssUrl = new URL('../src/styles/article-layout-safety.css', import.meta.url);
 const tocUrl = new URL('../src/components/ArticleTOC.astro', import.meta.url);
 const toc = existsSync(tocUrl) ? readFileSync(tocUrl, 'utf8') : '';
 
-test('article can opt out of the standard banner with a dedicated bannerless shell', () => {
+test('article uses the shared Firefly banner shell', () => {
   assert.match(layout, /showBanner\?: boolean/);
   assert.match(layout, /showBanner\s*=\s*true/);
   assert.match(layout, /\{showBanner\s*&&\s*\(/);
-  assert.match(layout, /'is-bannerless':\s*isStandard\s*&&\s*!showBanner/);
-  assert.match(page, /showBanner=\{false\}/);
-  assert.match(bannerlessCss, /body\.layout-standard\.is-bannerless \.standard-page-surface\s*\{[\s\S]*margin-top:\s*0/);
+  assert.doesNotMatch(page, /showBanner=\{false\}/);
+  assert.match(page, /bannerTitle=\{post\.data\.title\}/);
+  assert.match(page, /bannerSubtitle=\{post\.data\.description\}/);
 });
 
 test('article archive remains content-first', () => {

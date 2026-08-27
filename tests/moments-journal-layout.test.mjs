@@ -31,8 +31,9 @@ test('layout classification and local date helpers stay deterministic', async ()
   assert.equal(getMomentDayParts(local).dateLabel, '08 / 25');
 });
 
-test('bannerless Moments keeps all core interaction hooks', () => {
-  assert.match(page, /showBanner=\{false\}/);
+test('Moments keeps the shared Firefly banner and all core interaction hooks', () => {
+  assert.doesNotMatch(page, /showBanner=\{false\}/);
+  assert.match(page, /bannerTitle="碎碎念"/);
   for (const hook of ['publish-toggle', 'publish-box', 'publish-form', 'image-input', 'image-previews', 'moments-session-status', 'moment-lightbox', 'moments-login']) {
     assert.match(page, new RegExp(`id="${hook}"`));
   }
