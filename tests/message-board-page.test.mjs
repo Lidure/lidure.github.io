@@ -51,3 +51,28 @@ test('controller persists only owned drops and keeps a server-confirmed rollback
   assert.match(controller, /correctDroppedPosition/);
   assert.match(controller, /serverConfirmed/);
 });
+
+test('details reuse comments and expose approved reactions', () => {
+  const board = read('src/components/MessageBoard.astro');
+  const controller = read('src/lib/message-board-controller.ts');
+  assert.match(controller, /createCommentsWidget\(['"]message['"]/);
+  assert.match(controller, /reactToGuestMessage/);
+  for (const emoji of ['❤️','😂','✨','👍']) assert.match(board + controller, new RegExp(emoji));
+});
+
+test('live sync uses 15s polling, visibility pause, and interaction locks', () => {
+  const controller = read('src/lib/message-board-controller.ts');
+  assert.match(controller, /const MESSAGE_POLL_MS = 15_000/);
+  assert.match(controller, /visibilitychange/);
+  assert.match(controller, /fetchGuestMessagePage\(\{[^}]*since/);
+  assert.match(controller, /interactionLocks/);
+  assert.match(controller, /deferredRemote/);
+});
+
+test('admin session remains distinct from anonymous ownership', () => {
+  const controller = read('src/lib/message-board-controller.ts');
+  assert.match(controller, /getSession/);
+  assert.match(controller, /login/);
+  assert.match(controller, /logout/);
+  assert.match(controller, /deleteGuestMessage/);
+});
