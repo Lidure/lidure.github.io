@@ -1,0 +1,23 @@
+name: Verify No Root Snapshot
+
+on:
+  push:
+    branches:
+      - fix/firefly-native-root-snapshot
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Focused root snapshot contract
+        run: node --test tests/firefly-no-root-snapshot.test.mjs
+      - name: Full test suite
+        run: npm test
+      - name: Build
+        run: npm run build
