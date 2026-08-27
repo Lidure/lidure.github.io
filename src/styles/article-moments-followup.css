@@ -64,17 +64,51 @@ body.layout-standard .moments-shell .moment-card {
   margin-inline: 0 !important;
 }
 
+/* Keep the content column generous, but let short text-only notes feel like
+ * actual paper notes instead of full-width panels. */
+body.layout-standard .moments-shell .moment-card.moment--whisper {
+  width: min(100%, 32rem) !important;
+  max-width: 32rem !important;
+  margin-inline: auto !important;
+}
+
+body.layout-standard .moments-shell .moment-card.moment--compact {
+  width: min(100%, 42rem) !important;
+  max-width: 42rem !important;
+  margin-inline: auto !important;
+}
+
+body.layout-standard .moments-shell .moment-card.moment--whisper .card-content {
+  padding: clamp(17px, 2vw, 21px);
+}
+
+body.layout-standard .moments-shell .moment-card.moment--compact .card-content {
+  padding: clamp(19px, 2.2vw, 24px);
+}
+
 body.layout-standard .moments-shell .moment--photo-one,
 body.layout-standard .moments-shell .moment--photo-two,
 body.layout-standard .moments-shell .moment--photo-three,
 body.layout-standard .moments-shell .moment--gallery,
 body.layout-standard .moments-shell .moment--video,
 body.layout-standard .moments-shell .moment--text {
+  width: 100% !important;
   max-width: none !important;
 }
 
 body.layout-standard .moments-shell .moment-card .card-text {
   max-width: 78ch;
+}
+
+/* Moments use preview comments. Keep the whole comment block out of the note
+ * until the async comment list contains a real comment, so empty notes stay
+ * visually compact instead of reserving footer space. */
+body.layout-standard .moments-shell .moment-card .public-comments {
+  display: none;
+}
+
+body.layout-standard .moments-shell .moment-card .public-comments:has(.public-comment-item) {
+  display: block;
 }
 
 @media (max-width: 1280px) {
@@ -85,5 +119,13 @@ body.layout-standard .moments-shell .moment-card .card-text {
 
   body.layout-standard .moments-shell .moment-card {
     width: 100% !important;
+  }
+
+  body.layout-standard .moments-shell .moment-card.moment--whisper {
+    width: min(100%, 32rem) !important;
+  }
+
+  body.layout-standard .moments-shell .moment-card.moment--compact {
+    width: min(100%, 42rem) !important;
   }
 }
