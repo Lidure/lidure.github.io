@@ -2,96 +2,108 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Replace `/messages` with a shared corkboard-style sticky-note wall that preserves all existing messages/comments, adds browser-bound anonymous ownership, persistent author moves/edits/deletes, message reactions, collision-aware placement, mobile long-press drag, and lightweight live polling.
+**Goal:** Replace `/messages` with a shared corkboard-style sticky-note wall that preserves all existing messages/comments, adds browser-bound anonymous ownership, persistent author moves/edits/deletes, message reactions, collision-aware placement, mobile long-press drag, and 15-second live polling.
 
-**Architecture:** Keep `guest_messages` as the canonical D1 table and extend it with sticky-note metadata and author-token hashes. The Cloudflare Worker remains the source of truth for persistence and authorization; the Astro frontend gets a thin API client, a pure layout helper, and a focused message-board controller mounted by a small `MessageBoard.astro` shell. Existing comments, admin session auth, and `RecentMessagesWidget` stay compatible.
+**Architecture:** Keep `guest_messages` as the canonical D1 store. Extend the deployed Cloudflare Worker with sticky metadata, ownership verification, reactions, incremental sync, and backward-compatible message responses. In Astro, keep API/storage concerns in `public-interactions.ts`, pure layout math in an executable `.mjs` module, DOM behavior in a focused controller, and markup/styles in a dedicated `MessageBoard.astro` + CSS file.
 
-**Tech Stack:** Astro 6.4.4, TypeScript 5.8.3, browser DOM APIs, Node `node:test`, Cloudflare Workers + D1, Vitest 2.1.8 for Worker tests.
+**Tech Stack:** Astro 6.4.4, TypeScript 5.8.3, browser DOM APIs, Node `node:test`, Cloudflare Workers + D1, Vitest 2.1.8.
 
 **Spec:** `docs/superpowers/specs/2026-08-27-sticky-message-board-design.md`
 
 ## Global Constraints
 
-- Preserve every existing `guest_messages` row; do not retroactively grant author ownership to legacy rows.
-- Existing comments with `target_type = 'message'` must continue working.
-- Existing homepage callers must still receive `id`, `userId`, `text`, and `createdAt` from `/api/messages`.
-- New-note ownership is browser-bound only; no accounts, recovery codes, or cross-device recovery.
-- Any visitor may move any note locally, but only a verified author or admin may persist position changes.
-- New-note text stays pure text; keep the public message limit at 800 characters to match the existing page/legacy public contract.
-- Note sizes are exactly `small`, `medium`, or `large`; clients never persist arbitrary width/height/rotation.
-- Do not persist global z-index.
-- Polling cadence while visible is 15 seconds; no WebSocket work in this version.
-- Mobile drag starts after a 350 ms long press; ordinary vertical scroll must continue before drag activation.
-- Quick board reactions are limited to `❤️`, `😂`, `✨`, `👍` in the first release.
-- Respect both `prefers-reduced-motion` and the site `html[data-reduce-motion="true"]` convention.
-- `danmaku-api/src/index.ts` + `danmaku-api/wrangler.jsonc` are the deployed Worker source/config; do not add feature logic to legacy `danmaku-api-pages/_worker.js`.
+- Preserve every existing `guest_messages` row and existing comments with `target_type = 'message'`.
+- Legacy messages never receive author tokens; ordinary visitors may move them only locally. Admin may persistently move/delete them.
+- New ownership is browser-bound only; no accounts, edit codes, or recovery flow.
+- Existing homepage callers must still receive `id`, `userId`, `text`, `createdAt` from `/api/messages`.
+- Keep public message text at 800 characters, matching the existing page/legacy public contract.
+- Note sizes are only `small | medium | large`; colors are only `yellow | pink | blue | green | purple`.
+- Logical board width is 1200 units. Footprints: small `220x180`, medium `270x220`, large `330x260`.
+- Size thresholds: `<=64` chars small, `65..220` medium, `>=221` large.
+- Allow light overlap up to 22% of the smaller note footprint; correct larger overlap only on create/drop.
+- Resting rotation is server/stable only and remains inside `[-4deg, 4deg]`; users never persist arbitrary rotation.
+- Do not persist z-index.
+- Poll exactly every 15,000 ms while the page is visible; no WebSockets.
+- Touch drag starts after 350 ms and cancels before activation if movement exceeds 8 px so page scroll remains normal.
+- Quick message reactions are exactly `❤️`, `😂`, `✨`, `👍` in v1.
+- Respect `prefers-reduced-motion` and `html[data-reduce-motion="true"]`.
+- `danmaku-api/src/index.ts` with `danmaku-api/wrangler.jsonc` is the deployed Worker path. Do not implement this feature in legacy `danmaku-api-pages/_worker.js`.
 
 ## File Map
 
-- Create `danmaku-api/migrations/0008_sticky_message_board.sql` — D1 schema extension and `message_reactions` table.
-- Create `danmaku-api/src/message-board.ts` — pure note metadata, token hashing, size classification, placement helpers, row mapping.
-- Modify `danmaku-api/src/index.ts` — route wiring, D1 reads/writes, ownership/admin authorization, incremental sync, cleanup.
-- Create `danmaku-api/tests/messages.test.ts` — Worker contract tests for sticky messages, ownership, reactions, polling, legacy compatibility.
-- Modify `src/lib/public-interactions.ts` — typed note metadata, incremental fetch, author-token storage, author mutations, message reactions.
-- Create `src/lib/message-board-layout.mjs` — browser-pure deterministic legacy layout, collision scoring/correction, board-height and coordinate helpers.
-- Create `tests/message-board-layout.test.mjs` — executable layout-unit tests.
-- Create `src/components/MessageBoard.astro` — accessible board/composer/drawer/admin shell and reusable DOM templates.
-- Create `src/lib/message-board-controller.ts` — rendering, drag state, composer, drawer, reactions, comments integration, polling, interaction locks.
-- Create `src/styles/message-board.css` — cork/paper visuals, responsive drawer/sheet, motion, dark theme, reduced motion.
-- Replace `src/pages/messages.astro` — minimal page wrapper that mounts `MessageBoard`.
-- Modify `src/components/RecentMessagesWidget.astro` — keep API compatibility, adjust copy only.
-- Create `tests/message-board-page.test.mjs` — source-contract tests for shell/controller/accessibility/mobile/polling semantics.
-- Modify `package.json` — include new root tests in `test:site`.
-- Modify `danmaku-api/README.md` — sticky-message migration/deploy verification and correct current `lidure22.xyz` Worker domain references.
+- Create `danmaku-api/migrations/0008_sticky_message_board.sql` — sticky columns + `message_reactions`.
+- Create `danmaku-api/src/message-board.ts` — Worker-side pure constants, token crypto, normalization, placement helpers, row mapping.
+- Modify `danmaku-api/src/index.ts` — `/api/messages` GET/POST/PATCH/DELETE, `/api/message-reactions`, D1 aggregation/cleanup.
+- Create `danmaku-api/tests/messages.test.ts` — Worker contracts.
+- Modify `src/lib/public-interactions.ts` — sticky types, page/incremental reads, local author/reaction state, owned mutations.
+- Create `src/lib/message-board-layout.mjs` — DOM-free browser layout/collision functions.
+- Create `tests/message-board-layout.test.mjs` — executable layout tests.
+- Create `src/components/MessageBoard.astro` — board/composer/drawer/admin shell.
+- Create `src/lib/message-board-controller.ts` — board lifecycle, rendering, gestures, composer, drawer, comments, polling.
+- Create `src/styles/message-board.css` — cork/paper visuals, theme, motion, responsive sheet.
+- Replace `src/pages/messages.astro` — minimal BaseLayout + MessageBoard mount.
+- Modify `src/components/RecentMessagesWidget.astro` — wording only; preserve fetch contract.
+- Create `tests/message-board-page.test.mjs` — source contracts for page/controller/accessibility.
+- Modify `package.json` — include the two new root tests.
+- Modify `danmaku-api/README.md` — migration/deploy order and actual `lidure22.xyz` endpoints.
 
 ---
 
-### Task 1: Add sticky-note schema and pure Worker domain helpers
+### Task 1: Add the D1 schema and Worker-side sticky-note primitives
 
 **Files:**
 - Create: `danmaku-api/migrations/0008_sticky_message_board.sql`
 - Create: `danmaku-api/src/message-board.ts`
 - Create: `danmaku-api/tests/messages.test.ts`
 
-**Interfaces:**
-- Produces `MESSAGE_REACTION_EMOJIS`, `NOTE_COLORS`, `classifyMessageNoteSize(text)`, `deriveLegacyNoteMeta(id, text)`, `createAuthorToken()`, `hashAuthorToken(token)`, `verifyAuthorToken(token, expectedHash)`, `chooseMessagePlacement(seed, occupied)`, and `toGuestMessageItem(row, commentCount, reactions)`.
-- Later Worker route code consumes those helpers; frontend does not import this Worker module.
+**Interfaces produced:**
 
-- [ ] **Step 1: Write the migration contract test before the migration exists**
+```ts
+export type MessageNoteSize = 'small' | 'medium' | 'large';
+export type MessageNoteColor = 'yellow' | 'pink' | 'blue' | 'green' | 'purple';
+export type OccupiedNote = { x: number; y: number; size: MessageNoteSize };
+export type MessageNoteMeta = { color: MessageNoteColor; size: MessageNoteSize; x: number; y: number; rotation: number; legacy: boolean };
 
-Add this test to `danmaku-api/tests/messages.test.ts`:
+export const MESSAGE_REACTION_EMOJIS: readonly ['❤️', '😂', '✨', '👍'];
+export function classifyMessageNoteSize(text: string): MessageNoteSize;
+export function normalizeMessageNoteColor(value: unknown): MessageNoteColor | '';
+export function deriveLegacyNoteMeta(id: string, text: string): MessageNoteMeta;
+export function chooseMessagePlacement(seed: string, size: MessageNoteSize, occupied: OccupiedNote[]): { x: number; y: number };
+export function createAuthorToken(): string;
+export function hashAuthorToken(token: string): Promise<string>;
+export function verifyAuthorToken(token: string, expectedHash: string): Promise<boolean>;
+```
+
+- [ ] **Step 1: Write the migration RED test**
+
+Create `danmaku-api/tests/messages.test.ts` beginning with:
 
 ```ts
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 
 const migration = readFileSync(new URL('../migrations/0008_sticky_message_board.sql', import.meta.url), 'utf8');
 
-describe('sticky message board schema', () => {
-  it('adds note metadata and one reaction per visitor/message', () => {
+describe('sticky message schema', () => {
+  it('adds sticky metadata and one reaction row per visitor/message', () => {
     for (const column of ['note_color', 'note_size', 'pos_x', 'pos_y', 'rotation', 'author_token_hash', 'updated_at']) {
       expect(migration).toMatch(new RegExp(`ALTER TABLE guest_messages ADD COLUMN ${column}`));
     }
     expect(migration).toMatch(/CREATE TABLE IF NOT EXISTS message_reactions/);
     expect(migration).toMatch(/PRIMARY KEY \(message_id, ip_hash\)/);
-    expect(migration).toMatch(/CREATE INDEX IF NOT EXISTS idx_message_reactions_message_id/);
   });
 });
 ```
 
-- [ ] **Step 2: Run the focused Worker test and confirm RED**
-
-Run:
+- [ ] **Step 2: Verify RED**
 
 ```bash
 npm --prefix danmaku-api test -- --run tests/messages.test.ts
 ```
 
-Expected: FAIL because `0008_sticky_message_board.sql` does not exist.
+Expected: FAIL because migration 0008 does not exist.
 
-- [ ] **Step 3: Add the migration**
-
-Create `danmaku-api/migrations/0008_sticky_message_board.sql` with exactly these schema changes:
+- [ ] **Step 3: Create migration 0008**
 
 ```sql
 ALTER TABLE guest_messages ADD COLUMN note_color TEXT;
@@ -114,9 +126,7 @@ CREATE INDEX IF NOT EXISTS idx_message_reactions_message_id
 ON message_reactions(message_id);
 ```
 
-- [ ] **Step 4: Add failing pure-helper tests**
-
-Append tests that lock exact first-release constants and ownership behavior:
+- [ ] **Step 4: Add RED helper tests**
 
 ```ts
 import {
@@ -128,23 +138,23 @@ import {
   verifyAuthorToken,
 } from '../src/message-board';
 
-it('classifies notes into three bounded sizes', () => {
+it('uses the approved size boundaries', () => {
   expect(classifyMessageNoteSize('a'.repeat(64))).toBe('small');
   expect(classifyMessageNoteSize('a'.repeat(65))).toBe('medium');
   expect(classifyMessageNoteSize('a'.repeat(220))).toBe('medium');
   expect(classifyMessageNoteSize('a'.repeat(221))).toBe('large');
 });
 
-it('derives stable legacy metadata without granting ownership', () => {
-  const first = deriveLegacyNoteMeta('legacy-id-1', '旧留言');
-  const second = deriveLegacyNoteMeta('legacy-id-1', '旧留言');
-  expect(second).toEqual(first);
-  expect(first.rotation).toBeGreaterThanOrEqual(-4);
-  expect(first.rotation).toBeLessThanOrEqual(4);
-  expect(first.authorOwned).toBe(false);
+it('derives stable legacy metadata without ownership', () => {
+  const a = deriveLegacyNoteMeta('legacy-1', '旧留言');
+  const b = deriveLegacyNoteMeta('legacy-1', '旧留言');
+  expect(a).toEqual(b);
+  expect(a.legacy).toBe(true);
+  expect(a.rotation).toBeGreaterThanOrEqual(-4);
+  expect(a.rotation).toBeLessThanOrEqual(4);
 });
 
-it('creates a one-time token whose hash verifies without storing plaintext', async () => {
+it('creates a secret token and verifies only its hash', async () => {
   const token = createAuthorToken();
   const hash = await hashAuthorToken(token);
   expect(token.length).toBeGreaterThanOrEqual(32);
@@ -153,47 +163,29 @@ it('creates a one-time token whose hash verifies without storing plaintext', asy
   await expect(verifyAuthorToken(`${token}x`, hash)).resolves.toBe(false);
 });
 
-it('limits board quick reactions to the approved set', () => {
+it('keeps the quick-reaction set bounded', () => {
   expect(MESSAGE_REACTION_EMOJIS).toEqual(['❤️', '😂', '✨', '👍']);
 });
 ```
 
-- [ ] **Step 5: Run helper tests and confirm RED**
+- [ ] **Step 5: Verify RED again**
 
-Run the same focused Vitest command. Expected: FAIL because `src/message-board.ts` does not exist.
+Same command; expected failure because `src/message-board.ts` is missing.
 
-- [ ] **Step 6: Implement the pure Worker helper module**
+- [ ] **Step 6: Implement `message-board.ts`**
 
-Create `danmaku-api/src/message-board.ts` with these public constants/types and semantics:
+Use FNV-1a 32-bit hashing for deterministic seeds. `deriveLegacyNoteMeta()` picks one approved color, size from text, rotation in `[-4,4]`, and a stable seed position. `chooseMessagePlacement(seed, size, occupied)` samples 24 deterministic candidates across the current lowest occupied band, scores edge penalty + overlap, accepts <=22% overlap, and if none pass extends search downward by 320 logical units.
 
-```ts
-export const MESSAGE_REACTION_EMOJIS = ['❤️', '😂', '✨', '👍'] as const;
-export const NOTE_COLORS = ['yellow', 'pink', 'blue', 'green', 'purple'] as const;
-export type MessageNoteSize = 'small' | 'medium' | 'large';
-export type MessageNoteColor = typeof NOTE_COLORS[number];
+Generate author tokens from 32 cryptographically random bytes using `crypto.getRandomValues`, encode URL-safe base64, hash with SHA-256 to lowercase hex, and compare hashes in constant-time style without early exit.
 
-export function classifyMessageNoteSize(text: string): MessageNoteSize {
-  const length = Array.from(text.trim()).length;
-  if (length <= 64) return 'small';
-  if (length <= 220) return 'medium';
-  return 'large';
-}
-```
-
-Use a deterministic FNV-1a-style 32-bit seed for legacy layout; map the seed to one approved color, `x` in `[40, 900]`, `y` in `[60, 760]`, and rotation in `[-4, 4]`. `createAuthorToken()` must fill 32 random bytes with `crypto.getRandomValues` and return URL-safe base64. `hashAuthorToken()` must SHA-256 the token and return lowercase hex. `verifyAuthorToken()` must hash the provided token and compare equal-length hex strings without early exit.
-
-For `chooseMessagePlacement(seed, occupied)`, use 24 deterministic candidate points within a 1200-unit board, score overlap plus edge penalty, permit up to 22% footprint overlap, and move the active search band down by 320 units when no candidate meets the threshold. Use logical footprints `small=220x180`, `medium=270x220`, `large=330x260`.
-
-- [ ] **Step 7: Run helper/migration tests GREEN**
+- [ ] **Step 7: Verify GREEN**
 
 ```bash
 npm --prefix danmaku-api test -- --run tests/messages.test.ts
 npm --prefix danmaku-api run check
 ```
 
-Expected: both pass.
-
-- [ ] **Step 8: Commit Task 1**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add danmaku-api/migrations/0008_sticky_message_board.sql danmaku-api/src/message-board.ts danmaku-api/tests/messages.test.ts
@@ -202,77 +194,75 @@ git commit -m "feat: add sticky message board domain model"
 
 ---
 
-### Task 2: Upgrade `/api/messages` with ownership, metadata, reactions, and incremental sync
+### Task 2: Upgrade the deployed Worker message API
 
 **Files:**
 - Modify: `danmaku-api/src/index.ts`
 - Modify: `danmaku-api/tests/messages.test.ts`
 
-**Interfaces:**
-- `GET /api/messages?limit=&before=&since=` returns `{ items, now, nextCursor, nextBefore }`.
-- `POST /api/messages` accepts `{ userId, text, noteColor }` and returns `{ item, authorToken }`.
-- `PATCH /api/messages` accepts `{ id, authorToken?, text?, noteColor?, posX?, posY? }`; author token or valid admin session is required.
-- `DELETE /api/messages` accepts `{ id, authorToken? }`; verified author or valid admin session is required.
-- `POST /api/message-reactions` accepts `{ messageId, emoji, previousEmoji? }` and returns `{ reactions, selectedEmoji }`.
+**API contract:**
 
-- [ ] **Step 1: Add failing API tests for legacy compatibility and incremental list**
+```text
+GET    /api/messages?limit=80&before=<createdAt>&since=<cursor>
+POST   /api/messages  { userId, text, noteColor }
+PATCH  /api/messages  { id, authorToken?, text?, noteColor?, posX?, posY? }
+DELETE /api/messages  { id, authorToken? }
+POST   /api/message-reactions { messageId, emoji, previousEmoji? }
+```
 
-Build a D1 stub using the same `makeDb(handler)` pattern already used in `auth.test.ts`, then add:
+`GET` returns `{ items, now, nextCursor, nextBefore }`. `POST` returns `{ item, authorToken }`. Every item keeps legacy homepage fields and adds `updatedAt?`, `commentCount`, `reactions`, `note`.
+
+- [ ] **Step 1: Add RED list tests**
+
+Use the `makeDb(handler)`/`makeBoundStatement()` style from `danmaku-api/tests/auth.test.ts` and add:
 
 ```ts
-it('keeps homepage fields while returning sticky metadata and cursors', async () => {
-  const db = makeDb((sql) => {
-    if (sql.includes('FROM guest_messages')) {
-      return makeBoundStatement({
-        all: vi.fn().mockResolvedValue({
-          results: [{ id: 'old-1', user_id: '旅人', text: '你好', created_at: 1000, note_color: null, note_size: null, pos_x: null, pos_y: null, rotation: null, author_token_hash: null, updated_at: null }],
-        }),
-      });
-    }
-    return makeBoundStatement();
-  });
+it('keeps homepage fields and adds note metadata/cursors', async () => {
+  const db = makeDb((sql) => sql.includes('FROM guest_messages')
+    ? makeBoundStatement({ all: vi.fn().mockResolvedValue({ results: [{
+        id: 'old-1', user_id: '旅人', text: '你好', created_at: 1000,
+        note_color: null, note_size: null, pos_x: null, pos_y: null,
+        rotation: null, author_token_hash: null, updated_at: null,
+      }] }) })
+    : makeBoundStatement());
   const response = await worker.fetch(new Request('https://example.com/api/messages?limit=80'), makeEnv({ DB: db }));
   const body = await response.json();
   expect(body.items[0]).toMatchObject({ id: 'old-1', userId: '旅人', text: '你好', createdAt: 1000, note: expect.any(Object) });
   expect(body).toMatchObject({ now: expect.any(Number), nextCursor: expect.any(Number) });
 });
 
-it('uses since against COALESCE(updated_at, created_at)', async () => {
-  const seenSql: string[] = [];
-  const db = makeDb((sql) => { seenSql.push(sql); return makeBoundStatement(); });
+it('uses updated_at/created_at for incremental sync', async () => {
+  const seen: string[] = [];
+  const db = makeDb((sql) => { seen.push(sql); return makeBoundStatement(); });
   await worker.fetch(new Request('https://example.com/api/messages?since=1234'), makeEnv({ DB: db }));
-  expect(seenSql.join('\n')).toContain('COALESCE(updated_at, created_at) > ?');
+  expect(seen.join('\n')).toContain('COALESCE(updated_at, created_at) > ?');
 });
 ```
 
-- [ ] **Step 2: Run focused tests and confirm RED**
+- [ ] **Step 2: Run RED**
 
 ```bash
 npm --prefix danmaku-api test -- --run tests/messages.test.ts
 ```
 
-Expected: FAIL because current list only returns basic fields and no cursor semantics.
+- [ ] **Step 3: Implement backward-compatible GET**
 
-- [ ] **Step 3: Implement list pagination/incremental sync**
-
-Replace the current `handleMessagesList` query with explicit sticky columns and two modes:
+Capture `const syncCursor = Date.now()` **before** querying so a write that happens after the read starts cannot be skipped by the next poll. Parse:
 
 ```ts
+const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit')) || 80));
 const since = Math.max(0, Number(url.searchParams.get('since')) || 0);
 const before = Math.max(0, Number(url.searchParams.get('before')) || 0);
-const limit = Math.min(100, Math.max(1, Number(url.searchParams.get('limit')) || 80));
 ```
 
-- `since > 0`: query `WHERE COALESCE(updated_at, created_at) > ? ORDER BY COALESCE(updated_at, created_at) ASC LIMIT ?`.
-- `before > 0`: query `WHERE created_at < ? ORDER BY created_at DESC LIMIT ?`.
-- otherwise: newest first.
+Use `COALESCE(updated_at, created_at) > ?` for `since`, `created_at < ?` for `before`, otherwise newest-first. Fetch explicit sticky columns. Attach comment counts and message-reaction counts in grouped queries, not one query per item. Null legacy metadata becomes deterministic note metadata through `deriveLegacyNoteMeta`. Return `nextCursor: syncCursor`; return `nextBefore` only when the page is full.
 
-Attach comment counts with one grouped query and reaction counts with one grouped query. Map null metadata through `deriveLegacyNoteMeta`. Return `nextCursor = now`; return `nextBefore` as the oldest returned `createdAt` only when exactly `limit` items were returned.
+When multiple legacy items in a page collide severely, resolve them in stable `createdAt,id` order with `chooseMessagePlacement()` against an in-memory occupied list before serializing. This changes no DB ownership field and remains deterministic for the same loaded page/order.
 
-- [ ] **Step 4: Add failing create/ownership tests**
+- [ ] **Step 4: Add RED creation/ownership tests**
 
 ```ts
-it('creates a sticky note and returns the plaintext token only in the response', async () => {
+it('returns the plaintext author token once but never inserts it', async () => {
   const writes: unknown[][] = [];
   const db = makeDb((sql, args) => {
     if (sql.startsWith('INSERT INTO guest_messages')) writes.push(args);
@@ -281,7 +271,7 @@ it('creates a sticky note and returns the plaintext token only in the response',
   const response = await worker.fetch(new Request('https://example.com/api/messages', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ userId: 'A', text: 'hello board', noteColor: 'pink' }),
+    body: JSON.stringify({ userId: 'A', text: 'hello', noteColor: 'pink' }),
   }), makeEnv({ DB: db }));
   const body = await response.json();
   expect(response.status).toBe(201);
@@ -290,75 +280,38 @@ it('creates a sticky note and returns the plaintext token only in the response',
   expect(JSON.stringify(writes)).not.toContain(body.authorToken);
 });
 
-it('rejects author mutation with a wrong token', async () => {
+it('rejects a wrong author token', async () => {
+  const correctHash = await hashAuthorToken('correct-token');
   const db = makeDb((sql) => sql.includes('SELECT author_token_hash')
-    ? makeBoundStatement({ first: vi.fn().mockResolvedValue({ author_token_hash: await hashAuthorToken('correct') }) })
+    ? makeBoundStatement({ first: vi.fn().mockResolvedValue({ author_token_hash: correctHash }) })
     : makeBoundStatement());
   const response = await worker.fetch(new Request('https://example.com/api/messages', {
     method: 'PATCH',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ id: 'n1', authorToken: 'wrong', posX: 100, posY: 200 }),
+    body: JSON.stringify({ id: 'm1', authorToken: 'wrong-token', posX: 100, posY: 200 }),
   }), makeEnv({ DB: db }));
   expect(response.status).toBe(403);
+  await expect(response.json()).resolves.toMatchObject({ code: 'MESSAGE_FORBIDDEN' });
 });
 ```
 
-When implementing the test helper, precompute the expected hash outside the synchronous `makeDb` callback.
+- [ ] **Step 5: Implement POST/PATCH/DELETE**
 
-- [ ] **Step 5: Implement create/PATCH/delete authorization**
+On POST: normalize ID/text, enforce 800 chars, normalize requested color or choose from `deriveLegacyNoteMeta(id,text).color`, calculate size, read up to 200 recent occupied notes, call `chooseMessagePlacement(id, size, occupied)`, generate token/hash, insert metadata + `updated_at=now`, return token once.
 
-Route `PATCH` in the `/api/messages` branch. On create:
+On PATCH: only accept text/color/x/y. Recompute size from text; clamp x to `[0, 1200-footprintWidth]`, y to `>=0`; never accept rotation/z-index. Authorization order: valid author token first; otherwise valid admin session; otherwise 403. Legacy null-token rows therefore require admin.
 
-```ts
-const authorToken = createAuthorToken();
-const authorTokenHash = await hashAuthorToken(authorToken);
-const noteSize = classifyMessageNoteSize(text);
-const noteColor = normalizeMessageNoteColor(body.value.noteColor) || seededDefaultColor(id);
-const occupied = await readRecentOccupiedNotes(env.DB, 200);
-const position = chooseMessagePlacement(id, occupied);
-```
+On DELETE: same authorization order. Delete message reactions, comment reactions for child comments, comments, then guest message.
 
-Insert all metadata and `updated_at = now`; return the plaintext token once.
+- [ ] **Step 6: Add RED reaction tests**
 
-For PATCH, allow only `text`, `noteColor`, `posX`, `posY`. Recompute `note_size` from updated text, clamp logical coordinates to the 1200-unit board and non-negative y, never accept a client rotation. Authorization order is: valid author token -> allow; otherwise valid admin session -> allow; otherwise return `403` with code `MESSAGE_FORBIDDEN`.
-
-For DELETE, use the same authorization order. Before deleting the message, delete:
-
-```sql
-DELETE FROM comment_reactions WHERE comment_id IN (
-  SELECT id FROM comments WHERE target_type = 'message' AND target_id = ?
-);
-DELETE FROM comments WHERE target_type = 'message' AND target_id = ?;
-DELETE FROM message_reactions WHERE message_id = ?;
-DELETE FROM guest_messages WHERE id = ?;
-```
-
-Legacy rows with null `author_token_hash` can therefore only pass the admin path.
-
-- [ ] **Step 6: Add failing message-reaction tests**
-
-```ts
-it('adds, switches, and removes the current visitor reaction', async () => {
-  const sql: string[] = [];
-  const db = makeDb((statement) => { sql.push(statement); return makeBoundStatement(); });
-  const response = await worker.fetch(new Request('https://example.com/api/message-reactions', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', 'CF-Connecting-IP': '127.0.0.1' },
-    body: JSON.stringify({ messageId: 'm1', emoji: '❤️', previousEmoji: '' }),
-  }), makeEnv({ DB: db }));
-  expect(response.status).toBe(200);
-  expect(sql.some((value) => value.includes('DELETE FROM message_reactions'))).toBe(true);
-  expect(sql.some((value) => value.includes('INSERT INTO message_reactions'))).toBe(true);
-});
-```
-
-Also assert unsupported emoji returns 400.
+Test `❤️` inserts/replaces one `(message_id, ip_hash)` row, posting the same emoji as `previousEmoji` removes it, and an unsupported emoji returns 400.
 
 - [ ] **Step 7: Implement `/api/message-reactions`**
 
-Mirror the current one-reaction-per-IP behavior: validate target exists, hash client, delete current row, reinsert unless `previousEmoji === emoji`, aggregate counts, and return the selected emoji. Do not create another reaction table or user identity scheme.
+Validate message existence, validate against the four approved emoji, hash client IP/UA with existing `hashClient`, delete the current row, reinsert unless toggling off, aggregate counts, return `{ reactions, selectedEmoji }`.
 
-- [ ] **Step 8: Run Worker GREEN suite**
+- [ ] **Step 8: Run full Worker GREEN**
 
 ```bash
 npm --prefix danmaku-api test -- --run tests/messages.test.ts
@@ -366,9 +319,7 @@ npm --prefix danmaku-api test
 npm --prefix danmaku-api run check
 ```
 
-Expected: all pass.
-
-- [ ] **Step 9: Commit Task 2**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add danmaku-api/src/index.ts danmaku-api/tests/messages.test.ts
@@ -377,39 +328,44 @@ git commit -m "feat: add owned sticky message API"
 
 ---
 
-### Task 3: Extend the browser API client and author-token storage
+### Task 3: Extend the browser API/storage contract
 
 **Files:**
 - Modify: `src/lib/public-interactions.ts`
 - Create: `tests/message-board-page.test.mjs`
 
-**Interfaces:**
-- Add `MessageNoteMeta`, `GuestMessagePage`, `GuestMessagePatch` types.
-- Add `fetchGuestMessagePage(options)`, while keeping existing `fetchGuestMessages()` returning an array for `RecentMessagesWidget`.
-- Add `createGuestMessage(userId, text, noteColor)`, `updateOwnedGuestMessage(id, patch)`, `deleteOwnedGuestMessage(id)`, `hasGuestMessageOwnership(id)`, `reactToGuestMessage(...)`.
-- Keep existing admin `deleteGuestMessage(id)` unchanged in meaning.
+**Interfaces produced:**
 
-- [ ] **Step 1: Write failing source-contract tests**
+```ts
+export type MessageNoteMeta = { color: 'yellow'|'pink'|'blue'|'green'|'purple'; size: 'small'|'medium'|'large'; x: number; y: number; rotation: number; legacy: boolean };
+export type GuestMessage = { id: string; userId: string; text: string; createdAt: number; updatedAt?: number; commentCount?: number; reactions?: Record<string, number>; note: MessageNoteMeta };
+export type GuestMessagePage = { items: GuestMessage[]; now: number; nextCursor: number; nextBefore?: number };
+export type GuestMessagePatch = { text?: string; noteColor?: MessageNoteMeta['color']; posX?: number; posY?: number };
 
-Create `tests/message-board-page.test.mjs`:
+export function hasGuestMessageOwnership(id: string): boolean;
+export async function fetchGuestMessagePage(options?: { limit?: number; before?: number; since?: number }): Promise<GuestMessagePage>;
+export async function fetchGuestMessages(): Promise<GuestMessage[]>;
+export async function createGuestMessage(userId: string, text: string, noteColor: MessageNoteMeta['color']): Promise<GuestMessage>;
+export async function updateOwnedGuestMessage(id: string, patch: GuestMessagePatch): Promise<GuestMessage>;
+export async function deleteOwnedGuestMessage(id: string): Promise<void>;
+export async function reactToGuestMessage(messageId: string, emoji: string): Promise<{reactions: Record<string,number>; selectedEmoji: string}>;
+```
+
+- [ ] **Step 1: Write RED source contracts**
 
 ```js
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
-
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
 const api = read('src/lib/public-interactions.ts');
 
-test('message API keeps legacy list compatibility and adds owned sticky mutations', () => {
-  assert.match(api, /export type MessageNoteMeta/);
-  assert.match(api, /export async function fetchGuestMessagePage/);
-  assert.match(api, /export async function fetchGuestMessages\(\)/);
-  assert.match(api, /export async function updateOwnedGuestMessage/);
-  assert.match(api, /export async function deleteOwnedGuestMessage/);
-  assert.match(api, /export function hasGuestMessageOwnership/);
-  assert.match(api, /export async function reactToGuestMessage/);
+test('public message client supports sticky pages and anonymous ownership', () => {
+  for (const symbol of ['MessageNoteMeta', 'fetchGuestMessagePage', 'updateOwnedGuestMessage', 'deleteOwnedGuestMessage', 'hasGuestMessageOwnership', 'reactToGuestMessage']) {
+    assert.match(api, new RegExp(symbol));
+  }
   assert.match(api, /guest_message_author_tokens_v1/);
+  assert.match(api, /public_message_reactions_v1/);
 });
 ```
 
@@ -419,45 +375,13 @@ test('message API keeps legacy list compatibility and adds owned sticky mutation
 node --test tests/message-board-page.test.mjs
 ```
 
-Expected: FAIL on missing sticky API functions.
+- [ ] **Step 3: Implement author and reaction local storage**
 
-- [ ] **Step 3: Implement types and storage helpers**
+Store `{ messageId: authorToken }` under `guest_message_author_tokens_v1`. Store this browser's selected emoji under `public_message_reactions_v1`. Never render tokens into DOM or URLs. If an owned PATCH/DELETE returns 401/403, delete that stale token and expose the error to the controller. Reaction helpers update local selected emoji only after a successful API response.
 
-Use this type shape:
+- [ ] **Step 4: Implement page/incremental reads while preserving homepage**
 
-```ts
-export type MessageNoteMeta = {
-  color: 'yellow' | 'pink' | 'blue' | 'green' | 'purple';
-  size: 'small' | 'medium' | 'large';
-  x: number;
-  y: number;
-  rotation: number;
-  legacy: boolean;
-};
-
-export type GuestMessage = {
-  id: string;
-  userId: string;
-  text: string;
-  createdAt: number;
-  updatedAt?: number;
-  commentCount?: number;
-  reactions?: Record<string, number>;
-  note: MessageNoteMeta;
-};
-```
-
-Store ownership as JSON under `guest_message_author_tokens_v1`:
-
-```ts
-type MessageAuthorTokenMap = Record<string, string>;
-```
-
-On successful POST, save only `{ [item.id]: authorToken }`; never expose the map in DOM attributes or query parameters. On 401/403 from an owned mutation, delete that message’s stale token.
-
-- [ ] **Step 4: Implement incremental/page fetch without breaking homepage**
-
-`fetchGuestMessagePage({ limit = 80, before, since })` builds query params and returns `{ items, now, nextCursor, nextBefore }`. Keep:
+`fetchGuestMessagePage()` returns the response object. Keep existing caller compatibility exactly as:
 
 ```ts
 export async function fetchGuestMessages() {
@@ -465,25 +389,18 @@ export async function fetchGuestMessages() {
 }
 ```
 
-This preserves `RecentMessagesWidget` without modification to its fetch call.
+- [ ] **Step 5: Implement owned create/update/delete and reactions**
 
-- [ ] **Step 5: Implement create/update/delete/reaction functions**
+Create sends `noteColor`; on success store returned `authorToken` and return only `item`. PATCH/DELETE read the local token and include it in JSON. Keep existing `deleteGuestMessage(id)` as the admin-session delete path with `credentials:'include'`.
 
-- `createGuestMessage(userId, text, noteColor)` sends the approved color and stores `authorToken` from the response.
-- `updateOwnedGuestMessage` reads the token and PATCHes `{ id, authorToken, ...patch }`.
-- `deleteOwnedGuestMessage` reads the token and DELETEs `{ id, authorToken }`, then removes the local token after success.
-- `reactToGuestMessage` uses `/message-reactions` and the same selected-emoji return shape as `reactToComment`.
-
-- [ ] **Step 6: Run client contract GREEN**
+- [ ] **Step 6: Run GREEN**
 
 ```bash
 node --test tests/message-board-page.test.mjs
 npm run check
 ```
 
-Expected: both pass.
-
-- [ ] **Step 7: Commit Task 3**
+- [ ] **Step 7: Commit**
 
 ```bash
 git add src/lib/public-interactions.ts tests/message-board-page.test.mjs
@@ -492,20 +409,16 @@ git commit -m "feat: add sticky message client API"
 
 ---
 
-### Task 4: Build and test the deterministic browser layout engine
+### Task 4: Build an executable pure layout engine
 
 **Files:**
 - Create: `src/lib/message-board-layout.mjs`
 - Create: `tests/message-board-layout.test.mjs`
 - Modify: `package.json`
 
-**Interfaces:**
-- Produces `BOARD_LOGICAL_WIDTH`, `NOTE_FOOTPRINTS`, `classifyBoardNoteSize`, `deriveLegacyBoardNote`, `scoreCandidate`, `findBestPlacement`, `correctDroppedPosition`, `computeBoardHeight`, `logicalToRenderedPosition`.
-- Controller in Task 5 consumes all layout functions; no DOM access is allowed in this module.
+**Interfaces produced:** `BOARD_LOGICAL_WIDTH`, `NOTE_FOOTPRINTS`, `classifyBoardNoteSize`, `deriveLegacyBoardNote`, `overlapRatio`, `findBestPlacement`, `correctDroppedPosition`, `computeBoardHeight`, `logicalToRenderedPosition`.
 
-- [ ] **Step 1: Write executable RED tests**
-
-Create `tests/message-board-layout.test.mjs` with:
+- [ ] **Step 1: Write RED executable tests**
 
 ```js
 import assert from 'node:assert/strict';
@@ -516,35 +429,26 @@ import {
   computeBoardHeight,
   correctDroppedPosition,
   deriveLegacyBoardNote,
-  findBestPlacement,
+  overlapRatio,
 } from '../src/lib/message-board-layout.mjs';
 
-test('layout constants and size thresholds match the Worker contract', () => {
+test('layout contract is deterministic', () => {
   assert.equal(BOARD_LOGICAL_WIDTH, 1200);
   assert.equal(classifyBoardNoteSize('a'.repeat(64)), 'small');
   assert.equal(classifyBoardNoteSize('a'.repeat(65)), 'medium');
   assert.equal(classifyBoardNoteSize('a'.repeat(221)), 'large');
+  assert.deepEqual(deriveLegacyBoardNote('x', 'hello'), deriveLegacyBoardNote('x', 'hello'));
 });
 
-test('legacy note derivation is stable', () => {
-  assert.deepEqual(deriveLegacyBoardNote('same-id', 'text'), deriveLegacyBoardNote('same-id', 'text'));
+test('drop correction clamps and removes severe overlap', () => {
+  const other = { x: 100, y: 100, size: 'medium' };
+  const corrected = correctDroppedPosition({ x: 100, y: 100, size: 'medium' }, [other]);
+  assert.ok(corrected.x >= 0 && corrected.y >= 0);
+  assert.ok(overlapRatio({ ...corrected, size: 'medium' }, other) <= 0.22);
 });
 
-test('placement avoids severe overlap and expands downward when crowded', () => {
-  const occupied = Array.from({ length: 20 }, (_, i) => ({ x: 20 + (i % 4) * 290, y: 40 + Math.floor(i / 4) * 230, size: 'medium' }));
-  const placed = findBestPlacement('new-id', 'medium', occupied);
-  assert.ok(placed.y >= 0);
-  assert.ok(placed.x >= 0 && placed.x < BOARD_LOGICAL_WIDTH);
-});
-
-test('drop correction clamps board edges', () => {
-  const corrected = correctDroppedPosition({ x: -50, y: -30, size: 'small' }, []);
-  assert.ok(corrected.x >= 0);
-  assert.ok(corrected.y >= 0);
-});
-
-test('board height keeps bottom breathing room', () => {
-  assert.ok(computeBoardHeight([{ x: 50, y: 900, size: 'small' }]) >= 1180);
+test('board height keeps a bottom buffer', () => {
+  assert.ok(computeBoardHeight([{ x: 0, y: 900, size: 'small' }]) >= 1300);
 });
 ```
 
@@ -554,19 +458,13 @@ test('board height keeps bottom breathing room', () => {
 node --test tests/message-board-layout.test.mjs
 ```
 
-Expected: FAIL because the layout module does not exist.
+- [ ] **Step 3: Implement pure layout functions**
 
-- [ ] **Step 3: Implement the pure layout module**
+Use the exact global constants. `correctDroppedPosition()` first clamps bounds; if overlap <=22%, keep the user's location. Otherwise test nearby offsets in 24-unit rings until a legal location is found. `computeBoardHeight()` returns `max(720, max(y+footprintHeight)+220)`. `logicalToRenderedPosition()` scales by `renderedWidth/1200`; CSS will keep the stage at least 720px wide on narrow screens rather than inventing a different random layout.
 
-Use the same thresholds, 1200 logical width, logical footprints, 24 candidate samples, 22% overlap threshold, and `[-4, 4]` legacy rotation envelope as the Worker. `correctDroppedPosition` must search nearby offsets in 24-unit rings only after a drop violates the overlap threshold; it must not magnetically rearrange valid light overlaps.
+- [ ] **Step 4: Register root tests**
 
-`computeBoardHeight(notes)` returns at least `720`, otherwise `max(y + footprintHeight) + 220`.
-
-`logicalToRenderedPosition(note, renderedWidth)` uses `scale = renderedWidth / 1200` for x/y placement. CSS will enforce a practical minimum board-stage width on narrow phones rather than inventing a different random layout.
-
-- [ ] **Step 4: Add the tests to `test:site`**
-
-Insert `tests/message-board-layout.test.mjs tests/message-board-page.test.mjs` into the existing `node --test` script in `package.json`.
+Add `tests/message-board-layout.test.mjs tests/message-board-page.test.mjs` to `test:site` in `package.json`.
 
 - [ ] **Step 5: Run GREEN**
 
@@ -575,9 +473,7 @@ node --test tests/message-board-layout.test.mjs tests/message-board-page.test.mj
 npm run test:site
 ```
 
-Expected: all pass.
-
-- [ ] **Step 6: Commit Task 4**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add src/lib/message-board-layout.mjs tests/message-board-layout.test.mjs package.json
@@ -586,7 +482,7 @@ git commit -m "feat: add sticky message layout engine"
 
 ---
 
-### Task 5: Replace the old two-column page with a corkboard shell and deterministic rendering
+### Task 5: Replace the old page with the corkboard shell and initial rendering
 
 **Files:**
 - Create: `src/components/MessageBoard.astro`
@@ -595,30 +491,25 @@ git commit -m "feat: add sticky message layout engine"
 - Replace: `src/pages/messages.astro`
 - Modify: `tests/message-board-page.test.mjs`
 
-**Interfaces:**
-- `MessageBoard.astro` exposes stable hooks: `message-board-root`, `message-board-stage`, `message-board-status`, `message-board-count`, `message-compose-open`, `message-composer`, `message-drawer`, `message-admin`.
-- `message-board-controller.ts` exports `initMessageBoard()` and returns a cleanup function.
-- Page lifecycle binds on `astro:page-load` and cleans on `astro:before-swap`.
+**Stable DOM hooks:** `message-board-root`, `message-board-viewport`, `message-board-stage`, `message-board-status`, `message-board-count`, `message-compose-open`, `message-composer`, `message-drawer`, `message-admin`.
 
-- [ ] **Step 1: Add RED shell/architecture tests**
-
-Append:
+- [ ] **Step 1: Add RED architecture tests**
 
 ```js
 const page = read('src/pages/messages.astro');
 const board = read('src/components/MessageBoard.astro');
 const controller = read('src/lib/message-board-controller.ts');
 
-test('messages page delegates to the dedicated interactive board', () => {
+test('messages page delegates to a dedicated board', () => {
   assert.match(page, /import MessageBoard from ['"]\.\.\/components\/MessageBoard\.astro['"]/);
   assert.match(page, /<MessageBoard\s*\/>/);
   assert.doesNotMatch(page, /messages-layout/);
   assert.doesNotMatch(page, /function renderMessages/);
 });
 
-test('board shell exposes corkboard, composer, drawer, and status hooks', () => {
-  for (const hook of ['message-board-root', 'message-board-stage', 'message-compose-open', 'message-composer', 'message-drawer', 'message-admin']) {
-    assert.match(board, new RegExp(`id="${hook}"`));
+test('board exposes the approved interactive surfaces', () => {
+  for (const id of ['message-board-root','message-board-stage','message-compose-open','message-composer','message-drawer','message-admin']) {
+    assert.match(board, new RegExp(`id="${id}"`));
   }
   assert.match(controller, /export function initMessageBoard/);
   assert.match(controller, /fetchGuestMessagePage/);
@@ -632,24 +523,16 @@ test('board shell exposes corkboard, composer, drawer, and status hooks', () => 
 node --test tests/message-board-page.test.mjs
 ```
 
-Expected: FAIL because the new component/controller do not exist.
+- [ ] **Step 3: Create `MessageBoard.astro`**
 
-- [ ] **Step 3: Create the accessible `MessageBoard.astro` shell**
+Build one header + `贴一张便签` button, corkboard viewport/stage, hidden composer dialog, hidden detail drawer, and collapsed admin panel. The stage uses `role="region" aria-label="公共留言板"`; composer/drawer use dialog semantics, labelled headings, close buttons, and `aria-live="polite"` status.
 
-Use a single board header with title copy and the `贴一张便签` button, a horizontally safe board viewport containing the stage, hidden composer dialog, hidden detail drawer, and collapsed admin area. Include semantic templates for note DOM creation rather than rendering notes in Astro because data is runtime API data.
-
-The stage must use `role="region"`, `aria-label="公共留言板"`; composer and drawer use `role="dialog"`, `aria-modal="true"`, labelled headings, explicit close buttons, and status nodes with `aria-live="polite"`.
-
-Import `../styles/message-board.css` and initialize controller in an Astro script:
+Import `../styles/message-board.css` and bind lifecycle:
 
 ```ts
 import { initMessageBoard } from '../lib/message-board-controller';
-
 const w = window as typeof window & { __messageBoardCleanup?: () => void; __messageBoardBound?: boolean };
-function mount() {
-  w.__messageBoardCleanup?.();
-  w.__messageBoardCleanup = initMessageBoard();
-}
+function mount() { w.__messageBoardCleanup?.(); w.__messageBoardCleanup = initMessageBoard(); }
 if (!w.__messageBoardBound) {
   w.__messageBoardBound = true;
   document.addEventListener('astro:page-load', mount);
@@ -658,9 +541,7 @@ if (!w.__messageBoardBound) {
 mount();
 ```
 
-- [ ] **Step 4: Replace `messages.astro` with a minimal wrapper**
-
-Keep the same BaseLayout metadata/banner intent, but reduce body to:
+- [ ] **Step 4: Replace `messages.astro`**
 
 ```astro
 ---
@@ -672,34 +553,22 @@ import MessageBoard from '../components/MessageBoard.astro';
 </BaseLayout>
 ```
 
-- [ ] **Step 5: Implement initial board loading/rendering in the controller**
+- [ ] **Step 5: Implement initial controller loading/rendering**
 
-On init:
+Fetch `{limit:100}`; keep `Map<string,GuestMessage>` state; render one keyboard-focusable `.sticky-note` per item; set `data-message-id`, `data-note-size`, `data-note-color`, and CSS variables for x/y/rotation. Recompute stage height. If `nextBefore` exists, expose `加载更早的便签` at the board bottom and append older pages without re-randomizing already-rendered notes.
 
-1. fetch first page with `fetchGuestMessagePage({ limit: 100 })`;
-2. render every message to one focusable `.sticky-note` element;
-3. use persisted `message.note` metadata or deterministic fallback;
-4. set `data-message-id`, `data-note-size`, `data-note-color` and CSS custom properties `--note-x`, `--note-y`, `--note-rotation`;
-5. set stage height using `computeBoardHeight`;
-6. update count/status;
-7. if `nextBefore` exists, mount a simple `加载更早的便签` button at the board bottom rather than loading all history at once.
+- [ ] **Step 6: Add first-pass board CSS**
 
-Do not wire drag/edit/reactions yet in this task.
+Use CSS gradient cork texture only, five paper tokens, three dimensions, subtle pin/tape decoration, and `.message-board-viewport{overflow-x:auto}` with stage `min-width:720px`. No old two-column/list/card styles remain.
 
-- [ ] **Step 6: Add first-pass layout CSS**
-
-`message-board.css` must define the cork stage, note sizes/colors, stage minimum width, readable typography, and no legacy card/list styles. Keep stage `min-width: 720px` inside `.message-board-viewport { overflow-x: auto; }` on narrow viewports so logical placement remains stable instead of re-randomizing notes.
-
-- [ ] **Step 7: Run GREEN + build**
+- [ ] **Step 7: Run GREEN/build**
 
 ```bash
 node --test tests/message-board-page.test.mjs
 npm run build
 ```
 
-Expected: pass.
-
-- [ ] **Step 8: Commit Task 5**
+- [ ] **Step 8: Commit**
 
 ```bash
 git add src/components/MessageBoard.astro src/lib/message-board-controller.ts src/styles/message-board.css src/pages/messages.astro tests/message-board-page.test.mjs
@@ -708,101 +577,104 @@ git commit -m "feat: render messages as a shared corkboard"
 
 ---
 
-### Task 6: Add composer, owned edit/delete, and drag persistence
+### Task 6: Add composer, browser ownership, edit/delete, and tested drag decisions
 
 **Files:**
+- Create: `src/lib/message-board-gesture.mjs`
+- Create: `tests/message-board-gesture.test.mjs`
 - Modify: `src/components/MessageBoard.astro`
 - Modify: `src/lib/message-board-controller.ts`
 - Modify: `src/styles/message-board.css`
 - Modify: `tests/message-board-page.test.mjs`
+- Modify: `package.json`
 
-**Interfaces:**
-- Composer handles create and edit modes with fields `userId`, `text`, `noteColor`.
-- Drag state commits one PATCH only on release for owned notes; non-owned notes remain local-only.
-- Mobile drag threshold is exactly 350 ms.
-
-- [ ] **Step 1: Add RED interaction-contract tests**
+**Gesture interface:**
 
 ```js
-test('composer supports random color, owned edit, and retained draft errors', () => {
-  assert.match(controller, /createGuestMessage/);
-  assert.match(controller, /updateOwnedGuestMessage/);
-  assert.match(controller, /deleteOwnedGuestMessage/);
-  assert.match(controller, /hasGuestMessageOwnership/);
-  assert.match(controller, /draft/);
-  assert.match(board, /name="noteColor"/);
-  assert.match(board, /maxlength="800"/);
+createGestureState({ pointerType, startX, startY, now })
+updateGesture(state, { x, y, now })
+finishGesture(state, { x, y, now })
+```
+
+The pure module returns decisions (`scroll`, `waiting`, `drag-start`, `drag-move`, `drop`) and never performs network I/O. This gives automated coverage for the 350ms/8px rule; controller alone decides whether a `drop` is author/admin-persisted.
+
+- [ ] **Step 1: Write RED gesture tests**
+
+```js
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { createGestureState, updateGesture } from '../src/lib/message-board-gesture.mjs';
+
+test('mouse begins drag immediately', () => {
+  const state = createGestureState({ pointerType:'mouse', startX:0, startY:0, now:0 });
+  assert.equal(state.phase, 'dragging');
 });
 
-test('drag is desktop-direct, mobile-long-press, and persists only on release', () => {
-  assert.match(controller, /const MOBILE_DRAG_HOLD_MS = 350/);
-  assert.match(controller, /pointerdown/);
-  assert.match(controller, /pointermove/);
-  assert.match(controller, /pointerup/);
-  assert.match(controller, /correctDroppedPosition/);
-  assert.match(controller, /updateOwnedGuestMessage/);
-  assert.doesNotMatch(controller, /pointermove[\s\S]{0,500}updateOwnedGuestMessage/);
+test('touch movement before 350ms yields scroll intent', () => {
+  const state = createGestureState({ pointerType:'touch', startX:0, startY:0, now:0 });
+  const next = updateGesture(state, { x:0, y:12, now:100 });
+  assert.equal(next.decision, 'scroll');
+});
+
+test('touch hold reaches drag after 350ms without movement', () => {
+  const state = createGestureState({ pointerType:'touch', startX:0, startY:0, now:0 });
+  const next = updateGesture(state, { x:2, y:2, now:351 });
+  assert.equal(next.decision, 'drag-start');
 });
 ```
 
 - [ ] **Step 2: Run RED**
 
 ```bash
-node --test tests/message-board-page.test.mjs
+node --test tests/message-board-gesture.test.mjs
 ```
 
-- [ ] **Step 3: Implement create/edit composer**
+- [ ] **Step 3: Implement gesture module and register test**
 
-Opening create mode pre-fills stored user ID and chooses one of five colors randomly. Successful POST inserts the returned item into the in-memory map and renders it with `.sticky-note--new` so CSS can play one entrance animation. Keep text/color values intact if POST/PATCH fails; clear only after success.
+Use exact constants `HOLD_MS=350`, `CANCEL_DISTANCE=8`. Add this test to `package.json` `test:site`.
 
-Owned edit mode is available only when `hasGuestMessageOwnership(id)` is true. User ID is not editable on an existing note in this version; text and color are. After text edit, accept the server-returned recalculated size and run local collision correction if footprint grew.
+- [ ] **Step 4: Add RED controller contracts for create/edit/persistence**
 
-- [ ] **Step 4: Implement pointer drag state**
-
-Use one state record:
-
-```ts
-type DragState = {
-  pointerId: number;
-  messageId: string;
-  startClientX: number;
-  startClientY: number;
-  startX: number;
-  startY: number;
-  active: boolean;
-  holdTimer?: number;
-};
+```js
+test('controller only persists owned/admin drops and keeps drafts on failure', () => {
+  assert.match(controller, /createGuestMessage/);
+  assert.match(controller, /updateOwnedGuestMessage/);
+  assert.match(controller, /deleteOwnedGuestMessage/);
+  assert.match(controller, /hasGuestMessageOwnership/);
+  assert.match(controller, /correctDroppedPosition/);
+  assert.match(controller, /serverConfirmed/);
+});
 ```
 
-Desktop mouse/pen activates immediately. Touch schedules activation at 350 ms and cancels if pre-activation movement exceeds 8 px, preserving page scroll. While active, use `setPointerCapture`, update only CSS transform variables, add `.is-dragging`, and temporarily raise local z-index.
+- [ ] **Step 5: Implement composer create/edit**
 
-On `pointerup`, call `correctDroppedPosition`, update local state, then call `updateOwnedGuestMessage(id, { posX, posY })` exactly once only if ownership exists. For non-owned notes, keep the local position until reload. If persistence fails, restore the server-confirmed x/y saved before drag and show a non-blocking status message.
+Create mode pre-fills stored user ID, randomly preselects one of five colors, max text 800. On failure keep ID/text/color untouched. On success insert returned note with `.sticky-note--new`. Edit mode appears only for locally-owned note or admin; ordinary author edits text/color only, and server response controls recalculated size/rotation.
 
-- [ ] **Step 5: Implement owned delete**
+- [ ] **Step 6: Implement pointer dragging**
 
-Owned drawer/composer action confirms deletion, calls `deleteOwnedGuestMessage`, removes the note locally, recomputes board height, closes surfaces. Admin delete remains a separate path in Task 7.
+Use `message-board-gesture.mjs` decisions. Mouse/pen captures immediately; touch waits. While dragging, modify local CSS position only. On drop: run `correctDroppedPosition`, update local state, then issue exactly one PATCH if `hasGuestMessageOwnership(id)` or `adminMode`; otherwise keep the temporary location only in this browser. Save each persisted note's `serverConfirmed:{x,y}` before drag and restore it if PATCH fails.
 
-- [ ] **Step 6: Add tactile drag/composer styles**
+- [ ] **Step 7: Implement owned delete**
 
-`.is-dragging` slightly scales up, strengthens shadow, and reduces rotation toward zero. `.sticky-note--new` uses a 240 ms attach animation. No animation may be required for correctness; reduced-motion rules later disable all transforms/animations.
+Owned notes call `deleteOwnedGuestMessage`; admin will use admin delete in Task 7. Remove note from maps/DOM only after server success.
 
-- [ ] **Step 7: Run GREEN**
+- [ ] **Step 8: Run GREEN**
 
 ```bash
-node --test tests/message-board-page.test.mjs tests/message-board-layout.test.mjs
+node --test tests/message-board-gesture.test.mjs tests/message-board-layout.test.mjs tests/message-board-page.test.mjs
 npm run build
 ```
 
-- [ ] **Step 8: Commit Task 6**
+- [ ] **Step 9: Commit**
 
 ```bash
-git add src/components/MessageBoard.astro src/lib/message-board-controller.ts src/styles/message-board.css tests/message-board-page.test.mjs
+git add src/lib/message-board-gesture.mjs tests/message-board-gesture.test.mjs src/components/MessageBoard.astro src/lib/message-board-controller.ts src/styles/message-board.css tests/message-board-page.test.mjs package.json
 git commit -m "feat: add sticky note composing and drag ownership"
 ```
 
 ---
 
-### Task 7: Add detail drawer, comments, quick reactions, admin controls, and live polling
+### Task 7: Add drawer/comments, reactions, admin, polling, and interaction locks
 
 **Files:**
 - Modify: `src/components/MessageBoard.astro`
@@ -810,30 +682,24 @@ git commit -m "feat: add sticky note composing and drag ownership"
 - Modify: `src/styles/message-board.css`
 - Modify: `tests/message-board-page.test.mjs`
 
-**Interfaces:**
-- Desktop detail surface is a right drawer; <=720 px uses bottom sheet CSS.
-- Existing `createCommentsWidget('message', id, count)` is mounted inside drawer content.
-- Poll interval is exactly 15,000 ms while visible.
-- Remote updates to a locally locked message are deferred until drag/edit ends.
-
-- [ ] **Step 1: Add RED tests for drawer/reactions/polling/admin**
+- [ ] **Step 1: Add RED contracts**
 
 ```js
-test('detail surface reuses comments and exposes quick message reactions', () => {
+test('details reuse comments and expose approved reactions', () => {
   assert.match(controller, /createCommentsWidget\(['"]message['"]/);
   assert.match(controller, /reactToGuestMessage/);
-  for (const emoji of ['❤️', '😂', '✨', '👍']) assert.match(board + controller, new RegExp(emoji));
-  assert.match(board, /message-drawer/);
+  for (const emoji of ['❤️','😂','✨','👍']) assert.match(board + controller, new RegExp(emoji));
 });
 
-test('live sync polls every 15 seconds and pauses while hidden', () => {
+test('live sync uses 15s polling, visibility pause, and locks', () => {
   assert.match(controller, /const MESSAGE_POLL_MS = 15_000/);
   assert.match(controller, /visibilitychange/);
   assert.match(controller, /fetchGuestMessagePage\(\{[^}]*since/);
   assert.match(controller, /interactionLocks/);
+  assert.match(controller, /deferredRemote/);
 });
 
-test('admin moderation remains available separately from author ownership', () => {
+test('admin session remains distinct from anonymous ownership', () => {
   assert.match(controller, /getSession/);
   assert.match(controller, /login/);
   assert.match(controller, /logout/);
@@ -847,47 +713,40 @@ test('admin moderation remains available separately from author ownership', () =
 node --test tests/message-board-page.test.mjs
 ```
 
-- [ ] **Step 3: Implement drawer/bottom-sheet behavior**
+- [ ] **Step 3: Implement desktop drawer/mobile sheet behavior**
 
-Click/tap a note body opens the detail surface without changing persisted position. Populate author, full text, time, reaction chips, and comments. Mount a fresh `createCommentsWidget('message', message.id, message.commentCount)` for the active message. Manage focus: save previously focused note, focus close button on open, close on Escape/backdrop, restore focus on close.
+Click/tap note body opens details without moving it. Populate full text, user, time, reaction counts, ownership/admin actions; mount a fresh `createCommentsWidget('message', id, commentCount)`. Save prior focus, focus close button, close on Escape/backdrop, restore focus.
 
 - [ ] **Step 4: Implement quick reactions**
 
-Desktop hover/focus shows the four-button quick bar. On touch, a completed 350 ms long press with no drag movement may expose the bar; once movement enters drag mode, suppress reaction activation. `reactToGuestMessage` updates the in-memory reaction counts and visual chip state without refetching the board.
+Desktop hover/focus reveals four buttons. Touch long press may reveal the bar only if the gesture never transitions into drag. Use `reactToGuestMessage`; update counts and selected local emoji in-place without full refetch.
 
-- [ ] **Step 5: Implement admin session controls**
+- [ ] **Step 5: Implement admin session**
 
-Reuse `getSession`, `login`, `logout` from `src/lib/moments-api.ts`. Admin mode shows delete for any note and persistent position controls for legacy notes. Admin delete uses existing `deleteGuestMessage(id)` with credentials; do not store/admin-token data in localStorage.
+Reuse `getSession/login/logout` from `moments-api.ts`. Admin can delete any note using existing credentialed `deleteGuestMessage`, and admin drag release persists even legacy notes through PATCH without author token because the Worker session path authorizes it.
 
-- [ ] **Step 6: Implement live synchronization and locks**
-
-Track `lastSyncCursor` from initial list. While `document.visibilityState === 'visible'`, schedule one 15-second timer. On tick, call `fetchGuestMessagePage({ since: lastSyncCursor, limit: 100 })`.
-
-Maintain:
+- [ ] **Step 6: Implement polling and interaction locks**
 
 ```ts
+const MESSAGE_POLL_MS = 15_000;
 const interactionLocks = new Set<string>();
 const deferredRemote = new Map<string, GuestMessage>();
 ```
 
-If a polled update targets a locked message, store it in `deferredRemote`. New unlocked notes insert with `.sticky-note--new`. When a drag/edit lock ends, reconcile any deferred server version without discarding a just-confirmed author save. On hidden state, clear timer; on visible state, sync immediately then restart timer.
+Keep `lastSyncCursor` from successful reads. Visible tab: poll `{since:lastSyncCursor,limit:100}`; hidden tab: clear timer; visible again: sync immediately then restart. New unlocked notes animate in. Remote changes to dragging/editing/open-owned mutations go into `deferredRemote` and reconcile after local operation completes.
 
-- [ ] **Step 7: Implement failure UX**
+- [ ] **Step 7: Implement failure behavior**
 
-- Initial fetch failure: keep corkboard visible, show retry button.
-- Poll failure: keep current board and retry at next scheduled tick; no alert.
-- `429`: display `操作太频繁，请稍后再试`.
-- Owned PATCH 401/403: clear stale ownership via client helper and remove edit/delete controls.
-- Create/edit failure: preserve input values.
+Initial fetch failure keeps corkboard visible + retry button. Poll errors are silent and retried later. 429 maps to `操作太频繁，请稍后再试`. Author 401/403 clears stale ownership and hides owned controls. Create/edit retains draft. Failed drag save restores `serverConfirmed` position.
 
-- [ ] **Step 8: Run GREEN**
+- [ ] **Step 8: Run GREEN/build**
 
 ```bash
-node --test tests/message-board-page.test.mjs tests/message-board-layout.test.mjs
+node --test tests/message-board-page.test.mjs tests/message-board-layout.test.mjs tests/message-board-gesture.test.mjs
 npm run build
 ```
 
-- [ ] **Step 9: Commit Task 7**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add src/components/MessageBoard.astro src/lib/message-board-controller.ts src/styles/message-board.css tests/message-board-page.test.mjs
@@ -896,32 +755,28 @@ git commit -m "feat: add sticky board interactions and live sync"
 
 ---
 
-### Task 8: Finish visual parity, accessibility, homepage compatibility, docs, and full verification
+### Task 8: Finish visuals, accessibility, homepage compatibility, docs, and full verification
 
 **Files:**
 - Modify: `src/styles/message-board.css`
 - Modify: `src/components/RecentMessagesWidget.astro`
 - Modify: `tests/message-board-page.test.mjs`
 - Modify: `danmaku-api/README.md`
-- Verify: `package.json`, `danmaku-api/package.json`
 
-**Interfaces:**
-- No new runtime API surface; this task closes acceptance criteria and deployment documentation.
-
-- [ ] **Step 1: Add RED visual/accessibility compatibility contracts**
+- [ ] **Step 1: Add RED theme/accessibility contracts**
 
 ```js
-test('corkboard styling supports themes and reduced motion', () => {
+test('corkboard supports dark theme, mobile sheet, and reduced motion', () => {
   const css = read('src/styles/message-board.css');
   assert.match(css, /--message-cork/);
   assert.match(css, /data-note-color="yellow"/);
   assert.match(css, /html\[data-theme="dark"\]/);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*message-drawer/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
   assert.match(css, /html\[data-reduce-motion="true"\]/);
-  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*message-drawer/);
 });
 
-test('homepage recent messages keeps the original array API contract', () => {
+test('homepage keeps the array message API contract', () => {
   const recent = read('src/components/RecentMessagesWidget.astro');
   assert.match(recent, /fetchGuestMessages\(\)/);
   assert.match(recent, /item\.userId/);
@@ -930,38 +785,27 @@ test('homepage recent messages keeps the original array API contract', () => {
 });
 ```
 
-- [ ] **Step 2: Run RED if any acceptance styling/hooks are still missing**
+- [ ] **Step 2: Run RED if finishing hooks/styles are absent**
 
 ```bash
 node --test tests/message-board-page.test.mjs
 ```
 
-- [ ] **Step 3: Finish the visual system**
+- [ ] **Step 3: Finish cork/paper visual language**
 
-Implement cork texture with layered CSS gradients only; do not add a stock image dependency. Define low-saturation paper tokens for five colors in light and dark modes, readable text tokens, pin/tape pseudo-elements, and subtle board inset depth.
-
-Use these motion timings:
-
-- attach: 240 ms;
-- drag lift/drop: 160 ms;
-- quick reaction bar: 140 ms;
-- drawer/sheet: 180 ms.
-
-Under either reduced-motion mechanism set animation/transition duration to `0.01ms` or disable the transform animation entirely, and never rely on motion to communicate state.
+Use layered CSS gradients only for cork grain. Define low-saturation light/dark paper colors, readable text/shadows, subtle pins/tape. Timing tokens: attach 240ms, drag lift/drop 160ms, quick bar 140ms, drawer/sheet 180ms. Reduced-motion disables transform animation and nonessential transitions.
 
 - [ ] **Step 4: Finish responsive/accessibility behavior**
 
-At <=720 px, drawer becomes bottom sheet (`inset: auto 0 0`, max-height around 78dvh). Keep note controls keyboard focusable, give quick-reaction buttons aria-labels, keep close buttons explicit, and ensure drag is never the only way to open details.
+At `max-width:720px`, drawer is bottom sheet (`inset:auto 0 0`, max-height about `78dvh`). All note bodies and reaction buttons are keyboard reachable, reaction buttons have aria-labels, dialogs manage focus, and details are always available without drag. Horizontal overflow is contained inside `.message-board-viewport` only.
 
-The stage may horizontally scroll on narrow screens because its minimum width is 720 px, but the page itself must not acquire uncontrolled horizontal overflow outside `.message-board-viewport`.
+- [ ] **Step 5: Adjust homepage wording only**
 
-- [ ] **Step 5: Adjust homepage wording without changing data flow**
+Keep `fetchGuestMessages()` and its item fields untouched. Change copy to the new metaphor, e.g. `正在读取最近贴上的便签…` and `去留言板看看 →`. Do not create a second draggable corkboard in the sidebar.
 
-Keep `fetchGuestMessages()` unchanged. Change only user-facing placeholder/more copy to fit the new metaphor, e.g. `正在读取最近贴上的便签…` and `去留言板看看 →`. Do not render draggable notes in the sidebar.
+- [ ] **Step 6: Update Worker docs and release order**
 
-- [ ] **Step 6: Update Worker deployment docs**
-
-In `danmaku-api/README.md`, correct endpoint examples to the actual `wrangler.jsonc` values (`https://api.lidure22.xyz`, site `https://lidure22.xyz`) and add the exact migration/deploy sequence:
+Correct README endpoint examples to actual config: `https://api.lidure22.xyz`, site `https://lidure22.xyz`, media through current config. Add:
 
 ```bash
 cd danmaku-api
@@ -972,9 +816,9 @@ npx wrangler d1 migrations apply lidure-danmaku --remote
 npm run deploy
 ```
 
-Document that migration `0008_sticky_message_board.sql` must be applied before deploying the frontend that expects note columns/reaction routes. Do not put secrets or real admin credentials in the README.
+State explicitly: migration 0008 must be applied before frontend production code that expects sticky columns/routes. Never place secrets or admin credentials in docs/logs.
 
-- [ ] **Step 7: Run full local verification**
+- [ ] **Step 7: Run complete verification**
 
 ```bash
 npm --prefix danmaku-api run check
@@ -987,26 +831,11 @@ npm test
 
 Expected: all pass.
 
-- [ ] **Step 8: Manual browser acceptance pass before merge**
+- [ ] **Step 8: Manual local browser acceptance**
 
-With local Worker + Astro dev servers running, verify exactly these behaviors:
+Run Worker + Astro dev servers and verify: legacy positions stable across reload; new create/color; same-browser edit/recolor/delete; incognito drag is temporary; author drag persists with one PATCH on drop; mobile scroll then 350ms drag; right drawer vs mobile bottom sheet; comments work; four reactions toggle/switch; second-browser new note appears within one poll; polling does not overwrite active drag/edit; admin deletes/moves legacy; light/dark/reduced-motion readable; homepage recent messages still render.
 
-1. Existing legacy messages render as stable notes after repeated reloads.
-2. New note creates with selected color and attach animation.
-3. Same browser can edit/recolor/delete its new note.
-4. A different/incognito browser can drag that note locally but reload restores server position.
-5. Author drag persists after reload and sends only one PATCH on release.
-6. Touch scroll works before 350 ms hold; long press activates drag.
-7. Clicking note opens desktop right drawer; narrow viewport uses bottom sheet.
-8. Comments still create/load.
-9. `❤️ 😂 ✨ 👍` add/switch/remove correctly.
-10. A second browser posting a new note appears in the first browser after at most one 15-second poll.
-11. Polling does not move a note currently being dragged/edited.
-12. Admin can delete any note, including legacy notes.
-13. Light, dark, and reduced-motion modes stay readable and usable.
-14. Homepage recent-message widget still renders recent entries.
-
-- [ ] **Step 9: Commit Task 8**
+- [ ] **Step 9: Commit**
 
 ```bash
 git add src/styles/message-board.css src/components/RecentMessagesWidget.astro tests/message-board-page.test.mjs danmaku-api/README.md
@@ -1015,15 +844,21 @@ git commit -m "polish: finish sticky message board experience"
 
 ---
 
-## Final Integration / Release Order
+## Production Activation Order
 
-The repository PR may be reviewed and merged after the complete test suite is green, but production activation has a backend-first dependency. Apply D1 migration `0008`, deploy the Worker, smoke-test `/api/messages` and `/api/message-reactions`, then deploy/merge the frontend if the hosting flow does not deploy the two parts together. Never deploy frontend code that requires sticky columns before the remote D1 migration and Worker route changes are live.
+Repository implementation and review can complete first, but production activation is backend-first:
 
-Recommended smoke checks after Worker deployment:
+1. Run the complete local suites.
+2. Apply D1 migration `0008_sticky_message_board.sql` remotely.
+3. Deploy the Worker from `danmaku-api`.
+4. Smoke-test `GET /api/messages` and CORS/PATCH route availability.
+5. Deploy/merge the frontend after the Worker is live.
+
+Smoke checks:
 
 ```bash
 curl -sS 'https://api.lidure22.xyz/api/messages?limit=1'
 curl -i -X OPTIONS 'https://api.lidure22.xyz/api/messages' -H 'Origin: https://lidure22.xyz'
 ```
 
-The first response must contain `items`, `now`, and `nextCursor`; each returned item must still include `id`, `userId`, `text`, and `createdAt` plus `note`. The OPTIONS response must allow `GET,POST,PATCH,DELETE,OPTIONS` for the production site origin.
+The GET response must contain `items`, `now`, `nextCursor`; each item must preserve `id`, `userId`, `text`, `createdAt` and include `note`. OPTIONS must allow `GET,POST,PATCH,DELETE,OPTIONS` for the production origin.
