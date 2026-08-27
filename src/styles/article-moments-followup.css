@@ -1,6 +1,4 @@
-@import './article-layout-safety.css';
-
-/* Moments-only follow-up polish. Article geometry lives in article-layout-safety.css. */
+/* Moments-only follow-up polish. */
 body.layout-standard .moments-shell .moments-wall-filter .pill,
 body.layout-standard .moments-shell .moments-wall-filter .pill:hover,
 body.layout-standard .moments-shell .moments-wall-filter .pill:focus-visible,

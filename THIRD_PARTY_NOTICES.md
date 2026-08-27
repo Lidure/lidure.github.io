@@ -35,3 +35,13 @@ Font Awesome Free icons are licensed under CC BY 4.0. Font Awesome is a trademar
 
 Source: https://github.com/FortAwesome/Font-Awesome
 License: https://creativecommons.org/licenses/by/4.0/
+
+## Amiyadesi/sayori-blog
+
+The article reading layout in `src/pages/posts/[slug].astro` and `src/styles/article-reading.css` is adapted from the post-grid and reading-layout structure of [Amiyadesi/sayori-blog](https://github.com/Amiyadesi/sayori-blog).
+
+Copyright 2025 Matsuzaka Yuki.
+
+Licensed under the Apache License 2.0. The adapted files have been modified to integrate Lidure Blog's Astro content collection, theme tokens, Comments component, KaTeX rendering, reading progress and navigation lifecycle.
+
+A copy of the Apache License 2.0 is included at `LICENSES/Apache-2.0-sayori.txt`.

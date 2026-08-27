@@ -38,25 +38,6 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
   showBanner={false}
 >
   <article class="article-publication">
-    <header class="article-masthead">
-      <h1 class="article-title">{post.data.title}</h1>
-      {post.data.description && <p class="article-deck">{post.data.description}</p>}
-
-      <div class="article-meta" aria-label="文章信息">
-        <time datetime={publishedMachine}>{publishedLabel}</time>
-        <span aria-hidden="true">·</span>
-        <span>更新于 <time datetime={updatedMachine}>{updatedLabel}</time></span>
-        <span aria-hidden="true">·</span>
-        <span>约 {readingMinutes} 分钟</span>
-      </div>
-
-      {post.data.tags.length > 0 && (
-        <div class="article-tags" aria-label="文章标签">
-          {post.data.tags.map((tag) => <span>#{tag}</span>)}
-        </div>
-      )}
-    </header>
-
     {tocHeadings.length > 0 && (
       <details class="article-toc-mobile">
         <summary>目录 <span>{tocHeadings.length} 节</span></summary>
@@ -73,15 +54,15 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
       </details>
     )}
 
-    <div class="article-reading-canvas">
-      {tocHeadings.length > 0 && (
-        <aside class="article-toc" aria-label="文章目录">
-          <div class="article-toc-inner">
+    <div class="sayori-reading-grid">
+      <aside class="sayori-toc-sidebar" aria-label="文章目录">
+        {tocHeadings.length > 0 && (
+          <div class="sayori-sidebar-sticky">
             <div class="article-toc-heading">
               <span>目录</span>
               <span>{tocHeadings.length} 节</span>
             </div>
-            <nav>
+            <nav class="sayori-toc-list">
               {tocHeadings.map((heading) => (
                 <a
                   class="article-toc-link"
@@ -93,32 +74,62 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
             </nav>
             <div class="article-toc-progress" aria-hidden="true"><span></span></div>
           </div>
-        </aside>
-      )}
+        )}
+      </aside>
 
-      <div class="prose article-prose">
-        <Content />
-      </div>
+      <main class="sayori-main-column">
+        <div class="sayori-post-card">
+          <div class="post-reading-stats" aria-label="阅读信息">
+            <span>{tocHeadings.length} 个章节</span>
+            <span>{readingMinutes} 分钟阅读</span>
+          </div>
 
-      <aside class="article-companion" aria-label="阅读辅助">
-        <div class="article-companion-inner">
-          <section class="article-companion-card article-companion-reading">
-            <span class="article-companion-kicker">READING</span>
+          <header class="post-header">
+            <h1 class="post-title">{post.data.title}</h1>
+            <div class="post-meta" aria-label="文章信息">
+              <time datetime={publishedMachine}>{publishedLabel}</time>
+              <span aria-hidden="true">·</span>
+              <span>更新 <time datetime={updatedMachine}>{updatedLabel}</time></span>
+            </div>
+            {post.data.description && <p class="post-description">{post.data.description}</p>}
+            {post.data.tags.length > 0 && (
+              <div class="post-tags" aria-label="文章标签">
+                {post.data.tags.map((tag) => <span>#{tag}</span>)}
+              </div>
+            )}
+            <div class="post-divider" aria-hidden="true"></div>
+          </header>
+
+          <div class="prose article-prose">
+            <div class="markdown-content">
+              <Content />
+            </div>
+          </div>
+          <div class="article-end" aria-hidden="true"></div>
+        </div>
+
+        <section class="article-comments" aria-label="评论"><Comments /></section>
+      </main>
+
+      <aside class="sayori-right-sidebar" aria-label="阅读辅助">
+        <div class="sayori-sidebar-sticky">
+          <section class="right-sidebar-card reading-progress-card">
+            <span class="sidebar-kicker">READING</span>
             <strong data-article-progress-label>0%</strong>
             <span>阅读进度</span>
           </section>
-          <section class="article-companion-card">
-            <span class="article-companion-kicker">ARTICLE</span>
-            <dl class="article-companion-meta">
+          <section class="right-sidebar-card">
+            <span class="sidebar-kicker">ARTICLE</span>
+            <dl class="right-sidebar-meta">
               <div><dt>发布</dt><dd>{publishedLabel}</dd></div>
               <div><dt>更新</dt><dd>{updatedLabel}</dd></div>
               <div><dt>预计</dt><dd>{readingMinutes} 分钟</dd></div>
             </dl>
           </section>
           {post.data.tags.length > 0 && (
-            <section class="article-companion-card">
-              <span class="article-companion-kicker">TAGS</span>
-              <div class="article-companion-tags">
+            <section class="right-sidebar-card">
+              <span class="sidebar-kicker">TAGS</span>
+              <div class="right-sidebar-tags">
                 {post.data.tags.slice(0, 6).map((tag) => <span>#{tag}</span>)}
               </div>
             </section>
@@ -127,9 +138,6 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
         </div>
       </aside>
     </div>
-
-    <div class="article-end" aria-hidden="true"><span>·</span><span>·</span><span>·</span></div>
-    <section class="article-comments" aria-label="评论"><Comments /></section>
   </article>
 </BaseLayout>
 
