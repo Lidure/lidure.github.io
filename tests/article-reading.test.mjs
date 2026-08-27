@@ -7,6 +7,7 @@ const page = read('src/pages/posts/[slug].astro');
 const indexPage = read('src/pages/posts/index.astro');
 const layout = read('src/layouts/BaseLayout.astro');
 const css = read('src/styles/article-reading.css');
+const followupCss = read('src/styles/article-moments-followup.css');
 const safetyCssUrl = new URL('../src/styles/article-layout-safety.css', import.meta.url);
 const safetyCss = existsSync(safetyCssUrl) ? readFileSync(safetyCssUrl, 'utf8') : '';
 const bannerlessCss = read('src/styles/bannerless-pages.css');
@@ -39,7 +40,8 @@ test('article keeps TOC, prose, and companion in physically separate rails', () 
   assert.match(page, /class="article-reading-canvas"/);
   assert.match(page, /class="article-toc"/);
   assert.match(page, /class="article-companion"/);
-  assert.match(page, /article-layout-safety\.css/);
+  assert.match(layout, /article-moments-followup\.css/);
+  assert.match(followupCss, /@import ['"]\.\/article-layout-safety\.css['"]/);
   assert.match(safetyCss, /\.article-reading-canvas\s*\{[\s\S]*grid-template-columns:\s*260px\s+minmax\(0,\s*820px\)\s+240px[\s\S]*column-gap:\s*72px[\s\S]*max-width:\s*1600px/);
   assert.match(safetyCss, /\.article-toc\s*\{[\s\S]*grid-column:\s*1/);
   assert.match(safetyCss, /\.article-prose\s*\{[\s\S]*grid-column:\s*2[\s\S]*min-width:\s*0[\s\S]*max-width:\s*820px/);
