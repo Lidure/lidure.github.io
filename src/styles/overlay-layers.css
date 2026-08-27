@@ -1,0 +1,48 @@
+:root {
+  --layer-decoration: 20;
+  --layer-floating: 10010;
+  --layer-navigation: 10020;
+  --layer-panel: 10100;
+  --layer-modal: 10200;
+  --layer-progress: 10300;
+}
+
+/* Decorative media never outranks interactive UI. */
+body.layout-standard .banner-waves {
+  z-index: var(--layer-decoration) !important;
+}
+
+/* Floating launchers stay below navigation; expanded surfaces sit above it. */
+body.layout-standard .site-header,
+body.layout-immersive .site-header {
+  z-index: var(--layer-navigation) !important;
+}
+
+body.layout-immersive .site-floating-controls,
+.hero-settings-btn,
+.sekai-player-btn {
+  z-index: var(--layer-floating) !important;
+}
+
+.hero-settings-panel,
+.sekai-player-panel {
+  z-index: var(--layer-panel) !important;
+}
+
+/* Message-board dialogs live inside .standard-page-surface, which is itself a
+   stacking context. Raise that ancestor while a dialog is open so a large
+   child z-index is not trapped underneath the site header or banner effects. */
+body.layout-standard:has(#message-composer:not([hidden])) .standard-page-surface,
+body.layout-standard:has(#message-drawer:not([hidden])) .standard-page-surface {
+  z-index: var(--layer-modal) !important;
+}
+
+.message-composer-backdrop,
+.message-drawer {
+  z-index: var(--layer-modal) !important;
+}
+
+/* Keep route progress visible even when a panel is already open. */
+#page-transition-progress {
+  z-index: var(--layer-progress) !important;
+}
