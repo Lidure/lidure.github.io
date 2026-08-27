@@ -8,6 +8,8 @@ const indexPage = read('src/pages/posts/index.astro');
 const layout = read('src/layouts/BaseLayout.astro');
 const css = read('src/styles/article-reading.css');
 const followupCss = read('src/styles/article-moments-followup.css');
+const safetyCssUrl = new URL('../src/styles/article-layout-safety.css', import.meta.url);
+const safetyCss = existsSync(safetyCssUrl) ? readFileSync(safetyCssUrl, 'utf8') : '';
 const bannerlessCss = read('src/styles/bannerless-pages.css');
 const archiveCssUrl = new URL('../src/styles/article-archive.css', import.meta.url);
 const archiveCss = existsSync(archiveCssUrl) ? readFileSync(archiveCssUrl, 'utf8') : '';
@@ -34,30 +36,34 @@ test('article archive is content-first and keeps GitHub projects visibly seconda
   assert.match(archiveCss, /\.article-entry\s*\{[\s\S]*border-bottom:/);
 });
 
-test('article uses a true three-column reading shell with a far-left TOC', () => {
+test('article keeps TOC, prose, and companion in physically separate rails', () => {
   assert.match(page, /class="article-reading-canvas"/);
   assert.match(page, /class="article-toc"/);
   assert.match(page, /class="article-companion"/);
-  assert.match(page, /data-article-progress-label/);
-  assert.match(page, /data-article-backtop/);
-  assert.match(css, /\.article-reading-canvas\s*\{[\s\S]*display:\s*grid[\s\S]*grid-template-columns:\s*220px\s+minmax\(0,\s*800px\)\s+220px/);
-  assert.match(css, /\.article-toc\s*\{[\s\S]*grid-column:\s*1/);
-  assert.match(css, /\.article-prose\s*\{[\s\S]*grid-column:\s*2/);
-  assert.match(css, /\.article-companion\s*\{[\s\S]*grid-column:\s*3/);
-  assert.doesNotMatch(css, /\.article-toc\s*\{[^}]*position:\s*absolute/);
-  assert.doesNotMatch(css, /\.article-toc\s*\{[^}]*position:\s*fixed/);
+  assert.match(layout, /article-moments-followup\.css/);
+  assert.match(followupCss, /@import ['"]\.\/article-layout-safety\.css['"]/);
+  assert.match(safetyCss, /\.article-reading-canvas\s*\{[\s\S]*grid-template-columns:\s*260px\s+minmax\(0,\s*820px\)\s+240px[\s\S]*column-gap:\s*72px[\s\S]*max-width:\s*1600px/);
+  assert.match(safetyCss, /\.article-toc\s*\{[\s\S]*grid-column:\s*1/);
+  assert.match(safetyCss, /\.article-prose\s*\{[\s\S]*grid-column:\s*2[\s\S]*min-width:\s*0[\s\S]*max-width:\s*820px/);
+  assert.match(safetyCss, /\.article-companion\s*\{[\s\S]*grid-column:\s*3/);
+  assert.doesNotMatch(safetyCss, /\.article-toc\s*\{[^}]*position:\s*(?:absolute|fixed)/);
 });
 
-test('article wide content cannot invade the TOC rail', () => {
-  assert.match(css, /\.article-prose\s*\{[\s\S]*max-width:\s*800px/);
-  assert.match(css, /@media \(max-width:\s*1380px\)[\s\S]*\.article-toc\s*\{\s*display:\s*none/);
-  assert.match(css, /@media \(max-width:\s*1380px\)[\s\S]*\.article-companion\s*\{\s*display:\s*none/);
-  assert.match(css, /@media \(max-width:\s*1380px\)[\s\S]*\.article-toc-mobile\s*\{[\s\S]*display:\s*block/);
-  assert.match(layout, /article-moments-followup\.css/);
-  assert.match(followupCss, /\.article-toc-inner\s*\{[\s\S]*margin-left:\s*-\d+px/);
-  assert.match(followupCss, /\.article-prose table\s*\{[\s\S]*width:\s*100%[\s\S]*max-width:\s*100%[\s\S]*margin:\s*1\.9em\s+0[\s\S]*transform:\s*none/);
-  assert.match(followupCss, /\.article-prose pre\s*\{[\s\S]*max-width:\s*100%[\s\S]*margin:\s*1\.9em\s+0[\s\S]*transform:\s*none/);
-  assert.doesNotMatch(followupCss, /\.article-prose table\s*\{[^}]*translateX\(-50%\)/);
+test('article wide content is contained by the prose rail and can never invade the TOC', () => {
+  assert.match(safetyCss, /\.article-prose table\s*\{[\s\S]*display:\s*block[\s\S]*width:\s*100%[\s\S]*max-width:\s*100%[\s\S]*margin:\s*1\.9em\s+0[\s\S]*overflow-x:\s*auto[\s\S]*transform:\s*none/);
+  assert.match(safetyCss, /\.article-prose pre\s*\{[\s\S]*width:\s*100%[\s\S]*max-width:\s*100%[\s\S]*margin:\s*1\.9em\s+0[\s\S]*overflow-x:\s*auto[\s\S]*transform:\s*none/);
+  assert.match(safetyCss, /\.article-prose p:has\(> img:only-child\)[\s\S]*\.article-prose figure:has\(img\)\s*\{[\s\S]*width:\s*100%[\s\S]*max-width:\s*100%[\s\S]*margin:\s*2\.25em\s+0[\s\S]*transform:\s*none/);
+  assert.match(safetyCss, /\.article-prose blockquote\s*\{[\s\S]*width:\s*100%[\s\S]*margin:\s*1\.9em\s+0/);
+  assert.match(safetyCss, /\.article-prose \.katex-display\s*\{[\s\S]*max-width:\s*100%[\s\S]*overflow-x:\s*auto/);
+  assert.doesNotMatch(safetyCss, /margin(?:-left)?:\s*[^;}]*-\d+px/);
+  assert.doesNotMatch(safetyCss, /translateX\(-50%\)/);
+  assert.doesNotMatch(safetyCss, /margin:\s*[^;}]*50%/);
+});
+
+test('article collapses desktop rails before the fixed columns can become cramped', () => {
+  assert.match(safetyCss, /@media \(max-width:\s*1500px\)[\s\S]*\.article-toc\s*\{\s*display:\s*none/);
+  assert.match(safetyCss, /@media \(max-width:\s*1500px\)[\s\S]*\.article-companion\s*\{\s*display:\s*none/);
+  assert.match(safetyCss, /@media \(max-width:\s*1500px\)[\s\S]*\.article-toc-mobile\s*\{[\s\S]*display:\s*block/);
 });
 
 test('article keeps readable publication typography and responsive content', () => {
