@@ -1,0 +1,80 @@
+---
+import '../styles/message-board.css';
+---
+
+<section class="message-board" id="message-board-root" aria-labelledby="message-board-heading">
+  <header class="message-board-toolbar">
+    <div>
+      <span class="message-board-kicker">COMMUNITY CORKBOARD</span>
+      <h2 id="message-board-heading">大家的留言墙</h2>
+      <p>每一张便签都会留在这面墙上。拖一拖、点一点，也可以贴下自己的话。</p>
+    </div>
+    <div class="message-board-toolbar-actions">
+      <span class="message-board-count"><strong id="message-board-count">—</strong> 张便签</span>
+      <button id="message-compose-open" type="button" class="message-board-primary">贴一张便签</button>
+    </div>
+  </header>
+
+  <p id="message-board-status" class="message-board-status" aria-live="polite">正在看看墙上都贴了些什么…</p>
+
+  <div id="message-board-viewport" class="message-board-viewport">
+    <div id="message-board-stage" class="message-board-stage" role="region" aria-label="公共留言板">
+      <div class="message-board-loading">正在加载便签…</div>
+    </div>
+  </div>
+
+  <div class="message-board-footer">
+    <button id="message-board-load-older" type="button" class="message-board-secondary" hidden>加载更早的便签</button>
+  </div>
+
+  <div id="message-composer" class="message-composer-backdrop" hidden>
+    <section class="message-composer" role="dialog" aria-modal="true" aria-labelledby="message-composer-title">
+      <button type="button" class="message-surface-close" data-message-close="composer" aria-label="关闭写便签窗口">×</button>
+      <span class="message-board-kicker">NEW NOTE</span>
+      <h3 id="message-composer-title">贴一张便签</h3>
+      <form id="message-composer-form">
+        <label>你的 ID<input id="message-composer-user" name="userId" maxlength="32" required placeholder="例如：路过的旅人" /></label>
+        <label>想说的话<textarea id="message-composer-text" name="text" maxlength="800" rows="6" required placeholder="写点什么…"></textarea></label>
+        <fieldset class="message-color-picker">
+          <legend>便签颜色</legend>
+          <div id="message-color-options" class="message-color-options"></div>
+        </fieldset>
+        <p id="message-composer-status" class="message-inline-status" aria-live="polite"></p>
+        <button id="message-composer-submit" type="submit" class="message-board-primary">贴到墙上</button>
+      </form>
+    </section>
+  </div>
+
+  <aside id="message-drawer" class="message-drawer" role="dialog" aria-modal="true" aria-labelledby="message-drawer-title" hidden>
+    <button type="button" class="message-surface-close" data-message-close="drawer" aria-label="关闭便签详情">×</button>
+    <div id="message-drawer-content">
+      <h3 id="message-drawer-title">便签详情</h3>
+    </div>
+  </aside>
+
+  <details id="message-admin" class="message-admin-panel">
+    <summary>管理员</summary>
+    <div class="message-admin-content">
+      <span id="message-admin-status">未登录</span>
+      <input id="message-admin-password" type="password" autocomplete="current-password" placeholder="管理员密码" />
+      <button id="message-admin-login" type="button">登录</button>
+      <button id="message-admin-logout" type="button" hidden>退出登录</button>
+    </div>
+  </details>
+</section>
+
+<script>
+  import { initMessageBoard } from '../lib/message-board-controller';
+
+  const w = window as typeof window & { __messageBoardCleanup?: () => void; __messageBoardBound?: boolean };
+  function mount() {
+    w.__messageBoardCleanup?.();
+    w.__messageBoardCleanup = initMessageBoard();
+  }
+  if (!w.__messageBoardBound) {
+    w.__messageBoardBound = true;
+    document.addEventListener('astro:page-load', mount);
+    document.addEventListener('astro:before-swap', () => w.__messageBoardCleanup?.());
+  }
+  mount();
+</script>

@@ -1,8 +1,8 @@
 <div class="recent-messages-widget" id="recent-messages-widget">
   <div class="recent-messages-list" data-message-list>
-    <p class="sidebar-widget-placeholder">正在读取最近留言…</p>
+    <p class="sidebar-widget-placeholder">正在读取最近贴上的便签…</p>
   </div>
-  <a class="sidebar-widget-more recent-messages-more" href="/messages">查看留言板 →</a>
+  <a class="sidebar-widget-more recent-messages-more" href="/messages">去留言板看看 →</a>
 </div>
 
 <style is:global>
@@ -124,7 +124,7 @@
     function renderMessages(items: Awaited<ReturnType<typeof fetchGuestMessages>>) {
       const recent = items.slice(0, 3);
       if (recent.length === 0) {
-        renderPlaceholder('还没有公开留言。');
+        renderPlaceholder('还没有人贴便签。');
         return;
       }
 
@@ -133,7 +133,7 @@
         const link = document.createElement('a');
         link.className = 'recent-message-item';
         link.href = '/messages';
-        link.setAttribute('aria-label', `查看 ${item.userId || '访客'} 的留言`);
+        link.setAttribute('aria-label', `查看 ${item.userId || '访客'} 的便签`);
 
         const meta = document.createElement('div');
         meta.className = 'recent-message-meta';
@@ -164,7 +164,7 @@
         if (!disposed) renderMessages(items);
       })
       .catch(() => {
-        if (!disposed) renderPlaceholder('最近留言暂时读取失败。');
+        if (!disposed) renderPlaceholder('最近便签暂时读取失败。');
       });
 
     recentMessagesWindow.__recentMessagesCleanup = () => {

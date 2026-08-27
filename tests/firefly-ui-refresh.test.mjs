@@ -147,14 +147,14 @@ test('v2 visual layer defines semantic colors and responsive Firefly grid', () =
   assert.match(css, /@media \(max-width:\s*849px\)/);
 });
 
-test('guestbook uses a wide two-column desktop shell', () => {
+test('guestbook delegates to the shared sticky corkboard instead of the retired two-column shell', () => {
   const messages = readSource('src/pages/messages.astro');
-  assert.match(messages, /messages-layout/);
-  assert.match(messages, /messages-composer-column/);
-  assert.match(messages, /messages-stream-column/);
-  assert.match(messages, /width:\s*min\(100%,\s*1220px\)/);
-  assert.match(messages, /grid-template-columns:\s*minmax\(340px,\s*370px\)\s+minmax\(0,\s*1fr\)/);
-  assert.doesNotMatch(messages, /max-width:\s*760px/);
+  const board = readSource('src/components/MessageBoard.astro');
+  assert.match(messages, /MessageBoard/);
+  assert.match(messages, /<MessageBoard\s*\/>/);
+  assert.match(board, /message-board-stage/);
+  assert.match(board, /message-compose-open/);
+  assert.doesNotMatch(messages, /messages-layout|messages-composer-column|messages-stream-column/);
 });
 
 test('ordinary pages load the v2 cohesion layer', () => {

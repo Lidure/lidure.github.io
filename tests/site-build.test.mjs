@@ -192,19 +192,19 @@ test('moment delete controls follow the authenticated session', () => {
   assert.doesNotMatch(momentsPage, /adminMode\s*=\s*new URLSearchParams\(window\.location\.search\)/);
 });
 
-test('guestbook exposes authenticated message deletion controls', () => {
-  const messagesPage = readSource('src/pages/messages.astro');
+test('guestbook keeps authenticated moderation capability after moving to MessageBoard', () => {
+  const board = readSource('src/components/MessageBoard.astro');
   const interactions = readSource('src/lib/public-interactions.ts');
-  const worker = readSource('danmaku-api/src/index.ts');
+  const routes = readSource('danmaku-api/src/message-routes.ts');
 
-  assert.match(messagesPage, /getSession/);
-  assert.match(messagesPage, /login/);
-  assert.match(messagesPage, /deleteGuestMessage/);
-  assert.match(messagesPage, /message-delete/);
+  assert.match(board, /id="message-admin"/);
+  assert.match(board, /id="message-admin-password"/);
   assert.match(interactions, /export async function deleteGuestMessage/);
-  assert.match(worker, /request\.method === "DELETE"\) return handleMessagesDelete/);
-  assert.match(worker, /async function handleMessagesDelete/);
-  assert.match(worker, /requireSession\(request, env\)/);
+  assert.match(interactions, /credentials:\s*'include'/);
+  assert.match(routes, /request\.method === 'DELETE'/);
+  assert.match(routes, /handleMessagesDelete/);
+  assert.match(routes, /canMutateMessage/);
+  assert.match(routes, /readSession\(request, secret\)/);
 });
 
 test('hero slideshow keeps saved posters and a CORS-safe capture fallback without forcing playback CORS', () => {
