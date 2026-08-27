@@ -128,7 +128,7 @@ async function handleMessagesCreate(request: Request, env: MessageRouteEnv): Pro
   const color = requestedColor || fallback.color;
   const occupiedRows = await env.DB.prepare(
     'SELECT id,text,note_size,pos_x,pos_y FROM guest_messages ORDER BY created_at DESC LIMIT 200',
-  ).all<{ id: string; text: string; note_size: MessageNoteSize | null; pos_x: number | null; pos_y: number | null }>();
+  ).bind().all<{ id: string; text: string; note_size: MessageNoteSize | null; pos_x: number | null; pos_y: number | null }>();
   const occupied: OccupiedNote[] = (occupiedRows.results || []).map((row) => {
     const legacy = deriveLegacyNoteMeta(row.id, row.text);
     return {
