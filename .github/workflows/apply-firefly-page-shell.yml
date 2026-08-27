@@ -1,0 +1,82 @@
+name: Apply Firefly Page Shell
+
+on:
+  push:
+    branches:
+      - fix/firefly-page-shell-transitions
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[firefly-shell-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/firefly-page-shell-transitions
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Apply shared banner and Firefly motion
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          replacements = {
+              'src/pages/posts/[slug].astro': [
+                  ('  showBanner={false}\n', '  bannerTitle={post.data.title}\n  bannerSubtitle={post.data.description}\n'),
+              ],
+              'src/pages/posts/index.astro': [
+                  ('  showBanner={false}\n', '  bannerTitle="文章"\n  bannerSubtitle="按时间浏览博客文章，也顺手放着近期维护的 GitHub 项目。"\n'),
+              ],
+              'src/pages/moments.astro': [
+                  ('  showBanner={false}\n', '  bannerTitle="碎碎念"\n  bannerSubtitle="随手记下路过脑海和生活里的小事。"\n'),
+              ],
+              'src/components/PageTransitionEnhancer.astro': [
+                  ("{ transform: 'scaleX(0.92)', opacity: 1 },", "{ transform: 'scaleX(0.95)', opacity: 1 },"),
+                  ('duration: 420,', 'duration: 500,'),
+              ],
+          }
+
+          for filename, pairs in replacements.items():
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              original = text
+              for old, new in pairs:
+                  if old not in text:
+                      raise SystemExit(f'expected text not found in {filename}: {old!r}')
+                  text = text.replace(old, new, 1)
+              if text == original:
+                  raise SystemExit(f'no change made in {filename}')
+              path.write_text(text, encoding='utf-8')
+
+          article_test = Path('tests/article-reading.test.mjs')
+          text = article_test.read_text(encoding='utf-8')
+          old = """test('article can opt out of the standard banner with a dedicated bannerless shell', () => {\n  assert.match(layout, /showBanner\\?: boolean/);\n  assert.match(layout, /showBanner\\s*=\\s*true/);\n  assert.match(layout, /\\{showBanner\\s*&&\\s*\\(/);\n  assert.match(layout, /'is-bannerless':\\s*isStandard\\s*&&\\s*!showBanner/);\n  assert.match(page, /showBanner=\\{false\\}/);\n  assert.match(bannerlessCss, /body\\.layout-standard\\.is-bannerless \\.standard-page-surface\\s*\\{[\\s\\S]*margin-top:\\s*0/);\n});\n"""
+          new = """test('article uses the shared Firefly banner shell', () => {\n  assert.match(layout, /showBanner\\?: boolean/);\n  assert.match(layout, /showBanner\\s*=\\s*true/);\n  assert.match(layout, /\\{showBanner\\s*&&\\s*\\(/);\n  assert.doesNotMatch(page, /showBanner=\\{false\\}/);\n  assert.match(page, /bannerTitle=\\{post\\.data\\.title\\}/);\n  assert.match(page, /bannerSubtitle=\\{post\\.data\\.description\\}/);\n});\n"""
+          if old not in text:
+              raise SystemExit('article banner test block not found')
+          article_test.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          moments_test = Path('tests/moments-journal-layout.test.mjs')
+          text = moments_test.read_text(encoding='utf-8')
+          old = "test('bannerless Moments keeps all core interaction hooks', () => {\n  assert.match(page, /showBanner=\\{false\\}/);"
+          new = "test('Moments keeps the shared Firefly banner and all core interaction hooks', () => {\n  assert.doesNotMatch(page, /showBanner=\\{false\\}/);\n  assert.match(page, /bannerTitle=\"碎碎念\"/);"
+          if old not in text:
+              raise SystemExit('Moments banner test block not found')
+          moments_test.write_text(text.replace(old, new, 1), encoding='utf-8')
+          PY
+      - name: Commit applied changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "lidure"
+          git config user.email "101858375+Lidure@users.noreply.github.com"
+          git add src/pages/posts/'[slug].astro' src/pages/posts/index.astro src/pages/moments.astro src/components/PageTransitionEnhancer.astro tests/article-reading.test.mjs tests/moments-journal-layout.test.mjs
+          git commit -m "fix: unify Firefly page shell [firefly-shell-applied]"
+          git push origin HEAD:fix/firefly-page-shell-transitions
