@@ -1,0 +1,243 @@
+/*
+ * Article TOC adapted from Amiyadesi/sayori-blog:
+ * - src/components/widgets/card-toc/CardTOC.astro
+ * - src/styles/toc.css
+ * - src/utils/tocManager.ts
+ * Apache-2.0; see THIRD_PARTY_NOTICES.md and LICENSES/Apache-2.0-sayori.txt.
+ */
+
+body.layout-standard .article-toc-card {
+  --toc-btn-hover: color-mix(in oklab, var(--standard-accent) 12%, var(--standard-card-soft));
+  --toc-btn-active: color-mix(in oklab, var(--standard-accent) 22%, var(--standard-card-soft));
+  --toc-badge-bg: color-mix(in oklab, var(--standard-accent) 72%, white 28%);
+  --toc-content: color-mix(in srgb, var(--standard-text) 90%, var(--standard-muted));
+  --toc-meta: var(--standard-muted);
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  padding: 1rem 0;
+  border: 1px solid color-mix(in srgb, var(--standard-line) 74%, transparent);
+  border-radius: var(--radius-large, 1rem);
+  background: color-mix(in srgb, var(--standard-card-bg) var(--card-opacity-percent, 94%), transparent);
+  box-shadow: 0 8px 24px color-mix(in srgb, #000 5%, transparent);
+  overflow: hidden;
+}
+
+body.layout-standard .article-toc-card-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.75rem 1rem 0.5rem 1.75rem;
+  padding-right: 1rem;
+  color: var(--standard-text);
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+body.layout-standard .article-toc-title-mark {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 0.25rem;
+  height: 1rem;
+  border-radius: 0.375rem;
+  background: var(--standard-accent);
+}
+
+body.layout-standard .article-toc-card-body {
+  padding: 0 1rem;
+}
+
+body.layout-standard .toc-scroll-container {
+  max-height: 50vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  padding-right: 0.125rem;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body.layout-standard .toc-scroll-container::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+body.layout-standard .toc-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+  position: relative;
+  z-index: 0;
+  overflow: visible;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  contain: layout;
+  align-items: stretch;
+  padding: 0.125rem 0;
+}
+
+body.layout-standard .toc-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 0.875rem;
+  transition:
+    background-color 0.14s ease,
+    transform 0.14s ease,
+    color 0.14s ease;
+  width: 100%;
+  min-width: 0;
+  flex-shrink: 0;
+  max-width: 100%;
+  overflow: hidden;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
+  padding: 0.48rem 0.62rem;
+  min-height: 2.2rem;
+}
+
+body.layout-standard .toc-item:hover,
+body.layout-standard .toc-item:focus-visible {
+  background: color-mix(in oklab, var(--toc-btn-hover) 84%, transparent);
+  transform: translateX(1px);
+  outline: none;
+}
+
+body.layout-standard .toc-item:active {
+  background: color-mix(in oklab, var(--toc-btn-active) 88%, transparent);
+}
+
+body.layout-standard .toc-item.toc-level-1 {
+  padding-left: 1.08rem;
+}
+
+body.layout-standard .toc-item.toc-level-2 {
+  padding-left: 1.62rem;
+}
+
+body.layout-standard .toc-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  max-width: calc(100% - 2.4rem);
+  box-sizing: border-box;
+  font-size: 0.86rem;
+  line-height: 1.3;
+  letter-spacing: 0.01em;
+}
+
+body.layout-standard .toc-label-primary {
+  color: color-mix(in oklab, var(--toc-meta) 78%, var(--standard-accent));
+}
+
+body.layout-standard .toc-label-secondary {
+  color: color-mix(in oklab, var(--toc-meta) 88%, transparent);
+}
+
+body.layout-standard .toc-item.visible .toc-label-primary,
+body.layout-standard .toc-item.visible .toc-label-secondary {
+  color: var(--toc-content);
+}
+
+body.layout-standard .toc-badge {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+body.layout-standard .toc-badge-index {
+  background: var(--toc-badge-bg);
+  color: color-mix(in oklab, var(--standard-text) 84%, #000 16%);
+}
+
+html[data-theme='dark'] body.layout-standard .toc-badge-index {
+  color: color-mix(in oklab, var(--standard-card-bg) 72%, #000 28%);
+}
+
+body.layout-standard .toc-badge-dot {
+  display: block;
+  width: 0.48rem;
+  height: 0.48rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--standard-accent) 26%, var(--standard-line));
+}
+
+body.layout-standard .toc-badge-dot-sm {
+  width: 0.34rem;
+  height: 0.34rem;
+  border-radius: 0.25rem;
+  background: color-mix(in oklab, var(--standard-accent) 16%, var(--standard-line));
+}
+
+body.layout-standard .toc-item.visible .toc-badge-dot,
+body.layout-standard .toc-item.visible .toc-badge-dot-sm {
+  background: var(--standard-accent);
+}
+
+body.layout-standard .toc-active-indicator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: var(--toc-btn-hover);
+  border: 2px dashed var(--toc-btn-hover);
+  border-radius: 0.75rem;
+  transition:
+    top 0.18s ease,
+    height 0.18s ease,
+    opacity 0.14s ease,
+    background 0.14s ease,
+    border-color 0.14s ease;
+  z-index: 0;
+  pointer-events: none;
+}
+
+body.layout-standard .group:hover .toc-active-indicator {
+  background: transparent;
+  border-color: var(--toc-btn-active);
+}
+
+@media (max-width: 768px) {
+  body.layout-standard .toc-item {
+    padding: 0.44rem 0.58rem;
+    border-radius: 0.78rem;
+  }
+
+  body.layout-standard .toc-item.toc-level-1 {
+    padding-left: 0.94rem;
+  }
+
+  body.layout-standard .toc-item.toc-level-2 {
+    padding-left: 1.34rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.layout-standard .toc-scroll-container {
+    scroll-behavior: auto;
+  }
+
+  body.layout-standard .toc-item,
+  body.layout-standard .toc-active-indicator {
+    transition: none;
+  }
+
+  body.layout-standard .toc-item:hover,
+  body.layout-standard .toc-item:focus-visible {
+    transform: none;
+  }
+}
