@@ -142,6 +142,7 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     const article = document.querySelector<HTMLElement>('.article-publication');
     const prose = article?.querySelector<HTMLElement>('.article-prose');
     if (!article || !prose) return;
+    const proseElement: HTMLElement = prose;
 
     const controller = new AbortController();
     const { signal } = controller;
@@ -240,9 +241,9 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     headingElements.forEach((heading) => tocObserver.observe(heading));
 
     function measureReadingProgress() {
-      const rect = prose.getBoundingClientRect();
+      const rect = proseElement.getBoundingClientRect();
       progressStart = window.scrollY + rect.top;
-      const progressEnd = progressStart + prose.offsetHeight - window.innerHeight;
+      const progressEnd = progressStart + proseElement.offsetHeight - window.innerHeight;
       progressSpan = Math.max(1, progressEnd - progressStart);
     }
 
