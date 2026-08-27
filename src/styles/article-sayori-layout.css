@@ -1,0 +1,62 @@
+/*
+ * Exact article shell sizing/sticky behavior adapted from Amiyadesi/sayori-blog.
+ * Sayori uses PAGE_WIDTH = 112rem, 1rem grid gaps and a sticky top-4 sidebar.
+ * Apache-2.0 attribution is recorded in THIRD_PARTY_NOTICES.md.
+ */
+
+body.layout-standard .article-publication {
+  width: min(100%, 112rem);
+  max-width: 112rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+body.layout-standard .sayori-reading-grid {
+  width: 100%;
+  max-width: none;
+  margin-inline: auto;
+  gap: 1rem;
+  align-items: start;
+}
+
+body.layout-standard .sayori-sidebar-sticky {
+  position: sticky;
+  top: 1rem;
+  min-width: 0;
+  max-height: none;
+  overflow: visible;
+  scrollbar-width: auto;
+}
+
+@media (min-width: 1280px) {
+  body.layout-standard .sayori-reading-grid {
+    grid-template-columns: minmax(13.5rem, 16rem) minmax(0, 1fr) minmax(12rem, 15rem);
+  }
+
+  body.layout-standard .sayori-main-column {
+    grid-column: 2 / 3;
+    min-width: 0;
+  }
+
+  body.layout-standard .sayori-toc-sidebar {
+    grid-column: 1 / 2;
+    min-width: 0;
+  }
+
+  body.layout-standard .sayori-right-sidebar {
+    grid-column: 3 / 4;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 1279px) {
+  body.layout-standard .article-publication {
+    width: 100%;
+    max-width: none;
+    padding-inline: clamp(0.75rem, 2.5vw, 1rem);
+  }
+
+  body.layout-standard .sayori-reading-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
