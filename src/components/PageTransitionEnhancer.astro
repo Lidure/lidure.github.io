@@ -3,8 +3,8 @@
 <style is:global>
   /* Astro's ClientRouter uses the browser View Transition API when available.
      Firefly does not layer a native root snapshot over its Swup content motion.
-     Disable the root snapshot animation here, otherwise Chromium composites
-     backdrop-filter content into a large rectangular blurred texture. */
+     Keep the native pseudo-elements inert as a defensive fallback; the runtime
+     also calls viewTransition.skipTransition() before each swap below. */
   ::view-transition-group(root),
   ::view-transition-image-pair(root),
   ::view-transition-old(root),
@@ -178,6 +178,17 @@
     document.addEventListener('astro:before-preparation', function () {
       beginLeave();
       startProgressBar();
+    });
+
+    /* CSS can disable the pseudo-element animation, but Chromium has already
+       captured a native page snapshot by this point. Explicitly skipping the
+       ViewTransition prevents that rasterized backdrop-filter snapshot from
+       ever becoming the visible transition frame. Astro still performs its
+       normal SPA body swap and fires after-swap/page-load lifecycle events. */
+    document.addEventListener('astro:before-swap', function (event) {
+      if (event.viewTransition && typeof event.viewTransition.skipTransition === 'function') {
+        event.viewTransition.skipTransition();
+      }
     });
 
     document.addEventListener('astro:after-swap', function () {
