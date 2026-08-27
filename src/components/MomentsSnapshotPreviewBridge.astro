@@ -66,8 +66,9 @@
   function installNativeSnapshotPreviews() {
     nativeSnapshotWindow.__momentsNativeSnapshotCleanup?.();
 
-    const shell = document.querySelector<HTMLElement>('.moments-shell');
-    if (!shell) return;
+    const foundShell = document.querySelector<HTMLElement>('.moments-shell');
+    if (!foundShell) return;
+    const shell: HTMLElement = foundShell;
 
     document.querySelectorAll('.moments-snapshot-popover').forEach((node) => node.remove());
     const controller = new AbortController();
@@ -110,9 +111,6 @@
         preview.append(frame, close);
         document.body.appendChild(preview);
 
-        // Clone the generated thumbnail to deliberately drop the older JS click
-        // listener. The replacement uses the browser's native popover activation,
-        // so opening a SNAPSHOT no longer depends on event remapping or Astro state.
         const nativeButton = button.cloneNode(true) as HTMLButtonElement;
         nativeButton.dataset.nativeSnapshot = '1';
         nativeButton.setAttribute('popovertarget', previewId);
