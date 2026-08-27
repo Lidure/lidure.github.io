@@ -52,6 +52,26 @@ test('controller persists only owned drops and keeps a server-confirmed rollback
   assert.match(controller, /serverConfirmed/);
 });
 
+test('drop keeps the dragged DOM node continuous until persistence settles', () => {
+  const controller = read('src/lib/message-board-controller.ts');
+  const css = read('src/styles/message-board.css');
+  const match = controller.match(/async function finalizeDrop\([\s\S]*?\n  function bindNote/);
+  assert.ok(match, 'finalizeDrop should remain an isolated controller step');
+  const drop = match[0];
+  const persistenceIndex = drop.search(/const saved\s*=/);
+  assert.ok(persistenceIndex > 0, 'finalizeDrop should persist owned/admin positions');
+  const beforePersistence = drop.slice(0, persistenceIndex);
+  assert.doesNotMatch(beforePersistence, /renderAll\(\)/, 'drop must not destroy and recreate the dragged note before PATCH settles');
+  assert.match(beforePersistence, /updateNoteElementPosition\(/, 'drop should update the existing note element in place');
+  assert.match(css, /\.sticky-note\.dragging\s*\{[\s\S]*?transition:\s*none/, 'dragging transform must be fully pointer-synchronous');
+});
+
+test('a stale deferred poll snapshot cannot overwrite a newer local drop save', () => {
+  const controller = read('src/lib/message-board-controller.ts');
+  assert.match(controller, /function isRemoteMessageNewer\(/);
+  assert.match(controller, /if \(!current \|\| isRemoteMessageNewer\(current, deferred\)\)/);
+});
+
 test('details reuse comments and expose approved reactions', () => {
   const board = read('src/components/MessageBoard.astro');
   const controller = read('src/lib/message-board-controller.ts');

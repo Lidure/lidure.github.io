@@ -57,16 +57,35 @@ function byId<T extends HTMLElement>(id: string) {
   return document.getElementById(id) as T | null;
 }
 
-function createNoteElement(message: GuestMessage) {
+function messageVersion(message: GuestMessage) {
+  return Number(message.updatedAt || message.createdAt || 0);
+}
+
+function isRemoteMessageNewer(current: GuestMessage, remote: GuestMessage) {
+  return messageVersion(remote) > messageVersion(current);
+}
+
+function updateNoteElementPosition(element: HTMLElement, note: MessageNoteMeta, renderedWidth: number) {
+  element.style.setProperty('--note-x', String(note.x));
+  element.style.setProperty('--note-y', String(note.y));
+  element.style.setProperty('--note-rotation', `${note.rotation}deg`);
+  const { x: renderedX, y: renderedY, scale } = logicalToRenderedPosition(
+    { x: note.x, y: note.y },
+    Math.max(720, renderedWidth || 720),
+  );
+  element.style.setProperty('--render-x', `${renderedX}px`);
+  element.style.setProperty('--render-y', `${renderedY}px`);
+  element.style.setProperty('--board-scale', String(scale));
+}
+
+function createNoteElement(message: GuestMessage, renderedWidth = BOARD_LOGICAL_WIDTH) {
   const note = document.createElement('article');
   note.className = 'sticky-note';
   note.tabIndex = 0;
   note.dataset.messageId = message.id;
   note.dataset.noteSize = message.note.size;
   note.dataset.noteColor = message.note.color;
-  note.style.setProperty('--note-x', String(message.note.x));
-  note.style.setProperty('--note-y', String(message.note.y));
-  note.style.setProperty('--note-rotation', `${message.note.rotation}deg`);
+  updateNoteElementPosition(note, message.note, renderedWidth);
   note.setAttribute('aria-label', `${message.userId} 的便签：${message.text.slice(0, 40)}`);
 
   const pin = document.createElement('span');
@@ -231,9 +250,12 @@ export function initMessageBoard() {
     const deferred = deferredRemote.get(messageId);
     if (!deferred) return;
     deferredRemote.delete(messageId);
-    state.messages.set(messageId, deferred);
-    serverConfirmed.set(messageId, { x: deferred.note.x, y: deferred.note.y });
-    renderAll();
+    const current = state.messages.get(messageId);
+    if (!current || isRemoteMessageNewer(current, deferred)) {
+      state.messages.set(messageId, deferred);
+      serverConfirmed.set(messageId, { x: deferred.note.x, y: deferred.note.y });
+      renderAll();
+    }
   }
 
   function closeComposer() {
@@ -383,11 +405,9 @@ export function initMessageBoard() {
     message.note.y = session.startNoteY + logicalDelta(clientY - session.startClientY);
     const element = boardStage.querySelector<HTMLElement>(`.sticky-note[data-message-id="${CSS.escape(session.id)}"]`);
     if (element) {
-      element.style.setProperty('--note-x', String(message.note.x));
-      element.style.setProperty('--note-y', String(message.note.y));
       element.classList.add('dragging');
+      updateNoteElementPosition(element, message.note, boardStage.clientWidth);
     }
-    applyRenderedPositions(boardStage);
     updateStageHeight();
   }
 
@@ -404,10 +424,13 @@ export function initMessageBoard() {
 
   async function finalizeDrop(session: DragSession, element: HTMLElement) {
     if (session.holdTimer) window.clearTimeout(session.holdTimer);
-    element.classList.remove('dragging');
-    if (!session.activated) return;
+    if (!session.activated) {
+      element.classList.remove('dragging');
+      return;
+    }
     const message = state.messages.get(session.id);
     if (!message) {
+      element.classList.remove('dragging');
       reconcileDeferred(session.id);
       return;
     }
@@ -417,7 +440,9 @@ export function initMessageBoard() {
     const corrected = correctDroppedPosition({ x: message.note.x, y: message.note.y, size: message.note.size }, occupied);
     message.note.x = corrected.x;
     message.note.y = corrected.y;
-    renderAll();
+    element.classList.remove('dragging');
+    updateNoteElementPosition(element, message.note, boardStage.clientWidth);
+    updateStageHeight();
 
     const owned = hasGuestMessageOwnership(session.id);
     if (!owned && !adminMode) {
@@ -433,12 +458,14 @@ export function initMessageBoard() {
         : await updateOwnedGuestMessage(session.id, { posX: corrected.x, posY: corrected.y });
       state.messages.set(saved.id, saved);
       serverConfirmed.set(saved.id, { x: saved.note.x, y: saved.note.y });
-      renderAll();
+      updateNoteElementPosition(element, saved.note, boardStage.clientWidth);
+      updateStageHeight();
       setStatus('便签位置已保存。');
     } catch (error) {
       message.note.x = rollback.x;
       message.note.y = rollback.y;
-      renderAll();
+      updateNoteElementPosition(element, message.note, boardStage.clientWidth);
+      updateStageHeight();
       setStatus(`${friendlyError(error)}，已恢复原来的位置。`, true);
     } finally {
       reconcileDeferred(session.id);
@@ -536,8 +563,9 @@ export function initMessageBoard() {
       empty.textContent = '这面墙还空着，来贴第一张便签吧。';
       boardStage.appendChild(empty);
     } else {
+      const renderedWidth = Math.max(720, boardStage.clientWidth || 720);
       messages.forEach((message) => {
-        const note = createNoteElement(message);
+        const note = createNoteElement(message, renderedWidth);
         bindNote(note, message);
         boardStage.appendChild(note);
       });
@@ -549,7 +577,8 @@ export function initMessageBoard() {
 
   function acceptRemoteMessage(message: GuestMessage) {
     if (interactionLocks.has(message.id)) {
-      deferredRemote.set(message.id, message);
+      const deferred = deferredRemote.get(message.id);
+      if (!deferred || isRemoteMessageNewer(deferred, message)) deferredRemote.set(message.id, message);
       return false;
     }
     state.messages.set(message.id, message);
