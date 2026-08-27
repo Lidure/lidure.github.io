@@ -1,0 +1,23 @@
+name: Verify Firefly Native Transition Skip
+
+on:
+  push:
+    branches:
+      - fix/firefly-skip-native-view-transition
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Focused native transition contract
+        run: node --test tests/firefly-skip-native-view-transition.test.mjs
+      - name: Full test suite
+        run: npm test
+      - name: Build
+        run: npm run build
