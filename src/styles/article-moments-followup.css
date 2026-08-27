@@ -100,6 +100,17 @@ body.layout-standard .moments-shell .moment-card .card-text {
   max-width: 78ch;
 }
 
+/* Moments use preview comments. Keep the whole comment block out of the note
+ * until the async comment list contains a real comment, so empty notes stay
+ * visually compact instead of reserving footer space. */
+body.layout-standard .moments-shell .moment-card .public-comments {
+  display: none;
+}
+
+body.layout-standard .moments-shell .moment-card .public-comments:has(.public-comment-item) {
+  display: block;
+}
+
 @media (max-width: 1280px) {
   body.layout-standard:has(.moments-shell) .standard-content {
     width: 100%;
@@ -110,7 +121,10 @@ body.layout-standard .moments-shell .moment-card .card-text {
     width: 100% !important;
   }
 
-  body.layout-standard .moments-shell .moment-card.moment--whisper,
+  body.layout-standard .moments-shell .moment-card.moment--whisper {
+    width: min(100%, 32rem) !important;
+  }
+
   body.layout-standard .moments-shell .moment-card.moment--compact {
     width: min(100%, 42rem) !important;
   }
