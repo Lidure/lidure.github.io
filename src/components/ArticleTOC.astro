@@ -1,0 +1,68 @@
+---
+/**
+ * ArticleTOC
+ * Adapted from Amiyadesi/sayori-blog CardTOC.astro + src/styles/toc.css.
+ * The markup is rendered from Astro headings instead of regenerating it client-side,
+ * while the active-range behaviour is handled by the article page lifecycle.
+ */
+import type { MarkdownHeading } from 'astro';
+
+interface Props {
+  headings: MarkdownHeading[];
+}
+
+const { headings } = Astro.props;
+const minDepth = headings.length > 0
+  ? Math.min(...headings.map((heading) => heading.depth))
+  : 2;
+let topLevelIndex = 0;
+---
+
+<section class="article-toc-card group" data-article-card-toc>
+  <div class="article-toc-card-title">
+    <span class="article-toc-title-mark" aria-hidden="true"></span>
+    <span>目录</span>
+  </div>
+
+  <div class="article-toc-card-body">
+    <div class="toc-scroll-container" data-article-toc-scroll>
+      <nav class="toc-content" aria-label="文章目录">
+        {headings.map((heading) => {
+          const depthLevel = Math.min(2, Math.max(0, heading.depth - minDepth));
+          if (depthLevel === 0) topLevelIndex += 1;
+          const badgeIndex = topLevelIndex;
+
+          return (
+            <a
+              href={`#${heading.slug}`}
+              data-article-toc={heading.slug}
+              data-heading-id={heading.slug}
+              class:list={['toc-item', `toc-level-${depthLevel}`]}
+              aria-label={heading.text}
+              title={heading.text}
+            >
+              <span class:list={['toc-badge', { 'toc-badge-index': depthLevel === 0 }]}>
+                {depthLevel === 0 ? (
+                  badgeIndex
+                ) : depthLevel === 1 ? (
+                  <span class="toc-badge-dot"></span>
+                ) : (
+                  <span class="toc-badge-dot toc-badge-dot-sm"></span>
+                )}
+              </span>
+              <span class:list={['toc-label', depthLevel <= 1 ? 'toc-label-primary' : 'toc-label-secondary']}>
+                {heading.text}
+              </span>
+            </a>
+          );
+        })}
+        <span
+          class="toc-active-indicator"
+          data-article-toc-indicator
+          style="opacity: 0"
+          aria-hidden="true"
+        ></span>
+      </nav>
+    </div>
+  </div>
+</section>

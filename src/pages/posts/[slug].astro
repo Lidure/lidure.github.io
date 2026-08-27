@@ -2,8 +2,10 @@
 import { getCollection, render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Comments from '../../components/Comments.astro';
+import ArticleTOC from '../../components/ArticleTOC.astro';
 import { estimateReadingMinutes } from '../../utils/article-reading';
 import '../../styles/article-reading.css';
+import '../../styles/article-toc-sayori.css';
 import 'katex/dist/katex.min.css';
 
 export async function getStaticPaths() {
@@ -58,21 +60,7 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
       <aside class="sayori-toc-sidebar" aria-label="文章目录">
         {tocHeadings.length > 0 && (
           <div class="sayori-sidebar-sticky">
-            <div class="article-toc-heading">
-              <span>目录</span>
-              <span>{tocHeadings.length} 节</span>
-            </div>
-            <nav class="sayori-toc-list">
-              {tocHeadings.map((heading) => (
-                <a
-                  class="article-toc-link"
-                  data-depth={heading.depth}
-                  data-article-toc={heading.slug}
-                  href={`#${heading.slug}`}
-                >{heading.text}</a>
-              ))}
-            </nav>
-            <div class="article-toc-progress" aria-hidden="true"><span></span></div>
+            <ArticleTOC headings={tocHeadings} />
           </div>
         )}
       </aside>
@@ -157,13 +145,79 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     const controller = new AbortController();
     const { signal } = controller;
     const tocLinks = Array.from(article.querySelectorAll<HTMLAnchorElement>('[data-article-toc]'));
+    const desktopTocLinks = Array.from(article.querySelectorAll<HTMLAnchorElement>('[data-article-card-toc] [data-article-toc]'));
     const headingIds = Array.from(new Set(tocLinks.map((link) => link.dataset.articleToc).filter(Boolean))) as string[];
+    const headingElements = headingIds
+      .map((id) => document.getElementById(id))
+      .filter((heading): heading is HTMLElement => heading instanceof HTMLElement);
+    const tocScrollContainer = article.querySelector<HTMLElement>('[data-article-toc-scroll]');
+    const tocContent = article.querySelector<HTMLElement>('.toc-content');
+    const indicator = article.querySelector<HTMLElement>('[data-article-toc-indicator]');
     const progressLabel = article.querySelector<HTMLElement>('[data-article-progress-label]');
     const backtop = article.querySelector<HTMLButtonElement>('[data-article-backtop]');
     let ticking = false;
 
     const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
       || document.documentElement.dataset.reduceMotion === 'true';
+
+    const visibleHeadingIds = () => {
+      const visible = headingElements
+        .filter((heading) => {
+          const rect = heading.getBoundingClientRect();
+          return rect.top < window.innerHeight && rect.bottom > 0;
+        })
+        .map((heading) => heading.id);
+
+      if (visible.length > 0 || headingElements.length === 0) return visible;
+
+      let closest = headingElements[0];
+      let closestDistance = Number.POSITIVE_INFINITY;
+      headingElements.forEach((heading) => {
+        const distance = Math.abs(heading.getBoundingClientRect().top - 80);
+        if (distance < closestDistance) {
+          closest = heading;
+          closestDistance = distance;
+        }
+      });
+      return closest ? [closest.id] : [];
+    };
+
+    const syncTocActiveRange = () => {
+      const activeIds = visibleHeadingIds();
+      desktopTocLinks.forEach((link) => {
+        link.classList.toggle('visible', Boolean(link.dataset.articleToc) && activeIds.includes(link.dataset.articleToc!));
+      });
+
+      const activeEntries = desktopTocLinks.filter((link) => link.classList.contains('visible'));
+      if (!indicator || !tocContent || activeEntries.length === 0) {
+        if (indicator) indicator.style.opacity = '0';
+        return;
+      }
+
+      const contentRect = tocContent.getBoundingClientRect();
+      const firstActive = activeEntries[0];
+      const lastActive = activeEntries[activeEntries.length - 1];
+      const firstRect = firstActive.getBoundingClientRect();
+      const lastRect = lastActive.getBoundingClientRect();
+      const top = firstRect.top - contentRect.top;
+      const height = lastRect.bottom - firstRect.top;
+
+      indicator.style.top = `${top}px`;
+      indicator.style.height = `${height}px`;
+      indicator.style.opacity = '1';
+
+      if (!tocScrollContainer) return;
+      const containerRect = tocScrollContainer.getBoundingClientRect();
+      const activeRect = firstActive.getBoundingClientRect();
+      const isInside = activeRect.top >= containerRect.top && activeRect.bottom <= containerRect.bottom;
+      if (!isInside) {
+        const targetTop = firstActive.offsetTop - tocScrollContainer.clientHeight / 2 + firstActive.clientHeight / 2;
+        tocScrollContainer.scrollTo({
+          top: Math.max(0, targetTop),
+          behavior: reducedMotion() ? 'auto' : 'smooth',
+        });
+      }
+    };
 
     const sync = () => {
       ticking = false;
@@ -174,18 +228,7 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
       const progress = Math.min(1, Math.max(0, (window.scrollY - start) / span));
       article.style.setProperty('--article-reading-progress', String(progress));
       if (progressLabel) progressLabel.textContent = `${Math.round(progress * 100)}%`;
-
-      let currentId = headingIds[0] ?? '';
-      for (const id of headingIds) {
-        const heading = document.getElementById(id);
-        if (heading && heading.getBoundingClientRect().top <= Math.min(180, window.innerHeight * 0.28)) {
-          currentId = id;
-        }
-      }
-
-      tocLinks.forEach((link) => {
-        link.classList.toggle('is-current', Boolean(currentId) && link.dataset.articleToc === currentId);
-      });
+      syncTocActiveRange();
     };
 
     const requestSync = () => {
@@ -201,11 +244,15 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
         const heading = document.getElementById(id);
         if (!heading) return;
         event.preventDefault();
-        heading.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'start' });
+        const targetTop = heading.getBoundingClientRect().top + window.scrollY - 80;
+        window.scrollTo({ top: targetTop, behavior: reducedMotion() ? 'auto' : 'smooth' });
         history.replaceState(null, '', `#${encodeURIComponent(id)}`);
         link.closest<HTMLDetailsElement>('.article-toc-mobile')?.removeAttribute('open');
       }, { signal });
     });
+
+    const observer = new IntersectionObserver(requestSync, { threshold: 0 });
+    headingElements.forEach((heading) => observer.observe(heading));
 
     backtop?.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
@@ -214,7 +261,10 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     window.addEventListener('scroll', requestSync, { passive: true, signal });
     window.addEventListener('resize', requestSync, { passive: true, signal });
 
-    articleWindow.__articlePublicationCleanup = () => controller.abort();
+    articleWindow.__articlePublicationCleanup = () => {
+      observer.disconnect();
+      controller.abort();
+    };
     sync();
   }
 

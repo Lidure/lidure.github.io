@@ -7,6 +7,7 @@ const page = read('src/pages/posts/[slug].astro');
 const indexPage = read('src/pages/posts/index.astro');
 const layout = read('src/layouts/BaseLayout.astro');
 const css = read('src/styles/article-reading.css');
+const tocCss = read('src/styles/article-toc-sayori.css');
 const followupCss = read('src/styles/article-moments-followup.css');
 const bannerlessCss = read('src/styles/bannerless-pages.css');
 const archiveCssUrl = new URL('../src/styles/article-archive.css', import.meta.url);
@@ -47,6 +48,7 @@ test('article adopts the Sayori-style reading grid instead of the old canvas', (
 test('article uses the Sayori CardTOC structure and visual grammar', () => {
   assert.ok(toc.length > 0, 'ArticleTOC component should exist');
   assert.match(page, /import ArticleTOC from ['"]\.\.\/\.\.\/components\/ArticleTOC\.astro['"]/);
+  assert.match(page, /article-toc-sayori\.css/);
   assert.match(page, /<ArticleTOC\s+headings=\{tocHeadings\}/);
   assert.match(toc, /data-article-card-toc/);
   assert.match(toc, /class="article-toc-card group"/);
@@ -62,18 +64,18 @@ test('article uses the Sayori CardTOC structure and visual grammar', () => {
 });
 
 test('Sayori CardTOC keeps the upstream sizing, ellipsis and dashed active indicator', () => {
-  assert.match(css, /\.article-toc-card\s*\{[\s\S]*border-radius:\s*var\(--radius-large,\s*1rem\)/);
-  assert.match(css, /\.article-toc-card-title\s*\{[\s\S]*font-size:\s*1\.125rem[\s\S]*font-weight:\s*700/);
-  assert.match(css, /\.article-toc-title-mark\s*\{[\s\S]*width:\s*0\.25rem[\s\S]*height:\s*1rem/);
-  assert.match(css, /\.toc-scroll-container\s*\{[\s\S]*max-height:\s*50vh[\s\S]*overflow-y:\s*auto/);
-  assert.match(css, /\.toc-content\s*\{[\s\S]*gap:\s*0\.28rem[\s\S]*contain:\s*layout/);
-  assert.match(css, /\.toc-item\s*\{[\s\S]*border-radius:\s*0\.875rem[\s\S]*padding:\s*0\.48rem\s+0\.62rem[\s\S]*min-height:\s*2\.2rem/);
-  assert.match(css, /\.toc-item\.toc-level-1\s*\{[\s\S]*padding-left:\s*1\.08rem/);
-  assert.match(css, /\.toc-item\.toc-level-2\s*\{[\s\S]*padding-left:\s*1\.62rem/);
-  assert.match(css, /\.toc-label\s*\{[\s\S]*text-overflow:\s*ellipsis[\s\S]*white-space:\s*nowrap/);
-  assert.match(css, /\.toc-badge\s*\{[\s\S]*width:\s*1\.35rem[\s\S]*height:\s*1\.35rem[\s\S]*border-radius:\s*0\.5rem/);
-  assert.match(css, /\.toc-active-indicator\s*\{[\s\S]*border:\s*2px\s+dashed[\s\S]*border-radius:\s*0\.75rem/);
-  assert.match(css, /\.group:hover\s+\.toc-active-indicator\s*\{[\s\S]*background:\s*transparent/);
+  assert.match(tocCss, /\.article-toc-card\s*\{[\s\S]*border-radius:\s*var\(--radius-large,\s*1rem\)/);
+  assert.match(tocCss, /\.article-toc-card-title\s*\{[\s\S]*font-size:\s*1\.125rem[\s\S]*font-weight:\s*700/);
+  assert.match(tocCss, /\.article-toc-title-mark\s*\{[\s\S]*width:\s*0\.25rem[\s\S]*height:\s*1rem/);
+  assert.match(tocCss, /\.toc-scroll-container\s*\{[\s\S]*max-height:\s*50vh[\s\S]*overflow-y:\s*auto/);
+  assert.match(tocCss, /\.toc-content\s*\{[\s\S]*gap:\s*0\.28rem[\s\S]*contain:\s*layout/);
+  assert.match(tocCss, /\.toc-item\s*\{[\s\S]*border-radius:\s*0\.875rem[\s\S]*padding:\s*0\.48rem\s+0\.62rem[\s\S]*min-height:\s*2\.2rem/);
+  assert.match(tocCss, /\.toc-item\.toc-level-1\s*\{[\s\S]*padding-left:\s*1\.08rem/);
+  assert.match(tocCss, /\.toc-item\.toc-level-2\s*\{[\s\S]*padding-left:\s*1\.62rem/);
+  assert.match(tocCss, /\.toc-label\s*\{[\s\S]*text-overflow:\s*ellipsis[\s\S]*white-space:\s*nowrap/);
+  assert.match(tocCss, /\.toc-badge\s*\{[\s\S]*width:\s*1\.35rem[\s\S]*height:\s*1\.35rem[\s\S]*border-radius:\s*0\.5rem/);
+  assert.match(tocCss, /\.toc-active-indicator\s*\{[\s\S]*border:\s*2px\s+dashed[\s\S]*border-radius:\s*0\.75rem/);
+  assert.match(tocCss, /\.group:hover\s+\.toc-active-indicator\s*\{[\s\S]*background:\s*transparent/);
 });
 
 test('Sayori CardTOC active range follows visible headings and scrolls itself', () => {
@@ -122,6 +124,7 @@ test('article keeps heading tracking, progress, back-to-top and Astro lifecycle 
 test('Sayori attribution is recorded for the adapted reading layout', () => {
   const notices = read('THIRD_PARTY_NOTICES.md');
   assert.match(css, /adapted from Amiyadesi\/sayori-blog/i);
+  assert.match(tocCss, /Amiyadesi\/sayori-blog/);
   assert.match(notices, /Amiyadesi\/sayori-blog/);
   assert.match(notices, /Apache License 2\.0/);
 });
