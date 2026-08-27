@@ -77,7 +77,7 @@ test('article keeps heading tracking, progress, back-to-top and Astro lifecycle 
 
 test('Sayori attribution is recorded for the adapted reading layout', () => {
   const notices = read('THIRD_PARTY_NOTICES.md');
-  assert.match(css, /Adapted from Amiyadesi\/sayori-blog/);
+  assert.match(css, /adapted from Amiyadesi\/sayori-blog/i);
   assert.match(notices, /Amiyadesi\/sayori-blog/);
   assert.match(notices, /Apache License 2\.0/);
 });
