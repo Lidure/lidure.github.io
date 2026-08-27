@@ -1,0 +1,29 @@
+name: Verify Reading Performance
+
+on:
+  push:
+    branches:
+      - perf/sayori-reading-scroll
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Focused performance contract
+        run: node --test tests/article-scroll-performance.test.mjs
+      - name: Full test suite
+        run: npm test
+      - name: Astro check
+        run: npx astro check
+      - name: Build
+        run: npm run build
