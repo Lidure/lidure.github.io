@@ -1,5 +1,6 @@
 import { readSession } from './auth';
 import {
+  MESSAGE_REACTION_EMOJIS,
   NOTE_COLORS,
   chooseMessagePlacement,
   classifyMessageNoteSize,
@@ -46,6 +47,10 @@ export async function handleStickyMessageRequest(
   url: URL,
   env: MessageRouteEnv,
 ): Promise<Response | null> {
+  if (url.pathname === '/api/message-reactions') {
+    if (request.method === 'POST') return handleMessageReactionCreate(request, env);
+    return null;
+  }
   if (url.pathname !== '/api/messages') return null;
   if (request.method === 'GET') return handleMessagesList(url, request, env);
   if (request.method === 'POST') return handleMessagesCreate(request, env);
@@ -218,6 +223,43 @@ async function handleMessagesDelete(request: Request, env: MessageRouteEnv): Pro
   await env.DB.prepare("DELETE FROM comments WHERE target_type = 'message' AND target_id = ?").bind(id).run();
   await env.DB.prepare('DELETE FROM guest_messages WHERE id = ?').bind(id).run();
   return json({ deleted: true }, 200, request, env);
+}
+
+async function handleMessageReactionCreate(request: Request, env: MessageRouteEnv): Promise<Response> {
+  if (!isJsonRequest(request)) return errorResponse('Expected application/json', 'UNSUPPORTED_MEDIA_TYPE', 415, request, env);
+  const body = await readJsonBody(request);
+  if (!body.ok) return errorResponse('Request body must be valid JSON.', 'BAD_JSON', 400, request, env);
+
+  const messageId = typeof body.value.messageId === 'string' ? body.value.messageId.trim() : '';
+  const emoji = typeof body.value.emoji === 'string' ? body.value.emoji.trim() : '';
+  const previousEmoji = typeof body.value.previousEmoji === 'string' ? body.value.previousEmoji.trim() : '';
+  if (!messageId || !(MESSAGE_REACTION_EMOJIS as readonly string[]).includes(emoji)) {
+    return errorResponse('Missing messageId or invalid emoji', 'BAD_REQUEST', 400, request, env);
+  }
+  if (previousEmoji && !(MESSAGE_REACTION_EMOJIS as readonly string[]).includes(previousEmoji)) {
+    return errorResponse('Invalid previous emoji', 'BAD_REQUEST', 400, request, env);
+  }
+
+  const existing = await env.DB.prepare('SELECT id FROM guest_messages WHERE id = ? LIMIT 1').bind(messageId).first<{ id: string }>();
+  if (!existing) return errorResponse('Message not found', 'MESSAGE_NOT_FOUND', 404, request, env);
+
+  const ipHash = await hashClient(request);
+  await env.DB.prepare('DELETE FROM message_reactions WHERE message_id = ? AND ip_hash = ?').bind(messageId, ipHash).run();
+
+  let selectedEmoji = '';
+  if (previousEmoji !== emoji) {
+    await env.DB.prepare('INSERT INTO message_reactions (message_id,emoji,ip_hash,created_at) VALUES (?,?,?,?)')
+      .bind(messageId, emoji, ipHash, Date.now()).run();
+    selectedEmoji = emoji;
+  }
+
+  const result = await env.DB.prepare(
+    'SELECT emoji, COUNT(*) AS count FROM message_reactions WHERE message_id = ? GROUP BY emoji',
+  ).bind(messageId).all<{ emoji: string; count: number }>();
+  const reactions: Record<string, number> = {};
+  for (const row of result.results || []) reactions[row.emoji] = Number(row.count) || 0;
+
+  return json({ reactions, selectedEmoji }, 200, request, env);
 }
 
 async function canMutateMessage(request: Request, env: MessageRouteEnv, expectedHash: string | null, tokenValue: unknown): Promise<boolean> {
