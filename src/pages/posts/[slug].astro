@@ -38,7 +38,8 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
 <BaseLayout
   title={`${post.data.title} | Lidure Blog`}
   description={post.data.description}
-  showBanner={false}
+  bannerTitle={post.data.title}
+  bannerSubtitle={post.data.description}
 >
   <article class="article-publication">
     {tocHeadings.length > 0 && (
