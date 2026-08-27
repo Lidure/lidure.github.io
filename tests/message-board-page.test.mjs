@@ -22,3 +22,22 @@ test('owned mutations clear stale browser ownership after authorization rejectio
   assert.match(api, /status\s*===\s*401\s*\|\|\s*[^\n]*status\s*===\s*403/);
   assert.match(api, /setGuestMessageAuthorToken\(messageId,\s*''\)/);
 });
+
+test('messages page delegates to a dedicated board', () => {
+  const page = read('src/pages/messages.astro');
+  assert.match(page, /import MessageBoard from ['"]\.\.\/components\/MessageBoard\.astro['"]/);
+  assert.match(page, /<MessageBoard\s*\/>/);
+  assert.doesNotMatch(page, /messages-layout/);
+  assert.doesNotMatch(page, /function renderMessages/);
+});
+
+test('board exposes the approved interactive surfaces', () => {
+  const board = read('src/components/MessageBoard.astro');
+  const controller = read('src/lib/message-board-controller.ts');
+  for (const id of ['message-board-root','message-board-stage','message-compose-open','message-composer','message-drawer','message-admin']) {
+    assert.match(board, new RegExp(`id="${id}"`));
+  }
+  assert.match(controller, /export function initMessageBoard/);
+  assert.match(controller, /fetchGuestMessagePage/);
+  assert.match(controller, /computeBoardHeight/);
+});
