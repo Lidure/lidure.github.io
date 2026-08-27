@@ -6,6 +6,7 @@ import ArticleTOC from '../../components/ArticleTOC.astro';
 import { estimateReadingMinutes } from '../../utils/article-reading';
 import '../../styles/article-reading.css';
 import '../../styles/article-toc-sayori.css';
+import '../../styles/article-sayori-layout.css';
 import 'katex/dist/katex.min.css';
 
 export async function getStaticPaths() {
@@ -155,12 +156,17 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     const indicator = article.querySelector<HTMLElement>('[data-article-toc-indicator]');
     const progressLabel = article.querySelector<HTMLElement>('[data-article-progress-label]');
     const backtop = article.querySelector<HTMLButtonElement>('[data-article-backtop]');
-    let ticking = false;
+    const activeHeadingIds = new Set<string>();
+
+    let progressStart = 0;
+    let progressSpan = 1;
+    let progressTicking = false;
+    let lastProgressPercent = -1;
 
     const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
       || document.documentElement.dataset.reduceMotion === 'true';
 
-    const visibleHeadingIds = () => {
+    const collectVisibleHeadingIds = () => {
       const visible = headingElements
         .filter((heading) => {
           const rect = heading.getBoundingClientRect();
@@ -183,9 +189,12 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
     };
 
     const syncTocActiveRange = () => {
-      const activeIds = visibleHeadingIds();
+      const visibleIds = activeHeadingIds.size > 0
+        ? Array.from(activeHeadingIds)
+        : collectVisibleHeadingIds();
+
       desktopTocLinks.forEach((link) => {
-        link.classList.toggle('visible', Boolean(link.dataset.articleToc) && activeIds.includes(link.dataset.articleToc!));
+        link.classList.toggle('visible', Boolean(link.dataset.articleToc) && visibleIds.includes(link.dataset.articleToc!));
       });
 
       const activeEntries = desktopTocLinks.filter((link) => link.classList.contains('visible'));
@@ -194,24 +203,24 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
         return;
       }
 
-      const contentRect = tocContent.getBoundingClientRect();
       const firstActive = activeEntries[0];
       const lastActive = activeEntries[activeEntries.length - 1];
-      const firstRect = firstActive.getBoundingClientRect();
-      const lastRect = lastActive.getBoundingClientRect();
-      const top = firstRect.top - contentRect.top;
-      const height = lastRect.bottom - firstRect.top;
+      const top = firstActive.offsetTop;
+      const height = lastActive.offsetTop + lastActive.offsetHeight - firstActive.offsetTop;
 
       indicator.style.top = `${top}px`;
       indicator.style.height = `${height}px`;
       indicator.style.opacity = '1';
 
       if (!tocScrollContainer) return;
-      const containerRect = tocScrollContainer.getBoundingClientRect();
-      const activeRect = firstActive.getBoundingClientRect();
-      const isInside = activeRect.top >= containerRect.top && activeRect.bottom <= containerRect.bottom;
+      const itemTop = firstActive.offsetTop;
+      const itemBottom = itemTop + firstActive.offsetHeight;
+      const viewportTop = tocScrollContainer.scrollTop;
+      const viewportBottom = viewportTop + tocScrollContainer.clientHeight;
+      const isInside = itemTop >= viewportTop && itemBottom <= viewportBottom;
+
       if (!isInside) {
-        const targetTop = firstActive.offsetTop - tocScrollContainer.clientHeight / 2 + firstActive.clientHeight / 2;
+        const targetTop = itemTop - tocScrollContainer.clientHeight / 2 + firstActive.clientHeight / 2;
         tocScrollContainer.scrollTo({
           top: Math.max(0, targetTop),
           behavior: reducedMotion() ? 'auto' : 'smooth',
@@ -219,22 +228,38 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
       }
     };
 
-    const sync = () => {
-      ticking = false;
-      const rect = prose.getBoundingClientRect();
-      const start = window.scrollY + rect.top;
-      const end = start + prose.offsetHeight - window.innerHeight;
-      const span = Math.max(1, end - start);
-      const progress = Math.min(1, Math.max(0, (window.scrollY - start) / span));
-      article.style.setProperty('--article-reading-progress', String(progress));
-      if (progressLabel) progressLabel.textContent = `${Math.round(progress * 100)}%`;
+    const tocObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        const heading = entry.target as HTMLElement;
+        if (entry.isIntersecting) activeHeadingIds.add(heading.id);
+        else activeHeadingIds.delete(heading.id);
+      });
       syncTocActiveRange();
-    };
+    }, { threshold: 0 });
 
-    const requestSync = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(sync);
+    headingElements.forEach((heading) => tocObserver.observe(heading));
+
+    function measureReadingProgress() {
+      const rect = prose.getBoundingClientRect();
+      progressStart = window.scrollY + rect.top;
+      const progressEnd = progressStart + prose.offsetHeight - window.innerHeight;
+      progressSpan = Math.max(1, progressEnd - progressStart);
+    }
+
+    function syncReadingProgress() {
+      progressTicking = false;
+      const progress = Math.min(1, Math.max(0, (window.scrollY - progressStart) / progressSpan));
+      const progressPercent = Math.round(progress * 100);
+      if (progressLabel && progressPercent !== lastProgressPercent) {
+        progressLabel.textContent = `${Math.round(progress * 100)}%`;
+        lastProgressPercent = progressPercent;
+      }
+    }
+
+    const requestProgressSync = () => {
+      if (progressTicking) return;
+      progressTicking = true;
+      requestAnimationFrame(syncReadingProgress);
     };
 
     tocLinks.forEach((link) => {
@@ -251,21 +276,27 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
       }, { signal });
     });
 
-    const observer = new IntersectionObserver(requestSync, { threshold: 0 });
-    headingElements.forEach((heading) => observer.observe(heading));
-
     backtop?.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: reducedMotion() ? 'auto' : 'smooth' });
     }, { signal });
 
-    window.addEventListener('scroll', requestSync, { passive: true, signal });
-    window.addEventListener('resize', requestSync, { passive: true, signal });
+    const handleResize = () => {
+      measureReadingProgress();
+      syncReadingProgress();
+      syncTocActiveRange();
+    };
+
+    window.addEventListener('scroll', requestProgressSync, { passive: true, signal });
+    window.addEventListener('resize', handleResize, { passive: true, signal });
 
     articleWindow.__articlePublicationCleanup = () => {
-      observer.disconnect();
+      tocObserver.disconnect();
       controller.abort();
     };
-    sync();
+
+    measureReadingProgress();
+    syncReadingProgress();
+    syncTocActiveRange();
   }
 
   if (!articleWindow.__articlePublicationLifecycleBound) {
