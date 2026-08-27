@@ -100,6 +100,11 @@ export function initMessageBoard() {
 
   if (!root || !viewport || !stage || !status || !count) return () => {};
 
+  const boardRoot = root;
+  const boardViewport = viewport;
+  const boardStage = stage;
+  const boardStatus = status;
+  const boardCount = count;
   const state: BoardState = { messages: new Map(), syncCursor: 0 };
   const controller = new AbortController();
   let destroyed = false;
@@ -107,17 +112,17 @@ export function initMessageBoard() {
   if (composerUser) composerUser.value = getStoredUserId();
 
   function setStatus(message: string, error = false) {
-    status.textContent = message;
-    status.classList.toggle('error', error);
+    boardStatus.textContent = message;
+    boardStatus.classList.toggle('error', error);
   }
 
   function updateStageHeight() {
     const notes = [...state.messages.values()].map((message) => ({ x: message.note.x, y: message.note.y, size: message.note.size }));
     const logicalHeight = computeBoardHeight(notes);
-    const renderedWidth = Math.max(720, stage.clientWidth || 720);
+    const renderedWidth = Math.max(720, boardStage.clientWidth || 720);
     const scale = renderedWidth / BOARD_LOGICAL_WIDTH;
-    stage.style.height = `${Math.max(720, logicalHeight * scale)}px`;
-    applyRenderedPositions(stage);
+    boardStage.style.height = `${Math.max(720, logicalHeight * scale)}px`;
+    applyRenderedPositions(boardStage);
   }
 
   function openDrawer(message: GuestMessage) {
@@ -153,21 +158,21 @@ export function initMessageBoard() {
   }
 
   function renderAll() {
-    stage.innerHTML = '';
+    boardStage.innerHTML = '';
     const messages = [...state.messages.values()].sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
     if (!messages.length) {
       const empty = document.createElement('p');
       empty.className = 'message-board-empty';
       empty.textContent = '这面墙还空着，来贴第一张便签吧。';
-      stage.appendChild(empty);
+      boardStage.appendChild(empty);
     } else {
       messages.forEach((message) => {
         const note = createNoteElement(message);
         bindNote(note, message);
-        stage.appendChild(note);
+        boardStage.appendChild(note);
       });
     }
-    count.textContent = String(messages.length);
+    boardCount.textContent = String(messages.length);
     if (loadOlder) loadOlder.hidden = !state.nextBefore;
     updateStageHeight();
   }
@@ -183,8 +188,8 @@ export function initMessageBoard() {
       setStatus(state.messages.size ? '按住或拖动便签试试看，点一下可以展开详情。' : '还没有人贴便签。');
     } catch (error) {
       setStatus(error instanceof Error ? error.message : '留言板加载失败', true);
-      stage.innerHTML = '<button type="button" class="message-board-retry">重新加载</button>';
-      stage.querySelector<HTMLButtonElement>('.message-board-retry')?.addEventListener('click', () => loadPage(), { once: true, signal: controller.signal });
+      boardStage.innerHTML = '<button type="button" class="message-board-retry">重新加载</button>';
+      boardStage.querySelector<HTMLButtonElement>('.message-board-retry')?.addEventListener('click', () => loadPage(), { once: true, signal: controller.signal });
     }
   }
 
@@ -194,7 +199,7 @@ export function initMessageBoard() {
     composer.querySelector<HTMLElement>('input, textarea, button')?.focus();
   }, { signal: controller.signal });
 
-  root.querySelectorAll<HTMLElement>('[data-message-close]').forEach((button) => {
+  boardRoot.querySelectorAll<HTMLElement>('[data-message-close]').forEach((button) => {
     button.addEventListener('click', () => {
       const target = button.dataset.messageClose;
       if (target === 'drawer' && drawer) {
@@ -212,7 +217,7 @@ export function initMessageBoard() {
   }, { signal: controller.signal });
 
   const resizeObserver = new ResizeObserver(() => updateStageHeight());
-  resizeObserver.observe(viewport);
+  resizeObserver.observe(boardViewport);
   loadPage();
 
   return () => {
