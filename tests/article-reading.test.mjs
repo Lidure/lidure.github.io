@@ -63,6 +63,15 @@ test('article uses the Sayori CardTOC structure and visual grammar', () => {
   assert.match(toc, /class="toc-active-indicator"/);
 });
 
+test('article TOC strips author-written numeric prefixes so Sayori badges are the only numbering', () => {
+  assert.match(toc, /const stripHeadingNumber = \(text: string\) => text/);
+  assert.match(toc, /replace\(\/\^\\s\*\(\?:\\d\+\(\?:\\\.\\d\+\)\+\|\\d\+\[\.、．\]\)\\s\*\//);
+  assert.match(toc, /const label = stripHeadingNumber\(heading\.text\)/);
+  assert.match(toc, /aria-label=\{label\}/);
+  assert.match(toc, /title=\{label\}/);
+  assert.match(toc, /\{label\}/);
+});
+
 test('Sayori CardTOC shell uses exact SidebarTOC item and badge geometry', () => {
   assert.match(tocCss, /\.article-toc-card\s*\{[\s\S]*border-radius:\s*var\(--radius-large,\s*1rem\)/);
   assert.match(tocCss, /\.article-toc-card-title\s*\{[\s\S]*font-size:\s*1\.125rem[\s\S]*font-weight:\s*700/);
