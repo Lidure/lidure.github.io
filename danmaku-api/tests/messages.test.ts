@@ -145,3 +145,55 @@ describe('sticky message API ownership contract', () => {
     await expect(response.json()).resolves.toMatchObject({ code: 'MESSAGE_FORBIDDEN' });
   });
 });
+
+describe('sticky message reaction contract', () => {
+  it('adds a supported reaction and returns aggregated counts', async () => {
+    const seen: string[] = [];
+    const db = makeDb((sql) => {
+      seen.push(sql);
+      if (sql.includes('SELECT id FROM guest_messages')) {
+        return makeBoundStatement({ first: vi.fn().mockResolvedValue({ id: 'm1' }) });
+      }
+      if (sql.includes('SELECT emoji, COUNT(*) AS count FROM message_reactions')) {
+        return makeBoundStatement({ all: vi.fn().mockResolvedValue({ results: [{ emoji: '❤️', count: 2 }] }) });
+      }
+      return makeBoundStatement();
+    });
+    const response = await worker.fetch(new Request('https://example.com/api/message-reactions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ messageId: 'm1', emoji: '❤️', previousEmoji: '' }),
+    }), makeEnv({ DB: db }));
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({ reactions: { '❤️': 2 }, selectedEmoji: '❤️' });
+    expect(seen.some((sql) => sql.startsWith('INSERT INTO message_reactions'))).toBe(true);
+  });
+
+  it('posting the same previous emoji toggles the reaction off', async () => {
+    const seen: string[] = [];
+    const db = makeDb((sql) => {
+      seen.push(sql);
+      if (sql.includes('SELECT id FROM guest_messages')) {
+        return makeBoundStatement({ first: vi.fn().mockResolvedValue({ id: 'm1' }) });
+      }
+      return makeBoundStatement();
+    });
+    const response = await worker.fetch(new Request('https://example.com/api/message-reactions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ messageId: 'm1', emoji: '❤️', previousEmoji: '❤️' }),
+    }), makeEnv({ DB: db }));
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({ selectedEmoji: '' });
+    expect(seen.some((sql) => sql.startsWith('INSERT INTO message_reactions'))).toBe(false);
+  });
+
+  it('rejects an unsupported emoji', async () => {
+    const response = await worker.fetch(new Request('https://example.com/api/message-reactions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ messageId: 'm1', emoji: '🚫' }),
+    }), makeEnv());
+    expect(response.status).toBe(400);
+  });
+});
