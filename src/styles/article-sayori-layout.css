@@ -37,7 +37,9 @@ body.layout-standard .sayori-right-sidebar {
 
 body.layout-standard .sayori-sidebar-sticky {
   position: sticky;
-  top: 1rem;
+  /* The local site header is fixed and 64px tall. Keep Sayori's 1rem breathing
+   * room below it instead of letting both rails sit underneath the header. */
+  top: 5rem;
   min-width: 0;
   max-height: none;
   overflow: visible;

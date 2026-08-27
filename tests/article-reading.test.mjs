@@ -63,17 +63,19 @@ test('article uses the Sayori CardTOC structure and visual grammar', () => {
   assert.match(toc, /class="toc-active-indicator"/);
 });
 
-test('Sayori CardTOC keeps the upstream sizing, ellipsis and dashed active indicator', () => {
+test('Sayori CardTOC shell uses exact SidebarTOC item and badge geometry', () => {
   assert.match(tocCss, /\.article-toc-card\s*\{[\s\S]*border-radius:\s*var\(--radius-large,\s*1rem\)/);
   assert.match(tocCss, /\.article-toc-card-title\s*\{[\s\S]*font-size:\s*1\.125rem[\s\S]*font-weight:\s*700/);
   assert.match(tocCss, /\.article-toc-title-mark\s*\{[\s\S]*width:\s*0\.25rem[\s\S]*height:\s*1rem/);
   assert.match(tocCss, /\.toc-scroll-container\s*\{[\s\S]*max-height:\s*50vh[\s\S]*overflow-y:\s*auto/);
-  assert.match(tocCss, /\.toc-content\s*\{[\s\S]*gap:\s*0\.28rem[\s\S]*contain:\s*layout/);
-  assert.match(tocCss, /\.toc-item\s*\{[\s\S]*border-radius:\s*0\.875rem[\s\S]*padding:\s*0\.48rem\s+0\.62rem[\s\S]*min-height:\s*2\.2rem/);
-  assert.match(tocCss, /\.toc-item\.toc-level-1\s*\{[\s\S]*padding-left:\s*1\.08rem/);
-  assert.match(tocCss, /\.toc-item\.toc-level-2\s*\{[\s\S]*padding-left:\s*1\.62rem/);
-  assert.match(tocCss, /\.toc-label\s*\{[\s\S]*text-overflow:\s*ellipsis[\s\S]*white-space:\s*nowrap/);
-  assert.match(tocCss, /\.toc-badge\s*\{[\s\S]*width:\s*1\.35rem[\s\S]*height:\s*1\.35rem[\s\S]*border-radius:\s*0\.5rem/);
+  assert.match(tocCss, /\.toc-content\s*\{[\s\S]*gap:\s*0[\s\S]*contain:\s*layout/);
+  assert.match(tocCss, /\.toc-item\s*\{[\s\S]*gap:\s*0\.5rem[\s\S]*min-height:\s*2\.25rem[\s\S]*padding:\s*0\.5rem[\s\S]*border-radius:\s*0\.75rem/);
+  assert.match(tocCss, /\.toc-item\.toc-level-1\s+\.toc-badge\s*\{[\s\S]*margin-left:\s*1rem/);
+  assert.match(tocCss, /\.toc-item\.toc-level-2\s+\.toc-badge\s*\{[\s\S]*margin-left:\s*2rem/);
+  assert.match(tocCss, /\.toc-label\s*\{[\s\S]*text-overflow:\s*ellipsis[\s\S]*white-space:\s*nowrap[\s\S]*font-size:\s*0\.875rem/);
+  assert.match(tocCss, /\.toc-badge\s*\{[\s\S]*width:\s*1\.25rem[\s\S]*height:\s*1\.25rem[\s\S]*border-radius:\s*0\.5rem[\s\S]*font-size:\s*0\.75rem/);
+  assert.match(tocCss, /\.toc-badge-dot\s*\{[\s\S]*width:\s*0\.5rem[\s\S]*height:\s*0\.5rem[\s\S]*border-radius:\s*0\.1875rem/);
+  assert.match(tocCss, /\.toc-badge-dot-sm\s*\{[\s\S]*width:\s*0\.375rem[\s\S]*height:\s*0\.375rem[\s\S]*border-radius:\s*0\.25rem/);
   assert.match(tocCss, /\.toc-active-indicator\s*\{[\s\S]*border:\s*2px\s+dashed[\s\S]*border-radius:\s*0\.75rem/);
   assert.match(tocCss, /\.group:hover\s+\.toc-active-indicator\s*\{[\s\S]*background:\s*transparent/);
 });
