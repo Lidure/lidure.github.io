@@ -79,6 +79,13 @@ test('admin session remains distinct from anonymous ownership', () => {
   assert.match(controller, /credentials:\s*['"]include['"]/);
 });
 
+test('open detail drawer refreshes immediately when admin state changes', () => {
+  const controller = read('src/lib/message-board-controller.ts');
+  assert.match(controller, /drawer\.dataset\.messageId\s*=\s*message\.id/);
+  assert.match(controller, /const id = drawer\.dataset\.messageId/);
+  assert.match(controller, /if \(message\) openDrawer\(message, false\)/);
+});
+
 test('corkboard supports dark theme, mobile sheet, and reduced motion', () => {
   const css = read('src/styles/message-board.css');
   assert.match(css, /--message-cork/);
