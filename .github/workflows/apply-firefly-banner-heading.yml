@@ -1,0 +1,48 @@
+name: Apply Firefly Banner Heading
+
+on:
+  push:
+    branches:
+      - fix/firefly-page-shell-transitions
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    if: ${{ !contains(github.event.head_commit.message, '[banner-heading-applied]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: fix/firefly-page-shell-transitions
+          fetch-depth: 0
+      - name: Keep banner title visual-only like Firefly
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          banner = Path('src/components/BlogBanner.astro')
+          text = banner.read_text(encoding='utf-8')
+          text = text.replace('<h1 id="blog-banner-title">{title}</h1>', '<div id="blog-banner-title" class="blog-banner-title">{title}</div>')
+          text = text.replace('.blog-banner-copy h1,', '.blog-banner-copy .blog-banner-title,')
+          banner.write_text(text, encoding='utf-8')
+
+          for filename in ['src/styles/firefly-wallpaper-modes.css', 'src/styles/firefly-refresh.css']:
+              path = Path(filename)
+              text = path.read_text(encoding='utf-8')
+              text = text.replace('.blog-banner-copy h1', '.blog-banner-copy .blog-banner-title')
+              path.write_text(text, encoding='utf-8')
+
+          test = Path('tests/article-reading.test.mjs')
+          text = test.read_text(encoding='utf-8')
+          text = text.replace("const bannerlessCss = read('src/styles/bannerless-pages.css');\n", '')
+          test.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit heading fix
+        run: |
+          git config user.name "lidure"
+          git config user.email "101858375+Lidure@users.noreply.github.com"
+          git add src/components/BlogBanner.astro src/styles/firefly-wallpaper-modes.css src/styles/firefly-refresh.css tests/article-reading.test.mjs
+          git commit -m "fix: keep banner title visual-only [banner-heading-applied]"
+          git push origin HEAD:fix/firefly-page-shell-transitions
