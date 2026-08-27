@@ -2,13 +2,17 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const bridge = readFileSync(new URL('../src/components/MomentsSnapshotPreviewBridge.astro', import.meta.url), 'utf8');
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+const page = read('src/pages/moments.astro');
+const pins = read('src/components/MomentsPinControls.astro');
+const baseLayout = read('src/layouts/BaseLayout.astro');
 
-test('SNAPSHOTS falls back to opening the existing lightbox even if source binding is missing', () => {
-  assert.match(bridge, /document\.getElementById\('moment-lightbox'\)/);
-  assert.match(bridge, /document\.getElementById\('lightbox-image'\)/);
-  assert.match(bridge, /lightbox\.hidden\s*=\s*false/);
-  assert.match(bridge, /lightbox\.setAttribute\('aria-hidden',\s*'false'\)/);
-  assert.match(bridge, /document\.body\.classList\.add\('lightbox-open'\)/);
-  assert.match(bridge, /sourceImage\.dataset\.lightboxSrc\s*\|\|\s*sourceImage\.currentSrc\s*\|\|\s*sourceImage\.src/);
+test('SNAPSHOTS uses one explicit event path into the page lightbox', () => {
+  assert.match(pins, /button\.dataset\.snapshotIndex\s*=\s*String\(index\)/);
+  assert.match(pins, /new CustomEvent\(['"]moments:open-snapshot['"]/);
+  assert.match(pins, /detail:\s*\{\s*index\s*\}/);
+  assert.match(page, /addEventListener\(['"]moments:open-snapshot['"]/);
+  assert.match(page, /sourceImages\[index\]/);
+  assert.match(page, /openLightbox\(sourceImage\)/);
+  assert.doesNotMatch(baseLayout, /MomentsSnapshotPreviewBridge/);
 });
