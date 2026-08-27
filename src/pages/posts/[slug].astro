@@ -100,9 +100,12 @@ const updatedLabel = updatedDate.toLocaleDateString('zh-CN', {
             <div class="post-divider" aria-hidden="true"></div>
           </header>
 
-          <div class="markdown-content article-prose">
-            <Content />
+          <div class="prose article-prose">
+            <div class="markdown-content">
+              <Content />
+            </div>
           </div>
+          <div class="article-end" aria-hidden="true"></div>
         </div>
 
         <section class="article-comments" aria-label="评论"><Comments /></section>
