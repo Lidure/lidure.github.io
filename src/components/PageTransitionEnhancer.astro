@@ -23,24 +23,47 @@
     will-change: transform, opacity;
   }
 
-  html.is-page-transitioning .standard-page-surface,
-  html.is-page-transitioning .immersive-content {
+  /* Mirror Firefly's Swup transition.css: motion belongs to the content node,
+     never to the wallpaper / banner / standard-page-surface glass shell. */
+  .transition-main {
+    transition:
+      opacity 120ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+      transform 120ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .transition-leaving {
+    transition:
+      transform 120ms cubic-bezier(0.55, 0.055, 0.675, 0.19),
+      opacity 120ms cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+
+  html.is-page-transitioning.is-page-leaving .transition-leaving {
+    transform: translateY(-2rem);
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  html.is-page-transitioning.is-page-entering .transition-main {
+    transform: translateY(2rem);
+    opacity: 0;
     will-change: transform, opacity;
   }
 
   html[data-reduce-motion="true"] #page-transition-progress,
-  html[data-reduce-motion="true"] .standard-page-surface,
-  html[data-reduce-motion="true"] .immersive-content {
+  html[data-reduce-motion="true"] .transition-main,
+  html[data-reduce-motion="true"] .transition-leaving {
     animation: none !important;
     transition: none !important;
+    transform: none !important;
   }
 
   @media (prefers-reduced-motion: reduce) {
     #page-transition-progress,
-    .standard-page-surface,
-    .immersive-content {
+    .transition-main,
+    .transition-leaving {
       animation: none !important;
       transition: none !important;
+      transform: none !important;
     }
   }
 </style>
@@ -52,10 +75,6 @@
 
   function motionReduced() {
     return root.dataset.reduceMotion === 'true' || motionQuery.matches;
-  }
-
-  function currentPageSurface() {
-    return document.querySelector('.standard-page-surface, .immersive-content');
   }
 
   function cancelAnimation(element) {
@@ -104,56 +123,49 @@
     );
   }
 
-  function animateLeavingSurface() {
-    var surface = currentPageSurface();
-    if (!surface || motionReduced() || typeof surface.animate !== 'function') return;
-    cancelAnimation(surface);
-    surface.animate(
-      [
-        { opacity: 1, transform: 'translateY(0)' },
-        { opacity: 0, transform: 'translateY(-2rem)' },
-      ],
-      {
-        duration: 120,
-        easing: 'cubic-bezier(0.55, 0.055, 0.675, 0.19)',
-        fill: 'forwards',
-      },
-    );
+  function beginLeave() {
+    root.classList.remove('is-page-entering');
+    root.classList.add('is-page-transitioning', 'is-page-leaving');
   }
 
-  function animateEnteringSurface() {
-    var surface = currentPageSurface();
-    if (!surface || motionReduced() || typeof surface.animate !== 'function') return;
-    cancelAnimation(surface);
-    surface.animate(
-      [
-        { opacity: 0, transform: 'translateY(2rem)' },
-        { opacity: 1, transform: 'translateY(0)' },
-      ],
-      {
-        duration: 120,
-        easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-        fill: 'both',
-      },
-    );
+  function beginEnter() {
+    root.classList.remove('is-page-leaving');
+    root.classList.add('is-page-transitioning', 'is-page-entering');
+
+    if (motionReduced()) {
+      root.classList.remove('is-page-entering');
+      return;
+    }
+
+    /* New content is swapped while the entering class is active, so it starts
+       at Firefly's +2rem/opacity-0 state. Two frames ensure that state reaches
+       the compositor before we remove it and let CSS transition to rest. */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        root.classList.remove('is-page-entering');
+      });
+    });
+  }
+
+  function resetTransitionState() {
+    root.classList.remove('is-page-transitioning', 'is-page-leaving', 'is-page-entering');
   }
 
   if (!window.__pageTransitionEnhancerBound) {
     window.__pageTransitionEnhancerBound = true;
 
     document.addEventListener('astro:before-preparation', function () {
-      root.classList.add('is-page-transitioning');
+      beginLeave();
       startProgressBar();
-      animateLeavingSurface();
     });
 
     document.addEventListener('astro:after-swap', function () {
-      animateEnteringSurface();
+      beginEnter();
       finishProgressBar();
     });
 
     document.addEventListener('astro:page-load', function () {
-      root.classList.remove('is-page-transitioning');
+      window.setTimeout(resetTransitionState, 140);
     });
   }
 })();
