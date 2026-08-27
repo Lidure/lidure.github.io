@@ -111,3 +111,37 @@ describe('sticky message API list contract', () => {
     expect(seen.join('\n')).toContain('COALESCE(updated_at, created_at) > ?');
   });
 });
+
+describe('sticky message API ownership contract', () => {
+  it('returns the plaintext author token once but never inserts it', async () => {
+    const writes: unknown[][] = [];
+    const db = makeDb((sql, args) => {
+      if (sql.startsWith('INSERT INTO guest_messages')) writes.push(args);
+      return makeBoundStatement();
+    });
+    const response = await worker.fetch(new Request('https://example.com/api/messages', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ userId: 'A', text: 'hello', noteColor: 'pink' }),
+    }), makeEnv({ DB: db }));
+    const body = await response.json() as any;
+    expect(response.status).toBe(201);
+    expect(body.authorToken).toEqual(expect.any(String));
+    expect(body.item.note.color).toBe('pink');
+    expect(JSON.stringify(writes)).not.toContain(body.authorToken);
+  });
+
+  it('rejects a wrong author token', async () => {
+    const correctHash = await hashAuthorToken('correct-token');
+    const db = makeDb((sql) => sql.includes('SELECT author_token_hash')
+      ? makeBoundStatement({ first: vi.fn().mockResolvedValue({ author_token_hash: correctHash }) })
+      : makeBoundStatement());
+    const response = await worker.fetch(new Request('https://example.com/api/messages', {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id: 'm1', authorToken: 'wrong-token', posX: 100, posY: 200 }),
+    }), makeEnv({ DB: db }));
+    expect(response.status).toBe(403);
+    await expect(response.json()).resolves.toMatchObject({ code: 'MESSAGE_FORBIDDEN' });
+  });
+});
