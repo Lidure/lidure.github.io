@@ -266,6 +266,7 @@ export function initMessageBoard() {
     if (!drawer || drawer.hidden) return;
     drawer.classList.remove('open');
     drawer.hidden = true;
+    drawer.dataset.messageId = '';
     if (restoreFocus) lastFocus?.focus();
     lastFocus = null;
   }
@@ -317,6 +318,7 @@ export function initMessageBoard() {
   function openDrawer(message: GuestMessage, rememberFocus = true) {
     if (!drawer || !drawerContent) return;
     if (rememberFocus && document.activeElement instanceof HTMLElement) lastFocus = document.activeElement;
+    drawer.dataset.messageId = message.id;
     drawerContent.innerHTML = '';
     const title = document.createElement('h3');
     title.id = 'message-drawer-title';
@@ -606,7 +608,7 @@ export function initMessageBoard() {
     if (adminLogout) adminLogout.hidden = !authenticated;
     if (adminPassword) adminPassword.hidden = authenticated;
     if (drawer && !drawer.hidden) {
-      const id = drawerContent?.querySelector<HTMLElement>('[data-drawer-message-id]')?.dataset.drawerMessageId;
+      const id = drawer.dataset.messageId;
       const message = id ? state.messages.get(id) : undefined;
       if (message) openDrawer(message, false);
     }
