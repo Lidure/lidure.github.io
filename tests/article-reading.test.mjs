@@ -12,6 +12,8 @@ const bannerlessCss = read('src/styles/bannerless-pages.css');
 const archiveCssUrl = new URL('../src/styles/article-archive.css', import.meta.url);
 const archiveCss = existsSync(archiveCssUrl) ? readFileSync(archiveCssUrl, 'utf8') : '';
 const safetyCssUrl = new URL('../src/styles/article-layout-safety.css', import.meta.url);
+const tocUrl = new URL('../src/components/ArticleTOC.astro', import.meta.url);
+const toc = existsSync(tocUrl) ? readFileSync(tocUrl, 'utf8') : '';
 
 test('article can opt out of the standard banner with a dedicated bannerless shell', () => {
   assert.match(layout, /showBanner\?: boolean/);
@@ -42,6 +44,48 @@ test('article adopts the Sayori-style reading grid instead of the old canvas', (
   assert.match(css, /\.sayori-main-column\s*\{[\s\S]*min-width:\s*0/);
 });
 
+test('article uses the Sayori CardTOC structure and visual grammar', () => {
+  assert.ok(toc.length > 0, 'ArticleTOC component should exist');
+  assert.match(page, /import ArticleTOC from ['"]\.\.\/\.\.\/components\/ArticleTOC\.astro['"]/);
+  assert.match(page, /<ArticleTOC\s+headings=\{tocHeadings\}/);
+  assert.match(toc, /data-article-card-toc/);
+  assert.match(toc, /class="article-toc-card group"/);
+  assert.match(toc, /class="article-toc-card-title"/);
+  assert.match(toc, /class="article-toc-title-mark"/);
+  assert.match(toc, /class="toc-scroll-container"/);
+  assert.match(toc, /class="toc-content"/);
+  assert.match(toc, /class:list=\{\[\s*['"]toc-item['"],\s*`toc-level-\$\{depthLevel\}`/);
+  assert.match(toc, /class:list=\{\[\s*['"]toc-badge['"],\s*\{ ['"]toc-badge-index['"]:/);
+  assert.match(toc, /class="toc-badge-dot"/);
+  assert.match(toc, /data-article-toc-indicator/);
+  assert.match(toc, /class="toc-active-indicator"/);
+});
+
+test('Sayori CardTOC keeps the upstream sizing, ellipsis and dashed active indicator', () => {
+  assert.match(css, /\.article-toc-card\s*\{[\s\S]*border-radius:\s*var\(--radius-large,\s*1rem\)/);
+  assert.match(css, /\.article-toc-card-title\s*\{[\s\S]*font-size:\s*1\.125rem[\s\S]*font-weight:\s*700/);
+  assert.match(css, /\.article-toc-title-mark\s*\{[\s\S]*width:\s*0\.25rem[\s\S]*height:\s*1rem/);
+  assert.match(css, /\.toc-scroll-container\s*\{[\s\S]*max-height:\s*50vh[\s\S]*overflow-y:\s*auto/);
+  assert.match(css, /\.toc-content\s*\{[\s\S]*gap:\s*0\.28rem[\s\S]*contain:\s*layout/);
+  assert.match(css, /\.toc-item\s*\{[\s\S]*border-radius:\s*0\.875rem[\s\S]*padding:\s*0\.48rem\s+0\.62rem[\s\S]*min-height:\s*2\.2rem/);
+  assert.match(css, /\.toc-item\.toc-level-1\s*\{[\s\S]*padding-left:\s*1\.08rem/);
+  assert.match(css, /\.toc-item\.toc-level-2\s*\{[\s\S]*padding-left:\s*1\.62rem/);
+  assert.match(css, /\.toc-label\s*\{[\s\S]*text-overflow:\s*ellipsis[\s\S]*white-space:\s*nowrap/);
+  assert.match(css, /\.toc-badge\s*\{[\s\S]*width:\s*1\.35rem[\s\S]*height:\s*1\.35rem[\s\S]*border-radius:\s*0\.5rem/);
+  assert.match(css, /\.toc-active-indicator\s*\{[\s\S]*border:\s*2px\s+dashed[\s\S]*border-radius:\s*0\.75rem/);
+  assert.match(css, /\.group:hover\s+\.toc-active-indicator\s*\{[\s\S]*background:\s*transparent/);
+});
+
+test('Sayori CardTOC active range follows visible headings and scrolls itself', () => {
+  assert.match(page, /data-article-toc=/);
+  assert.match(page, /data-article-toc-indicator/);
+  assert.match(page, /classList\.toggle\('visible'/);
+  assert.match(page, /indicator\.style\.top/);
+  assert.match(page, /indicator\.style\.height/);
+  assert.match(page, /tocScrollContainer\.scrollTo/);
+  assert.match(page, /IntersectionObserver/);
+});
+
 test('Sayori-style prose measures keep wide content inside the article card', () => {
   assert.match(css, /--article-measure:\s*70rem/);
   assert.match(css, /--article-wide-measure:\s*90rem/);
@@ -67,7 +111,6 @@ test('old article safety override layer is removed', () => {
 
 test('article keeps heading tracking, progress, back-to-top and Astro lifecycle cleanup', () => {
   assert.match(page, /data-article-toc=/);
-  assert.match(page, /classList\.toggle\('is-current'/);
   assert.match(page, /data-article-progress-label/);
   assert.match(page, /textContent = `\$\{Math\.round\(progress \* 100\)\}%`/);
   assert.match(page, /data-article-backtop/);
