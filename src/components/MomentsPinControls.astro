@@ -245,6 +245,29 @@
       button.textContent = item.pinned === true ? '取消置顶' : '置顶';
     }
 
+    function openSnapshotPreview(sourceImage: HTMLImageElement) {
+      sourceImage.click();
+
+      const lightbox = document.getElementById('moment-lightbox') as HTMLElement | null;
+      if (lightbox?.hidden === false) return;
+      const lightboxImage = document.getElementById('lightbox-image') as HTMLImageElement | null;
+      if (!lightbox || !lightboxImage) return;
+
+      lightboxImage.src = sourceImage.dataset.lightboxSrc || sourceImage.currentSrc || sourceImage.src;
+      lightboxImage.alt = sourceImage.alt || '';
+      lightbox.hidden = false;
+      lightbox.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('lightbox-open');
+
+      const counter = document.getElementById('lightbox-counter');
+      if (counter) counter.textContent = '';
+      const prev = document.getElementById('lightbox-prev') as HTMLButtonElement | null;
+      const next = document.getElementById('lightbox-next') as HTMLButtonElement | null;
+      if (prev) prev.hidden = true;
+      if (next) next.hidden = true;
+      (document.getElementById('lightbox-close') as HTMLButtonElement | null)?.focus({ preventScroll: true });
+    }
+
     function syncMomentsCompanions() {
       const total = document.getElementById('moments-side-total');
       if (total) total.textContent = String(items.length || cards().length);
@@ -274,22 +297,18 @@
       const gallery = document.getElementById('moments-side-gallery');
       if (gallery) {
         const sourceImages = Array.from(listRoot.querySelectorAll<HTMLImageElement>('.card-images img')).slice(0, 4);
-        gallery.replaceChildren(...sourceImages.map((sourceImage) => {
+        gallery.replaceChildren(...sourceImages.map((sourceImage, index) => {
           const button = document.createElement('button');
           button.type = 'button';
           button.className = 'moments-side-photo';
+          button.dataset.snapshotIndex = String(index);
           button.setAttribute('aria-label', '打开最近图片');
           const img = document.createElement('img');
           img.src = sourceImage.currentSrc || sourceImage.src;
           img.alt = sourceImage.alt || '最近的碎碎念图片';
           img.loading = 'lazy';
           button.appendChild(img);
-          button.addEventListener('click', () => {
-            const source = img.currentSrc || img.src;
-            const matchingImage = Array.from(listRoot.querySelectorAll<HTMLImageElement>('.card-images img'))
-              .find((candidate) => (candidate.currentSrc || candidate.src) === source);
-            matchingImage?.click();
-          }, { signal });
+          button.addEventListener('click', () => openSnapshotPreview(sourceImage), { signal });
           return button;
         }));
         gallery.classList.toggle('is-empty', sourceImages.length === 0);

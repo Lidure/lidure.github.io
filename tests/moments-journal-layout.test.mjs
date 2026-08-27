@@ -92,15 +92,15 @@ test('Moments top filter uses a quiet paper-style active state instead of a soli
   assert.doesNotMatch(followupCss, /\.moments-wall-filter \.pill\.active\s*\{[^}]*background:\s*var\(--standard-accent/);
 });
 
-test('Moments snapshots map side thumbnails to every rendered image type and open the existing lightbox', () => {
+test('Moments snapshots open directly from their thumbnail button without global capture interception', () => {
   assert.match(baseLayout, /MomentsSnapshotPreviewBridge/);
-  assert.match(snapshotBridge, /\.moments-side-photo/);
-  assert.match(snapshotBridge, /\.moments-side-gallery/);
-  assert.match(snapshotBridge, /\.moments-list :is\(\.card-images img, \.moment-media img\)/);
-  assert.match(snapshotBridge, /sourceImages\[index\]/);
-  assert.match(snapshotBridge, /sourceImage\.click\(\)/);
-  assert.match(snapshotBridge, /stopImmediatePropagation\(\)/);
-  assert.doesNotMatch(snapshotBridge, /currentSrc\s*===/);
+  assert.match(pins, /button\.dataset\.snapshotIndex\s*=\s*String\(index\)/);
+  assert.match(pins, /function openSnapshotPreview\(sourceImage/);
+  assert.match(pins, /sourceImage\.click\(\)/);
+  assert.match(pins, /document\.getElementById\('moment-lightbox'\)/);
+  assert.match(pins, /lightbox\.hidden\s*=\s*false/);
+  assert.doesNotMatch(snapshotBridge, /addEventListener\(['"]click['"]/);
+  assert.doesNotMatch(snapshotBridge, /stopImmediatePropagation\(\)/);
 });
 
 test('emoji and reaction pickers stay collapsed until opened', () => {

@@ -2,13 +2,19 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
-const bridge = readFileSync(new URL('../src/components/MomentsSnapshotPreviewBridge.astro', import.meta.url), 'utf8');
+const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
+const pins = read('src/components/MomentsPinControls.astro');
+const bridge = read('src/components/MomentsSnapshotPreviewBridge.astro');
 
-test('SNAPSHOTS falls back to opening the existing lightbox even if source binding is missing', () => {
-  assert.match(bridge, /document\.getElementById\('moment-lightbox'\)/);
-  assert.match(bridge, /document\.getElementById\('lightbox-image'\)/);
-  assert.match(bridge, /lightbox\.hidden\s*=\s*false/);
-  assert.match(bridge, /lightbox\.setAttribute\('aria-hidden',\s*'false'\)/);
-  assert.match(bridge, /document\.body\.classList\.add\('lightbox-open'\)/);
-  assert.match(bridge, /sourceImage\.dataset\.lightboxSrc\s*\|\|\s*sourceImage\.currentSrc\s*\|\|\s*sourceImage\.src/);
+test('SNAPSHOTS button owns a direct preview path without global click interception', () => {
+  assert.match(pins, /button\.dataset\.snapshotIndex\s*=\s*String\(index\)/);
+  assert.match(pins, /button\.addEventListener\(['"]click['"]/);
+  assert.match(pins, /sourceImage\.click\(\)/);
+  assert.match(pins, /document\.getElementById\('moment-lightbox'\)/);
+  assert.match(pins, /document\.getElementById\('lightbox-image'\)/);
+  assert.match(pins, /lightbox\.hidden\s*=\s*false/);
+  assert.match(pins, /lightbox\.setAttribute\('aria-hidden',\s*'false'\)/);
+  assert.match(pins, /document\.body\.classList\.add\('lightbox-open'\)/);
+  assert.doesNotMatch(bridge, /addEventListener\(['"]click['"]/);
+  assert.doesNotMatch(bridge, /stopImmediatePropagation\(\)/);
 });
