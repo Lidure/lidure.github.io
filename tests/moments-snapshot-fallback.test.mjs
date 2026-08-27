@@ -3,16 +3,18 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
-const page = read('src/pages/moments.astro');
 const pins = read('src/components/MomentsPinControls.astro');
-const baseLayout = read('src/layouts/BaseLayout.astro');
+const bridge = read('src/components/MomentsSnapshotPreviewBridge.astro');
 
-test('SNAPSHOTS uses one explicit event path into the page lightbox', () => {
+test('SNAPSHOTS button owns a direct preview path without global click interception', () => {
   assert.match(pins, /button\.dataset\.snapshotIndex\s*=\s*String\(index\)/);
-  assert.match(pins, /new CustomEvent\(['"]moments:open-snapshot['"]/);
-  assert.match(pins, /detail:\s*\{\s*index\s*\}/);
-  assert.match(page, /addEventListener\(['"]moments:open-snapshot['"]/);
-  assert.match(page, /sourceImages\[index\]/);
-  assert.match(page, /openLightbox\(sourceImage\)/);
-  assert.doesNotMatch(baseLayout, /MomentsSnapshotPreviewBridge/);
+  assert.match(pins, /button\.addEventListener\(['"]click['"]/);
+  assert.match(pins, /sourceImage\.click\(\)/);
+  assert.match(pins, /document\.getElementById\('moment-lightbox'\)/);
+  assert.match(pins, /document\.getElementById\('lightbox-image'\)/);
+  assert.match(pins, /lightbox\.hidden\s*=\s*false/);
+  assert.match(pins, /lightbox\.setAttribute\('aria-hidden',\s*'false'\)/);
+  assert.match(pins, /document\.body\.classList\.add\('lightbox-open'\)/);
+  assert.doesNotMatch(bridge, /addEventListener\(['"]click['"]/);
+  assert.doesNotMatch(bridge, /stopImmediatePropagation\(\)/);
 });
