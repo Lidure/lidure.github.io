@@ -75,4 +75,6 @@ test('admin session remains distinct from anonymous ownership', () => {
   assert.match(controller, /login/);
   assert.match(controller, /logout/);
   assert.match(controller, /deleteGuestMessage/);
+  assert.match(controller, /method:\s*['"]PATCH['"]/);
+  assert.match(controller, /credentials:\s*['"]include['"]/);
 });
