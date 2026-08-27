@@ -46,6 +46,9 @@ export default {
       }
 
       const url = new URL(request.url);
+      const stickyResponse = await handleStickyMessageRequest(request, url, env);
+      if (stickyResponse) return stickyResponse;
+
       if (url.pathname === "/api/auth/login") {
         if (request.method === "POST") {
           return handleLogin(request, env);
@@ -83,8 +86,6 @@ export default {
       }
 
       if (url.pathname === "/api/messages") {
-        const stickyResponse = await handleStickyMessageRequest(request, url, env);
-        if (stickyResponse) return stickyResponse;
         if (request.method === "POST") return handleMessagesCreate(request, env);
         if (request.method === "DELETE") return handleMessagesDelete(request, env);
         return errorResponse("Method not allowed", "METHOD_NOT_ALLOWED", 405, request, env);
