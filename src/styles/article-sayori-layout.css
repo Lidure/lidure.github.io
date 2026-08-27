@@ -1,8 +1,16 @@
 /*
  * Exact article shell sizing/sticky behavior adapted from Amiyadesi/sayori-blog.
- * Sayori uses PAGE_WIDTH = 112rem, 1rem grid gaps and a sticky top-4 sidebar.
+ * Sayori uses PAGE_WIDTH = 112rem, 1rem grid gaps and sticky sidebar columns.
  * Apache-2.0 attribution is recorded in THIRD_PARTY_NOTICES.md.
  */
+
+/* The old BaseLayout capped every standard page at 1340px. That prevented the
+ * Sayori 112rem article grid from ever becoming wider. On article pages only,
+ * let the standard content shell grow to the same 112rem page width. */
+body.layout-standard:has(.article-publication) .standard-content {
+  width: min(100%, 112rem);
+  max-width: 112rem;
+}
 
 body.layout-standard .article-publication {
   width: min(100%, 112rem);
@@ -16,7 +24,15 @@ body.layout-standard .sayori-reading-grid {
   max-width: none;
   margin-inline: auto;
   gap: 1rem;
-  align-items: start;
+  align-items: stretch;
+}
+
+/* Sayori relies on the grid item stretching to the full article row height.
+ * That gives the inner sticky column room to travel with the page. */
+body.layout-standard .sayori-toc-sidebar,
+body.layout-standard .sayori-right-sidebar {
+  align-self: stretch;
+  min-width: 0;
 }
 
 body.layout-standard .sayori-sidebar-sticky {
@@ -40,16 +56,19 @@ body.layout-standard .sayori-sidebar-sticky {
 
   body.layout-standard .sayori-toc-sidebar {
     grid-column: 1 / 2;
-    min-width: 0;
   }
 
   body.layout-standard .sayori-right-sidebar {
     grid-column: 3 / 4;
-    min-width: 0;
   }
 }
 
 @media (max-width: 1279px) {
+  body.layout-standard:has(.article-publication) .standard-content {
+    width: 100%;
+    max-width: none;
+  }
+
   body.layout-standard .article-publication {
     width: 100%;
     max-width: none;
