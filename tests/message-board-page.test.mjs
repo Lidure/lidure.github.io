@@ -20,5 +20,5 @@ test('legacy homepage helper stays compatible with the paged message client', ()
 
 test('owned mutations clear stale browser ownership after authorization rejection', () => {
   assert.match(api, /status\s*===\s*401\s*\|\|\s*[^\n]*status\s*===\s*403/);
-  assert.match(api, /clearStoredGuestMessageAuthorToken/);
+  assert.match(api, /setGuestMessageAuthorToken\(messageId,\s*''\)/);
 });
