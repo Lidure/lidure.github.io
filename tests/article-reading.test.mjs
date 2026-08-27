@@ -9,7 +9,6 @@ const layout = read('src/layouts/BaseLayout.astro');
 const css = read('src/styles/article-reading.css');
 const tocCss = read('src/styles/article-toc-sayori.css');
 const followupCss = read('src/styles/article-moments-followup.css');
-const bannerlessCss = read('src/styles/bannerless-pages.css');
 const archiveCssUrl = new URL('../src/styles/article-archive.css', import.meta.url);
 const archiveCss = existsSync(archiveCssUrl) ? readFileSync(archiveCssUrl, 'utf8') : '';
 const safetyCssUrl = new URL('../src/styles/article-layout-safety.css', import.meta.url);

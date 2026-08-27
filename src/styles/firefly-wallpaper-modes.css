@@ -119,7 +119,7 @@ html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner
   will-change: transform, opacity;
 }
 
-html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy h1 {
+html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy .blog-banner-title {
   font-size: clamp(3rem, 5.4vw, 4.5rem);
   line-height: 1.08;
   text-shadow: 0 3px 24px rgba(0, 0, 0, 0.42);
@@ -317,7 +317,7 @@ html:is([data-wallpaper-mode="fullscreen"], [data-wallpaper-mode="overlay"]) bod
     padding-inline: 10px;
   }
 
-  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy h1 {
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-copy .blog-banner-title {
     font-size: clamp(2.45rem, 12vw, 3.25rem);
   }
 

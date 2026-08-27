@@ -12,7 +12,7 @@ const { title, subtitle } = Astro.props;
 <BannerHeightSettingsEnhancer />
 <section class="blog-banner" aria-labelledby="blog-banner-title">
   <div class="blog-banner-copy">
-    <h1 id="blog-banner-title">{title}</h1>
+    <div id="blog-banner-title" class="blog-banner-title">{title}</div>
     {subtitle && <p>{subtitle}</p>}
   </div>
 </section>
@@ -23,7 +23,7 @@ const { title, subtitle } = Astro.props;
     color: var(--standard-text);
   }
 
-  :global(html.no-hero-bg body.layout-standard) .blog-banner-copy h1,
+  :global(html.no-hero-bg body.layout-standard) .blog-banner-copy .blog-banner-title,
   :global(html.no-hero-bg body.layout-standard) .blog-banner-copy p {
     text-shadow: none;
   }
