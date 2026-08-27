@@ -27,3 +27,63 @@ body.layout-standard .moments-shell .moments-wall-filter .pill.active::after {
 html[data-theme="dark"] body.layout-standard .moments-shell .moments-wall-filter .pill.active::after {
   background: color-mix(in srgb, var(--standard-accent, var(--accent)) 46%, transparent) !important;
 }
+
+/* Give Moments the same generous desktop canvas as the article reader.
+ * The old 1340px BaseLayout shell plus 900px center track made the notebook
+ * feel squeezed even on large displays. */
+body.layout-standard:has(.moments-shell) .standard-content {
+  width: min(100%, 112rem);
+  max-width: 112rem;
+  padding-inline: 1rem;
+}
+
+body.layout-standard .moments-shell {
+  width: 100% !important;
+  max-width: none !important;
+}
+
+body.layout-standard .moments-shell .moments-wall-head {
+  width: 100%;
+  max-width: none;
+}
+
+body.layout-standard .moments-shell .moments-page-grid {
+  grid-template-columns: minmax(12.5rem, 14rem) minmax(0, 1fr) minmax(12.5rem, 14rem);
+  gap: clamp(1rem, 1.4vw, 1.5rem);
+  justify-content: stretch;
+}
+
+body.layout-standard .moments-shell .moments-main-column {
+  width: 100%;
+  min-width: 0;
+}
+
+body.layout-standard .moments-shell .moment-card {
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+}
+
+body.layout-standard .moments-shell .moment--photo-one,
+body.layout-standard .moments-shell .moment--photo-two,
+body.layout-standard .moments-shell .moment--photo-three,
+body.layout-standard .moments-shell .moment--gallery,
+body.layout-standard .moments-shell .moment--video,
+body.layout-standard .moments-shell .moment--text {
+  max-width: none !important;
+}
+
+body.layout-standard .moments-shell .moment-card .card-text {
+  max-width: 78ch;
+}
+
+@media (max-width: 1280px) {
+  body.layout-standard:has(.moments-shell) .standard-content {
+    width: 100%;
+    padding-inline: clamp(0.75rem, 2.5vw, 1.25rem);
+  }
+
+  body.layout-standard .moments-shell .moment-card {
+    width: 100% !important;
+  }
+}

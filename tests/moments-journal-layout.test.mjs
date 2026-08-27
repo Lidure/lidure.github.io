@@ -43,7 +43,7 @@ test('bannerless Moments keeps all core interaction hooks', () => {
   assert.match(page, /deleteMomentViaApi/);
 });
 
-test('Moments enhancement builds a three-column notebook shell with useful side companions', () => {
+test('Moments enhancement uses a wide three-column notebook canvas with compact side gutters', () => {
   for (const className of ['moments-page-grid', 'moments-side--left', 'moments-main-column', 'moments-side--right']) {
     assert.match(pins, new RegExp(className));
   }
@@ -53,7 +53,12 @@ test('Moments enhancement builds a three-column notebook shell with useful side 
   assert.match(pins, /function ensureMomentsCompanionShell\(/);
   assert.match(pins, /function syncMomentsCompanions\(/);
   assert.match(pins, /data-side-category/);
-  assert.match(notebookCss, /\.moments-page-grid\s*\{[\s\S]*grid-template-columns:\s*210px\s+minmax\(0,\s*900px\)\s+210px/);
+  assert.match(followupCss, /body\.layout-standard:has\(\.moments-shell\)\s+\.standard-content\s*\{[\s\S]*width:\s*min\(100%,\s*112rem\)[\s\S]*max-width:\s*112rem/);
+  assert.match(followupCss, /\.moments-shell\s*\{[\s\S]*width:\s*100%\s*!important[\s\S]*max-width:\s*none\s*!important/);
+  assert.match(followupCss, /\.moments-page-grid\s*\{[\s\S]*grid-template-columns:\s*minmax\(12\.5rem,\s*14rem\)\s+minmax\(0,\s*1fr\)\s+minmax\(12\.5rem,\s*14rem\)[\s\S]*gap:\s*clamp\(1rem,\s*1\.4vw,\s*1\.5rem\)/);
+  assert.match(followupCss, /\.moments-main-column\s*\{[\s\S]*width:\s*100%/);
+  assert.match(followupCss, /\.moment-card\s*\{[\s\S]*width:\s*100%\s*!important[\s\S]*max-width:\s*none\s*!important/);
+  assert.match(followupCss, /\.moment--photo-one[\s\S]*\.moment--text\s*\{[\s\S]*max-width:\s*none\s*!important/);
   assert.match(notebookCss, /@media \(max-width:\s*1280px\)[\s\S]*\.moments-side\s*\{\s*display:\s*none/);
 });
 
@@ -87,14 +92,14 @@ test('Moments top filter uses a quiet paper-style active state instead of a soli
   assert.doesNotMatch(followupCss, /\.moments-wall-filter \.pill\.active\s*\{[^}]*background:\s*var\(--standard-accent/);
 });
 
-test('Moments snapshots open the existing lightbox by stable thumbnail index', () => {
+test('Moments snapshots map side thumbnails to every rendered image type and open the existing lightbox', () => {
   assert.match(baseLayout, /MomentsSnapshotPreviewBridge/);
   assert.match(snapshotBridge, /\.moments-side-photo/);
   assert.match(snapshotBridge, /\.moments-side-gallery/);
-  assert.match(snapshotBridge, /\.moments-list \.card-images img/);
-  assert.match(snapshotBridge, /stopImmediatePropagation\(\)/);
+  assert.match(snapshotBridge, /\.moments-list :is\(\.card-images img, \.moment-media img\)/);
   assert.match(snapshotBridge, /sourceImages\[index\]/);
-  assert.match(snapshotBridge, /sourceImage\?\.click\(\)/);
+  assert.match(snapshotBridge, /sourceImage\.click\(\)/);
+  assert.match(snapshotBridge, /stopImmediatePropagation\(\)/);
   assert.doesNotMatch(snapshotBridge, /currentSrc\s*===/);
 });
 
