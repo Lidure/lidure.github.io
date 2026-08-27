@@ -33,7 +33,8 @@ test('article adopts the Sayori-style reading grid instead of the old canvas', (
   assert.match(page, /class="sayori-toc-sidebar"/);
   assert.match(page, /class="sayori-main-column"/);
   assert.match(page, /class="sayori-post-card"/);
-  assert.match(page, /class="markdown-content article-prose"/);
+  assert.match(page, /class="prose article-prose"/);
+  assert.match(page, /class="markdown-content"/);
   assert.match(page, /class="sayori-right-sidebar"/);
   assert.doesNotMatch(page, /article-reading-canvas/);
   assert.doesNotMatch(page, /article-companion/);
