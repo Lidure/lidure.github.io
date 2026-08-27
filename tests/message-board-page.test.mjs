@@ -78,3 +78,21 @@ test('admin session remains distinct from anonymous ownership', () => {
   assert.match(controller, /method:\s*['"]PATCH['"]/);
   assert.match(controller, /credentials:\s*['"]include['"]/);
 });
+
+test('corkboard supports dark theme, mobile sheet, and reduced motion', () => {
+  const css = read('src/styles/message-board.css');
+  assert.match(css, /--message-cork/);
+  assert.match(css, /data-note-color="yellow"/);
+  assert.match(css, /html\[data-theme="dark"\]/);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*message-drawer/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(css, /html\[data-reduce-motion="true"\]/);
+});
+
+test('homepage keeps the array message API contract', () => {
+  const recent = read('src/components/RecentMessagesWidget.astro');
+  assert.match(recent, /fetchGuestMessages\(\)/);
+  assert.match(recent, /item\.userId/);
+  assert.match(recent, /item\.text/);
+  assert.match(recent, /item\.createdAt/);
+});
