@@ -17,8 +17,9 @@ test('article matches Sayori 112rem reading canvas and desktop columns', () => {
 
 test('desktop TOC uses Sayori sticky behavior without nested sidebar scrolling', () => {
   assert.match(layoutCss, /\.sayori-sidebar-sticky\s*\{[\s\S]*position:\s*sticky[\s\S]*top:\s*1rem/);
+  assert.match(layoutCss, /\.sayori-sidebar-sticky\s*\{[\s\S]*max-height:\s*none/);
+  assert.match(layoutCss, /\.sayori-sidebar-sticky\s*\{[\s\S]*overflow:\s*visible/);
   assert.doesNotMatch(layoutCss, /\.sayori-sidebar-sticky\s*\{[\s\S]*overflow-y:\s*auto/);
-  assert.doesNotMatch(layoutCss, /\.sayori-sidebar-sticky\s*\{[\s\S]*max-height:/);
 });
 
 test('scroll hot path only updates reading progress and does not scan headings/layout every frame', () => {
