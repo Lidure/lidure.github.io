@@ -41,3 +41,13 @@ test('board exposes the approved interactive surfaces', () => {
   assert.match(controller, /fetchGuestMessagePage/);
   assert.match(controller, /computeBoardHeight/);
 });
+
+test('controller persists only owned drops and keeps a server-confirmed rollback point', () => {
+  const controller = read('src/lib/message-board-controller.ts');
+  assert.match(controller, /createGuestMessage/);
+  assert.match(controller, /updateOwnedGuestMessage/);
+  assert.match(controller, /deleteOwnedGuestMessage/);
+  assert.match(controller, /hasGuestMessageOwnership/);
+  assert.match(controller, /correctDroppedPosition/);
+  assert.match(controller, /serverConfirmed/);
+});
