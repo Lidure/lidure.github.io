@@ -256,7 +256,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
           </div>
         )}
         <div class="standard-page-surface" id="standard-page-surface">
-          <main class="content-area standard-content">
+          <main class="content-area standard-content transition-main transition-leaving">
             {showTime && <div class="clock-row"><ClockDisplay /></div>}
             <slot />
           </main>
@@ -268,7 +268,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         </div>
       </>
     ) : (
-      <main class="immersive-content"><slot /></main>
+      <main class="immersive-content transition-main transition-leaving"><slot /></main>
     )}
   </body>
 </html>
