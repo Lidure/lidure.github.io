@@ -128,7 +128,14 @@
 .sticky-note[data-note-color="purple"] { background: var(--message-paper-purple); }
 .sticky-note:hover,
 .sticky-note:focus-visible { --note-scale: 1.025; z-index: 20; box-shadow: 0 14px 25px rgba(64, 35, 15, .28); outline: none; }
-.sticky-note.dragging { --note-scale: 1.045; z-index: 40; cursor: grabbing; filter: saturate(1.03); box-shadow: 0 22px 34px rgba(55, 29, 11, .3); }
+.sticky-note.dragging {
+  --note-scale: 1.045;
+  z-index: 40;
+  cursor: grabbing;
+  filter: saturate(1.03);
+  box-shadow: 0 22px 34px rgba(55, 29, 11, .3);
+  transition: none;
+}
 
 .sticky-note-pin {
   position: absolute;
