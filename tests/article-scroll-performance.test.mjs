@@ -9,6 +9,11 @@ const tocCss = read('src/styles/article-toc-sayori.css');
 const layoutCssUrl = new URL('../src/styles/article-sayori-layout.css', import.meta.url);
 const layoutCss = existsSync(layoutCssUrl) ? readFileSync(layoutCssUrl, 'utf8') : '';
 
+const cssBlock = (source, selector) => {
+  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return source.match(new RegExp(`${escaped}\\s*\\{([\\s\\S]*?)\\}`))?.[1] ?? '';
+};
+
 test('article matches Sayori 112rem reading canvas all the way through the BaseLayout shell', () => {
   assert.ok(layoutCss.length > 0, 'Sayori layout override should exist');
   assert.match(layoutCss, /body\.layout-standard:has\(\.article-publication\)\s+\.standard-content\s*\{[\s\S]*width:\s*min\(100%,\s*112rem\)/);
@@ -30,8 +35,19 @@ test('desktop rails clear the fixed 64px header and remain sticky', () => {
 
 test('TOC badge geometry follows Sayori SidebarTOC exactly', () => {
   assert.match(toc, /depthLevel === 0 \? \(\s*badgeIndex\s*\) : depthLevel === 1 \? \(\s*<span class="toc-badge-dot"><\/span>/s);
-  assert.match(tocCss, /\.toc-item\s*\{[\s\S]*gap:\s*0\.5rem[\s\S]*padding:\s*0\.5rem[\s\S]*min-height:\s*2\.25rem/);
-  assert.match(tocCss, /\.toc-badge\s*\{[\s\S]*width:\s*1\.25rem[\s\S]*height:\s*1\.25rem[\s\S]*border-radius:\s*0\.5rem[\s\S]*font-size:\s*0\.75rem/);
+
+  const item = cssBlock(tocCss, 'body.layout-standard .toc-item');
+  assert.match(item, /gap:\s*0\.5rem/);
+  assert.match(item, /padding:\s*0\.5rem/);
+  assert.match(item, /min-height:\s*2\.25rem/);
+  assert.match(item, /border-radius:\s*0\.75rem/);
+
+  const badge = cssBlock(tocCss, 'body.layout-standard .toc-badge');
+  assert.match(badge, /width:\s*1\.25rem/);
+  assert.match(badge, /height:\s*1\.25rem/);
+  assert.match(badge, /border-radius:\s*0\.5rem/);
+  assert.match(badge, /font-size:\s*0\.75rem/);
+
   assert.match(tocCss, /\.toc-item\.toc-level-1\s+\.toc-badge\s*\{[\s\S]*margin-left:\s*1rem/);
   assert.match(tocCss, /\.toc-item\.toc-level-2\s+\.toc-badge\s*\{[\s\S]*margin-left:\s*2rem/);
   assert.match(tocCss, /\.toc-badge-dot\s*\{[\s\S]*width:\s*0\.5rem[\s\S]*height:\s*0\.5rem[\s\S]*border-radius:\s*0\.1875rem/);
