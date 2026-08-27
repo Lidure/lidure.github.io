@@ -1,4 +1,150 @@
-<!-- SNAPSHOTS clicks are handled directly by MomentsPinControls.astro.
-     Keep this compatibility component mounted for now, but do not intercept
-     document click events; capture-phase interception made thumbnail clicks
-     fragile across Astro page transitions. -->
+<style is:global>
+  .moments-snapshot-popover {
+    width: min(1180px, 92vw);
+    max-width: 92vw;
+    max-height: 90vh;
+    margin: auto;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .moments-snapshot-popover::backdrop {
+    background: rgba(4, 5, 9, 0.9);
+    backdrop-filter: blur(2px);
+  }
+
+  .moments-snapshot-preview-frame {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 100%;
+    max-height: 90vh;
+    margin: 0;
+  }
+
+  .moments-snapshot-preview-image {
+    display: block;
+    max-width: 100%;
+    max-height: 86vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 18px 56px rgba(0, 0, 0, 0.38);
+  }
+
+  .moments-snapshot-preview-close {
+    position: fixed;
+    top: max(18px, env(safe-area-inset-top));
+    right: max(22px, env(safe-area-inset-right));
+    z-index: 2;
+    width: 42px;
+    height: 42px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(10, 11, 16, 0.48);
+    color: rgba(255, 255, 255, 0.92);
+    font: 300 2rem/1 sans-serif;
+    cursor: pointer;
+  }
+
+  .moments-snapshot-preview-close:hover,
+  .moments-snapshot-preview-close:focus-visible {
+    background: rgba(10, 11, 16, 0.72);
+    outline: 2px solid rgba(255, 255, 255, 0.48);
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  const nativeSnapshotWindow = window as typeof window & {
+    __momentsNativeSnapshotCleanup?: () => void;
+    __momentsNativeSnapshotLifecycleBound?: boolean;
+    __momentsNativeSnapshotSequence?: number;
+  };
+
+  function installNativeSnapshotPreviews() {
+    nativeSnapshotWindow.__momentsNativeSnapshotCleanup?.();
+
+    const foundShell = document.querySelector<HTMLElement>('.moments-shell');
+    if (!foundShell) return;
+    const shell: HTMLElement = foundShell;
+
+    document.querySelectorAll('.moments-snapshot-popover').forEach((node) => node.remove());
+    const controller = new AbortController();
+    const { signal } = controller;
+    let scheduled = false;
+
+    function enhanceSnapshotButtons() {
+      scheduled = false;
+      const buttons = Array.from(shell.querySelectorAll<HTMLButtonElement>('.moments-side-photo:not([data-native-snapshot])'));
+      buttons.forEach((button) => {
+        const sourceThumb = button.querySelector<HTMLImageElement>('img');
+        if (!sourceThumb) return;
+
+        const sequence = (nativeSnapshotWindow.__momentsNativeSnapshotSequence || 0) + 1;
+        nativeSnapshotWindow.__momentsNativeSnapshotSequence = sequence;
+        const previewId = `moments-snapshot-popover-${sequence}`;
+
+        const preview = document.createElement('div');
+        preview.id = previewId;
+        preview.className = 'moments-snapshot-popover';
+        preview.setAttribute('popover', 'auto');
+
+        const frame = document.createElement('figure');
+        frame.className = 'moments-snapshot-preview-frame';
+        const previewImage = document.createElement('img');
+        previewImage.className = 'moments-snapshot-preview-image';
+        previewImage.src = sourceThumb.currentSrc || sourceThumb.src;
+        previewImage.alt = sourceThumb.alt || '碎碎念图片预览';
+        previewImage.decoding = 'async';
+
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'moments-snapshot-preview-close';
+        close.setAttribute('aria-label', '关闭图片预览');
+        close.setAttribute('popovertarget', previewId);
+        close.setAttribute('popovertargetaction', 'hide');
+        close.textContent = '×';
+
+        frame.appendChild(previewImage);
+        preview.append(frame, close);
+        document.body.appendChild(preview);
+
+        const nativeButton = button.cloneNode(true) as HTMLButtonElement;
+        nativeButton.dataset.nativeSnapshot = '1';
+        nativeButton.setAttribute('popovertarget', previewId);
+        nativeButton.setAttribute('popovertargetaction', 'toggle');
+        button.replaceWith(nativeButton);
+      });
+    }
+
+    function queueEnhance() {
+      if (scheduled) return;
+      scheduled = true;
+      requestAnimationFrame(enhanceSnapshotButtons);
+    }
+
+    enhanceSnapshotButtons();
+    const observer = new MutationObserver(queueEnhance);
+    observer.observe(shell, { childList: true, subtree: true });
+
+    nativeSnapshotWindow.__momentsNativeSnapshotCleanup = () => {
+      controller.abort();
+      observer.disconnect();
+      document.querySelectorAll('.moments-snapshot-popover').forEach((node) => node.remove());
+    };
+
+    signal.addEventListener('abort', () => {
+      scheduled = false;
+    }, { once: true });
+  }
+
+  if (!nativeSnapshotWindow.__momentsNativeSnapshotLifecycleBound) {
+    nativeSnapshotWindow.__momentsNativeSnapshotLifecycleBound = true;
+    document.addEventListener('astro:page-load', installNativeSnapshotPreviews);
+    document.addEventListener('astro:before-swap', () => nativeSnapshotWindow.__momentsNativeSnapshotCleanup?.());
+  }
+
+  installNativeSnapshotPreviews();
+</script>
