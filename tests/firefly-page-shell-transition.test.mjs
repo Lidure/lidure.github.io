@@ -6,6 +6,7 @@ const read = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf
 const article = read('src/pages/posts/[slug].astro');
 const archive = read('src/pages/posts/index.astro');
 const moments = read('src/pages/moments.astro');
+const layout = read('src/layouts/BaseLayout.astro');
 const transition = read('src/components/PageTransitionEnhancer.astro');
 const wallpaperCss = read('src/styles/firefly-wallpaper-modes.css');
 
@@ -25,10 +26,18 @@ test('fullscreen and overlay keep Firefly inner-page behavior while banner mode 
   assert.match(wallpaperCss, /html\[data-wallpaper-mode="banner"\] body\.layout-standard \.standard-page-surface/);
 });
 
+test('Firefly motion lives on a dedicated content layer, never the glass page shell', () => {
+  assert.match(layout, /class="content-area standard-content transition-main transition-leaving"/);
+  assert.match(layout, /class="immersive-content transition-main transition-leaving"/);
+  assert.doesNotMatch(transition, /querySelector\('\.standard-page-surface, \.immersive-content'\)/);
+  assert.doesNotMatch(transition, /\.standard-page-surface[\s\S]*will-change:\s*transform,\s*opacity/);
+  assert.doesNotMatch(transition, /surface\.animate/);
+});
+
 test('page transition timing follows Firefly compositor-friendly motion', () => {
   assert.match(transition, /scaleX\(0\.95\)/);
   assert.match(transition, /duration:\s*500/);
-  assert.match(transition, /duration:\s*120/);
+  assert.match(transition, /120ms/);
   assert.match(transition, /translateY\(-2rem\)/);
   assert.match(transition, /translateY\(2rem\)/);
   assert.match(transition, /cubic-bezier\(0\.55,\s*0\.055,\s*0\.675,\s*0\.19\)/);
