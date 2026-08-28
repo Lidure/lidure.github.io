@@ -1,0 +1,17 @@
+.message-board,
+.message-composer-backdrop {
+  --message-paper-yellow: #fff1a8;
+  --message-paper-pink: #ffd6df;
+  --message-paper-blue: #cfeafa;
+  --message-paper-green: #d8efc7;
+  --message-paper-purple: #e5d7f8;
+}
+
+html[data-theme="dark"] .message-board,
+html[data-theme="dark"] .message-composer-backdrop {
+  --message-paper-yellow: #d8ca83;
+  --message-paper-pink: #cba5ad;
+  --message-paper-blue: #9fbecb;
+  --message-paper-green: #a9bf91;
+  --message-paper-purple: #b7a5ce;
+}
