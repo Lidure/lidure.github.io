@@ -35,7 +35,19 @@ test('global layer tokens exist once and are strictly ordered', async () => {
 });
 
 test('global surfaces consume semantic layer tokens', async () => {
-  const [waves, immersiveNav, standardNav, floatingControls, player, settings, messages, transition] = await Promise.all([
+  const [
+    waves,
+    immersiveNav,
+    standardNav,
+    floatingControls,
+    player,
+    settings,
+    messages,
+    media,
+    moments,
+    momentsPins,
+    transition,
+  ] = await Promise.all([
     read('src/components/BannerWaves.astro'),
     read('src/styles/immersive-nav.css'),
     read('src/styles/firefly-refresh.css'),
@@ -43,6 +55,9 @@ test('global surfaces consume semantic layer tokens', async () => {
     read('src/components/SekaiPlayer.astro'),
     read('src/components/VisualSettingsPanel.astro'),
     read('src/styles/message-board.css'),
+    read('src/components/HeroSlideshow.astro'),
+    read('src/styles/moments-life-wall.css'),
+    read('src/components/MomentsPinControls.astro'),
     read('src/components/PageTransitionEnhancer.astro'),
   ]);
 
@@ -60,6 +75,12 @@ test('global surfaces consume semantic layer tokens', async () => {
 
   assert.match(messages, /\.message-drawer[\s\S]*?z-index:\s*var\(--z-overlay\)/);
   assert.match(messages, /\.message-composer-backdrop[\s\S]*?z-index:\s*var\(--z-modal\)/);
+
+  assert.match(media, /\.media-panel[\s\S]*?z-index:\s*var\(--z-modal\)/);
+  assert.match(media, /\.media-preview[\s\S]*?z-index:\s*var\(--z-modal\)/);
+  assert.match(moments, /\.lightbox-overlay[\s\S]*?z-index:\s*var\(--z-modal\)/);
+  assert.match(moments, /\.moments-toast[\s\S]*?z-index:\s*var\(--z-toast\)/);
+  assert.match(momentsPins, /\.moments-pin-status[\s\S]*?z-index:\s*var\(--z-toast\)/);
 
   assert.match(transition, /#page-transition-progress[\s\S]*?z-index:\s*var\(--z-toast\)/);
   assert.match(transition, /#page-transition-progress[\s\S]*?pointer-events:\s*none/);
@@ -89,10 +110,13 @@ test('migrated global surfaces no longer depend on legacy magic z-index values',
     read('src/components/SekaiPlayer.astro'),
     read('src/components/VisualSettingsPanel.astro'),
     read('src/styles/message-board.css'),
+    read('src/components/HeroSlideshow.astro'),
+    read('src/styles/moments-life-wall.css'),
+    read('src/components/MomentsPinControls.astro'),
     read('src/components/PageTransitionEnhancer.astro'),
   ]);
   const joined = files.join('\n');
-  for (const value of ['9998', '9999', '10000', '10010', '10020', '10050']) {
+  for (const value of ['9998', '9999', '10000', '10001', '10002', '10010', '10020', '10050']) {
     assert.doesNotMatch(joined, new RegExp(`z-index:\\s*${value}\\b`));
   }
 });
