@@ -84,6 +84,16 @@ test('portaled composer keeps the sticky-note paper palette in light and dark th
   }
 });
 
+test('color picker rebuilds interactive swatches on controller remount', () => {
+  const controller = read('src/lib/message-board-controller.ts');
+  const match = controller.match(/function buildColorOptions\(\) \{[\s\S]*?\n  \}/);
+  assert.ok(match, 'buildColorOptions should be present');
+  const build = match[0];
+  assert.doesNotMatch(build, /childElementCount\) return/, 'existing swatches may have aborted listeners after Astro remount');
+  assert.match(build, /replaceChildren\(\)/, 'remount should discard stale swatches before rebinding listeners');
+  assert.match(build, /addEventListener\(['"]click['"][\s\S]*setSelectedColor\(color\)/, 'fresh swatches must bind selection clicks');
+});
+
 test('details reuse comments and expose approved reactions', () => {
   const board = read('src/components/MessageBoard.astro');
   const controller = read('src/lib/message-board-controller.ts');
