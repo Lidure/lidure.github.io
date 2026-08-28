@@ -320,3 +320,288 @@ html[data-reduce-motion="true"] .message-color-choice { transition: none !import
 html[data-reduce-motion="true"] .sticky-note:hover,
 html[data-reduce-motion="true"] .sticky-note:focus-visible,
 html[data-reduce-motion="true"] .sticky-note.dragging { --note-scale: 1; }
+
+/* Playful sticker layer: decorative only except the deliberately clickable sticker buttons. */
+.message-board-scene {
+  position: relative;
+  isolation: isolate;
+}
+
+.message-board-sticker-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+  border-radius: 18px;
+  pointer-events: none;
+}
+
+.message-board-sticker-button {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #49351f;
+  font: inherit;
+  cursor: pointer;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  filter: drop-shadow(0 7px 5px rgba(56, 31, 12, .18));
+  transition: transform 180ms ease, filter 180ms ease;
+}
+
+.message-board-sticker-button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--accent) 70%, white);
+  outline-offset: 4px;
+  border-radius: 18px;
+}
+
+.message-board-sticker--dog {
+  top: 18px;
+  right: 12px;
+  width: clamp(88px, 10vw, 132px);
+  aspect-ratio: 1 / 1;
+  transform: rotate(4deg);
+}
+
+.message-board-sticker--dog img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  user-select: none;
+  pointer-events: none;
+}
+
+.message-board-sticker--dog:hover,
+.message-board-sticker--dog:focus-visible {
+  transform: rotate(1deg) translateY(-3px) scale(1.035);
+  filter: drop-shadow(0 10px 7px rgba(56, 31, 12, .23));
+}
+
+.message-board-sticker--dog.is-playing {
+  animation: message-board-dog-wiggle 520ms cubic-bezier(.2,.8,.2,1);
+}
+
+.message-board-sticker-caption {
+  position: absolute;
+  right: 4px;
+  bottom: -7px;
+  padding: .18rem .42rem;
+  border-radius: 999px;
+  background: rgba(255, 248, 226, .88);
+  color: #5c4027;
+  box-shadow: 0 4px 12px rgba(51, 28, 10, .12);
+  font-size: .58rem;
+  font-weight: 800;
+  letter-spacing: .04em;
+  transform: rotate(-4deg);
+}
+
+.message-board-sticker--flower {
+  left: 18px;
+  bottom: 22px;
+  width: 64px;
+  height: 82px;
+  transform: rotate(-7deg);
+  transform-origin: 50% 100%;
+}
+
+.message-board-sticker--flower:hover,
+.message-board-sticker--flower:focus-visible {
+  transform: rotate(2deg) scale(1.06);
+}
+
+.message-board-sticker--flower.is-playing {
+  animation: message-board-flower-bloom 620ms cubic-bezier(.18,.85,.3,1.25);
+}
+
+.message-board-pixel-flower {
+  position: relative;
+  display: block;
+  width: 62px;
+  height: 78px;
+}
+
+.message-board-pixel-flower .petal,
+.message-board-pixel-flower .flower-core,
+.message-board-pixel-flower .flower-stem,
+.message-board-pixel-flower .flower-leaf {
+  position: absolute;
+  display: block;
+  image-rendering: pixelated;
+}
+
+.message-board-pixel-flower .petal {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #e97c92;
+  background: #ffd6df;
+  box-shadow: 3px 3px 0 rgba(98, 48, 56, .13);
+}
+.message-board-pixel-flower .petal--top { left: 22px; top: 2px; }
+.message-board-pixel-flower .petal--right { left: 38px; top: 18px; }
+.message-board-pixel-flower .petal--bottom { left: 22px; top: 34px; }
+.message-board-pixel-flower .petal--left { left: 6px; top: 18px; }
+.message-board-pixel-flower .flower-core {
+  left: 23px;
+  top: 19px;
+  width: 17px;
+  height: 17px;
+  border: 3px solid #b7782f;
+  background: #ffe279;
+}
+.message-board-pixel-flower .flower-stem {
+  left: 29px;
+  top: 49px;
+  width: 6px;
+  height: 27px;
+  background: #69a961;
+}
+.message-board-pixel-flower .flower-leaf {
+  left: 34px;
+  top: 58px;
+  width: 16px;
+  height: 10px;
+  border-radius: 10px 0 10px 0;
+  background: #8cc879;
+  transform: rotate(-20deg);
+}
+
+.message-board-sticker-doodle {
+  position: absolute;
+  z-index: 1;
+  color: rgba(255, 241, 178, .9);
+  text-shadow: 0 2px 1px rgba(68, 37, 16, .12);
+  pointer-events: none;
+  user-select: none;
+}
+
+.message-board-sticker-doodle--stars {
+  top: 145px;
+  right: 32px;
+  font-size: 1.05rem;
+  letter-spacing: .22em;
+  transform: rotate(8deg);
+}
+
+.message-board-sticker-tape {
+  position: absolute;
+  z-index: 1;
+  width: 72px;
+  height: 20px;
+  background: repeating-linear-gradient(90deg, rgba(255, 239, 173, .78) 0 7px, rgba(255, 244, 196, .7) 7px 14px);
+  border: 1px solid rgba(106, 72, 34, .09);
+  box-shadow: 0 2px 5px rgba(52, 30, 12, .08);
+  opacity: .82;
+}
+.message-board-sticker-tape--left { top: 30%; left: -24px; transform: rotate(88deg); }
+.message-board-sticker-tape--right { right: -25px; bottom: 29%; transform: rotate(92deg); }
+
+.message-board-sticker-sprout {
+  position: absolute;
+  right: 24%;
+  bottom: 15px;
+  font-size: 1.45rem;
+  transform: rotate(7deg);
+  filter: drop-shadow(0 3px 2px rgba(55, 31, 14, .15));
+  pointer-events: none;
+  user-select: none;
+}
+
+.message-board-sticker-bubble {
+  position: absolute;
+  z-index: 5;
+  width: max-content;
+  max-width: 11rem;
+  padding: .38rem .58rem;
+  border: 2px solid rgba(84, 56, 29, .16);
+  border-radius: 12px 12px 12px 3px;
+  background: rgba(255, 250, 232, .96);
+  color: #4f3923;
+  box-shadow: 0 8px 18px rgba(45, 25, 8, .16);
+  font-size: .69rem;
+  font-weight: 750;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: message-board-sticker-pop 240ms cubic-bezier(.2,.9,.3,1.2) both;
+}
+
+.message-board-sticker-bubble::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+  border-right: 2px solid rgba(84, 56, 29, .13);
+  border-bottom: 2px solid rgba(84, 56, 29, .13);
+  transform: rotate(45deg);
+}
+
+.message-board-sticker-bubble--dog {
+  right: 70%;
+  top: 8%;
+}
+.message-board-sticker-bubble--dog::after { right: -5px; bottom: 7px; }
+.message-board-sticker-bubble--flower {
+  left: 52px;
+  bottom: 44px;
+}
+.message-board-sticker-bubble--flower::after { left: -5px; bottom: 7px; transform: rotate(225deg); }
+
+html[data-theme="dark"] .message-board-sticker-caption,
+html[data-theme="dark"] .message-board-sticker-bubble {
+  background: rgba(242, 227, 194, .94);
+  color: #3f3020;
+}
+
+@keyframes message-board-dog-wiggle {
+  0%, 100% { transform: rotate(4deg) translateY(0) scale(1); }
+  25% { transform: rotate(-5deg) translateY(-5px) scale(1.04); }
+  55% { transform: rotate(7deg) translateY(-2px) scale(1.03); }
+  78% { transform: rotate(-2deg) translateY(-4px) scale(1.04); }
+}
+
+@keyframes message-board-flower-bloom {
+  0% { transform: rotate(-7deg) scale(.9); }
+  48% { transform: rotate(3deg) scale(1.18); }
+  72% { transform: rotate(-2deg) scale(1.04); }
+  100% { transform: rotate(-7deg) scale(1); }
+}
+
+@keyframes message-board-sticker-pop {
+  from { opacity: 0; transform: translateY(5px) scale(.88); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 720px) {
+  .message-board-sticker-layer { border-radius: 14px; }
+  .message-board-sticker--dog { top: 11px; right: 2px; width: 88px; }
+  .message-board-sticker-caption { display: none; }
+  .message-board-sticker-doodle--stars { top: 104px; right: 15px; font-size: .85rem; }
+  .message-board-sticker--flower { left: 5px; bottom: 13px; transform: rotate(-8deg) scale(.82); }
+  .message-board-sticker-sprout { right: 18%; bottom: 9px; font-size: 1.15rem; }
+  .message-board-sticker-tape--left { left: -31px; }
+  .message-board-sticker-tape--right { right: -32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .message-board-sticker,
+  .message-board-sticker-button,
+  .message-board-sticker-bubble {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+html[data-reduce-motion="true"] .message-board-sticker,
+html[data-reduce-motion="true"] .message-board-sticker-button,
+html[data-reduce-motion="true"] .message-board-sticker-bubble {
+  transition: none !important;
+  animation: none !important;
+}

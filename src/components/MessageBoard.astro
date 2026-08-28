@@ -18,9 +18,51 @@ import '../styles/message-board-palette.css';
 
   <p id="message-board-status" class="message-board-status" aria-live="polite">正在看看墙上都贴了些什么…</p>
 
-  <div id="message-board-viewport" class="message-board-viewport">
-    <div id="message-board-stage" class="message-board-stage" role="region" aria-label="公共留言板">
-      <div class="message-board-loading">正在加载便签…</div>
+  <div class="message-board-scene">
+    <div id="message-board-viewport" class="message-board-viewport">
+      <div id="message-board-stage" class="message-board-stage" role="region" aria-label="公共留言板">
+        <div class="message-board-loading">正在加载便签…</div>
+      </div>
+    </div>
+
+    <div class="message-board-sticker-layer" aria-label="留言墙装饰贴纸">
+      <button
+        type="button"
+        class="message-board-sticker-button message-board-sticker message-board-sticker--dog"
+        data-board-sticker="dog"
+        aria-label="戳戳帕恰狗"
+      >
+        <img
+          src="https://www.pngmart.com/files/23/Pochacco-Download-PNG-Image.png"
+          alt=""
+          draggable="false"
+          decoding="async"
+          referrerpolicy="no-referrer"
+        />
+        <span class="message-board-sticker-caption" aria-hidden="true">戳一下</span>
+      </button>
+
+      <button
+        type="button"
+        class="message-board-sticker-button message-board-sticker message-board-sticker--flower"
+        data-board-sticker="flower"
+        aria-label="点一下小花"
+      >
+        <span class="message-board-pixel-flower" aria-hidden="true">
+          <span class="petal petal--top"></span>
+          <span class="petal petal--right"></span>
+          <span class="petal petal--bottom"></span>
+          <span class="petal petal--left"></span>
+          <span class="flower-core"></span>
+          <span class="flower-stem"></span>
+          <span class="flower-leaf"></span>
+        </span>
+      </button>
+
+      <span class="message-board-sticker-doodle message-board-sticker-doodle--stars" aria-hidden="true">✦ · ˚ ✧</span>
+      <span class="message-board-sticker-tape message-board-sticker-tape--left" aria-hidden="true"></span>
+      <span class="message-board-sticker-tape message-board-sticker-tape--right" aria-hidden="true"></span>
+      <span class="message-board-sticker-sprout" aria-hidden="true">🌱</span>
     </div>
   </div>
 
@@ -68,6 +110,60 @@ import '../styles/message-board-palette.css';
   import { initMessageBoard } from '../lib/message-board-controller';
 
   const w = window as typeof window & { __messageBoardCleanup?: () => void; __messageBoardBound?: boolean };
+
+  function initMessageBoardStickers() {
+    const root = document.getElementById('message-board-root');
+    if (!root) return () => {};
+
+    const controller = new AbortController();
+    const { signal } = controller;
+    const dog = root.querySelector<HTMLButtonElement>('[data-board-sticker="dog"]');
+    const flower = root.querySelector<HTMLButtonElement>('[data-board-sticker="flower"]');
+    const dogMessages = ['汪～', '摸摸成功 ♡', '今天也要开心呀', '贴好便签再走吧'];
+    let dogMessageIndex = Math.floor(Math.random() * dogMessages.length);
+
+    function reducedMotionPreferred() {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        || document.documentElement.dataset.reduceMotion === 'true';
+    }
+
+    function showStickerBubble(target: HTMLElement, text: string, kind: 'dog' | 'flower') {
+      target.querySelectorAll('.message-board-sticker-bubble').forEach((node) => node.remove());
+      const bubble = document.createElement('span');
+      bubble.className = `message-board-sticker-bubble message-board-sticker-bubble--${kind}`;
+      bubble.textContent = text;
+      bubble.setAttribute('aria-hidden', 'true');
+      target.appendChild(bubble);
+
+      if (!reducedMotionPreferred()) {
+        target.classList.remove('is-playing');
+        void target.offsetWidth;
+        target.classList.add('is-playing');
+      }
+
+      window.setTimeout(() => {
+        bubble.remove();
+        target.classList.remove('is-playing');
+      }, reducedMotionPreferred() ? 900 : 1450);
+    }
+
+    if (dog) {
+      dog.addEventListener('click', () => {
+        const message = dogMessages[dogMessageIndex % dogMessages.length];
+        dogMessageIndex += 1;
+        showStickerBubble(dog, message, 'dog');
+      }, { signal });
+    }
+
+    if (flower) {
+      flower.addEventListener('click', () => {
+        showStickerBubble(flower, '开花啦 ✿', 'flower');
+      }, { signal });
+    }
+
+    return () => controller.abort();
+  }
+
   function mount() {
     w.__messageBoardCleanup?.();
 
@@ -75,11 +171,13 @@ import '../styles/message-board-palette.css';
     const composer = document.getElementById('message-composer');
     const drawer = document.getElementById('message-drawer');
     const cleanupController = initMessageBoard();
+    const cleanupStickers = initMessageBoardStickers();
 
     if (composer && composer.parentElement !== document.body) document.body.appendChild(composer);
     if (drawer && drawer.parentElement !== document.body) document.body.appendChild(drawer);
 
     w.__messageBoardCleanup = () => {
+      cleanupStickers();
       cleanupController();
       if (boardRoot?.isConnected) {
         if (composer) boardRoot.appendChild(composer);
