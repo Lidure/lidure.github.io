@@ -135,6 +135,13 @@ import '../styles/message-board-stickers.css';
     }
     let storedPositions = readStoredPositions();
     function clamp(value: number, min: number, max: number) { return Math.min(Math.max(value, min), Math.max(min, max)); }
+    function readStickerTranslation(sticker: HTMLElement) {
+      const styles = getComputedStyle(sticker);
+      return {
+        x: Number.parseFloat(styles.getPropertyValue('--sticker-x')) || 0,
+        y: Number.parseFloat(styles.getPropertyValue('--sticker-y')) || 0,
+      };
+    }
     function setStickerPosition(sticker: HTMLElement, normalizedX: number, normalizedY: number) {
       const rect = scene.getBoundingClientRect();
       const width = sticker.offsetWidth || 96;
@@ -157,10 +164,10 @@ import '../styles/message-board-stickers.css';
       const name = sticker.dataset.boardSticker;
       if (!name) return;
       const sceneRect = scene.getBoundingClientRect();
-      const stickerRect = sticker.getBoundingClientRect();
+      const current = readStickerTranslation(sticker);
       storedPositions = { ...storedPositions, [name]: {
-        x: clamp((stickerRect.left - sceneRect.left) / Math.max(1, sceneRect.width), 0, 1),
-        y: clamp((stickerRect.top - sceneRect.top) / Math.max(1, sceneRect.height), 0, 1),
+        x: clamp(current.x / Math.max(1, sceneRect.width), 0, 1),
+        y: clamp(current.y / Math.max(1, sceneRect.height), 0, 1),
       }};
       writeStoredPositions(storedPositions);
     }
@@ -191,11 +198,10 @@ import '../styles/message-board-stickers.css';
       let moved = false;
       sticker.addEventListener('pointerdown', (event) => {
         if (event.button !== 0) return;
-        const sceneRect = scene.getBoundingClientRect();
-        const stickerRect = sticker.getBoundingClientRect();
+        const current = readStickerTranslation(sticker);
         pointerId = event.pointerId;
         startClientX = event.clientX; startClientY = event.clientY;
-        startX = stickerRect.left - sceneRect.left; startY = stickerRect.top - sceneRect.top;
+        startX = current.x; startY = current.y;
         moved = false;
         sticker.classList.add('is-dragging');
         sticker.setPointerCapture(event.pointerId);

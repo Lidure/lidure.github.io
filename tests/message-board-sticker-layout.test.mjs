@@ -31,3 +31,19 @@ test('message board has a fuller scrapbook sticker set with spaced defaults', ()
     }
   }
 });
+
+test('rotated stickers drag from their translation origin instead of rotated bounding boxes', () => {
+  const board = read('src/components/MessageBoard.astro');
+  const dragSection = board.match(/stickers\.forEach\(\(sticker\) => \{[\s\S]*?sticker\.addEventListener\('pointerup'/)?.[0] || board;
+  const persistSection = board.match(/function persistStickerPosition\(sticker: HTMLElement\) \{[\s\S]*?\n    \}/)?.[0] || '';
+  const readTranslation = board.match(/function readStickerTranslation\(sticker: HTMLElement\) \{[\s\S]*?\n    \}/)?.[0] || '';
+
+  assert.ok(readTranslation, 'dragging should read the real translate variables');
+  assert.match(readTranslation, /getComputedStyle\(sticker\)/);
+  assert.match(readTranslation, /getPropertyValue\('--sticker-x'\)/);
+  assert.match(readTranslation, /getPropertyValue\('--sticker-y'\)/);
+  assert.match(dragSection, /const current = readStickerTranslation\(sticker\)/);
+  assert.doesNotMatch(dragSection, /startX\s*=\s*stickerRect\.left\s*-\s*sceneRect\.left/);
+  assert.match(persistSection, /const current = readStickerTranslation\(sticker\)/);
+  assert.doesNotMatch(persistSection, /stickerRect\.left\s*-\s*sceneRect\.left/);
+});
