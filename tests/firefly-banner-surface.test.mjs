@@ -22,7 +22,7 @@ test('banner homepage uses a transparent Firefly-style content panel over the pa
 });
 
 test('banner content stays above waves while preserving the Firefly 3.5rem overlap', () => {
-  assert.match(waves, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*15/s);
+  assert.match(waves, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*var\(--z-decoration\)/s);
   assert.match(banner, /--banner-surface-overlap:\s*3\.5rem/);
   assert.match(
     banner,
