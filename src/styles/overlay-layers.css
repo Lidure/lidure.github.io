@@ -29,14 +29,9 @@ body.layout-immersive .site-floating-controls,
   z-index: var(--layer-panel) !important;
 }
 
-/* Message-board dialogs live inside .standard-page-surface, which is itself a
-   stacking context. Raise that ancestor while a dialog is open so a large
-   child z-index is not trapped underneath the site header or banner effects. */
-body.layout-standard:has(#message-composer:not([hidden])) .standard-page-surface,
-body.layout-standard:has(#message-drawer:not([hidden])) .standard-page-surface {
-  z-index: var(--layer-modal) !important;
-}
-
+/* Message-board surfaces are portaled to document.body after their controller
+   binds, so they participate in the root stacking context instead of being
+   trapped inside .standard-page-surface. */
 .message-composer-backdrop,
 .message-drawer {
   z-index: var(--layer-modal) !important;
