@@ -3,7 +3,7 @@ const SESSION_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const SESSION_MAX_AGE_SECONDS = SESSION_MAX_AGE_MS / 1000;
 const PASSWORD_PREFIX = "pbkdf2";
 const PASSWORD_HASH = "sha256";
-const PASSWORD_ITERATIONS = 100000;
+const PASSWORD_ITERATIONS = new Set([100000, 310000]);
 const PASSWORD_KEY_LENGTH = 32;
 
 const textEncoder = new TextEncoder();
@@ -148,11 +148,13 @@ function parsePasswordHash(
   }
 
   const [prefix, hashName, iterationsRaw, saltRaw, hashRaw] = parts;
+  const iterations = Number(iterationsRaw);
 
   if (
     prefix !== PASSWORD_PREFIX ||
     hashName !== PASSWORD_HASH ||
-    iterationsRaw !== String(PASSWORD_ITERATIONS)
+    !Number.isSafeInteger(iterations) ||
+    !PASSWORD_ITERATIONS.has(iterations)
   ) {
     return null;
   }
@@ -167,7 +169,7 @@ function parsePasswordHash(
     return null;
   }
 
-  return { iterations: PASSWORD_ITERATIONS, salt, hash };
+  return { iterations, salt, hash };
 }
 
 function parseCookieHeader(header: string | null): Map<string, string> {
