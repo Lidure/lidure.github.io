@@ -5,16 +5,45 @@ on:
     branches: [fix/message-color-picker-remount]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   color-picker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: fix/message-color-picker-remount
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Rebind color swatches on remount
+        id: patch
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('src/lib/message-board-controller.ts')
+          text = path.read_text(encoding='utf-8')
+          old = """  function buildColorOptions() {\n    if (!colorOptions || colorOptions.childElementCount) return;\n    NOTE_COLORS.forEach((color) => {\n"""
+          new = """  function buildColorOptions() {\n    if (!colorOptions) return;\n    colorOptions.replaceChildren();\n    NOTE_COLORS.forEach((color) => {\n"""
+          if old in text:
+              text = text.replace(old, new, 1)
+              path.write_text(text, encoding='utf-8')
+              print('changed=true')
+              with open(Path().resolve() / '.patch-changed', 'w', encoding='utf-8') as f:
+                  f.write('1')
+          elif new not in text:
+              raise SystemExit('expected buildColorOptions pattern not found')
+          PY
+      - name: Commit controller fix
+        run: |
+          if [ -f .patch-changed ]; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add src/lib/message-board-controller.ts
+            git commit -m 'fix: rebind message color swatches on remount'
+            git push origin HEAD:fix/message-color-picker-remount
+          fi
       - run: node --test tests/message-board-page.test.mjs
