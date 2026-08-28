@@ -5,16 +5,57 @@ on:
     branches: [fix/global-overlay-layering]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   overlay-contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: fix/global-overlay-layering
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Migrate remaining modal and toast magic values
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+              'src/components/HeroSlideshow.astro': [
+                  ('    z-index: 10001;', '    z-index: var(--layer-modal);'),
+                  ('    z-index: 10002;', '    z-index: var(--layer-modal);'),
+              ],
+              'src/styles/moments-life-wall.css': [
+                  ('.moments-toast { position: fixed; z-index: 10020;', '.moments-toast { position: fixed; z-index: var(--layer-toast);'),
+                  ('.lightbox-overlay { position: fixed; z-index: 10010;', '.lightbox-overlay { position: fixed; z-index: var(--layer-modal);'),
+              ],
+              'src/components/MomentsPinControls.astro': [
+                  ('    z-index: 10020;', '    z-index: var(--layer-toast);'),
+              ],
+          }
+
+          for path, pairs in replacements.items():
+              file = Path(path)
+              text = file.read_text(encoding='utf-8')
+              for old, new in pairs:
+                  count = text.count(old)
+                  if count != 1:
+                      raise SystemExit(f'{path}: expected exactly one {old!r}, found {count}')
+                  text = text.replace(old, new, 1)
+              file.write_text(text, encoding='utf-8')
+      - name: Commit production migration
+        run: |
+          if git diff --quiet; then
+            echo 'No production changes to commit.'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add src/components/HeroSlideshow.astro src/styles/moments-life-wall.css src/components/MomentsPinControls.astro
+            git commit -m 'refactor: align modal and toast layer tokens'
+            git push origin HEAD:fix/global-overlay-layering
+          fi
       - run: node --test tests/overlay-layering.test.mjs
