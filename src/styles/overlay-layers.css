@@ -1,0 +1,51 @@
+:root {
+  --layer-decoration: 20;
+  --layer-floating: 1000;
+  --layer-navigation: 2000;
+  --layer-overlay: 3000;
+  --layer-modal: 4000;
+  --layer-toast: 5000;
+  --layer-progress: 6000;
+}
+
+/* Decorative media never outranks interactive UI. */
+body.layout-standard .banner-waves {
+  z-index: var(--layer-decoration) !important;
+}
+
+/* Floating launchers stay below navigation; expanded non-blocking surfaces sit above it. */
+body.layout-standard .site-header,
+body.layout-immersive .site-header {
+  z-index: var(--layer-navigation) !important;
+}
+
+.site-floating-controls,
+.hero-settings-btn,
+.sekai-player-btn {
+  z-index: var(--layer-floating) !important;
+}
+
+.hero-settings-panel,
+.sekai-player-panel,
+.message-drawer {
+  z-index: var(--layer-overlay) !important;
+}
+
+/* Blocking dialogs and full-screen previews sit above ordinary overlays. */
+.message-composer-backdrop,
+.media-panel,
+.media-preview,
+.lightbox-overlay {
+  z-index: var(--layer-modal) !important;
+}
+
+/* Status feedback must remain visible above blocking surfaces. */
+.moments-toast,
+.moments-pin-status {
+  z-index: var(--layer-toast) !important;
+}
+
+/* Keep route progress visible even when another surface is already open. */
+#page-transition-progress {
+  z-index: var(--layer-progress) !important;
+}
