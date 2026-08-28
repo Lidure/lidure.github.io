@@ -147,15 +147,19 @@ import '../styles/message-board-palette.css';
       }, reducedMotionPreferred() ? 900 : 1450);
     }
 
-    dog?.addEventListener('click', () => {
-      const message = dogMessages[dogMessageIndex % dogMessages.length];
-      dogMessageIndex += 1;
-      showStickerBubble(dog, message, 'dog');
-    }, { signal });
+    if (dog) {
+      dog.addEventListener('click', () => {
+        const message = dogMessages[dogMessageIndex % dogMessages.length];
+        dogMessageIndex += 1;
+        showStickerBubble(dog, message, 'dog');
+      }, { signal });
+    }
 
-    flower?.addEventListener('click', () => {
-      showStickerBubble(flower, '开花啦 ✿', 'flower');
-    }, { signal });
+    if (flower) {
+      flower.addEventListener('click', () => {
+        showStickerBubble(flower, '开花啦 ✿', 'flower');
+      }, { signal });
+    }
 
     return () => controller.abort();
   }
