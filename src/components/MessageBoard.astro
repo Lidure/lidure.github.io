@@ -133,7 +133,9 @@ import '../styles/message-board-stickers.css';
       stickers.forEach((sticker) => {
         const name = sticker.dataset.boardSticker || '';
         const saved = storedPositions[name];
-        setStickerPosition(sticker, saved?.x ?? Number(sticker.dataset.defaultX) || 0, saved?.y ?? Number(sticker.dataset.defaultY) || 0);
+        const defaultX = Number(sticker.dataset.defaultX) || 0;
+        const defaultY = Number(sticker.dataset.defaultY) || 0;
+        setStickerPosition(sticker, saved?.x ?? defaultX, saved?.y ?? defaultY);
       });
     }
     function persistStickerPosition(sticker: HTMLElement) {
