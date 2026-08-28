@@ -27,16 +27,28 @@ import '../styles/message-board-stickers.css';
     </div>
 
     <div class="message-board-sticker-layer" aria-label="可拖动的留言墙装饰贴纸">
-      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--dog" data-board-sticker="dog" data-default-x="0.845" data-default-y="0.045" aria-label="拖动或戳戳帕恰狗贴纸">
+      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--dog" data-board-sticker="dog" data-default-x="0.865" data-default-y="0.045" aria-label="拖动或戳戳帕恰狗贴纸">
         <img data-sticker-image src="https://www.pngmart.com/files/23/Pochacco-Download-PNG-Image.png" alt="帕恰狗" draggable="false" decoding="async" referrerpolicy="no-referrer" />
       </button>
       <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--flower" data-board-sticker="flower" data-default-x="0.035" data-default-y="0.16" aria-label="拖动小花贴纸">
         <img data-sticker-image src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/1F33C.svg" alt="花朵贴纸" draggable="false" decoding="async" />
       </button>
-      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--star" data-board-sticker="star" data-default-x="0.065" data-default-y="0.73" aria-label="拖动星星贴纸">
+      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--rainbow" data-board-sticker="rainbow" data-default-x="0.42" data-default-y="0.045" aria-label="拖动彩虹贴纸">
+        <img data-sticker-image src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/1F308.svg" alt="彩虹贴纸" draggable="false" decoding="async" />
+      </button>
+      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--heart" data-board-sticker="heart" data-default-x="0.66" data-default-y="0.18" aria-label="拖动爱心贴纸">
+        <img data-sticker-image src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/1F496.svg" alt="闪亮爱心贴纸" draggable="false" decoding="async" />
+      </button>
+      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--star" data-board-sticker="star" data-default-x="0.055" data-default-y="0.78" aria-label="拖动星星贴纸">
         <img data-sticker-image src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/2B50.svg" alt="星星贴纸" draggable="false" decoding="async" />
       </button>
-      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--tape" data-board-sticker="tape" data-default-x="0.81" data-default-y="0.78" aria-label="拖动蝴蝶结贴纸">
+      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--blossom" data-board-sticker="blossom" data-default-x="0.28" data-default-y="0.75" aria-label="拖动樱花贴纸">
+        <img data-sticker-image src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/1F338.svg" alt="樱花贴纸" draggable="false" decoding="async" />
+      </button>
+      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--clover" data-board-sticker="clover" data-default-x="0.58" data-default-y="0.78" aria-label="拖动四叶草贴纸">
+        <img data-sticker-image src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/1F340.svg" alt="四叶草贴纸" draggable="false" decoding="async" />
+      </button>
+      <button type="button" class="message-board-sticker-button message-board-sticker message-board-sticker--tape" data-board-sticker="tape" data-default-x="0.83" data-default-y="0.78" aria-label="拖动蝴蝶结贴纸">
         <img data-sticker-image src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/1F380.svg" alt="蝴蝶结贴纸" draggable="false" decoding="async" />
       </button>
     </div>
@@ -98,7 +110,11 @@ import '../styles/message-board-stickers.css';
     const stickerMessages: Record<string, string[]> = {
       dog: dogMessages,
       flower: ['今天也要开花呀 ✿', '给你一朵小花'],
+      rainbow: ['雨后会有彩虹呀', '今天也是彩色的'],
+      heart: ['收到一点点心意 ♡', '给今天加一点甜'],
       star: ['叮——捡到一颗星星 ✦', '今天会有好运'],
+      blossom: ['樱花落在留言墙上啦', '给你一小片春天'],
+      clover: ['四叶草偷偷加一点好运', '好运签收成功'],
       tape: ['装饰一下这里 ♡', '这里也要可可爱爱'],
     };
     let dogMessageIndex = Math.floor(Math.random() * dogMessages.length);
