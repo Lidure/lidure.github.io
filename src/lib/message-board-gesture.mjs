@@ -9,7 +9,7 @@ export function createGestureState({ pointerType, startX, startY, now }) {
     lastX: startX,
     lastY: startY,
     startedAt: now,
-    phase: pointerType === 'touch' ? 'waiting' : 'dragging',
+    phase: 'waiting',
   };
 }
 
@@ -21,10 +21,19 @@ export function updateGesture(state, { x, y, now }) {
   if (state.phase === 'cancelled') return { state, decision: 'scroll' };
   const next = { ...state, lastX: x, lastY: y };
   if (state.phase === 'dragging') return { state: next, decision: 'drag-move' };
-  if (distance(state, x, y) > CANCEL_DISTANCE && now - state.startedAt < HOLD_MS) {
+
+  const moved = distance(state, x, y) > CANCEL_DISTANCE;
+  if (state.pointerType !== 'touch') {
+    if (moved) {
+      return { state: { ...next, phase: 'dragging' }, decision: 'drag-start' };
+    }
+    return { state: next, decision: 'waiting' };
+  }
+
+  if (moved && now - state.startedAt < HOLD_MS) {
     return { state: { ...next, phase: 'cancelled' }, decision: 'scroll' };
   }
-  if (now - state.startedAt >= HOLD_MS && distance(state, x, y) <= CANCEL_DISTANCE) {
+  if (now - state.startedAt >= HOLD_MS && !moved) {
     return { state: { ...next, phase: 'dragging' }, decision: 'drag-start' };
   }
   return { state: next, decision: 'waiting' };
