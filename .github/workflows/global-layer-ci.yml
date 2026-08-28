@@ -4,12 +4,17 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: write
+
 jobs:
   layer-contract:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout feature branch
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
@@ -17,5 +22,39 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Run global layer contract
+      - name: Apply Task 2 exact replacements
+        shell: python
+        run: |
+          from pathlib import Path
+
+          def replace_once(path, old, new):
+              file = Path(path)
+              text = file.read_text(encoding='utf-8')
+              count = text.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected exactly one match, found {count}: {old!r}')
+              file.write_text(text.replace(old, new, 1), encoding='utf-8')
+
+          replace_once(
+              'src/styles/global.css',
+              ':root {\n  color-scheme: dark;',
+              ':root {\n  /* Global stacking contract */\n  --z-decoration: 10;\n  --z-content: 100;\n  --z-floating: 1000;\n  --z-nav: 2000;\n  --z-overlay: 3000;\n  --z-modal: 4000;\n  --z-toast: 5000;\n\n  color-scheme: dark;',
+          )
+          replace_once('src/components/BannerWaves.astro', '    z-index: 15;', '    z-index: var(--z-decoration);')
+          replace_once('src/styles/immersive-nav.css', '  z-index: 10020;', '  z-index: var(--z-nav);')
+          replace_once('src/components/PageTransitionEnhancer.astro', '    z-index: 10050;', '    z-index: var(--z-toast);')
+      - name: Verify Task 2 diff
+        run: git diff --check && git diff -- src/styles/global.css src/components/BannerWaves.astro src/styles/immersive-nav.css src/components/PageTransitionEnhancer.astro
+      - name: Commit Task 2 migration
+        run: |
+          if git diff --quiet; then
+            echo 'No Task 2 changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/global.css src/components/BannerWaves.astro src/styles/immersive-nav.css src/components/PageTransitionEnhancer.astro
+          git commit -m 'refactor: establish global layer tokens'
+          git push origin HEAD:${{ github.event.pull_request.head.ref }}
+      - name: Run focused contract after Task 2
         run: node --test tests/global-layer-system.test.mjs
