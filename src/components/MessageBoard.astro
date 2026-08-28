@@ -69,7 +69,25 @@ import '../styles/message-board.css';
   const w = window as typeof window & { __messageBoardCleanup?: () => void; __messageBoardBound?: boolean };
   function mount() {
     w.__messageBoardCleanup?.();
-    w.__messageBoardCleanup = initMessageBoard();
+
+    const boardRoot = document.getElementById('message-board-root');
+    const composer = document.getElementById('message-composer');
+    const drawer = document.getElementById('message-drawer');
+    const cleanupController = initMessageBoard();
+
+    if (composer && composer.parentElement !== document.body) document.body.appendChild(composer);
+    if (drawer && drawer.parentElement !== document.body) document.body.appendChild(drawer);
+
+    w.__messageBoardCleanup = () => {
+      cleanupController();
+      if (boardRoot?.isConnected) {
+        if (composer) boardRoot.appendChild(composer);
+        if (drawer) boardRoot.appendChild(drawer);
+      } else {
+        composer?.remove();
+        drawer?.remove();
+      }
+    };
   }
   if (!w.__messageBoardBound) {
     w.__messageBoardBound = true;
