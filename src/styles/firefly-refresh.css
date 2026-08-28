@@ -204,7 +204,7 @@ body.layout-standard .site-nav-toggle span {
 
 .standard-page-surface {
   position: relative;
-  z-index: 3;
+  z-index: auto;
   width: 100%;
   min-height: 55vh;
   margin-top: calc(-1 * var(--blog-banner-overlap, 56px));
