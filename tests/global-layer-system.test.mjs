@@ -65,6 +65,22 @@ test('global surfaces consume semantic layer tokens', async () => {
   assert.match(transition, /#page-transition-progress[\s\S]*?pointer-events:\s*none/);
 });
 
+test('standard page wrapper does not trap fixed overlays in a lower stacking context', async () => {
+  const [refresh, banner] = await Promise.all([
+    read('src/styles/firefly-refresh.css'),
+    read('src/components/BlogBanner.astro'),
+  ]);
+
+  assert.match(
+    refresh,
+    /\.standard-page-surface\s*\{[^}]*position:\s*relative[^}]*z-index:\s*auto/s,
+  );
+  assert.match(
+    banner,
+    /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\s+\.standard-page-surface\s*\{[^}]*z-index:\s*auto/s,
+  );
+});
+
 test('migrated global surfaces no longer depend on legacy magic z-index values', async () => {
   const files = await Promise.all([
     read('src/styles/immersive-nav.css'),
