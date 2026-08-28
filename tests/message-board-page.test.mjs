@@ -138,6 +138,23 @@ test('corkboard supports dark theme, mobile sheet, and reduced motion', () => {
   assert.match(css, /html\[data-reduce-motion="true"\]/);
 });
 
+test('message board adds playful stickers with safe lightweight interactions', () => {
+  const board = read('src/components/MessageBoard.astro');
+  const css = read('src/styles/message-board.css');
+
+  assert.match(board, /class="message-board-sticker-layer"/);
+  assert.match(board, /data-board-sticker="dog"/);
+  assert.match(board, /data-board-sticker="flower"/);
+  assert.match(board, /function initMessageBoardStickers\(/);
+  assert.match(board, /dogMessages\s*=\s*\[/);
+  assert.match(css, /\.message-board-sticker-layer\s*\{[\s\S]*?pointer-events:\s*none/);
+  assert.match(css, /\.message-board-sticker-button\s*\{[\s\S]*?pointer-events:\s*auto/);
+  assert.match(css, /\.message-board-sticker--dog/);
+  assert.match(css, /\.message-board-sticker--flower/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*message-board-sticker/);
+  assert.match(css, /html\[data-reduce-motion="true"\][\s\S]*message-board-sticker/);
+});
+
 test('homepage keeps the array message API contract', () => {
   const recent = read('src/components/RecentMessagesWidget.astro');
   assert.match(recent, /fetchGuestMessages\(\)/);
