@@ -176,7 +176,7 @@
 .message-composer-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: var(--z-modal);
   display: grid;
   place-items: center;
   padding: 1rem;
@@ -232,7 +232,7 @@
 
 .message-drawer {
   position: fixed;
-  z-index: 95;
+  z-index: var(--z-overlay);
   right: 0;
   top: 0;
   bottom: 0;

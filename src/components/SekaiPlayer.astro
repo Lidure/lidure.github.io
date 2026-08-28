@@ -186,7 +186,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
   position: fixed;
   right: 24px;
   bottom: 24px;
-  z-index: 10000;
+  z-index: var(--z-floating);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -332,7 +332,7 @@ const metingApi = import.meta.env.PUBLIC_METING_API || 'https://meting.mikus.ink
   position: fixed;
   right: 24px;
   bottom: 90px;
-  z-index: 10000;
+  z-index: var(--z-overlay);
   display: flex;
   flex-direction: column;
   width: 920px;

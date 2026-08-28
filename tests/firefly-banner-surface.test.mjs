@@ -17,12 +17,12 @@ test('banner homepage uses a transparent Firefly-style content panel over the pa
   );
   assert.match(
     banner,
-    /data-wallpaper-mode="banner"[\s\S]*body\.layout-standard\.is-home\s+\.standard-content\s*\{[^}]*position:\s*relative[^}]*z-index:\s*30[^}]*padding-top:\s*0/s,
+    /data-wallpaper-mode="banner"[\s\S]*body\.layout-standard\.is-home\s+\.standard-content\s*\{[^}]*position:\s*relative[^}]*z-index:\s*30[^}]*padding-top:\s*calc\(var\(--banner-surface-overlap\)\s*\+\s*14px\)/s,
   );
 });
 
 test('banner content stays above waves while preserving the Firefly 3.5rem overlap', () => {
-  assert.match(waves, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*15/s);
+  assert.match(waves, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*var\(--z-decoration\)/s);
   assert.match(banner, /--banner-surface-overlap:\s*3\.5rem/);
   assert.match(
     banner,

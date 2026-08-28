@@ -13,7 +13,7 @@ test('homepage surface does not trap content below the wave stacking layer', () 
 });
 
 test('homepage content is explicitly layered above the waves', () => {
-  assert.match(wavesSource, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*15/s);
+  assert.match(wavesSource, /body\.layout-standard\s+\.banner-waves\s*\{[^}]*z-index:\s*var\(--z-decoration\)/s);
   assert.match(
     bannerSource,
     /body\.layout-standard\.is-home\s+\.home-layout\s*\{[^}]*position:\s*relative[^}]*z-index:\s*20/s,

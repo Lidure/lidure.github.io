@@ -148,7 +148,7 @@
 
 <style>
   .hero-settings-btn {
-    position: fixed; left: 28px; top: 90px; z-index: 9999;
+    position: fixed; left: 28px; top: 90px; z-index: var(--z-floating);
     width: 42px; height: 42px; display: grid; place-items: center;
     border: 1px solid color-mix(in srgb, var(--border, rgba(255,255,255,.14)) 80%, transparent);
     border-radius: 13px; color: var(--text-soft, #d8d8df);
@@ -161,7 +161,7 @@
   .hero-settings-btn svg { width: 18px; height: 18px; }
 
   .hero-settings-panel {
-    position: fixed; left: 28px; top: 142px; z-index: 9998;
+    position: fixed; left: 28px; top: 142px; z-index: var(--z-overlay);
     width: min(445px, calc(100vw - 40px)); max-height: calc(100dvh - 164px);
     display: none; flex-direction: column; overflow: hidden;
     border: 1px solid color-mix(in srgb, var(--border, rgba(255,255,255,.12)) 76%, transparent);
