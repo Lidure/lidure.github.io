@@ -22,18 +22,10 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Apply Task 3 exact replacements
+      - name: Remove standard surface stacking trap
         shell: python
         run: |
           from pathlib import Path
-
-          def replace_once(path, old, new):
-              file = Path(path)
-              text = file.read_text(encoding='utf-8')
-              count = text.count(old)
-              if count != 1:
-                  raise SystemExit(f'{path}: expected exactly one match, found {count}: {old!r}')
-              file.write_text(text.replace(old, new, 1), encoding='utf-8')
 
           def replace_in_block(path, selector, old, new):
               file = Path(path)
@@ -51,36 +43,31 @@ jobs:
               block = block.replace(old, new, 1)
               file.write_text(text[:start] + block + text[end + 1:], encoding='utf-8')
 
-          replace_in_block('src/styles/firefly-refresh.css', 'body.layout-standard .site-header {', 'z-index: 50;', 'z-index: var(--z-nav);')
-          replace_in_block('src/components/FloatingControls.astro', '.site-floating-controls {', 'z-index: 9998;', 'z-index: var(--z-floating);')
-          replace_in_block('src/styles/immersive-nav.css', 'body.layout-immersive .site-floating-controls {', 'z-index: 10010;', 'z-index: var(--z-floating);')
-
-          replace_in_block('src/components/SekaiPlayer.astro', '.sekai-player-btn {', 'z-index: 10000;', 'z-index: var(--z-floating);')
-          replace_in_block('src/components/SekaiPlayer.astro', '.sekai-player-panel {', 'z-index: 10000;', 'z-index: var(--z-overlay);')
-
-          replace_in_block('src/components/VisualSettingsPanel.astro', '.hero-settings-btn {', 'z-index: 9999;', 'z-index: var(--z-floating);')
-          replace_in_block('src/components/VisualSettingsPanel.astro', '.hero-settings-panel {', 'z-index: 9998;', 'z-index: var(--z-overlay);')
-
-          replace_in_block('src/styles/message-board.css', '.message-composer-backdrop {', 'z-index: 100;', 'z-index: var(--z-modal);')
-          replace_in_block('src/styles/message-board.css', '.message-drawer {', 'z-index: 95;', 'z-index: var(--z-overlay);')
-      - name: Verify Task 3 diff
+          replace_in_block('src/styles/firefly-refresh.css', '.standard-page-surface {', 'z-index: 3;', 'z-index: auto;')
+          replace_in_block(
+              'src/components/BlogBanner.astro',
+              'html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {',
+              'z-index: 3;',
+              'z-index: auto;',
+          )
+      - name: Verify stacking-context diff
         run: |
           git diff --check
-          git diff -- src/styles/firefly-refresh.css src/components/FloatingControls.astro src/styles/immersive-nav.css src/components/SekaiPlayer.astro src/components/VisualSettingsPanel.astro src/styles/message-board.css
-      - name: Commit Task 3 migration
+          git diff -- src/styles/firefly-refresh.css src/components/BlogBanner.astro
+      - name: Commit stacking-context fix
         run: |
           if git diff --quiet; then
-            echo 'No Task 3 changes to commit.'
+            echo 'No stacking-context changes to commit.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/styles/firefly-refresh.css src/components/FloatingControls.astro src/styles/immersive-nav.css src/components/SekaiPlayer.astro src/components/VisualSettingsPanel.astro src/styles/message-board.css
-          git commit -m 'fix: keep expanded panels above navigation'
+          git add src/styles/firefly-refresh.css src/components/BlogBanner.astro
+          git commit -m 'fix: let page overlays escape content stacking context'
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
       - name: Run global layer contract
         run: node --test tests/global-layer-system.test.mjs
-      - name: Run adjacent interaction tests
+      - name: Run adjacent interaction and banner tests
         run: >-
           node --test
           tests/message-board-page.test.mjs
@@ -90,3 +77,5 @@ jobs:
           tests/visual-settings.test.mjs
           tests/banner-waves.test.mjs
           tests/fullscreen-navbar-top.test.mjs
+          tests/firefly-banner-surface.test.mjs
+          tests/home-wave-layering.test.mjs
