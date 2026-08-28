@@ -36,8 +36,12 @@ test('expanded panels always outrank navigation and decorative waves', () => {
   assert.match(css, /#page-transition-progress[^{]*\{[^}]*z-index:\s*var\(--layer-progress\)/s);
 });
 
-test('message-board dialogs elevate their ancestor stacking context', () => {
+test('message-board expanded surfaces escape the page stacking context without elevating all content', () => {
   const css = read('src/styles/overlay-layers.css');
-  assert.match(css, /body\.layout-standard:has\(#message-composer:not\(\[hidden\]\)\)[\s\S]*?\.standard-page-surface[\s\S]*?z-index:\s*var\(--layer-modal\)/);
-  assert.match(css, /body\.layout-standard:has\(#message-drawer:not\(\[hidden\]\)\)[\s\S]*?\.standard-page-surface[\s\S]*?z-index:\s*var\(--layer-modal\)/);
+  const component = read('src/components/MessageBoard.astro');
+  assert.doesNotMatch(css, /:has\(#message-(?:composer|drawer)/);
+  assert.match(component, /document\.body\.appendChild\(composer\)/);
+  assert.match(component, /document\.body\.appendChild\(drawer\)/);
+  assert.match(component, /composer\?\.remove\(\)/);
+  assert.match(component, /drawer\?\.remove\(\)/);
 });
