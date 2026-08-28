@@ -72,6 +72,15 @@ test('a stale deferred poll snapshot cannot overwrite a newer local drop save', 
   assert.match(controller, /if \(!current \|\| isRemoteMessageNewer\(current, deferred\)\)/);
 });
 
+test('portaled composer keeps the sticky-note paper palette in light and dark themes', () => {
+  const css = read('src/styles/message-board.css');
+  for (const token of ['yellow', 'pink', 'blue', 'green', 'purple']) {
+    assert.match(css, new RegExp(`\\.message-composer-backdrop[\\s\\S]*--message-paper-${token}:`));
+    assert.match(css, new RegExp(`html\\[data-theme="dark"\\][\\s\\S]*\\.message-composer-backdrop[\\s\\S]*--message-paper-${token}:`));
+    assert.match(css, new RegExp(`message-color-choice\\[data-note-color-choice="${token}"\\][^}]*background:\\s*var\\(--message-paper-${token}\\)`));
+  }
+});
+
 test('details reuse comments and expose approved reactions', () => {
   const board = read('src/components/MessageBoard.astro');
   const controller = read('src/lib/message-board-controller.ts');
