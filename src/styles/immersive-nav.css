@@ -1,7 +1,7 @@
 body.layout-immersive .site-header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 10020;
+  z-index: var(--z-nav);
   color: #fff;
   background: linear-gradient(to bottom, rgba(7, 8, 18, 0.48), rgba(7, 8, 18, 0.16) 62%, transparent);
   transition: opacity 220ms ease, background 220ms ease, backdrop-filter 220ms ease;

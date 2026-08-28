@@ -1,5 +1,14 @@
 /* ===== 🌙 暗色模式（默认） ===== */
 :root {
+  /* Global stacking contract */
+  --z-decoration: 10;
+  --z-content: 100;
+  --z-floating: 1000;
+  --z-nav: 2000;
+  --z-overlay: 3000;
+  --z-modal: 4000;
+  --z-toast: 5000;
+
   color-scheme: dark;
   --bg: #0E0C1A;
   --bg-soft: rgba(14, 12, 26, 0.55);
