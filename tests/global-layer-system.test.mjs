@@ -35,9 +35,11 @@ test('global layer tokens exist once and are strictly ordered', async () => {
 });
 
 test('global surfaces consume semantic layer tokens', async () => {
-  const [waves, nav, player, settings, messages, transition] = await Promise.all([
+  const [waves, immersiveNav, standardNav, floatingControls, player, settings, messages, transition] = await Promise.all([
     read('src/components/BannerWaves.astro'),
     read('src/styles/immersive-nav.css'),
+    read('src/styles/firefly-refresh.css'),
+    read('src/components/FloatingControls.astro'),
     read('src/components/SekaiPlayer.astro'),
     read('src/components/VisualSettingsPanel.astro'),
     read('src/styles/message-board.css'),
@@ -45,7 +47,10 @@ test('global surfaces consume semantic layer tokens', async () => {
   ]);
 
   assert.match(waves, /\.banner-waves[\s\S]*?z-index:\s*var\(--z-decoration\)/);
-  assert.match(nav, /\.site-header[\s\S]*?z-index:\s*var\(--z-nav\)/);
+  assert.match(immersiveNav, /\.site-header[\s\S]*?z-index:\s*var\(--z-nav\)/);
+  assert.match(standardNav, /body\.layout-standard \.site-header[\s\S]*?z-index:\s*var\(--z-nav\)/);
+  assert.match(floatingControls, /\.site-floating-controls[\s\S]*?z-index:\s*var\(--z-floating\)/);
+  assert.match(immersiveNav, /\.site-floating-controls[\s\S]*?z-index:\s*var\(--z-floating\)/);
 
   assert.match(player, /\.sekai-player-btn[\s\S]*?z-index:\s*var\(--z-floating\)/);
   assert.match(player, /\.sekai-player-panel[\s\S]*?z-index:\s*var\(--z-overlay\)/);
@@ -63,13 +68,15 @@ test('global surfaces consume semantic layer tokens', async () => {
 test('migrated global surfaces no longer depend on legacy magic z-index values', async () => {
   const files = await Promise.all([
     read('src/styles/immersive-nav.css'),
+    read('src/styles/firefly-refresh.css'),
+    read('src/components/FloatingControls.astro'),
     read('src/components/SekaiPlayer.astro'),
     read('src/components/VisualSettingsPanel.astro'),
     read('src/styles/message-board.css'),
     read('src/components/PageTransitionEnhancer.astro'),
   ]);
   const joined = files.join('\n');
-  for (const value of ['9998', '9999', '10000', '10020', '10050']) {
+  for (const value of ['9998', '9999', '10000', '10010', '10020', '10050']) {
     assert.doesNotMatch(joined, new RegExp(`z-index:\\s*${value}\\b`));
   }
 });
