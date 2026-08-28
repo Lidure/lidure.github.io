@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   layer-contract:
@@ -22,58 +22,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Migrate remaining global modal and toast surfaces
-        shell: python
-        run: |
-          from pathlib import Path
-
-          def replace_in_block(path, selector, old, new):
-              file = Path(path)
-              text = file.read_text(encoding='utf-8')
-              start = text.find(selector)
-              if start < 0:
-                  raise SystemExit(f'{path}: selector not found: {selector!r}')
-              end = text.find('}', start)
-              if end < 0:
-                  raise SystemExit(f'{path}: block end not found: {selector!r}')
-              block = text[start:end + 1]
-              count = block.count(old)
-              if count != 1:
-                  raise SystemExit(f'{path}: expected one {old!r} in {selector!r}, found {count}')
-              block = block.replace(old, new, 1)
-              file.write_text(text[:start] + block + text[end + 1:], encoding='utf-8')
-
-          replace_in_block('src/components/HeroSlideshow.astro', '.media-panel {', 'z-index: 10001;', 'z-index: var(--z-modal);')
-          replace_in_block('src/components/HeroSlideshow.astro', '.media-preview {', 'z-index: 10002;', 'z-index: var(--z-modal);')
-          replace_in_block('src/styles/moments-life-wall.css', '.moments-toast {', 'z-index: 10020;', 'z-index: var(--z-toast);')
-          replace_in_block('src/styles/moments-life-wall.css', '.lightbox-overlay {', 'z-index: 10010;', 'z-index: var(--z-modal);')
-          replace_in_block('src/components/MomentsPinControls.astro', '.moments-pin-status {', 'z-index: 10020;', 'z-index: var(--z-toast);')
-      - name: Verify global surface diff
-        run: |
-          git diff --check
-          git diff -- src/components/HeroSlideshow.astro src/styles/moments-life-wall.css src/components/MomentsPinControls.astro
-      - name: Commit remaining layer migration
-        run: |
-          if git diff --quiet; then
-            echo 'No remaining global layer changes to commit.'
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/components/HeroSlideshow.astro src/styles/moments-life-wall.css src/components/MomentsPinControls.astro
-          git commit -m 'refactor: align modal and toast layers'
-          git push origin HEAD:${{ github.event.pull_request.head.ref }}
-      - name: Run global layer contract
-        run: node --test tests/global-layer-system.test.mjs
-      - name: Run adjacent interaction and banner tests
-        run: >-
-          node --test
-          tests/message-board-page.test.mjs
-          tests/message-board-layout.test.mjs
-          tests/message-board-gesture.test.mjs
-          tests/sekai-player-search.test.mjs
-          tests/visual-settings.test.mjs
-          tests/banner-waves.test.mjs
-          tests/fullscreen-navbar-top.test.mjs
-          tests/firefly-banner-surface.test.mjs
-          tests/home-wave-layering.test.mjs
+      - name: Run full repository verification
+        run: npm test
+      - name: Run additional banner layer regressions
+        run: node --test tests/firefly-banner-surface.test.mjs tests/home-wave-layering.test.mjs
