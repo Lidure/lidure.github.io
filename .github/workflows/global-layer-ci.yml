@@ -22,7 +22,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Apply Task 2 exact replacements
+      - name: Apply Task 3 exact replacements
         shell: python
         run: |
           from pathlib import Path
@@ -35,26 +35,58 @@ jobs:
                   raise SystemExit(f'{path}: expected exactly one match, found {count}: {old!r}')
               file.write_text(text.replace(old, new, 1), encoding='utf-8')
 
-          replace_once(
-              'src/styles/global.css',
-              ':root {\n  color-scheme: dark;',
-              ':root {\n  /* Global stacking contract */\n  --z-decoration: 10;\n  --z-content: 100;\n  --z-floating: 1000;\n  --z-nav: 2000;\n  --z-overlay: 3000;\n  --z-modal: 4000;\n  --z-toast: 5000;\n\n  color-scheme: dark;',
-          )
-          replace_once('src/components/BannerWaves.astro', '    z-index: 15;', '    z-index: var(--z-decoration);')
-          replace_once('src/styles/immersive-nav.css', '  z-index: 10020;', '  z-index: var(--z-nav);')
-          replace_once('src/components/PageTransitionEnhancer.astro', '    z-index: 10050;', '    z-index: var(--z-toast);')
-      - name: Verify Task 2 diff
-        run: git diff --check && git diff -- src/styles/global.css src/components/BannerWaves.astro src/styles/immersive-nav.css src/components/PageTransitionEnhancer.astro
-      - name: Commit Task 2 migration
+          def replace_in_block(path, selector, old, new):
+              file = Path(path)
+              text = file.read_text(encoding='utf-8')
+              start = text.find(selector)
+              if start < 0:
+                  raise SystemExit(f'{path}: selector not found: {selector!r}')
+              end = text.find('}', start)
+              if end < 0:
+                  raise SystemExit(f'{path}: block end not found: {selector!r}')
+              block = text[start:end + 1]
+              count = block.count(old)
+              if count != 1:
+                  raise SystemExit(f'{path}: expected one {old!r} in {selector!r}, found {count}')
+              block = block.replace(old, new, 1)
+              file.write_text(text[:start] + block + text[end + 1:], encoding='utf-8')
+
+          replace_in_block('src/styles/firefly-refresh.css', 'body.layout-standard .site-header {', 'z-index: 50;', 'z-index: var(--z-nav);')
+          replace_in_block('src/components/FloatingControls.astro', '.site-floating-controls {', 'z-index: 9998;', 'z-index: var(--z-floating);')
+          replace_in_block('src/styles/immersive-nav.css', 'body.layout-immersive .site-floating-controls {', 'z-index: 10010;', 'z-index: var(--z-floating);')
+
+          replace_in_block('src/components/SekaiPlayer.astro', '.sekai-player-btn {', 'z-index: 10000;', 'z-index: var(--z-floating);')
+          replace_in_block('src/components/SekaiPlayer.astro', '.sekai-player-panel {', 'z-index: 10000;', 'z-index: var(--z-overlay);')
+
+          replace_in_block('src/components/VisualSettingsPanel.astro', '.hero-settings-btn {', 'z-index: 9999;', 'z-index: var(--z-floating);')
+          replace_in_block('src/components/VisualSettingsPanel.astro', '.hero-settings-panel {', 'z-index: 9998;', 'z-index: var(--z-overlay);')
+
+          replace_in_block('src/styles/message-board.css', '.message-composer-backdrop {', 'z-index: 100;', 'z-index: var(--z-modal);')
+          replace_in_block('src/styles/message-board.css', '.message-drawer {', 'z-index: 95;', 'z-index: var(--z-overlay);')
+      - name: Verify Task 3 diff
+        run: |
+          git diff --check
+          git diff -- src/styles/firefly-refresh.css src/components/FloatingControls.astro src/styles/immersive-nav.css src/components/SekaiPlayer.astro src/components/VisualSettingsPanel.astro src/styles/message-board.css
+      - name: Commit Task 3 migration
         run: |
           if git diff --quiet; then
-            echo 'No Task 2 changes to commit.'
+            echo 'No Task 3 changes to commit.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/styles/global.css src/components/BannerWaves.astro src/styles/immersive-nav.css src/components/PageTransitionEnhancer.astro
-          git commit -m 'refactor: establish global layer tokens'
+          git add src/styles/firefly-refresh.css src/components/FloatingControls.astro src/styles/immersive-nav.css src/components/SekaiPlayer.astro src/components/VisualSettingsPanel.astro src/styles/message-board.css
+          git commit -m 'fix: keep expanded panels above navigation'
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
-      - name: Run focused contract after Task 2
+      - name: Run global layer contract
         run: node --test tests/global-layer-system.test.mjs
+      - name: Run adjacent interaction tests
+        run: >-
+          node --test
+          tests/message-board-page.test.mjs
+          tests/message-board-layout.test.mjs
+          tests/message-board-gesture.test.mjs
+          tests/sekai-player-search.test.mjs
+          tests/visual-settings.test.mjs
+          tests/banner-waves.test.mjs
+          tests/fullscreen-navbar-top.test.mjs
