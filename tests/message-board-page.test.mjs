@@ -164,6 +164,20 @@ test('message board uses draggable third-party image stickers and persists their
   assert.match(stickers, /touch-action:\s*none/);
 });
 
+test('sticker hover never overrides drag positioning and no drag hint is rendered', () => {
+  const board = read('src/components/MessageBoard.astro');
+  const legacyCss = read('src/styles/message-board.css');
+  const stickerCss = read('src/styles/message-board-stickers.css');
+
+  assert.doesNotMatch(board, /message-board-sticker-caption/);
+  assert.doesNotMatch(board, />\s*可以拖我\s*</);
+  assert.doesNotMatch(legacyCss, /\.message-board-sticker--dog/);
+  assert.doesNotMatch(legacyCss, /\.message-board-sticker--flower/);
+  assert.doesNotMatch(legacyCss, /\.message-board-sticker-button/);
+  assert.match(stickerCss, /\.message-board-sticker-button\s*\{[\s\S]*transform:\s*translate3d\(var\(--sticker-x\),\s*var\(--sticker-y\),\s*0\)/);
+  assert.doesNotMatch(stickerCss, /\.message-board-sticker-button:hover[^\{]*\{[\s\S]*?transform:/);
+});
+
 test('homepage keeps the array message API contract', () => {
   const recent = read('src/components/RecentMessagesWidget.astro');
   assert.match(recent, /fetchGuestMessages\(\)/);
