@@ -1,6 +1,7 @@
 ---
 import '../styles/message-board.css';
 import '../styles/message-board-palette.css';
+import '../styles/message-board-stickers.css';
 ---
 
 <section class="message-board" id="message-board-root" aria-labelledby="message-board-heading">
@@ -25,44 +26,76 @@ import '../styles/message-board-palette.css';
       </div>
     </div>
 
-    <div class="message-board-sticker-layer" aria-label="留言墙装饰贴纸">
+    <div class="message-board-sticker-layer" aria-label="可拖动的留言墙装饰贴纸">
       <button
         type="button"
         class="message-board-sticker-button message-board-sticker message-board-sticker--dog"
         data-board-sticker="dog"
-        aria-label="戳戳帕恰狗"
+        data-default-x="0.845"
+        data-default-y="0.045"
+        aria-label="拖动或戳戳帕恰狗贴纸"
       >
         <img
+          data-sticker-image
           src="https://www.pngmart.com/files/23/Pochacco-Download-PNG-Image.png"
-          alt=""
+          alt="帕恰狗"
           draggable="false"
           decoding="async"
           referrerpolicy="no-referrer"
         />
-        <span class="message-board-sticker-caption" aria-hidden="true">戳一下</span>
+        <span class="message-board-sticker-caption" aria-hidden="true">可以拖我</span>
       </button>
 
       <button
         type="button"
         class="message-board-sticker-button message-board-sticker message-board-sticker--flower"
         data-board-sticker="flower"
-        aria-label="点一下小花"
+        data-default-x="0.035"
+        data-default-y="0.16"
+        aria-label="拖动小花贴纸"
       >
-        <span class="message-board-pixel-flower" aria-hidden="true">
-          <span class="petal petal--top"></span>
-          <span class="petal petal--right"></span>
-          <span class="petal petal--bottom"></span>
-          <span class="petal petal--left"></span>
-          <span class="flower-core"></span>
-          <span class="flower-stem"></span>
-          <span class="flower-leaf"></span>
-        </span>
+        <img
+          data-sticker-image
+          src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/1F33C.svg"
+          alt="花朵贴纸"
+          draggable="false"
+          decoding="async"
+        />
       </button>
 
-      <span class="message-board-sticker-doodle message-board-sticker-doodle--stars" aria-hidden="true">✦ · ˚ ✧</span>
-      <span class="message-board-sticker-tape message-board-sticker-tape--left" aria-hidden="true"></span>
-      <span class="message-board-sticker-tape message-board-sticker-tape--right" aria-hidden="true"></span>
-      <span class="message-board-sticker-sprout" aria-hidden="true">🌱</span>
+      <button
+        type="button"
+        class="message-board-sticker-button message-board-sticker message-board-sticker--star"
+        data-board-sticker="star"
+        data-default-x="0.065"
+        data-default-y="0.73"
+        aria-label="拖动星星贴纸"
+      >
+        <img
+          data-sticker-image
+          src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/2B50.svg"
+          alt="星星贴纸"
+          draggable="false"
+          decoding="async"
+        />
+      </button>
+
+      <button
+        type="button"
+        class="message-board-sticker-button message-board-sticker message-board-sticker--tape"
+        data-board-sticker="tape"
+        data-default-x="0.81"
+        data-default-y="0.78"
+        aria-label="拖动蝴蝶结贴纸"
+      >
+        <img
+          data-sticker-image
+          src="https://cdn.jsdelivr.net/npm/openmoji@15.1.0/color/svg/1F380.svg"
+          alt="蝴蝶结贴纸"
+          draggable="false"
+          decoding="async"
+        />
+      </button>
     </div>
   </div>
 
@@ -110,16 +143,27 @@ import '../styles/message-board-palette.css';
   import { initMessageBoard } from '../lib/message-board-controller';
 
   const w = window as typeof window & { __messageBoardCleanup?: () => void; __messageBoardBound?: boolean };
+  const STICKER_STORAGE_KEY = 'message_board_sticker_positions_v2';
+  const STICKER_DRAG_THRESHOLD = 6;
+
+  type StoredStickerPosition = { x: number; y: number };
+  type StickerPositionMap = Record<string, StoredStickerPosition>;
 
   function initMessageBoardStickers() {
     const root = document.getElementById('message-board-root');
-    if (!root) return () => {};
+    const scene = root?.querySelector<HTMLElement>('.message-board-scene');
+    if (!root || !scene) return () => {};
 
     const controller = new AbortController();
     const { signal } = controller;
-    const dog = root.querySelector<HTMLButtonElement>('[data-board-sticker="dog"]');
-    const flower = root.querySelector<HTMLButtonElement>('[data-board-sticker="flower"]');
+    const stickers = [...root.querySelectorAll<HTMLButtonElement>('[data-board-sticker]')];
     const dogMessages = ['汪～', '摸摸成功 ♡', '今天也要开心呀', '贴好便签再走吧'];
+    const stickerMessages: Record<string, string[]> = {
+      dog: dogMessages,
+      flower: ['今天也要开花呀 ✿', '给你一朵小花'],
+      star: ['叮——捡到一颗星星 ✦', '今天会有好运'],
+      tape: ['装饰一下这里 ♡', '这里也要可可爱爱'],
+    };
     let dogMessageIndex = Math.floor(Math.random() * dogMessages.length);
 
     function reducedMotionPreferred() {
@@ -127,10 +171,70 @@ import '../styles/message-board-palette.css';
         || document.documentElement.dataset.reduceMotion === 'true';
     }
 
-    function showStickerBubble(target: HTMLElement, text: string, kind: 'dog' | 'flower') {
+    function readStoredPositions(): StickerPositionMap {
+      try {
+        const raw = localStorage.getItem(STICKER_STORAGE_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw) as StickerPositionMap;
+        return parsed && typeof parsed === 'object' ? parsed : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function writeStoredPositions(positions: StickerPositionMap) {
+      try {
+        localStorage.setItem(STICKER_STORAGE_KEY, JSON.stringify(positions));
+      } catch {
+        // Decoration persistence is optional; dragging still works if storage is unavailable.
+      }
+    }
+
+    let storedPositions = readStoredPositions();
+
+    function clamp(value: number, min: number, max: number) {
+      return Math.min(Math.max(value, min), Math.max(min, max));
+    }
+
+    function setStickerPosition(sticker: HTMLElement, normalizedX: number, normalizedY: number) {
+      const rect = scene.getBoundingClientRect();
+      const width = sticker.offsetWidth || 96;
+      const height = sticker.offsetHeight || 96;
+      const x = clamp(normalizedX * rect.width, 0, rect.width - width);
+      const y = clamp(normalizedY * rect.height, 0, rect.height - height);
+      sticker.style.setProperty('--sticker-x', `${x}px`);
+      sticker.style.setProperty('--sticker-y', `${y}px`);
+    }
+
+    function applyStoredPositions() {
+      stickers.forEach((sticker) => {
+        const name = sticker.dataset.boardSticker || '';
+        const saved = storedPositions[name];
+        const defaultX = Number(sticker.dataset.defaultX) || 0;
+        const defaultY = Number(sticker.dataset.defaultY) || 0;
+        setStickerPosition(sticker, saved?.x ?? defaultX, saved?.y ?? defaultY);
+      });
+    }
+
+    function persistStickerPosition(sticker: HTMLElement) {
+      const name = sticker.dataset.boardSticker;
+      if (!name) return;
+      const sceneRect = scene.getBoundingClientRect();
+      const stickerRect = sticker.getBoundingClientRect();
+      storedPositions = {
+        ...storedPositions,
+        [name]: {
+          x: clamp((stickerRect.left - sceneRect.left) / Math.max(1, sceneRect.width), 0, 1),
+          y: clamp((stickerRect.top - sceneRect.top) / Math.max(1, sceneRect.height), 0, 1),
+        },
+      };
+      writeStoredPositions(storedPositions);
+    }
+
+    function showStickerBubble(target: HTMLElement, text: string) {
       target.querySelectorAll('.message-board-sticker-bubble').forEach((node) => node.remove());
       const bubble = document.createElement('span');
-      bubble.className = `message-board-sticker-bubble message-board-sticker-bubble--${kind}`;
+      bubble.className = 'message-board-sticker-bubble';
       bubble.textContent = text;
       bubble.setAttribute('aria-hidden', 'true');
       target.appendChild(bubble);
@@ -144,24 +248,83 @@ import '../styles/message-board-palette.css';
       window.setTimeout(() => {
         bubble.remove();
         target.classList.remove('is-playing');
-      }, reducedMotionPreferred() ? 900 : 1450);
+      }, reducedMotionPreferred() ? 800 : 1350);
     }
 
-    if (dog) {
-      dog.addEventListener('click', () => {
-        const message = dogMessages[dogMessageIndex % dogMessages.length];
+    function activateSticker(sticker: HTMLElement) {
+      const name = sticker.dataset.boardSticker || '';
+      const messages = stickerMessages[name] || ['贴纸被戳了一下'];
+      let message = messages[Math.floor(Math.random() * messages.length)];
+      if (name === 'dog') {
+        message = dogMessages[dogMessageIndex % dogMessages.length];
         dogMessageIndex += 1;
-        showStickerBubble(dog, message, 'dog');
-      }, { signal });
+      }
+      showStickerBubble(sticker, message);
     }
 
-    if (flower) {
-      flower.addEventListener('click', () => {
-        showStickerBubble(flower, '开花啦 ✿', 'flower');
-      }, { signal });
-    }
+    stickers.forEach((sticker) => {
+      let pointerId = -1;
+      let startClientX = 0;
+      let startClientY = 0;
+      let startX = 0;
+      let startY = 0;
+      let moved = false;
 
-    return () => controller.abort();
+      sticker.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0) return;
+        const sceneRect = scene.getBoundingClientRect();
+        const stickerRect = sticker.getBoundingClientRect();
+        pointerId = event.pointerId;
+        startClientX = event.clientX;
+        startClientY = event.clientY;
+        startX = stickerRect.left - sceneRect.left;
+        startY = stickerRect.top - sceneRect.top;
+        moved = false;
+        sticker.classList.add('is-dragging');
+        sticker.setPointerCapture(event.pointerId);
+        event.preventDefault();
+      }, { signal });
+
+      sticker.addEventListener('pointermove', (event) => {
+        if (event.pointerId !== pointerId || !sticker.hasPointerCapture(pointerId)) return;
+        const sceneRect = scene.getBoundingClientRect();
+        const dx = event.clientX - startClientX;
+        const dy = event.clientY - startClientY;
+        moved ||= Math.hypot(dx, dy) >= STICKER_DRAG_THRESHOLD;
+        const x = clamp(startX + dx, 0, sceneRect.width - sticker.offsetWidth);
+        const y = clamp(startY + dy, 0, sceneRect.height - sticker.offsetHeight);
+        sticker.style.setProperty('--sticker-x', `${x}px`);
+        sticker.style.setProperty('--sticker-y', `${y}px`);
+        event.preventDefault();
+      }, { signal });
+
+      const finishDrag = (event: PointerEvent) => {
+        if (event.pointerId !== pointerId) return;
+        if (sticker.hasPointerCapture(pointerId)) sticker.releasePointerCapture(pointerId);
+        sticker.classList.remove('is-dragging');
+        persistStickerPosition(sticker);
+        if (!moved) activateSticker(sticker);
+        pointerId = -1;
+      };
+
+      sticker.addEventListener('pointerup', finishDrag, { signal });
+      sticker.addEventListener('pointercancel', finishDrag, { signal });
+      sticker.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          activateSticker(sticker);
+        }
+      }, { signal });
+    });
+
+    const resizeObserver = new ResizeObserver(applyStoredPositions);
+    resizeObserver.observe(scene);
+    requestAnimationFrame(applyStoredPositions);
+
+    return () => {
+      controller.abort();
+      resizeObserver.disconnect();
+    };
   }
 
   function mount() {
