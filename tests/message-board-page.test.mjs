@@ -175,7 +175,9 @@ test('sticker hover never overrides drag positioning and no drag hint is rendere
   assert.doesNotMatch(legacyCss, /\.message-board-sticker--flower/);
   assert.doesNotMatch(legacyCss, /\.message-board-sticker-button/);
   assert.match(stickerCss, /\.message-board-sticker-button\s*\{[\s\S]*transform:\s*translate3d\(var\(--sticker-x\),\s*var\(--sticker-y\),\s*0\)/);
-  assert.doesNotMatch(stickerCss, /\.message-board-sticker-button:hover[^\{]*\{[\s\S]*?transform:/);
+  const hoverBlock = stickerCss.match(/\.message-board-sticker-button:hover,\s*\.message-board-sticker-button:focus-visible\s*\{([^}]*)\}/);
+  assert.ok(hoverBlock, 'sticker hover block should remain present');
+  assert.doesNotMatch(hoverBlock[1], /transform:/, 'hover must never overwrite the transform used for drag positioning');
 });
 
 test('homepage keeps the array message API contract', () => {
