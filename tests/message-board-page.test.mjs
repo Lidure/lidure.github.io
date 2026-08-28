@@ -138,21 +138,30 @@ test('corkboard supports dark theme, mobile sheet, and reduced motion', () => {
   assert.match(css, /html\[data-reduce-motion="true"\]/);
 });
 
-test('message board adds playful stickers with safe lightweight interactions', () => {
+test('message board uses draggable third-party image stickers and persists their positions', () => {
   const board = read('src/components/MessageBoard.astro');
-  const css = read('src/styles/message-board.css');
+  const stickers = read('src/styles/message-board-stickers.css');
 
-  assert.match(board, /class="message-board-sticker-layer"/);
-  assert.match(board, /data-board-sticker="dog"/);
-  assert.match(board, /data-board-sticker="flower"/);
-  assert.match(board, /function initMessageBoardStickers\(/);
-  assert.match(board, /dogMessages\s*=\s*\[/);
-  assert.match(css, /\.message-board-sticker-layer\s*\{[\s\S]*?pointer-events:\s*none/);
-  assert.match(css, /\.message-board-sticker-button\s*\{[\s\S]*?pointer-events:\s*auto/);
-  assert.match(css, /\.message-board-sticker--dog/);
-  assert.match(css, /\.message-board-sticker--flower/);
-  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*message-board-sticker/);
-  assert.match(css, /html\[data-reduce-motion="true"\][\s\S]*message-board-sticker/);
+  assert.match(board, /import ['"]\.\.\/styles\/message-board-stickers\.css['"]/);
+  for (const name of ['dog', 'flower', 'star', 'tape']) {
+    assert.match(board, new RegExp(`data-board-sticker="${name}"`));
+  }
+  const stickerImages = board.match(/<img[\s\S]*?data-sticker-image[\s\S]*?>/g) || [];
+  assert.ok(stickerImages.length >= 4, 'all board decorations should be third-party image stickers');
+  assert.doesNotMatch(board, /message-board-pixel-flower/);
+  assert.doesNotMatch(board, /message-board-sticker-doodle/);
+  assert.doesNotMatch(board, /message-board-sticker-sprout/);
+  assert.match(board, /const STICKER_STORAGE_KEY = ['"]message_board_sticker_positions_v2['"]/);
+  assert.match(board, /localStorage\.getItem\(STICKER_STORAGE_KEY\)/);
+  assert.match(board, /localStorage\.setItem\(STICKER_STORAGE_KEY/);
+  assert.match(board, /pointerdown/);
+  assert.match(board, /pointermove/);
+  assert.match(board, /pointerup/);
+  assert.match(board, /setPointerCapture/);
+  assert.match(board, /releasePointerCapture/);
+  assert.match(stickers, /\.message-board-sticker-button\s*\{[\s\S]*?cursor:\s*grab/);
+  assert.match(stickers, /\.message-board-sticker-button\.is-dragging\s*\{[\s\S]*?cursor:\s*grabbing/);
+  assert.match(stickers, /touch-action:\s*none/);
 });
 
 test('homepage keeps the array message API contract', () => {
