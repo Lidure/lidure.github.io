@@ -17,7 +17,7 @@ test('banner homepage uses a transparent Firefly-style content panel over the pa
   );
   assert.match(
     banner,
-    /data-wallpaper-mode="banner"[\s\S]*body\.layout-standard\.is-home\s+\.standard-content\s*\{[^}]*position:\s*relative[^}]*z-index:\s*30[^}]*padding-top:\s*0/s,
+    /data-wallpaper-mode="banner"[\s\S]*body\.layout-standard\.is-home\s+\.standard-content\s*\{[^}]*position:\s*relative[^}]*z-index:\s*30[^}]*padding-top:\s*calc\(var\(--banner-surface-overlap\)\s*\+\s*14px\)/s,
   );
 });
 
