@@ -73,10 +73,13 @@ test('a stale deferred poll snapshot cannot overwrite a newer local drop save', 
 });
 
 test('portaled composer keeps the sticky-note paper palette in light and dark themes', () => {
+  const board = read('src/components/MessageBoard.astro');
   const css = read('src/styles/message-board.css');
+  const palette = read('src/styles/message-board-palette.css');
+  assert.match(board, /import ['"]\.\.\/styles\/message-board-palette\.css['"]/);
   for (const token of ['yellow', 'pink', 'blue', 'green', 'purple']) {
-    assert.match(css, new RegExp(`\\.message-composer-backdrop[\\s\\S]*--message-paper-${token}:`));
-    assert.match(css, new RegExp(`html\\[data-theme="dark"\\][\\s\\S]*\\.message-composer-backdrop[\\s\\S]*--message-paper-${token}:`));
+    assert.match(palette, new RegExp(`\\.message-composer-backdrop[\\s\\S]*--message-paper-${token}:`));
+    assert.match(palette, new RegExp(`html\\[data-theme="dark"\\][\\s\\S]*\\.message-composer-backdrop[\\s\\S]*--message-paper-${token}:`));
     assert.match(css, new RegExp(`message-color-choice\\[data-note-color-choice="${token}"\\][^}]*background:\\s*var\\(--message-paper-${token}\\)`));
   }
 });
