@@ -82,35 +82,40 @@
   rotate: -7deg;
 }
 
+.message-board-sticker--rainbow {
+  width: 102px;
+  height: 82px;
+  rotate: 3deg;
+}
+
+.message-board-sticker--heart {
+  width: 76px;
+  height: 76px;
+  rotate: -8deg;
+}
+
 .message-board-sticker--star {
   width: 76px;
   height: 76px;
   rotate: 8deg;
 }
 
+.message-board-sticker--blossom {
+  width: 82px;
+  height: 82px;
+  rotate: 6deg;
+}
+
+.message-board-sticker--clover {
+  width: 74px;
+  height: 74px;
+  rotate: -5deg;
+}
+
 .message-board-sticker--tape {
   width: 92px;
   height: 92px;
   rotate: -5deg;
-}
-
-.message-board-sticker-caption {
-  position: absolute;
-  left: 50%;
-  bottom: -4px;
-  transform: translateX(-50%) rotate(-2deg);
-  width: max-content;
-  padding: .22rem .46rem;
-  border: 1px solid rgba(98, 73, 52, .12);
-  border-radius: 999px;
-  background: rgba(255, 250, 236, .9);
-  color: #765d47;
-  box-shadow: 0 3px 8px rgba(49, 31, 17, .1);
-  font-size: .62rem;
-  font-weight: 700;
-  letter-spacing: .02em;
-  pointer-events: none;
-  white-space: nowrap;
 }
 
 .message-board-sticker-bubble {
@@ -144,7 +149,6 @@
   68% { transform: translateY(-2px) rotate(4deg) scale(1.02); }
 }
 
-html[data-theme="dark"] .message-board-sticker-caption,
 html[data-theme="dark"] .message-board-sticker-bubble {
   background: rgba(64, 52, 42, .94);
   color: #f5e7d5;
@@ -154,9 +158,12 @@ html[data-theme="dark"] .message-board-sticker-bubble {
 @media (max-width: 720px) {
   .message-board-sticker--dog { width: 104px; height: 104px; }
   .message-board-sticker--flower { width: 70px; height: 70px; }
+  .message-board-sticker--rainbow { width: 82px; height: 66px; }
+  .message-board-sticker--heart { width: 60px; height: 60px; }
   .message-board-sticker--star { width: 62px; height: 62px; }
+  .message-board-sticker--blossom { width: 64px; height: 64px; }
+  .message-board-sticker--clover { width: 58px; height: 58px; }
   .message-board-sticker--tape { width: 72px; height: 72px; }
-  .message-board-sticker-caption { display: none; }
   .message-board-sticker-bubble { max-width: 124px; font-size: .62rem; }
 }
 
