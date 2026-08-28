@@ -231,7 +231,8 @@ export function initMessageBoard() {
   }
 
   function buildColorOptions() {
-    if (!colorOptions || colorOptions.childElementCount) return;
+    if (!colorOptions) return;
+    colorOptions.replaceChildren();
     NOTE_COLORS.forEach((color) => {
       const button = document.createElement('button');
       button.type = 'button';
