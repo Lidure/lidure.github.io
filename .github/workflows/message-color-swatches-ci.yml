@@ -5,16 +5,63 @@ on:
     branches: [fix/message-color-swatches]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   swatch-contract:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: fix/message-color-swatches
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Restore paper palette on portaled composer
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('src/styles/message-board.css')
+          text = path.read_text(encoding='utf-8')
+
+          light_anchor = '.message-board {\n'
+          light_block = '''.message-composer-backdrop {
+  --message-paper-yellow: #fff1a8;
+  --message-paper-pink: #ffd6df;
+  --message-paper-blue: #cfeafa;
+  --message-paper-green: #d8efc7;
+  --message-paper-purple: #e5d7f8;
+}
+
+'''
+          if text.count(light_anchor) != 1:
+              raise SystemExit(f'expected one light anchor, found {text.count(light_anchor)}')
+          text = text.replace(light_anchor, light_block + light_anchor, 1)
+
+          dark_anchor = 'html[data-theme="dark"] .message-board {\n'
+          dark_block = '''html[data-theme="dark"] .message-composer-backdrop {
+  --message-paper-yellow: #d8ca83;
+  --message-paper-pink: #cba5ad;
+  --message-paper-blue: #9fbecb;
+  --message-paper-green: #a9bf91;
+  --message-paper-purple: #b7a5ce;
+}
+
+'''
+          if text.count(dark_anchor) != 1:
+              raise SystemExit(f'expected one dark anchor, found {text.count(dark_anchor)}')
+          text = text.replace(dark_anchor, dark_block + dark_anchor, 1)
+
+          path.write_text(text, encoding='utf-8')
+      - name: Commit palette fix
+        run: |
+          git diff --check
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/styles/message-board.css
+          git commit -m 'fix: restore message color swatches after portal'
+          git push origin HEAD:fix/message-color-swatches
       - run: node --test tests/message-board-page.test.mjs
