@@ -22,7 +22,7 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Remove standard surface stacking trap
+      - name: Migrate remaining global modal and toast surfaces
         shell: python
         run: |
           from pathlib import Path
@@ -43,27 +43,25 @@ jobs:
               block = block.replace(old, new, 1)
               file.write_text(text[:start] + block + text[end + 1:], encoding='utf-8')
 
-          replace_in_block('src/styles/firefly-refresh.css', '.standard-page-surface {', 'z-index: 3;', 'z-index: auto;')
-          replace_in_block(
-              'src/components/BlogBanner.astro',
-              'html[data-wallpaper-mode="banner"] body.layout-standard .standard-page-surface {',
-              'z-index: 3;',
-              'z-index: auto;',
-          )
-      - name: Verify stacking-context diff
+          replace_in_block('src/components/HeroSlideshow.astro', '.media-panel {', 'z-index: 10001;', 'z-index: var(--z-modal);')
+          replace_in_block('src/components/HeroSlideshow.astro', '.media-preview {', 'z-index: 10002;', 'z-index: var(--z-modal);')
+          replace_in_block('src/styles/moments-life-wall.css', '.moments-toast {', 'z-index: 10020;', 'z-index: var(--z-toast);')
+          replace_in_block('src/styles/moments-life-wall.css', '.lightbox-overlay {', 'z-index: 10010;', 'z-index: var(--z-modal);')
+          replace_in_block('src/components/MomentsPinControls.astro', '.moments-pin-status {', 'z-index: 10020;', 'z-index: var(--z-toast);')
+      - name: Verify global surface diff
         run: |
           git diff --check
-          git diff -- src/styles/firefly-refresh.css src/components/BlogBanner.astro
-      - name: Commit stacking-context fix
+          git diff -- src/components/HeroSlideshow.astro src/styles/moments-life-wall.css src/components/MomentsPinControls.astro
+      - name: Commit remaining layer migration
         run: |
           if git diff --quiet; then
-            echo 'No stacking-context changes to commit.'
+            echo 'No remaining global layer changes to commit.'
             exit 0
           fi
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add src/styles/firefly-refresh.css src/components/BlogBanner.astro
-          git commit -m 'fix: let page overlays escape content stacking context'
+          git add src/components/HeroSlideshow.astro src/styles/moments-life-wall.css src/components/MomentsPinControls.astro
+          git commit -m 'refactor: align modal and toast layers'
           git push origin HEAD:${{ github.event.pull_request.head.ref }}
       - name: Run global layer contract
         run: node --test tests/global-layer-system.test.mjs
