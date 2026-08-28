@@ -104,6 +104,19 @@ describe('sticky message API list contract', () => {
     expect(body).toMatchObject({ now: expect.any(Number), nextCursor: expect.any(Number) });
   });
 
+  it('preserves persisted coordinates for legacy messages after an admin move', async () => {
+    const db = makeDb((sql) => sql.includes('FROM guest_messages')
+      ? makeBoundStatement({ all: vi.fn().mockResolvedValue({ results: [{
+          id: 'legacy-moved', user_id: '旧访客', text: '管理员已经挪过我', created_at: 1000,
+          note_color: 'yellow', note_size: 'small', pos_x: 712.5, pos_y: 488.25,
+          rotation: 2, author_token_hash: null, updated_at: 2000,
+        }] }) })
+      : makeBoundStatement());
+    const response = await worker.fetch(new Request('https://example.com/api/messages?limit=80'), makeEnv({ DB: db }));
+    const body = await response.json() as any;
+    expect(body.items[0].note).toMatchObject({ x: 712.5, y: 488.25 });
+  });
+
   it('uses updated_at/created_at for incremental sync', async () => {
     const seen: string[] = [];
     const db = makeDb((sql) => { seen.push(sql); return makeBoundStatement(); });
