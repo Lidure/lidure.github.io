@@ -167,6 +167,6 @@ export function toGuestMessageItem(row: any, commentCount = 0, reactions: Record
       y: row.pos_y ?? legacy.y,
       rotation: row.rotation ?? legacy.rotation,
     },
-    legacy: !row.author_token_hash,
+    legacy: !row.author_token_hash && (row.pos_x == null || row.pos_y == null),
   };
 }
