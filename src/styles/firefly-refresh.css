@@ -63,7 +63,7 @@ body.layout-standard .theme-toggle:hover {
 body.layout-standard .site-header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 50;
+  z-index: var(--z-nav);
   color: #fff;
   transition: background 180ms ease, border-color 180ms ease, box-shadow 180ms ease, backdrop-filter 180ms ease;
 }
