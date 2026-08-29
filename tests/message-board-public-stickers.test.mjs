@@ -15,15 +15,31 @@ const boardSource = readOptional('../src/components/MessageBoard.astro');
 const stickerCssSource = readOptional('../src/styles/message-board-public-stickers.css');
 const workerSource = readOptional('../danmaku-api/src/index.ts');
 const stickerWorkerSource = readOptional('../danmaku-api/src/message-stickers.ts');
+const removalMigrationSource = readOptional('../danmaku-api/migrations/0010_remove_retired_message_stickers.sql');
 
 test('public sticker catalog is isolated from the API client', () => {
   assert.match(catalogSource, /MESSAGE_STICKER_CATALOG/);
   assert.match(catalogSource, /hello-kitty-01/);
-  assert.match(catalogSource, /cinnamoroll-01/);
   assert.match(catalogSource, /kuromi-01/);
   assert.match(apiSource, /message_sticker_owner_token_v1/);
   assert.match(apiSource, /X-Message-Sticker-Owner/);
   assert.doesNotMatch(apiSource, /ownerToken=.*URLSearchParams/);
+});
+
+test('retired sticker choices are removed and remaining artwork uses the proven transparent PNG host', () => {
+  assert.doesNotMatch(catalogSource, /\bkey:\s*'cinnamoroll-01'/);
+  assert.doesNotMatch(catalogSource, /\bkey:\s*'little-twin-stars-01'/);
+  const imageUrls = [...catalogSource.matchAll(/\bimageUrl:\s*'([^']+)'/g)].map((match) => match[1]);
+  assert.equal(imageUrls.length, 12, 'expected 12 sticker choices after retiring two entries');
+  for (const url of imageUrls) {
+    assert.match(url, /^https:\/\/www\.pngmart\.com\/files\/.*\.(?:png|webp)(?:\?.*)?$/i);
+  }
+});
+
+test('retired sticker rows are removed from D1 so invisible stickers cannot consume the five-sticker quota', () => {
+  assert.match(removalMigrationSource, /DELETE\s+FROM\s+message_stickers/i);
+  assert.match(removalMigrationSource, /cinnamoroll-01/);
+  assert.match(removalMigrationSource, /little-twin-stars-01/);
 });
 
 test('public sticker API client exposes the ownership operations', () => {
@@ -44,10 +60,12 @@ test('Worker preflight allows the sticker ownership header', () => {
 
 test('browser and Worker sticker allow-lists stay in sync', () => {
   const browserKeys = [...catalogSource.matchAll(/\bkey:\s*'([^']+)'/g)].map((match) => match[1]);
-  assert.ok(browserKeys.length >= 12, 'expected a varied public sticker catalog');
+  assert.ok(browserKeys.length >= 10, 'expected a varied public sticker catalog');
   for (const key of browserKeys) {
     assert.match(stickerWorkerSource, new RegExp(`'${key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}'\\s*:`));
   }
+  assert.doesNotMatch(stickerWorkerSource, /'cinnamoroll-01'\s*:/);
+  assert.doesNotMatch(stickerWorkerSource, /'little-twin-stars-01'\s*:/);
 });
 
 test('message board exposes a persistent sticker house without replacing local decorations', () => {
