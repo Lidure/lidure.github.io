@@ -462,13 +462,21 @@ export function initMessageStickerBoard() {
     pollTimer = window.setInterval(() => void refreshStickers(true), MESSAGE_STICKER_POLL_MS);
   }
 
-  function syncAdminMode() {
-    const next = Boolean(adminStatus?.textContent?.includes('已登录'));
-    if (next === adminMode) return;
-    adminMode = next;
+  function applyAdminMode(authenticated: boolean) {
+    if (authenticated === adminMode) return;
+    adminMode = authenticated;
     selectedStickerId = '';
     renderPublicStickers();
     updateQuotaUi();
+  }
+
+  function syncAdminMode() {
+    applyAdminMode(Boolean(adminStatus?.textContent?.includes('已登录')));
+  }
+
+  function handleAdminChange(event: Event) {
+    const detail = (event as CustomEvent<{ authenticated?: boolean }>).detail;
+    applyAdminMode(Boolean(detail?.authenticated));
   }
 
   buildStickerChoices();
@@ -476,6 +484,7 @@ export function initMessageStickerBoard() {
   void refreshStickers();
   startPolling();
 
+  window.addEventListener('message-board-admin-change', handleAdminChange, { signal });
   openButton.addEventListener('click', () => panel.hidden ? openPanel() : closePanel(), { signal });
   panel.querySelector<HTMLButtonElement>('[data-sticker-panel-close]')?.addEventListener('click', closePanel, { signal });
   placementBar.querySelector<HTMLButtonElement>('[data-sticker-placement-cancel]')?.addEventListener('click', cancelPlacement, { signal });
