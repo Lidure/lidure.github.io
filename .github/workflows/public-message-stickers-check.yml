@@ -21,6 +21,9 @@ jobs:
       - name: Install Worker dependencies
         working-directory: danmaku-api
         run: npm ci
-      - name: Run sticker Worker contract
+      - name: Run Worker tests
         working-directory: danmaku-api
-        run: npm test -- message-stickers.test.ts
+        run: npm test
+      - name: Check Worker types
+        working-directory: danmaku-api
+        run: npm run check
