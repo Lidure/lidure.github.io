@@ -114,18 +114,20 @@ ON message_stickers(updated_at);
 
 ## 6. 浏览器身份与所有权
 
-新增浏览器级 token，例如 localStorage key：
+新增浏览器级 token，localStorage key：
 
 `message_sticker_owner_token_v1`
 
 首次打开贴纸屋或首次张贴时：
 
 1. 客户端检查 localStorage。
-2. 若没有 token，则生成足够随机的 token。
+2. 若没有 token，则使用 `crypto.getRandomValues` 生成高熵随机 token。
 3. POST/PATCH/DELETE 时提交原始 token。
 4. Worker 使用与现有便签一致的哈希策略计算哈希后进行查询或比对。
 
-与便签不同，公共贴纸使用「浏览器级 token」，而不是「一张贴纸一个 token」。原因是服务端必须能够统计同一个浏览器当前已经拥有多少张贴纸，从而可靠执行 5 张上限。
+与便签不同，公共贴纸使用「浏览器级 token」，而不是「一张贴纸一个 token」。原因是服务端必须能够统计同一个浏览器当前已经拥有多少张贴纸，从而执行 5 张上限。
+
+这个限制是面向正常访客的产品约束，不是不可绕过的身份安全边界。用户清除 localStorage、换浏览器或主动生成新 token 后，可以得到新的浏览器身份。因此服务端还必须对创建行为叠加 IP/时间窗口频率限制，不能把 owner token 当作唯一防刷手段。
 
 拥有 token 仅代表当前浏览器持有操作凭证，不表示真实用户身份。
 
@@ -152,24 +154,21 @@ ON message_stickers(updated_at);
       "updatedAt": 1780000000000
     }
   ],
+  "ownedIds": ["uuid"],
+  "ownedCount": 1,
   "now": 1780000000000
 }
 ```
 
 GET 不返回 `owner_token_hash`。
 
-客户端根据本地 token 不能单凭 GET 判断服务器哈希，因此所有权 UI 采用额外的 `ownedIds` 响应字段或查询参数携带 token 的方式。推荐 GET 请求携带自有 token，通过服务端哈希匹配后返回：
+为了让客户端准确知道哪些贴纸属于当前浏览器，GET 可选携带自有 token，但 token 不放在 URL/query string。推荐使用请求头：
 
-```json
-{
-  "items": [...],
-  "ownedIds": ["uuid-a", "uuid-b"],
-  "ownedCount": 2,
-  "now": 1780000000000
-}
-```
+`X-Message-Sticker-Owner-Token: <token>`
 
-这样不暴露哈希，同时客户端可以准确标记自己可操作的贴纸。
+Worker 对请求头中的 token 做哈希后，只返回匹配当前浏览器的 `ownedIds / ownedCount`。没有该请求头时仍返回公开 `items`，但 `ownedIds=[]`、`ownedCount=0`。
+
+因为站点与 API 可能跨域，CORS 配置必须明确允许该自定义请求头；测试中需要覆盖预检响应。
 
 ### 7.2 POST
 
@@ -190,15 +189,17 @@ GET 不返回 `owner_token_hash`。
 - owner token 必须存在且格式合理。
 - 对 owner token 做哈希。
 - 非管理员情况下查询此 hash 当前拥有贴纸数量；达到 5 张时拒绝。
-- 管理员 session 存在时跳过 5 张限制，但仍需要一个 owner token 写入记录，以保持数据模型一致。
+- 管理员 session 存在时跳过 5 张限制，但仍要求客户端提供 owner token 写入记录，以保持数据模型一致；管理员前端若没有 token，就自动生成一个。
 - `posX / posY` 必须是有限数字并被 clamp 到留言板边界。
 - 贴纸尺寸由服务端 catalog 决定，不能由客户端伪造。
+- 创建接口必须进入独立或现有的频率限制逻辑，避免通过不断生成新 owner token 绕过 5 张限制后刷屏。
 
 建议错误码：
 
 - `STICKER_LIMIT_REACHED`：当前浏览器已有 5 张。
 - `STICKER_INVALID_KEY`：未知贴纸。
 - `STICKER_BAD_POSITION`：坐标非法。
+- `RATE_LIMITED`：创建过于频繁。
 
 ### 7.3 PATCH
 
@@ -283,7 +284,8 @@ GET 不返回 `owner_token_hash`。
 - 进入 `placing-sticker` 模式。
 - 桌面端在墙面上展示跟随鼠标的半透明预览。
 - 手机端不要求跟随手指，只显示选中贴纸提示。
-- 用户点击留言墙可用区域后创建贴纸。
+- 用户点击留言墙可用空白区域后创建贴纸。
+- 若点击发生在便签、快捷回应按钮、已有公共贴纸或其他交互控件上，不执行张贴，避免抢占原有交互。
 - Esc、取消按钮或点击墙外退出张贴模式。
 - POST 成功前使用 pending 状态，成功后替换为服务端 item；失败则移除 pending 预览并显示友好错误。
 
@@ -303,6 +305,7 @@ message-board-stage
 
 - 静止公共贴纸不能截获本应落在便签上的点击。
 - 自己的贴纸仍需要可拖动，因此 sticker 本身可接收 pointer event，但其默认 z-index 小于便签。
+- 如果贴纸视觉上与便签重叠，因为便签层级更高，便签仍优先接收点击。
 - 拖动贴纸时临时提升 z-index；松开后恢复装饰层级。
 - 公共贴纸与当前页面级装饰贴纸使用不同 class、不同 controller、不同持久化逻辑。
 
@@ -345,14 +348,16 @@ rotation 仅为轻微装饰角度，例如约 `-8°` 到 `8°`，由受控逻辑
 
 公共贴纸第一版单独每 15 秒执行一次轻量完整 GET，而不是复用留言的 `since` 游标。理由：
 
-- 贴纸总量远小于留言正文。
+- 第一版预计贴纸数据量远小于留言正文。
 - 完整 GET 能自然同步创建、位置更新和删除。
 - 不需要为删除设计 tombstone。
 - 实现简单且容易验证。
 
 在页面隐藏时停止贴纸轮询，页面重新可见后立即刷新一次，然后恢复定时器。
 
-用户正在拖动某张自己的贴纸时，远端刷新不能覆盖本地拖动状态；可沿用便签现有 interaction lock / deferred remote 的思路，或在 sticker controller 内实现等价的小型锁。
+用户正在拖动某张自己的贴纸时，远端刷新不能覆盖本地拖动状态；在 sticker controller 内实现与便签 `interactionLocks / deferredRemote` 等价的小型锁。
+
+如果未来公共贴纸实际数量增长到完整 GET 明显影响响应体，再单独升级为游标同步；第一版不提前复杂化。
 
 ## 12. 错误处理
 
@@ -372,9 +377,9 @@ DELETE 失败时恢复交互状态，不从 UI 永久移除。
 必须具备：
 
 - 每 owner token 最多 5 张公共贴纸。
+- 创建接口叠加 IP/时间窗口频率限制；5 张限制不能替代防刷。
 - 只允许服务端白名单 sticker key。
 - 服务端坐标 clamp。
-- 复用或补充现有请求频率限制，避免短时间大量 POST/PATCH。
 - 不允许用户提交自定义图片 URL、HTML、SVG markup 或 CSS。
 - owner token 仅存 hash。
 
@@ -411,7 +416,10 @@ DELETE 失败时恢复交互状态，不从 UI 永久移除。
 9. 管理员可以 PATCH/DELETE 任意贴纸。
 10. 管理员创建不受 5 张限制。
 11. 坐标被正确 clamp。
-12. GET 不暴露 `owner_token_hash`，但能正确返回 `ownedIds / ownedCount`。
+12. GET 不暴露 `owner_token_hash`，但携带 owner header 时能正确返回 `ownedIds / ownedCount`。
+13. 未携带 owner header 的公开 GET 正常返回贴纸且不暴露所有权信息。
+14. CORS 预检允许 `X-Message-Sticker-Owner-Token`。
+15. 创建频率限制不会因为换 owner token 而完全失效。
 
 ### 前端
 
@@ -421,15 +429,17 @@ DELETE 失败时恢复交互状态，不从 UI 永久移除。
 2. catalog 只通过 sticker key 映射素材。
 3. 5 / 5 时阻止继续创建并给出提示。
 4. 选择贴纸可进入张贴模式。
-5. 创建成功后渲染服务端贴纸。
-6. 创建失败移除 pending 状态。
-7. 自己的贴纸可移动和删除。
-8. 别人的贴纸不提供修改权限。
-9. 公共贴纸层级低于便签。
-10. 普通点击便签仍打开详情/评论，防止再次出现 click-vs-drag 回归。
-11. 桌面鼠标拖动和手机长按拖动分别通过手势测试。
-12. 轮询更新不会覆盖正在拖动的贴纸。
-13. 完整 `npm run build` 通过。
+5. 点击便签/按钮等交互区域不会误创建贴纸。
+6. 创建成功后渲染服务端贴纸。
+7. 创建失败移除 pending 状态。
+8. 自己的贴纸可移动和删除。
+9. 别人的贴纸不提供修改权限。
+10. 公共贴纸层级低于便签。
+11. 普通点击便签仍打开详情/评论，防止再次出现 click-vs-drag 回归。
+12. 桌面鼠标拖动和手机长按拖动分别通过手势测试。
+13. 轮询更新不会覆盖正在拖动的贴纸。
+14. 第三方图片失败不渲染明显破图框。
+15. 完整 `npm run build` 通过。
 
 ## 16. 预期文件范围
 
@@ -445,7 +455,7 @@ DELETE 失败时恢复交互状态，不从 UI 永久移除。
 - `danmaku-api/migrations/0009_message_stickers.sql`（新增）
 - `danmaku-api/src/message-sticker-routes.ts`（新增）
 - `danmaku-api/src/message-sticker-catalog.ts`（新增或共享等价白名单模块）
-- `danmaku-api/src/index.ts`（注册路由）
+- `danmaku-api/src/index.ts`（注册路由与 CORS header）
 - `danmaku-api/tests/...`
 - `tests/...`
 
@@ -457,13 +467,14 @@ DELETE 失败时恢复交互状态，不从 UI 永久移除。
 
 1. 一眼可以发现留言板的「贴纸屋」。
 2. 能看到约 12–18 张可爱/卡通角色贴纸。
-3. 选一张后可以在留言墙上选择位置贴下。
+3. 选一张后可以在留言墙空白区域选择位置贴下。
 4. 其他浏览器可以看到刚贴的贴纸。
 5. 刷新页面后贴纸仍在。
 6. 当前浏览器可以移动和删除自己的贴纸。
-7. 当前浏览器最多拥有 5 张，删除后释放名额。
+7. 当前浏览器正常情况下最多拥有 5 张，删除后释放名额。
 8. 不能移动或删除别人的贴纸。
 9. 管理员可以整理/删除任意贴纸。
 10. 公共贴纸不会挡住便签正文，也不会破坏便签点击进入详情和评论。
 11. 手机和桌面都可正常使用。
 12. 第三方图片失效不会导致页面出现明显破图或阻塞留言板功能。
+13. 清除 localStorage 等绕过浏览器 token 的行为仍受到服务端创建频率限制约束。
