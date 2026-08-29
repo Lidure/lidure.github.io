@@ -27,5 +27,7 @@ jobs:
       - name: Check Worker types
         working-directory: danmaku-api
         run: npm run check
-      - name: Run browser sticker contracts
+      - name: Run public sticker contracts
         run: node --test tests/message-board-public-stickers.test.mjs
+      - name: Run full site regression and build
+        run: npm test
