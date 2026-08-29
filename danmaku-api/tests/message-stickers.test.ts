@@ -154,7 +154,7 @@ describe('public message sticker ownership mutations', () => {
       owner_token_hash: ownerHash, creator_ip_hash: 'ip', created_at: 1000, updated_at: 1000,
     };
     const db = makeDb((sql) => {
-      if (sql.includes('FROM message_stickers WHERE id = ?')) {
+      if (sql.startsWith('SELECT') && sql.includes('FROM message_stickers WHERE id = ?')) {
         return makeBoundStatement({ first: vi.fn().mockResolvedValue(row) });
       }
       return makeBoundStatement();
@@ -181,7 +181,7 @@ describe('public message sticker ownership mutations', () => {
       id: 's-admin', sticker_key: 'my-melody-01', pos_x: 40, pos_y: 50, rotation: -2,
       owner_token_hash: await hashAuthorToken(FOREIGN_TOKEN), creator_ip_hash: 'ip', created_at: 1000, updated_at: 1000,
     };
-    const db = makeDb((sql) => sql.includes('FROM message_stickers WHERE id = ?')
+    const db = makeDb((sql) => sql.startsWith('SELECT') && sql.includes('FROM message_stickers WHERE id = ?')
       ? makeBoundStatement({ first: vi.fn().mockResolvedValue(row) })
       : makeBoundStatement());
     const env = makeEnv({ DB: db, SESSION_SECRET: secret });
@@ -204,20 +204,20 @@ describe('public message sticker ownership mutations', () => {
       owner_token_hash: ownerHash, creator_ip_hash: 'ip', created_at: 1000, updated_at: 1000,
     };
     const db = makeDb((sql) => {
+      if (sql.startsWith('DELETE FROM message_stickers')) {
+        return makeBoundStatement({ run: vi.fn().mockImplementation(async () => { activeCount -= 1; return {}; }) });
+      }
+      if (sql.startsWith('INSERT INTO message_stickers')) {
+        return makeBoundStatement({ run: vi.fn().mockImplementation(async () => { activeCount += 1; return {}; }) });
+      }
       if (sql.includes('creator_ip_hash') && sql.includes('COUNT(*)')) {
         return makeBoundStatement({ first: vi.fn().mockResolvedValue({ count: 0 }) });
       }
       if (sql.includes('owner_token_hash') && sql.includes('COUNT(*)')) {
         return makeBoundStatement({ first: vi.fn().mockImplementation(async () => ({ count: activeCount })) });
       }
-      if (sql.includes('FROM message_stickers WHERE id = ?')) {
+      if (sql.startsWith('SELECT') && sql.includes('FROM message_stickers WHERE id = ?')) {
         return makeBoundStatement({ first: vi.fn().mockResolvedValue(row) });
-      }
-      if (sql.startsWith('DELETE FROM message_stickers')) {
-        return makeBoundStatement({ run: vi.fn().mockImplementation(async () => { activeCount -= 1; return {}; }) });
-      }
-      if (sql.startsWith('INSERT INTO message_stickers')) {
-        return makeBoundStatement({ run: vi.fn().mockImplementation(async () => { activeCount += 1; return {}; }) });
       }
       return makeBoundStatement();
     });
@@ -249,7 +249,7 @@ describe('public message sticker creation throttling', () => {
       if (sql.includes('owner_token_hash') && sql.includes('COUNT(*)')) {
         return makeBoundStatement({ first: vi.fn().mockResolvedValue({ count: 1 }) });
       }
-      if (sql.includes('FROM message_stickers WHERE id = ?')) {
+      if (sql.startsWith('SELECT') && sql.includes('FROM message_stickers WHERE id = ?')) {
         return makeBoundStatement({ first: vi.fn().mockResolvedValue(row) });
       }
       if (sql.includes('FROM message_stickers ORDER BY')) {
