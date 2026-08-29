@@ -1,1 +1,0 @@
-Trigger the updated public sticker workflow so the browser contract is observed RED before implementation.
