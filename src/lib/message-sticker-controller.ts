@@ -43,14 +43,14 @@ function friendlyStickerError(error: unknown) {
 }
 
 export function initMessageStickerBoard() {
-  const root = byId<HTMLElement>('message-board-root');
-  const stage = byId<HTMLElement>('message-board-stage');
-  const viewport = byId<HTMLElement>('message-board-viewport');
-  const openButton = byId<HTMLButtonElement>('message-sticker-open');
-  const panel = byId<HTMLElement>('message-sticker-panel');
-  const grid = byId<HTMLElement>('message-sticker-grid');
-  const quota = byId<HTMLElement>('message-sticker-quota');
-  const placementBar = byId<HTMLElement>('message-sticker-placement-bar');
+  const root = byId<HTMLElement>('message-board-root')!;
+  const stage = byId<HTMLElement>('message-board-stage')!;
+  const viewport = byId<HTMLElement>('message-board-viewport')!;
+  const openButton = byId<HTMLButtonElement>('message-sticker-open')!;
+  const panel = byId<HTMLElement>('message-sticker-panel')!;
+  const grid = byId<HTMLElement>('message-sticker-grid')!;
+  const quota = byId<HTMLElement>('message-sticker-quota')!;
+  const placementBar = byId<HTMLElement>('message-sticker-placement-bar')!;
   const placementText = byId<HTMLElement>('message-sticker-placement-text');
   const adminStatus = byId<HTMLElement>('message-admin-status');
   const boardStatus = byId<HTMLElement>('message-board-status');
