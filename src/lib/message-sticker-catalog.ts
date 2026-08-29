@@ -37,7 +37,7 @@ export const MESSAGE_STICKER_CATALOG: readonly MessageStickerDefinition[] = [
     key: 'my-melody-01',
     label: '粉粉的',
     character: '美乐蒂',
-    imageUrl: 'https://www.pngmart.com/files/23/My-Melody-PNG-Isolated-Image.png',
+    imageUrl: 'https://www.pngmart.com/files/23/My-Melody-PNG-Transparent.png',
     width: 90,
     height: 98,
   },
