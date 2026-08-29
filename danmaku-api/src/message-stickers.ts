@@ -40,6 +40,13 @@ export const MESSAGE_STICKER_DEFINITIONS = {
   'pompompurin-01': { width: 96, height: 88 },
   'pochacco-01': { width: 90, height: 96 },
   'keroppi-01': { width: 88, height: 82 },
+  'gudetama-01': { width: 104, height: 72 },
+  'badtz-maru-01': { width: 88, height: 96 },
+  'chococat-01': { width: 86, height: 96 },
+  'little-twin-stars-01': { width: 112, height: 84 },
+  'cinnamoroll-heart-01': { width: 72, height: 110 },
+  'kuromi-heart-01': { width: 88, height: 96 },
+  'my-melody-heart-01': { width: 88, height: 100 },
 } as const;
 
 const BOARD_WIDTH = 1200;
