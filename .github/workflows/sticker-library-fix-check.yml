@@ -29,3 +29,5 @@ jobs:
       - name: Check Worker types
         working-directory: danmaku-api
         run: npm run check
+      - name: Run full site regression and build
+        run: npm test
