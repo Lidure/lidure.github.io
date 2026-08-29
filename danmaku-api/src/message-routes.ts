@@ -13,6 +13,7 @@ import {
   type MessageNoteSize,
   type OccupiedNote,
 } from './message-board';
+import { handleMessageStickerRequest } from './message-stickers';
 
 export interface MessageRouteEnv {
   DB: D1Database;
@@ -47,6 +48,9 @@ export async function handleStickyMessageRequest(
   url: URL,
   env: MessageRouteEnv,
 ): Promise<Response | null> {
+  const stickerResponse = await handleMessageStickerRequest(request, url, env);
+  if (stickerResponse) return stickerResponse;
+
   if (url.pathname === '/api/message-reactions') {
     if (request.method === 'POST') return handleMessageReactionCreate(request, env);
     return null;
