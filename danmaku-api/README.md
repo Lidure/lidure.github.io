@@ -1,6 +1,6 @@
 # Lidure Worker API
 
-This Cloudflare Worker serves the public API for danmaku, comments, reactions, guestbook sticky notes, moments, admin sessions, and media upload.
+This Cloudflare Worker serves the public API for danmaku, comments, reactions, guestbook sticky notes, moments, admin sessions, media upload, and persistent public message-board stickers.
 
 Current production endpoints:
 
@@ -99,11 +99,48 @@ The GET response must contain `items`, `now`, and `nextCursor`. Each returned it
 
 Anonymous author tokens belong only in browser local storage. Do not put them in DOM attributes, URLs, logs, documentation examples, or analytics.
 
-## 5. Media
+## 5. Persistent public message stickers
+
+Public stickers require migration `0009_message_stickers.sql`. Apply this migration to production D1 **before or together with** the Worker version that serves `/api/message-stickers`.
+
+```bash
+cd danmaku-api
+npm run check
+npm test
+npx wrangler d1 migrations apply lidure-danmaku --remote
+npm run deploy
+```
+
+The public sticker API is:
+
+- `GET /api/message-stickers` — returns the full current sticker snapshot plus `ownedIds` / `ownedCount` for the requesting browser when `X-Message-Sticker-Owner` is supplied.
+- `POST /api/message-stickers` — creates an approved sticker at a logical board position.
+- `PATCH /api/message-stickers` — moves an owned sticker; an authenticated admin may move any sticker.
+- `DELETE /api/message-stickers` — deletes an owned sticker; an authenticated admin may delete any sticker.
+
+Normal anonymous browsers may keep at most **5 active public stickers** for one browser owner token. The Worker also applies a separate short-window creation throttle by hashed network identity. Authenticated administrators can manage every sticker and bypass the five-sticker quota.
+
+The browser owner token is stored only in local storage under `message_sticker_owner_token_v1`. GET sends it in the `X-Message-Sticker-Owner` request header; POST/PATCH/DELETE send it in JSON when owner authorization is needed. The Worker stores only hashes and must never return the raw owner token.
+
+Sticker images are third-party character assets referenced by the frontend catalog. Hosts can change or remove files, so individual catalog URLs may need replacement later. A failed image must not create a broken-image box over the corkboard.
+
+Suggested production smoke checks after migration + Worker deploy:
+
+```bash
+curl -sS 'https://api.lidure22.xyz/api/message-stickers'
+curl -i -X OPTIONS 'https://api.lidure22.xyz/api/message-stickers' \
+  -H 'Origin: https://lidure22.xyz' \
+  -H 'Access-Control-Request-Method: GET' \
+  -H 'Access-Control-Request-Headers: X-Message-Sticker-Owner'
+```
+
+The preflight response must allow `X-Message-Sticker-Owner`.
+
+## 6. Media
 
 The R2 bucket is exposed through the Worker media route configured by `PUBLIC_MEDIA_BASE_URL`. Frontend builds do not use R2 account ids, access keys, secret keys, or bucket credentials.
 
-## 6. Import legacy moments
+## 7. Import legacy moments
 
 Generate an idempotent SQL import from the repository root:
 
@@ -120,7 +157,7 @@ npx wrangler d1 execute lidure-danmaku --remote --file ../.tmp/moments-import.sq
 
 The import script uses stable ids and `INSERT OR IGNORE`, so rerunning the same import should not duplicate existing moments.
 
-## 7. Local development
+## 8. Local development
 
 Run the Worker and the Astro site in two terminals:
 
@@ -140,7 +177,7 @@ PUBLIC_MOMENTS_API=http://localhost:8787/api
 PUBLIC_MEDIA_BASE_URL=http://localhost:8787/media
 ```
 
-## 8. Verification
+## 9. Verification
 
 From the repository root:
 
