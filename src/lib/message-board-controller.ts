@@ -633,6 +633,7 @@ export function initMessageBoard() {
 
   function syncAdminUi(authenticated: boolean) {
     adminMode = authenticated;
+    window.dispatchEvent(new CustomEvent('message-board-admin-change', { detail: { authenticated } }));
     if (adminStatus) adminStatus.textContent = authenticated ? '已登录，可移动和删除任意便签。' : '未登录';
     if (adminLogin) adminLogin.hidden = authenticated;
     if (adminLogout) adminLogout.hidden = !authenticated;
