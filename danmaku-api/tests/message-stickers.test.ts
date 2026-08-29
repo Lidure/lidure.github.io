@@ -137,7 +137,7 @@ describe('public message sticker create contract', () => {
       return makeBoundStatement();
     });
     const response = await callSticker(stickerRequest('POST', {
-      stickerKey: 'cinnamoroll-01', ownerToken: OWNER_TOKEN, posX: 300, posY: 240,
+      stickerKey: 'cinnamoroll-heart-01', ownerToken: OWNER_TOKEN, posX: 300, posY: 240,
     }), makeEnv({ DB: db }));
     const body = await response!.json() as any;
     expect(response?.status).toBe(201);
