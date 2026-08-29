@@ -34,7 +34,6 @@ type StickerDefinition = { width: number; height: number };
 
 export const MESSAGE_STICKER_DEFINITIONS = {
   'hello-kitty-01': { width: 88, height: 94 },
-  'cinnamoroll-01': { width: 96, height: 84 },
   'kuromi-01': { width: 88, height: 96 },
   'my-melody-01': { width: 90, height: 98 },
   'pompompurin-01': { width: 96, height: 88 },
@@ -43,7 +42,6 @@ export const MESSAGE_STICKER_DEFINITIONS = {
   'gudetama-01': { width: 104, height: 72 },
   'badtz-maru-01': { width: 88, height: 96 },
   'chococat-01': { width: 86, height: 96 },
-  'little-twin-stars-01': { width: 112, height: 84 },
   'cinnamoroll-heart-01': { width: 72, height: 110 },
   'kuromi-heart-01': { width: 88, height: 96 },
   'my-melody-heart-01': { width: 88, height: 100 },
