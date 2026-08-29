@@ -10,6 +10,7 @@ function readOptional(relativePath) {
 const catalogSource = readOptional('../src/lib/message-sticker-catalog.ts');
 const apiSource = readOptional('../src/lib/message-sticker-api.ts');
 const controllerSource = readOptional('../src/lib/message-sticker-controller.ts');
+const boardControllerSource = readOptional('../src/lib/message-board-controller.ts');
 const boardSource = readOptional('../src/components/MessageBoard.astro');
 const stickerCssSource = readOptional('../src/styles/message-board-public-stickers.css');
 const workerSource = readOptional('../danmaku-api/src/index.ts');
@@ -76,6 +77,13 @@ test('public sticker controller owns placement, mutations, polling, and layer re
   assert.match(controllerSource, /ensureStickerLayer/);
   assert.match(controllerSource, /placingStickerKey/);
   assert.match(controllerSource, /STICKER_LIMIT_REACHED/);
+});
+
+test('admin state reaches the sticker controller through a stable browser event', () => {
+  assert.match(boardControllerSource, /message-board-admin-change/);
+  assert.match(boardControllerSource, /CustomEvent[\s\S]*authenticated/);
+  assert.match(controllerSource, /message-board-admin-change/);
+  assert.match(controllerSource, /detail[\s\S]*authenticated/);
 });
 
 test('public sticker layer stays below notes and non-manageable stickers do not intercept clicks', () => {
