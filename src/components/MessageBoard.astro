@@ -2,6 +2,7 @@
 import '../styles/message-board.css';
 import '../styles/message-board-palette.css';
 import '../styles/message-board-stickers.css';
+import '../styles/message-board-public-stickers.css';
 ---
 
 <section class="message-board" id="message-board-root" aria-labelledby="message-board-heading">
@@ -13,6 +14,7 @@ import '../styles/message-board-stickers.css';
     </div>
     <div class="message-board-toolbar-actions">
       <span class="message-board-count"><strong id="message-board-count">—</strong> 张便签</span>
+      <button id="message-sticker-open" type="button" class="message-board-secondary message-sticker-trigger" aria-expanded="false" aria-controls="message-sticker-panel">贴纸屋</button>
       <button id="message-compose-open" type="button" class="message-board-primary">贴一张便签</button>
     </div>
   </header>
@@ -22,6 +24,7 @@ import '../styles/message-board-stickers.css';
   <div class="message-board-scene">
     <div id="message-board-viewport" class="message-board-viewport">
       <div id="message-board-stage" class="message-board-stage" role="region" aria-label="公共留言板">
+        <div id="message-public-sticker-layer" class="message-public-sticker-layer" aria-label="大家贴在留言墙上的公共贴纸"></div>
         <div class="message-board-loading">正在加载便签…</div>
       </div>
     </div>
@@ -58,6 +61,24 @@ import '../styles/message-board-stickers.css';
     <button id="message-board-load-older" type="button" class="message-board-secondary" hidden>加载更早的便签</button>
   </div>
 
+  <aside id="message-sticker-panel" class="message-sticker-panel" role="dialog" aria-modal="false" aria-labelledby="message-sticker-title" hidden>
+    <div class="message-sticker-panel-header">
+      <div>
+        <span class="message-board-kicker">STICKER HOUSE</span>
+        <h3 id="message-sticker-title">贴纸屋</h3>
+        <p>挑一张可爱的角色，贴到大家都能看见的留言墙上吧。</p>
+      </div>
+      <button type="button" class="message-sticker-panel-close" data-sticker-panel-close aria-label="关闭贴纸屋">×</button>
+    </div>
+    <p id="message-sticker-quota" class="message-sticker-quota">我的贴纸 0 / 5</p>
+    <div id="message-sticker-grid" class="message-sticker-grid" aria-label="可选择的公共贴纸"></div>
+  </aside>
+
+  <div id="message-sticker-placement-bar" class="message-sticker-placement-bar" hidden>
+    <span id="message-sticker-placement-text">在木板空白处点一下</span>
+    <button type="button" data-sticker-placement-cancel>取消</button>
+  </div>
+
   <div id="message-composer" class="message-composer-backdrop" hidden>
     <section class="message-composer" role="dialog" aria-modal="true" aria-labelledby="message-composer-title">
       <button type="button" class="message-surface-close" data-message-close="composer" aria-label="关闭写便签窗口">×</button>
@@ -91,6 +112,7 @@ import '../styles/message-board-stickers.css';
 
 <script>
   import { initMessageBoard } from '../lib/message-board-controller';
+  import { initMessageStickerBoard } from '../lib/message-sticker-controller';
 
   const w = window as typeof window & { __messageBoardCleanup?: () => void; __messageBoardBound?: boolean };
   const STICKER_STORAGE_KEY = 'message_board_sticker_positions_v2';
@@ -244,10 +266,11 @@ import '../styles/message-board-stickers.css';
     const drawer = document.getElementById('message-drawer');
     const cleanupController = initMessageBoard();
     const cleanupStickers = initMessageBoardStickers();
+    const cleanupPublicStickers = initMessageStickerBoard();
     if (composer && composer.parentElement !== document.body) document.body.appendChild(composer);
     if (drawer && drawer.parentElement !== document.body) document.body.appendChild(drawer);
     w.__messageBoardCleanup = () => {
-      cleanupStickers(); cleanupController();
+      cleanupPublicStickers(); cleanupStickers(); cleanupController();
       if (boardRoot?.isConnected) {
         if (composer) boardRoot.appendChild(composer);
         if (drawer) boardRoot.appendChild(drawer);
