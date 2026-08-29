@@ -628,7 +628,7 @@ function corsHeaders(request: Request, env: Env): Headers {
   }
 
   headers.set("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE,OPTIONS");
-  headers.set("Access-Control-Allow-Headers", "Content-Type");
+  headers.set("Access-Control-Allow-Headers", "Content-Type, X-Message-Sticker-Owner");
   headers.set("Access-Control-Max-Age", "86400");
   headers.set("Vary", "Origin");
   return headers;
