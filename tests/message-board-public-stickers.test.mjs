@@ -9,6 +9,7 @@ function readOptional(relativePath) {
 
 const catalogSource = readOptional('../src/lib/message-sticker-catalog.ts');
 const apiSource = readOptional('../src/lib/message-sticker-api.ts');
+const workerSource = readOptional('../danmaku-api/src/index.ts');
 
 test('public sticker catalog is isolated from the API client', () => {
   assert.match(catalogSource, /MESSAGE_STICKER_CATALOG/);
@@ -30,4 +31,8 @@ test('public sticker API client exposes the ownership operations', () => {
   ]) {
     assert.match(apiSource, new RegExp(`export (?:async )?function ${symbol}`));
   }
+});
+
+test('Worker preflight allows the sticker ownership header', () => {
+  assert.match(workerSource, /Access-Control-Allow-Headers[\s\S]*X-Message-Sticker-Owner/);
 });
