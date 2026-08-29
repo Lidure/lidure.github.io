@@ -1,0 +1,26 @@
+name: Public message stickers check
+
+on:
+  push:
+    branches: [feat/public-message-stickers]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install root dependencies
+        run: npm ci
+      - name: Install Worker dependencies
+        working-directory: danmaku-api
+        run: npm ci
+      - name: Run sticker Worker contract
+        working-directory: danmaku-api
+        run: npm test -- message-stickers.test.ts
