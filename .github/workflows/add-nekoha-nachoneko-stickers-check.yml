@@ -47,13 +47,16 @@ jobs:
             'https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/2.webp' \
             'https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/2.thumb128.webp'
 
-          # Nachoneko / 甘城猫猫 — public sticker mirrors.
+          # Nachoneko / 甘城猫猫 — SigStick mirror of the original LINE pack.
           fetch_with_fallback /tmp/stickers/nachoneko-love-01.src \
-            'https://media.stickerswiki.app/nyaacho/2294064.512.webp'
+            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/0.webp' \
+            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/0.thumb128.webp'
           fetch_with_fallback /tmp/stickers/nachoneko-peek-01.src \
-            'https://stickerly.pstatic.net/sticker_pack/aVeZmniU7xDcpqkeno8cFQ/ZH25FC/21/448561171.png'
+            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/1.webp' \
+            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/1.thumb128.webp'
           fetch_with_fallback /tmp/stickers/nachoneko-pizza-01.src \
-            'https://media.stickerswiki.app/nyaacho/2294088.512.webp'
+            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/2.webp' \
+            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/2.thumb128.webp'
 
           python <<'PY'
           from pathlib import Path
