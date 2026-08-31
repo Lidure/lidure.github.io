@@ -1,78 +1,19 @@
-name: Sticker expansion asset ingest
+name: Sticker expansion sync check
 
 on:
   push:
     branches: [feat/expand-message-sticker-house]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  ingest:
-    if: github.actor != 'github-actions[bot]'
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          ref: feat/expand-message-sticker-house
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install image dependencies
-        run: python -m pip install --disable-pip-version-check pillow requests
-      - name: Download, normalize, and verify transparent sticker artwork
-        run: |
-          python <<'PY'
-          from io import BytesIO
-          from pathlib import Path
-          import requests
-          from PIL import Image
-
-          out_dir = Path('public/assets/message-stickers')
-          out_dir.mkdir(parents=True, exist_ok=True)
-
-          sources = {
-              'nekoha-shizuku-04': ('https://i0.hdslb.com/bfs/article/ca87326123b33f31100c6729cb1e8755c15a22eb.png', 'https://www.bilibili.com/'),
-              'nekoha-shizuku-05': ('https://i0.hdslb.com/bfs/article/218bf1b96757b31bdd577817686d7d24d814389e.png', 'https://www.bilibili.com/'),
-              'nekoha-shizuku-06': ('https://i0.hdslb.com/bfs/article/9c184fc238fc9ef9ad36bb6eb4ecdbd72ebc5398.png', 'https://www.bilibili.com/'),
-              'nekoha-shizuku-07': ('https://i0.hdslb.com/bfs/article/e8b56638d24df72c575b9aa5f9aaea5c2fb6fe92.png', 'https://www.bilibili.com/'),
-              'nachoneko-cry-02': ('https://cdn2.cdnstep.com/VHyK964z0R6XeiSVfVRE/8.thumb128.png', 'https://www.sigstick.com/'),
-              'nachoneko-angry-02': ('https://cdn2.cdnstep.com/VHyK964z0R6XeiSVfVRE/9.thumb128.png', 'https://www.sigstick.com/'),
-              'nachoneko-donut-02': ('https://cdn2.cdnstep.com/VHyK964z0R6XeiSVfVRE/10.thumb128.png', 'https://www.sigstick.com/'),
-              'nachoneko-sorry-02': ('https://cdn2.cdnstep.com/VHyK964z0R6XeiSVfVRE/11.thumb128.png', 'https://www.sigstick.com/'),
-              'pochacco-play-02': ('https://cdn.cdnstep.com/g1d8xHkd5nRRtQg9tkbm/4.thumb128.png', 'https://www.sigstick.com/'),
-              'pochacco-kawaii-03': ('https://cdn.cdnstep.com/g1d8xHkd5nRRtQg9tkbm/5.thumb128.png', 'https://www.sigstick.com/'),
-              'pochacco-fun-04': ('https://cdn.cdnstep.com/g1d8xHkd5nRRtQg9tkbm/6.thumb128.png', 'https://www.sigstick.com/'),
-              'pochacco-friends-05': ('https://cdn.cdnstep.com/g1d8xHkd5nRRtQg9tkbm/7.thumb128.png', 'https://www.sigstick.com/'),
-              'journal-sparkles-01': ('https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/color/618x618/2728.png', 'https://github.com/hfg-gmuend/openmoji'),
-              'journal-blossom-01': ('https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/color/618x618/1F338.png', 'https://github.com/hfg-gmuend/openmoji'),
-          }
-
-          session = requests.Session()
-          for key, (url, referer) in sources.items():
-              response = session.get(
-                  url,
-                  timeout=40,
-                  headers={'User-Agent': 'Mozilla/5.0', 'Referer': referer},
-              )
-              response.raise_for_status()
-              image = Image.open(BytesIO(response.content)).convert('RGBA')
-              if max(image.size) > 512:
-                  image.thumbnail((512, 512), Image.Resampling.LANCZOS)
-              alpha = image.getchannel('A')
-              transparent = sum(1 for value in alpha.getdata() if value < 250)
-              ratio = transparent / (image.width * image.height)
-              if ratio < 0.03:
-                  raise SystemExit(f'{key}: not enough real transparent pixels ({ratio:.3%})')
-              target = out_dir / f'{key}.png'
-              image.save(target, 'PNG', optimize=True)
-              print(f'{key}: {image.width}x{image.height}, transparent={ratio:.1%}, bytes={target.stat().st_size}')
-          PY
-      - name: Commit local sticker assets
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/assets/message-stickers/*.png
-          git diff --cached --quiet && exit 0
-          git commit -m 'feat: add expanded local sticker artwork'
-          git push origin HEAD:feat/expand-message-sticker-house
+          node-version: 24
+      - name: Run sticker contract
+        run: node --test tests/message-board-public-stickers.test.mjs
