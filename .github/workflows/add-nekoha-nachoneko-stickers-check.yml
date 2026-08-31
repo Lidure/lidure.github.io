@@ -5,58 +5,73 @@ on:
     branches: [feat/add-nekoha-nachoneko-stickers]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  scan-assets:
+  contact-sheet:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feat/add-nekoha-nachoneko-stickers
       - uses: actions/setup-python@v5
         with:
           python-version: '3.13'
       - name: Install Pillow
         run: python -m pip install pillow
-      - name: Scan candidate sticker transparency
+      - name: Build diagnostic contact sheet
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p /tmp/sticker-scan/nekoha /tmp/sticker-scan/nachoneko
-
-          for i in $(seq 0 15); do
-            curl -fsSL --retry 1 --connect-timeout 10 -A 'Mozilla/5.0 sticker-scanner' \
+          mkdir -p /tmp/sticker-sheet/nekoha /tmp/sticker-sheet/nachoneko tmp
+          for i in 0 2 3 4 5 6 7 8 9 10 11 12; do
+            curl -fsSL --retry 2 -A 'Mozilla/5.0 sticker-inspector' \
               "https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/${i}.webp" \
-              -o "/tmp/sticker-scan/nekoha/${i}.webp" || true
+              -o "/tmp/sticker-sheet/nekoha/${i}.webp"
           done
-          for i in $(seq 0 15); do
-            curl -fsSL --retry 1 --connect-timeout 10 -A 'Mozilla/5.0 sticker-scanner' \
+          for i in 0 1 2; do
+            curl -fsSL --retry 2 -A 'Mozilla/5.0 sticker-inspector' \
               "https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/${i}.webp" \
-              -o "/tmp/sticker-scan/nachoneko/${i}.webp" || true
+              -o "/tmp/sticker-sheet/nachoneko/${i}.webp"
           done
-
           python <<'PY'
           from pathlib import Path
-          from PIL import Image
+          from PIL import Image, ImageDraw, ImageFont
 
-          for pack in ('nekoha', 'nachoneko'):
-              print(f'=== {pack} ===')
-              for path in sorted((Path('/tmp/sticker-scan') / pack).glob('*.webp'), key=lambda p: int(p.stem)):
-                  try:
-                      with Image.open(path) as im:
-                          rgba = im.convert('RGBA')
-                          alpha = rgba.getchannel('A')
-                          amin, amax = alpha.getextrema()
-                          hist = alpha.histogram()
-                          transparent = sum(hist[:255])
-                          total = rgba.width * rgba.height
-                          pct = transparent / total * 100
-                          corners = [
-                              alpha.getpixel((0, 0)),
-                              alpha.getpixel((rgba.width - 1, 0)),
-                              alpha.getpixel((0, rgba.height - 1)),
-                              alpha.getpixel((rgba.width - 1, rgba.height - 1)),
-                          ]
-                          print(f'{path.stem}: {rgba.width}x{rgba.height} alpha={amin}-{amax} transparent={pct:.2f}% corners={corners}')
-                  except Exception as exc:
-                      print(f'{path.stem}: ERROR {exc}')
+          groups = [
+              ('Nekoha candidate indices', Path('/tmp/sticker-sheet/nekoha')),
+              ('Nachoneko candidate indices', Path('/tmp/sticker-sheet/nachoneko')),
+          ]
+          cell_w, cell_h = 220, 245
+          cols = 4
+          rows = 3 + 1
+          canvas = Image.new('RGB', (cols * cell_w, rows * cell_h + 60), 'white')
+          draw = ImageDraw.Draw(canvas)
+          y_offset = 0
+          for title, directory in groups:
+              files = sorted(directory.glob('*.webp'), key=lambda p: int(p.stem))
+              draw.text((10, y_offset + 8), title, fill='black')
+              y_offset += 35
+              group_rows = (len(files) + cols - 1) // cols
+              for idx, path in enumerate(files):
+                  im = Image.open(path).convert('RGBA')
+                  bg = Image.new('RGBA', im.size, (238, 238, 238, 255))
+                  bg.alpha_composite(im)
+                  bg.thumbnail((185, 185), Image.Resampling.LANCZOS)
+                  x = (idx % cols) * cell_w + (cell_w - bg.width) // 2
+                  y = y_offset + (idx // cols) * cell_h + 20
+                  canvas.paste(bg.convert('RGB'), (x, y))
+                  draw.text((idx % cols * cell_w + 10, y_offset + (idx // cols) * cell_h), f'index {path.stem}', fill='black')
+              y_offset += group_rows * cell_h
+          canvas = canvas.crop((0, 0, canvas.width, y_offset + 10))
+          canvas.save('tmp/sticker-candidates.jpg', quality=88, optimize=True)
+          print(canvas.size)
           PY
+      - name: Commit diagnostic sheet
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add tmp/sticker-candidates.jpg
+          git commit -m 'test: add temporary sticker contact sheet'
+          git push origin HEAD:feat/add-nekoha-nachoneko-stickers
