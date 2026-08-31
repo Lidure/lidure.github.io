@@ -5,42 +5,64 @@ on:
     branches: [feat/add-nekoha-nachoneko-stickers]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  patch-worker:
-    if: github.actor != 'github-actions[bot]'
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          ref: feat/add-nekoha-nachoneko-stickers
-      - name: Add six sticker definitions to Worker
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install dependencies
+        run: |
+          npm ci
+          python -m pip install pillow
+      - name: Run public sticker contract
+        run: node --test tests/message-board-public-stickers.test.mjs
+      - name: Verify new sticker PNG transparency
         run: |
           python <<'PY'
           from pathlib import Path
-          path = Path('danmaku-api/src/message-stickers.ts')
-          source = path.read_text()
-          if "'nekoha-shizuku-wave-01'" not in source:
-              needle = "  'my-melody-heart-01': { width: 88, height: 100 },\n"
-              additions = [
-                  "  'nekoha-shizuku-wave-01': { width: 96, height: 96 },",
-                  "  'nekoha-shizuku-hug-01': { width: 96, height: 96 },",
-                  "  'nekoha-shizuku-cheer-01': { width: 96, height: 96 },",
-                  "  'nachoneko-love-01': { width: 94, height: 96 },",
-                  "  'nachoneko-peek-01': { width: 108, height: 82 },",
-                  "  'nachoneko-pizza-01': { width: 108, height: 82 },",
-              ]
-              if needle not in source:
-                  raise SystemExit('Worker sticker definition anchor not found')
-              source = source.replace(needle, needle + '\n'.join(additions) + '\n', 1)
-              path.write_text(source)
+          from PIL import Image
+
+          keys = [
+              'nekoha-shizuku-wave-01',
+              'nekoha-shizuku-hug-01',
+              'nekoha-shizuku-cheer-01',
+              'nachoneko-love-01',
+              'nachoneko-peek-01',
+              'nachoneko-pizza-01',
+          ]
+          for key in keys:
+              path = Path('public/assets/message-stickers') / f'{key}.png'
+              with Image.open(path) as im:
+                  rgba = im.convert('RGBA')
+                  alpha = rgba.getchannel('A')
+                  amin, amax = alpha.getextrema()
+                  hist = alpha.histogram()
+                  transparent_pct = sum(hist[:255]) / (rgba.width * rgba.height) * 100
+                  corners = [
+                      alpha.getpixel((0, 0)),
+                      alpha.getpixel((rgba.width - 1, 0)),
+                      alpha.getpixel((0, rgba.height - 1)),
+                      alpha.getpixel((rgba.width - 1, rgba.height - 1)),
+                  ]
+                  assert amin < 255, f'{key}: no transparent pixels'
+                  assert transparent_pct >= 5, f'{key}: transparent area too small: {transparent_pct:.2f}%'
+                  assert sum(value < 255 for value in corners) >= 3, f'{key}: opaque corners {corners}'
+                  print(f'{key}: {rgba.width}x{rgba.height}, transparent={transparent_pct:.2f}%')
           PY
-      - name: Commit Worker allow-list
+      - name: Run full site regression and build
+        run: npm test
+      - name: Run Worker tests and typecheck
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add danmaku-api/src/message-stickers.ts
-          git diff --cached --quiet && exit 0
-          git commit -m 'feat: allow Nekoha and Nachoneko stickers'
-          git push origin HEAD:feat/add-nekoha-nachoneko-stickers
+          cd danmaku-api
+          npm ci
+          npm test
+          npm run check
