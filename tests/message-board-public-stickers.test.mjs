@@ -17,6 +17,15 @@ const workerSource = readOptional('../danmaku-api/src/index.ts');
 const stickerWorkerSource = readOptional('../danmaku-api/src/message-stickers.ts');
 const removalMigrationSource = readOptional('../danmaku-api/migrations/0010_remove_retired_message_stickers.sql');
 
+const NEW_CHARACTER_STICKERS = [
+  'nekoha-shizuku-wave-01',
+  'nekoha-shizuku-hug-01',
+  'nekoha-shizuku-cheer-01',
+  'nachoneko-love-01',
+  'nachoneko-peek-01',
+  'nachoneko-pizza-01',
+];
+
 test('public sticker catalog is isolated from the API client', () => {
   assert.match(catalogSource, /MESSAGE_STICKER_CATALOG/);
   assert.match(catalogSource, /hello-kitty-01/);
@@ -30,12 +39,24 @@ test('retired sticker choices are removed and remaining artwork is served locall
   assert.doesNotMatch(catalogSource, /\bkey:\s*'cinnamoroll-01'/);
   assert.doesNotMatch(catalogSource, /\bkey:\s*'little-twin-stars-01'/);
   const imageUrls = [...catalogSource.matchAll(/\bimageUrl:\s*'([^']+)'/g)].map((match) => match[1]);
-  assert.equal(imageUrls.length, 12, 'expected 12 sticker choices after retiring two entries');
+  assert.equal(imageUrls.length, 18, 'expected 18 local sticker choices after adding six character stickers');
   for (const url of imageUrls) {
     assert.match(url, /^\/assets\/message-stickers\/[a-z0-9-]+\.png$/i, 'sticker art must use a same-origin local path');
     assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), `missing local sticker asset: ${url}`);
   }
   assert.doesNotMatch(catalogSource, /https?:\/\//, 'public sticker catalog must not hotlink remote images');
+});
+
+test('Nekoha Shizuku and Nachoneko each contribute three local sticker choices', () => {
+  for (const key of NEW_CHARACTER_STICKERS) {
+    assert.match(catalogSource, new RegExp(`key:\\s*'${key}'`), `missing browser sticker ${key}`);
+    assert.ok(
+      existsSync(new URL(`../public/assets/message-stickers/${key}.png`, import.meta.url)),
+      `missing local PNG for ${key}`,
+    );
+  }
+  assert.equal((catalogSource.match(/character:\s*'猫羽雫'/g) || []).length, 3);
+  assert.equal((catalogSource.match(/character:\s*'甘城猫猫'/g) || []).length, 3);
 });
 
 test('retired sticker rows are removed from D1 so invisible stickers cannot consume the five-sticker quota', () => {

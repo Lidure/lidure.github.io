@@ -45,6 +45,12 @@ export const MESSAGE_STICKER_DEFINITIONS = {
   'cinnamoroll-heart-01': { width: 72, height: 110 },
   'kuromi-heart-01': { width: 88, height: 96 },
   'my-melody-heart-01': { width: 88, height: 100 },
+  'nekoha-shizuku-wave-01': { width: 96, height: 96 },
+  'nekoha-shizuku-hug-01': { width: 96, height: 96 },
+  'nekoha-shizuku-cheer-01': { width: 96, height: 96 },
+  'nachoneko-love-01': { width: 94, height: 96 },
+  'nachoneko-peek-01': { width: 108, height: 82 },
+  'nachoneko-pizza-01': { width: 108, height: 82 },
 } as const;
 
 const BOARD_WIDTH = 1200;
