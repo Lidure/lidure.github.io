@@ -121,6 +121,12 @@ test('public sticker controller owns placement, mutations, polling, and layer re
   assert.match(controllerSource, /STICKER_LIMIT_REACHED/);
 });
 
+test('selected manageable stickers expose delete only while direct dragging stays available', () => {
+  assert.match(controllerSource, /remove\.textContent = '删除'/);
+  assert.doesNotMatch(controllerSource, /拖动整理|拖动管理/);
+  assert.match(controllerSource, /bindStickerDrag\(element, sticker, definition\)/);
+});
+
 test('admin state reaches the sticker controller through a stable browser event', () => {
   assert.match(boardControllerSource, /message-board-admin-change/);
   assert.match(boardControllerSource, /CustomEvent[\s\S]*authenticated/);
