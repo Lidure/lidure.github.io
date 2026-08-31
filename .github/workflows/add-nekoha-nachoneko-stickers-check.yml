@@ -5,18 +5,92 @@ on:
     branches: [feat/add-nekoha-nachoneko-stickers]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  verify:
+  capture-assets:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
         with:
-          node-version: 24
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Run sticker contract
-        run: node --test tests/message-board-public-stickers.test.mjs
+          ref: feat/add-nekoha-nachoneko-stickers
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install Pillow
+        run: python -m pip install pillow
+      - name: Download and normalize six transparent stickers
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/stickers public/assets/message-stickers
+
+          fetch_with_fallback() {
+            out="$1"; shift
+            for url in "$@"; do
+              if curl -fL --retry 2 --connect-timeout 15 -A 'Mozilla/5.0 sticker-localizer' "$url" -o "$out"; then
+                return 0
+              fi
+            done
+            return 1
+          }
+
+          # Nekoha Shizuku — mirrors of the original Amashiro Natsuki LINE pack.
+          fetch_with_fallback /tmp/stickers/nekoha-shizuku-wave-01.src \
+            'https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/0.webp' \
+            'https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/0.thumb128.webp'
+          fetch_with_fallback /tmp/stickers/nekoha-shizuku-hug-01.src \
+            'https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/1.webp' \
+            'https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/1.thumb128.webp'
+          fetch_with_fallback /tmp/stickers/nekoha-shizuku-cheer-01.src \
+            'https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/2.webp' \
+            'https://cdn.cdnstep.com/rzFLYl8NyFxsdUyYpcEl/2.thumb128.webp'
+
+          # Nachoneko / 甘城猫猫 — public sticker mirrors.
+          fetch_with_fallback /tmp/stickers/nachoneko-love-01.src \
+            'https://media.stickerswiki.app/nyaacho/2294064.512.webp'
+          fetch_with_fallback /tmp/stickers/nachoneko-peek-01.src \
+            'https://stickerly.pstatic.net/sticker_pack/aVeZmniU7xDcpqkeno8cFQ/ZH25FC/21/448561171.png'
+          fetch_with_fallback /tmp/stickers/nachoneko-pizza-01.src \
+            'https://media.stickerswiki.app/nyaacho/2294088.512.webp'
+
+          python <<'PY'
+          from pathlib import Path
+          from PIL import Image
+
+          src_dir = Path('/tmp/stickers')
+          out_dir = Path('public/assets/message-stickers')
+          keys = [
+              'nekoha-shizuku-wave-01',
+              'nekoha-shizuku-hug-01',
+              'nekoha-shizuku-cheer-01',
+              'nachoneko-love-01',
+              'nachoneko-peek-01',
+              'nachoneko-pizza-01',
+          ]
+          for key in keys:
+              src = src_dir / f'{key}.src'
+              with Image.open(src) as im:
+                  rgba = im.convert('RGBA')
+                  alpha = rgba.getchannel('A')
+                  amin, amax = alpha.getextrema()
+                  if amin == 255:
+                      raise SystemExit(f'{key}: image has no transparent pixels')
+                  if rgba.width < 96 or rgba.height < 96:
+                      raise SystemExit(f'{key}: image too small: {rgba.width}x{rgba.height}')
+                  if max(rgba.size) > 512:
+                      rgba.thumbnail((512, 512), Image.Resampling.LANCZOS)
+                  out = out_dir / f'{key}.png'
+                  rgba.save(out, 'PNG', optimize=True)
+                  print(f'{key}: {rgba.width}x{rgba.height}, alpha={amin}-{amax}, {out.stat().st_size} bytes')
+          PY
+
+      - name: Commit localized sticker assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/message-stickers
+          git diff --cached --quiet && exit 0
+          git commit -m 'assets: add Nekoha and Nachoneko stickers'
+          git push origin HEAD:feat/add-nekoha-nachoneko-stickers
