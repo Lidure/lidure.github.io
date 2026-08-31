@@ -38,7 +38,7 @@ jobs:
 
           def get(url, referer='https://www.sigstick.com/'):
               try:
-                  r = requests.get(url, timeout=(3, 5), headers={'User-Agent':'Mozilla/5.0','Referer':referer})
+                  r = requests.get(url, timeout=(3, 6), headers={'User-Agent':'Mozilla/5.0','Referer':referer})
                   return r.content if r.ok and len(r.content) > 500 else None
               except requests.RequestException:
                   return None
@@ -71,28 +71,25 @@ jobs:
               print(f'{key}: {size[0]}x{size[1]}, transparent={ratio:.1%}')
               return True
 
-          def sigstick(prefix, pack, count, start=0):
-              candidates=[]
-              for i in range(start, min(start+80,120)):
-                  for host in ('cdn.cdnstep.com','cdn2.cdnstep.com'):
-                      candidates.append((i, f'https://{host}/{pack}/{i}.thumb128.png'))
+          def ingest_urls(prefix, urls, count):
               found={}
               with ThreadPoolExecutor(max_workers=24) as ex:
-                  futs={ex.submit(get,url):(i,url) for i,url in candidates}
+                  futs={ex.submit(get,url):(idx,url) for idx,url in urls}
                   for fut in as_completed(futs):
-                      i,_=futs[fut]
+                      idx,_=futs[fut]
                       raw=fut.result()
-                      if raw and i not in found: found[i]=raw
+                      if raw and idx not in found: found[idx]=raw
               saved=0
-              for i in sorted(found):
+              for idx in sorted(found):
                   if saved>=count: break
-                  if save(f'{prefix}-{saved+1:02d}', found[i]): saved+=1
-              if saved != count: raise SystemExit(f'{prefix}: expected {count}, got {saved}, fetched indices={len(found)}')
+                  if save(f'{prefix}-{saved+1:02d}', found[idx]): saved+=1
+              if saved != count:
+                  raise SystemExit(f'{prefix}: expected {count}, got {saved}, fetched indices={len(found)}')
 
-          sigstick('kuromi-pack','yHWLdH2iHKeLZpcA9fXE',14)
-          sigstick('cinnamoroll-pack','tMvS8n1yNstiBeI5x5of',14)
-          sigstick('pochacco-pack','g1d8xHkd5nRRtQg9tkbm',10,8)
-          sigstick('nachoneko-pack','RiUAgMEYfFbGY3pu9K0d',17)
+          ingest_urls('kuromi-pack', [(i,f'https://cdn2.cdnstep.com/yHWLdH2iHKeLZpcA9fXE/{i}.thumb128.webp') for i in range(0,40)], 14)
+          ingest_urls('cinnamoroll-pack', [(i,f'https://cdn2.cdnstep.com/tMvS8n1yNstiBeI5x5of/{i}-1.thumb128.webp') for i in range(0,40)], 14)
+          ingest_urls('pochacco-pack', [(i,f'https://cdn.cdnstep.com/g1d8xHkd5nRRtQg9tkbm/{i}.thumb128.png') for i in range(8,50)], 10)
+          ingest_urls('nachoneko-pack', [(i,f'https://cdn2.cdnstep.com/VHyK964z0R6XeiSVfVRE/{i}.thumb128.png') for i in range(12,70)], 17)
 
           article=get('https://www.bilibili.com/opus/647121893650858000','https://www.bilibili.com/')
           if not article: raise SystemExit('failed to load Shizuku article')
@@ -118,6 +115,7 @@ jobs:
               raw=get(f'https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/color/618x618/{code}.png','https://github.com/hfg-gmuend/openmoji')
               if not raw or not save(key,raw): raise SystemExit(f'journal asset failed: {key}')
           if len(created)!=80: raise SystemExit(f'expected 80 assets got {len(created)}')
+          print('created total:', len(created))
           PY
       - name: Commit assets
         run: |
