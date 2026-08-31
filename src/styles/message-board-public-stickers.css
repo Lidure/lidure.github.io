@@ -1,12 +1,9 @@
 .message-public-sticker-layer {
   position: absolute;
   inset: 0;
-  z-index: 4;
+  z-index: 50;
   pointer-events: none;
 }
-
-.message-board-stage > .sticky-note { z-index: 10; }
-.sticky-note { z-index: 10; }
 
 .message-public-sticker {
   --public-sticker-x: 0px;
@@ -97,11 +94,11 @@
 
 .message-sticker-panel {
   position: fixed;
-  z-index: 96;
+  z-index: var(--layer-overlay);
   right: max(1rem, env(safe-area-inset-right));
   top: min(18vh, 150px);
-  width: min(92vw, 420px);
-  max-height: min(72dvh, 680px);
+  width: min(94vw, 560px);
+  max-height: min(78dvh, 760px);
   overflow: auto;
   box-sizing: border-box;
   padding: 1rem;
@@ -132,7 +129,7 @@
   justify-content: space-between;
   gap: 1rem;
   align-items: flex-start;
-  padding: .3rem .2rem .75rem;
+  padding: .3rem .2rem .7rem;
 }
 .message-sticker-panel-header h3 { margin: .1rem 0 .25rem; font-size: 1.15rem; }
 .message-sticker-panel-header p { margin: 0; color: var(--muted); font-size: .78rem; }
@@ -147,6 +144,43 @@
   background: color-mix(in srgb, var(--bg) 88%, transparent);
   font-size: 1.2rem;
 }
+
+.message-sticker-categories {
+  display: flex;
+  gap: .42rem;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  margin: 0 .1rem .7rem;
+  padding: .12rem .1rem .28rem;
+}
+.message-sticker-categories::-webkit-scrollbar { display: none; }
+.message-sticker-category {
+  flex: 0 0 auto;
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--panel-border));
+  border-radius: 999px;
+  padding: .38rem .7rem;
+  font: inherit;
+  font-size: .74rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--bg) 91%, var(--accent) 3%);
+}
+.message-sticker-category:hover,
+.message-sticker-category:focus-visible {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 46%, var(--panel-border));
+  outline: none;
+}
+.message-sticker-category[aria-selected="true"] {
+  color: var(--text);
+  border-color: color-mix(in srgb, var(--accent) 62%, var(--panel-border));
+  background: color-mix(in srgb, var(--accent) 13%, var(--bg));
+  box-shadow: 0 4px 14px rgba(var(--accent-rgb), .1);
+}
+.message-sticker-category-count { margin-left: .28rem; opacity: .62; }
+
 .message-sticker-quota {
   display: inline-flex;
   align-items: center;
@@ -161,17 +195,17 @@
 .message-sticker-quota.is-full { color: #c26072; }
 .message-sticker-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: .55rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .5rem;
 }
 .message-sticker-choice {
   min-width: 0;
-  min-height: 116px;
+  min-height: 108px;
   display: grid;
-  grid-template-rows: 78px auto;
+  grid-template-rows: 72px auto;
   place-items: center;
-  gap: .35rem;
-  padding: .45rem .3rem .55rem;
+  gap: .3rem;
+  padding: .4rem .25rem .5rem;
   border: 1px dashed color-mix(in srgb, var(--accent) 22%, var(--panel-border));
   border-radius: 14px 18px 13px 17px;
   cursor: pointer;
@@ -187,17 +221,17 @@
 }
 .message-sticker-choice:disabled { cursor: not-allowed; opacity: .42; transform: none; }
 .message-sticker-choice img {
-  max-width: 86px;
-  max-height: 74px;
+  max-width: 82px;
+  max-height: 70px;
   object-fit: contain;
   pointer-events: none;
 }
-.message-sticker-choice span { font-size: .72rem; line-height: 1.25; text-align: center; }
-.message-sticker-choice small { display: block; color: var(--muted); font-size: .65rem; }
+.message-sticker-choice span { font-size: .7rem; line-height: 1.22; text-align: center; }
+.message-sticker-choice small { display: block; color: var(--muted); font-size: .62rem; }
 
 .message-sticker-placement-bar {
   position: fixed;
-  z-index: 97;
+  z-index: var(--layer-overlay);
   left: 50%;
   bottom: max(1rem, env(safe-area-inset-bottom));
   transform: translateX(-50%);
@@ -229,12 +263,12 @@
   .message-sticker-panel {
     inset: auto 0 0;
     width: 100%;
-    max-height: 68dvh;
+    max-height: 72dvh;
     border-radius: 22px 22px 0 0;
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
   .message-sticker-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .message-sticker-choice { min-height: 108px; grid-template-rows: 68px auto; }
+  .message-sticker-choice { min-height: 104px; grid-template-rows: 66px auto; }
 }
 
 @media (max-width: 430px) {
