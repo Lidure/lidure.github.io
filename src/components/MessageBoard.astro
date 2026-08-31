@@ -38,10 +38,11 @@ import '../styles/message-board-public-stickers.css';
       <div>
         <span class="message-board-kicker">STICKER HOUSE</span>
         <h3 id="message-sticker-title">贴纸屋</h3>
-        <p>挑一张可爱的角色，贴到大家都能看见的留言墙上吧。</p>
+        <p>按分类翻一翻，再挑一张贴到留言墙上吧。</p>
       </div>
       <button type="button" class="message-sticker-panel-close" data-sticker-panel-close aria-label="关闭贴纸屋">×</button>
     </div>
+    <div id="message-sticker-categories" class="message-sticker-categories" role="tablist" aria-label="贴纸分类"></div>
     <p id="message-sticker-quota" class="message-sticker-quota">我的贴纸 0 / 5</p>
     <div id="message-sticker-grid" class="message-sticker-grid" aria-label="可选择的公共贴纸"></div>
   </aside>
@@ -93,16 +94,24 @@ import '../styles/message-board-public-stickers.css';
     const boardRoot = document.getElementById('message-board-root');
     const composer = document.getElementById('message-composer');
     const drawer = document.getElementById('message-drawer');
+    const stickerPanel = document.getElementById('message-sticker-panel');
+    const placementBar = document.getElementById('message-sticker-placement-bar');
     const cleanupController = initMessageBoard();
     const cleanupPublicStickers = initMessageStickerBoard();
     if (composer && composer.parentElement !== document.body) document.body.appendChild(composer);
     if (drawer && drawer.parentElement !== document.body) document.body.appendChild(drawer);
+    if (stickerPanel && stickerPanel.parentElement !== document.body) document.body.appendChild(stickerPanel);
+    if (placementBar && placementBar.parentElement !== document.body) document.body.appendChild(placementBar);
     w.__messageBoardCleanup = () => {
       cleanupPublicStickers(); cleanupController();
       if (boardRoot?.isConnected) {
         if (composer) boardRoot.appendChild(composer);
         if (drawer) boardRoot.appendChild(drawer);
-      } else { composer?.remove(); drawer?.remove(); }
+        if (stickerPanel) boardRoot.appendChild(stickerPanel);
+        if (placementBar) boardRoot.appendChild(placementBar);
+      } else {
+        composer?.remove(); drawer?.remove(); stickerPanel?.remove(); placementBar?.remove();
+      }
     };
   }
   if (!w.__messageBoardBound) {
