@@ -5,49 +5,36 @@ on:
     branches: [perf/localize-message-stickers]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  capture-assets:
-    if: github.actor != 'github-actions[bot]'
+  verify:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: perf/localize-message-stickers
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Download current sticker catalog assets
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run sticker contract
+        run: node --test tests/message-board-public-stickers.test.mjs
+      - name: Verify local PNG payloads
         run: |
           node <<'NODE'
           const fs = await import('node:fs/promises');
           const path = await import('node:path');
-          const source = await fs.readFile('src/lib/message-sticker-catalog.ts', 'utf8');
-          const pairs = [...source.matchAll(/key:\s*'([^']+)'[\s\S]*?imageUrl:\s*'([^']+)'/g)]
-            .map((match) => ({ key: match[1], url: match[2] }));
-          if (pairs.length !== 12) throw new Error(`expected 12 sticker assets, got ${pairs.length}`);
-          const outDir = 'public/assets/message-stickers';
-          await fs.mkdir(outDir, { recursive: true });
-          for (const { key, url } of pairs) {
-            const response = await fetch(url, {
-              redirect: 'follow',
-              headers: { 'User-Agent': 'Mozilla/5.0 sticker-localizer' },
-            });
-            if (!response.ok) throw new Error(`${key}: HTTP ${response.status}`);
-            const bytes = Buffer.from(await response.arrayBuffer());
-            if (bytes.length < 1024) throw new Error(`${key}: suspiciously small asset (${bytes.length} bytes)`);
-            const pngSignature = Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]);
-            if (!bytes.subarray(0, 8).equals(pngSignature)) throw new Error(`${key}: downloaded file is not PNG`);
-            await fs.writeFile(path.join(outDir, `${key}.png`), bytes);
-            console.log(`${key}: ${bytes.length} bytes`);
+          const dir = 'public/assets/message-stickers';
+          const files = (await fs.readdir(dir)).filter((name) => name.endsWith('.png')).sort();
+          if (files.length !== 12) throw new Error(`expected 12 PNG assets, got ${files.length}`);
+          const signature = Buffer.from([0x89,0x50,0x4e,0x47,0x0d,0x0a,0x1a,0x0a]);
+          for (const name of files) {
+            const bytes = await fs.readFile(path.join(dir, name));
+            if (bytes.length < 1024) throw new Error(`${name}: suspiciously small (${bytes.length} bytes)`);
+            if (!bytes.subarray(0, 8).equals(signature)) throw new Error(`${name}: invalid PNG signature`);
+            console.log(`${name}: ${bytes.length} bytes`);
           }
           NODE
-      - name: Commit localized sticker assets
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/assets/message-stickers
-          git diff --cached --quiet && exit 0
-          git commit -m 'assets: localize public message stickers'
-          git push origin HEAD:perf/localize-message-stickers
+      - name: Run full site regression and build
+        run: npm test
