@@ -26,6 +26,23 @@ const NEW_CHARACTER_STICKERS = [
   'nachoneko-pizza-01',
 ];
 
+const EXPANDED_STICKERS = [
+  'nekoha-shizuku-04',
+  'nekoha-shizuku-05',
+  'nekoha-shizuku-06',
+  'nekoha-shizuku-07',
+  'nachoneko-cry-02',
+  'nachoneko-angry-02',
+  'nachoneko-donut-02',
+  'nachoneko-sorry-02',
+  'pochacco-play-02',
+  'pochacco-kawaii-03',
+  'pochacco-fun-04',
+  'pochacco-friends-05',
+  'journal-sparkles-01',
+  'journal-blossom-01',
+];
+
 test('public sticker catalog is isolated from the API client', () => {
   assert.match(catalogSource, /MESSAGE_STICKER_CATALOG/);
   assert.match(catalogSource, /hello-kitty-01/);
@@ -35,11 +52,11 @@ test('public sticker catalog is isolated from the API client', () => {
   assert.doesNotMatch(apiSource, /ownerToken=.*URLSearchParams/);
 });
 
-test('retired sticker choices are removed and remaining artwork is served locally', () => {
+test('retired sticker choices are removed and all 32 artworks are served locally', () => {
   assert.doesNotMatch(catalogSource, /\bkey:\s*'cinnamoroll-01'/);
   assert.doesNotMatch(catalogSource, /\bkey:\s*'little-twin-stars-01'/);
   const imageUrls = [...catalogSource.matchAll(/\bimageUrl:\s*'([^']+)'/g)].map((match) => match[1]);
-  assert.equal(imageUrls.length, 18, 'expected 18 local sticker choices after adding six character stickers');
+  assert.equal(imageUrls.length, 32, 'expected 32 local sticker choices after expanding the sticker house');
   for (const url of imageUrls) {
     assert.match(url, /^\/assets\/message-stickers\/[a-z0-9-]+\.png$/i, 'sticker art must use a same-origin local path');
     assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), `missing local sticker asset: ${url}`);
@@ -47,7 +64,21 @@ test('retired sticker choices are removed and remaining artwork is served locall
   assert.doesNotMatch(catalogSource, /https?:\/\//, 'public sticker catalog must not hotlink remote images');
 });
 
-test('Nekoha Shizuku and Nachoneko each contribute three local sticker choices', () => {
+test('expanded sticker house adds character variety and two journal decorations', () => {
+  for (const key of EXPANDED_STICKERS) {
+    assert.match(catalogSource, new RegExp(`key:\\s*'${key}'`), `missing browser sticker ${key}`);
+    assert.ok(
+      existsSync(new URL(`../public/assets/message-stickers/${key}.png`, import.meta.url)),
+      `missing local PNG for ${key}`,
+    );
+  }
+  assert.equal((catalogSource.match(/character:\s*'猫羽雫'/g) || []).length, 7);
+  assert.equal((catalogSource.match(/character:\s*'甘城猫猫'/g) || []).length, 7);
+  assert.equal((catalogSource.match(/character:\s*'帕恰狗'/g) || []).length, 5);
+  assert.equal((catalogSource.match(/character:\s*'手帐装饰'/g) || []).length, 2);
+});
+
+test('Nekoha Shizuku and Nachoneko keep their original local sticker choices', () => {
   for (const key of NEW_CHARACTER_STICKERS) {
     assert.match(catalogSource, new RegExp(`key:\\s*'${key}'`), `missing browser sticker ${key}`);
     assert.ok(
@@ -55,8 +86,6 @@ test('Nekoha Shizuku and Nachoneko each contribute three local sticker choices',
       `missing local PNG for ${key}`,
     );
   }
-  assert.equal((catalogSource.match(/character:\s*'猫羽雫'/g) || []).length, 3);
-  assert.equal((catalogSource.match(/character:\s*'甘城猫猫'/g) || []).length, 3);
 });
 
 test('retired sticker rows are removed from D1 so invisible stickers cannot consume the five-sticker quota', () => {

@@ -51,6 +51,20 @@ export const MESSAGE_STICKER_DEFINITIONS = {
   'nachoneko-love-01': { width: 94, height: 96 },
   'nachoneko-peek-01': { width: 108, height: 82 },
   'nachoneko-pizza-01': { width: 108, height: 82 },
+  'nekoha-shizuku-04': { width: 96, height: 96 },
+  'nekoha-shizuku-05': { width: 96, height: 96 },
+  'nekoha-shizuku-06': { width: 96, height: 96 },
+  'nekoha-shizuku-07': { width: 96, height: 96 },
+  'nachoneko-cry-02': { width: 96, height: 96 },
+  'nachoneko-angry-02': { width: 96, height: 96 },
+  'nachoneko-donut-02': { width: 96, height: 96 },
+  'nachoneko-sorry-02': { width: 96, height: 96 },
+  'pochacco-play-02': { width: 92, height: 92 },
+  'pochacco-kawaii-03': { width: 92, height: 92 },
+  'pochacco-fun-04': { width: 92, height: 92 },
+  'pochacco-friends-05': { width: 92, height: 92 },
+  'journal-sparkles-01': { width: 80, height: 80 },
+  'journal-blossom-01': { width: 80, height: 80 },
 } as const;
 
 const BOARD_WIDTH = 1200;
