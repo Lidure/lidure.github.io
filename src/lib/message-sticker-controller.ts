@@ -181,11 +181,6 @@ export function initMessageStickerBoard() {
   function createActionMenu(sticker: MessageSticker) {
     const actions = document.createElement('span');
     actions.className = 'message-public-sticker-actions';
-    const hint = document.createElement('button');
-    hint.type = 'button';
-    hint.textContent = '拖动整理';
-    hint.addEventListener('pointerdown', (event) => event.stopPropagation());
-    hint.addEventListener('click', (event) => { event.stopPropagation(); }, { signal });
     const remove = document.createElement('button');
     remove.type = 'button';
     remove.className = 'danger';
@@ -195,7 +190,7 @@ export function initMessageStickerBoard() {
       event.stopPropagation();
       void removeSticker(sticker.id);
     }, { signal });
-    actions.append(hint, remove);
+    actions.append(remove);
     return actions;
   }
 
@@ -315,7 +310,7 @@ export function initMessageStickerBoard() {
       element.classList.toggle('is-manageable', manageable);
       element.classList.toggle('is-selected', selectedStickerId === sticker.id);
       element.tabIndex = manageable ? 0 : -1;
-      element.setAttribute('aria-label', manageable ? `${definition.character}公共贴纸，可点击管理或拖动` : definition.character);
+      element.setAttribute('aria-label', manageable ? `${definition.character}公共贴纸，可点击删除或直接拖动` : definition.character);
       setStickerPosition(element, sticker, definition);
       element.appendChild(makeImage(definition, element));
       if (manageable && selectedStickerId === sticker.id) element.appendChild(createActionMenu(sticker));
