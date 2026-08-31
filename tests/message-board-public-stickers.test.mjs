@@ -140,7 +140,7 @@ test('sticker house exposes filter tabs for all categories', () => {
   }
   assert.match(controllerSource, /activeStickerCategory/);
   assert.match(controllerSource, /definition\.category/);
-  assert.match(controllerSource, /data-sticker-category/);
+  assert.match(controllerSource, /dataset\.stickerCategory/);
   assert.match(stickerCssSource, /\.message-sticker-categories/);
   assert.match(stickerCssSource, /overflow-x:\s*auto/);
 });
