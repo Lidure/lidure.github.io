@@ -68,13 +68,14 @@ test('browser and Worker sticker allow-lists stay in sync', () => {
   assert.doesNotMatch(stickerWorkerSource, /'little-twin-stars-01'\s*:/);
 });
 
-test('message board exposes a persistent sticker house without replacing local decorations', () => {
+test('message board keeps the persistent public sticker house after removing auto-loaded decorations', () => {
   assert.match(boardSource, /import ['"]\.\.\/styles\/message-board-public-stickers\.css['"]/);
   for (const id of ['message-sticker-open', 'message-sticker-panel', 'message-sticker-grid', 'message-sticker-quota', 'message-public-sticker-layer']) {
     assert.match(boardSource, new RegExp(`id="${id}"`));
   }
   assert.match(boardSource, /initMessageStickerBoard/);
-  assert.match(boardSource, /initMessageBoardStickers/);
+  assert.doesNotMatch(boardSource, /initMessageBoardStickers/);
+  assert.doesNotMatch(boardSource, /data-board-sticker=/);
 });
 
 test('public sticker controller owns placement, mutations, polling, and layer recovery', () => {
