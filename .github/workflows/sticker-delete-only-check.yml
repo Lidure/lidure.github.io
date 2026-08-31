@@ -1,0 +1,19 @@
+name: Sticker delete-only check
+
+on:
+  push:
+    branches: [fix/sticker-delete-only-actions]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run sticker contract
+        run: node --test tests/message-board-public-stickers.test.mjs
