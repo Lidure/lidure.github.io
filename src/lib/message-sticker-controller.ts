@@ -1,4 +1,4 @@
-import { MESSAGE_STICKER_BY_KEY, MESSAGE_STICKER_CATALOG, type MessageStickerDefinition } from './message-sticker-catalog';
+import { MESSAGE_STICKER_BY_KEY, MESSAGE_STICKER_CATALOG, type MessageStickerCategory, type MessageStickerDefinition } from './message-sticker-catalog';
 import {
   createMessageSticker,
   deleteAdminMessageSticker,
@@ -13,6 +13,16 @@ import { HOLD_MS, createGestureState, finishGesture, updateGesture } from './mes
 
 const MESSAGE_STICKER_POLL_MS = 15_000;
 const OWNER_STICKER_LIMIT = 5;
+
+type StickerCategoryFilter = 'all' | MessageStickerCategory;
+
+const STICKER_CATEGORIES: readonly { key: StickerCategoryFilter; label: string }[] = [
+  { key: 'all', label: '全部' },
+  { key: 'sanrio', label: '三丽鸥' },
+  { key: 'nekoha-shizuku', label: '猫羽雫' },
+  { key: 'nachoneko', label: '甘城猫猫' },
+  { key: 'journal', label: '手账' },
+];
 
 type StickerDragSession = {
   id: string;
@@ -49,13 +59,14 @@ export function initMessageStickerBoard() {
   const openButton = byId<HTMLButtonElement>('message-sticker-open')!;
   const panel = byId<HTMLElement>('message-sticker-panel')!;
   const grid = byId<HTMLElement>('message-sticker-grid')!;
+  const categories = byId<HTMLElement>('message-sticker-categories')!;
   const quota = byId<HTMLElement>('message-sticker-quota')!;
   const placementBar = byId<HTMLElement>('message-sticker-placement-bar')!;
   const placementText = byId<HTMLElement>('message-sticker-placement-text');
   const adminStatus = byId<HTMLElement>('message-admin-status');
   const boardStatus = byId<HTMLElement>('message-board-status');
 
-  if (!root || !stage || !viewport || !openButton || !panel || !grid || !quota || !placementBar) return () => {};
+  if (!root || !stage || !viewport || !openButton || !panel || !grid || !categories || !quota || !placementBar) return () => {};
 
   const controller = new AbortController();
   const { signal } = controller;
@@ -63,6 +74,7 @@ export function initMessageStickerBoard() {
   let ownedIds = new Set<string>();
   let ownedCount = 0;
   let adminMode = false;
+  let activeStickerCategory: StickerCategoryFilter = 'all';
   let placingStickerKey = '';
   let selectedStickerId = '';
   let dragSession: StickerDragSession | null = null;
@@ -154,9 +166,39 @@ export function initMessageStickerBoard() {
     panel.querySelector<HTMLButtonElement>('[data-sticker-panel-close]')?.focus();
   }
 
+  function buildStickerCategories() {
+    categories.replaceChildren();
+    STICKER_CATEGORIES.forEach(({ key, label }) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'message-sticker-category';
+      button.dataset.stickerCategory = key;
+      button.setAttribute('role', 'tab');
+      button.setAttribute('aria-selected', String(activeStickerCategory === key));
+      const count = key === 'all'
+        ? MESSAGE_STICKER_CATALOG.length
+        : MESSAGE_STICKER_CATALOG.filter((definition) => definition.category === key).length;
+      button.append(document.createTextNode(label));
+      const badge = document.createElement('span');
+      badge.className = 'message-sticker-category-count';
+      badge.textContent = String(count);
+      button.appendChild(badge);
+      button.addEventListener('click', () => {
+        if (activeStickerCategory === key) return;
+        activeStickerCategory = key;
+        buildStickerCategories();
+        buildStickerChoices();
+      }, { signal });
+      categories.appendChild(button);
+    });
+  }
+
   function buildStickerChoices() {
     grid.replaceChildren();
-    MESSAGE_STICKER_CATALOG.forEach((definition) => {
+    const visibleDefinitions = activeStickerCategory === 'all'
+      ? MESSAGE_STICKER_CATALOG
+      : MESSAGE_STICKER_CATALOG.filter((definition) => definition.category === activeStickerCategory);
+    visibleDefinitions.forEach((definition) => {
       const button = document.createElement('button');
       button.type = 'button';
       button.className = 'message-sticker-choice';
@@ -177,7 +219,6 @@ export function initMessageStickerBoard() {
     });
     updateQuotaUi();
   }
-
   function createActionMenu(sticker: MessageSticker) {
     const actions = document.createElement('span');
     actions.className = 'message-public-sticker-actions';
@@ -474,6 +515,7 @@ export function initMessageStickerBoard() {
     applyAdminMode(Boolean(detail?.authenticated));
   }
 
+  buildStickerCategories();
   buildStickerChoices();
   ensureStickerLayer();
   void refreshStickers();

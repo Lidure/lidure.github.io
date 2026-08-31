@@ -27,7 +27,9 @@ body.layout-immersive .site-header {
 
 .hero-settings-panel,
 .sekai-player-panel,
-.message-drawer {
+.message-drawer,
+.message-sticker-panel,
+.message-sticker-placement-bar {
   z-index: var(--layer-overlay) !important;
 }
 
