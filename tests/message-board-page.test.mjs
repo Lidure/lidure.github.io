@@ -138,46 +138,18 @@ test('corkboard supports dark theme, mobile sheet, and reduced motion', () => {
   assert.match(css, /html\[data-reduce-motion="true"\]/);
 });
 
-test('message board uses draggable third-party image stickers and persists their positions', () => {
+test('legacy auto-loaded board decoration stickers stay removed while the public sticker house remains', () => {
   const board = read('src/components/MessageBoard.astro');
-  const stickers = read('src/styles/message-board-stickers.css');
-
-  assert.match(board, /import ['"]\.\.\/styles\/message-board-stickers\.css['"]/);
-  for (const name of ['dog', 'flower', 'star', 'tape']) {
-    assert.match(board, new RegExp(`data-board-sticker="${name}"`));
-  }
-  const stickerImages = board.match(/<img[\s\S]*?data-sticker-image[\s\S]*?>/g) || [];
-  assert.ok(stickerImages.length >= 4, 'all board decorations should be third-party image stickers');
-  assert.doesNotMatch(board, /message-board-pixel-flower/);
-  assert.doesNotMatch(board, /message-board-sticker-doodle/);
-  assert.doesNotMatch(board, /message-board-sticker-sprout/);
-  assert.match(board, /const STICKER_STORAGE_KEY = ['"]message_board_sticker_positions_v2['"]/);
-  assert.match(board, /localStorage\.getItem\(STICKER_STORAGE_KEY\)/);
-  assert.match(board, /localStorage\.setItem\(STICKER_STORAGE_KEY/);
-  assert.match(board, /pointerdown/);
-  assert.match(board, /pointermove/);
-  assert.match(board, /pointerup/);
-  assert.match(board, /setPointerCapture/);
-  assert.match(board, /releasePointerCapture/);
-  assert.match(stickers, /\.message-board-sticker-button\s*\{[\s\S]*?cursor:\s*grab/);
-  assert.match(stickers, /\.message-board-sticker-button\.is-dragging\s*\{[\s\S]*?cursor:\s*grabbing/);
-  assert.match(stickers, /touch-action:\s*none/);
-});
-
-test('sticker hover never overrides drag positioning and no drag hint is rendered', () => {
-  const board = read('src/components/MessageBoard.astro');
-  const legacyCss = read('src/styles/message-board.css');
-  const stickerCss = read('src/styles/message-board-stickers.css');
-
-  assert.doesNotMatch(board, /message-board-sticker-caption/);
-  assert.doesNotMatch(board, />\s*可以拖我\s*</);
-  assert.doesNotMatch(legacyCss, /\.message-board-sticker--dog/);
-  assert.doesNotMatch(legacyCss, /\.message-board-sticker--flower/);
-  assert.doesNotMatch(legacyCss, /\.message-board-sticker-button/);
-  assert.match(stickerCss, /\.message-board-sticker-button\s*\{[\s\S]*transform:\s*translate3d\(var\(--sticker-x\),\s*var\(--sticker-y\),\s*0\)/);
-  const hoverBlock = stickerCss.match(/\.message-board-sticker-button:hover,\s*\.message-board-sticker-button:focus-visible\s*\{([^}]*)\}/);
-  assert.ok(hoverBlock, 'sticker hover block should remain present');
-  assert.doesNotMatch(hoverBlock[1], /transform:/, 'hover must never overwrite the transform used for drag positioning');
+  assert.doesNotMatch(board, /message-board-stickers\.css/);
+  assert.doesNotMatch(board, /data-board-sticker=/);
+  assert.doesNotMatch(board, /data-sticker-image/);
+  assert.doesNotMatch(board, /message_board_sticker_positions_v2/);
+  assert.doesNotMatch(board, /initMessageBoardStickers/);
+  assert.doesNotMatch(board, /cdn\.jsdelivr\.net\/npm\/openmoji/);
+  assert.doesNotMatch(board, /Pochacco-Download-PNG-Image/);
+  assert.match(board, /id="message-sticker-open"/);
+  assert.match(board, /id="message-public-sticker-layer"/);
+  assert.match(board, /initMessageStickerBoard/);
 });
 
 test('homepage keeps the array message API contract', () => {
