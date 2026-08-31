@@ -1,0 +1,57 @@
+name: Sticker expansion final verification
+
+on:
+  push:
+    branches: [feat/expand-message-sticker-house]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Verify new PNG transparency
+        run: |
+          python -m pip install --disable-pip-version-check pillow
+          python <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          keys = [
+              'nekoha-shizuku-04','nekoha-shizuku-05','nekoha-shizuku-06','nekoha-shizuku-07',
+              'nachoneko-cry-02','nachoneko-angry-02','nachoneko-donut-02','nachoneko-sorry-02',
+              'pochacco-play-02','pochacco-kawaii-03','pochacco-fun-04','pochacco-friends-05',
+              'journal-sparkles-01','journal-blossom-01',
+          ]
+          for key in keys:
+              path = Path('public/assets/message-stickers') / f'{key}.png'
+              image = Image.open(path).convert('RGBA')
+              alpha = image.getchannel('A')
+              ratio = sum(1 for value in alpha.getdata() if value < 250) / (image.width * image.height)
+              if ratio < 0.03:
+                  raise SystemExit(f'{key}: insufficient transparent pixels: {ratio:.3%}')
+              print(f'{key}: {image.width}x{image.height}, transparent={ratio:.1%}')
+          PY
+      - name: Install root dependencies
+        run: npm ci
+      - name: Run sticker contract
+        run: node --test tests/message-board-public-stickers.test.mjs
+      - name: Run full site regression
+        run: npm test
+      - name: Install Worker dependencies
+        working-directory: danmaku-api
+        run: npm ci
+      - name: Run Worker tests
+        working-directory: danmaku-api
+        run: npm test
+      - name: Run Worker typecheck
+        working-directory: danmaku-api
+        run: npm run check
