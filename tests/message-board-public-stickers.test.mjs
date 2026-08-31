@@ -26,14 +26,16 @@ test('public sticker catalog is isolated from the API client', () => {
   assert.doesNotMatch(apiSource, /ownerToken=.*URLSearchParams/);
 });
 
-test('retired sticker choices are removed and remaining artwork uses the proven transparent PNG host', () => {
+test('retired sticker choices are removed and remaining artwork is served locally', () => {
   assert.doesNotMatch(catalogSource, /\bkey:\s*'cinnamoroll-01'/);
   assert.doesNotMatch(catalogSource, /\bkey:\s*'little-twin-stars-01'/);
   const imageUrls = [...catalogSource.matchAll(/\bimageUrl:\s*'([^']+)'/g)].map((match) => match[1]);
   assert.equal(imageUrls.length, 12, 'expected 12 sticker choices after retiring two entries');
   for (const url of imageUrls) {
-    assert.match(url, /^https:\/\/www\.pngmart\.com\/files\/.*\.(?:png|webp)(?:\?.*)?$/i);
+    assert.match(url, /^\/assets\/message-stickers\/[a-z0-9-]+\.png$/i, 'sticker art must use a same-origin local path');
+    assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), `missing local sticker asset: ${url}`);
   }
+  assert.doesNotMatch(catalogSource, /https?:\/\//, 'public sticker catalog must not hotlink remote images');
 });
 
 test('retired sticker rows are removed from D1 so invisible stickers cannot consume the five-sticker quota', () => {
