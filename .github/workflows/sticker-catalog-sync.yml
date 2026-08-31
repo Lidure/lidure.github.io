@@ -1,0 +1,135 @@
+name: Sticker catalog sync
+
+on:
+  push:
+    branches: [feat/sticker-categories-layering-expansion]
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/sticker-categories-layering-expansion
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Patch categorized browser and Worker catalogs
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          import re
+
+          catalog_path = Path('src/lib/message-sticker-catalog.ts')
+          catalog = catalog_path.read_text()
+          if "export type MessageStickerCategory" not in catalog:
+              catalog = catalog.replace(
+                  "export type MessageStickerDefinition = {",
+                  "export type MessageStickerCategory = 'sanrio' | 'nekoha-shizuku' | 'nachoneko' | 'journal';\n\nexport type MessageStickerDefinition = {",
+                  1,
+              )
+          if "  category: MessageStickerCategory;" not in catalog:
+              catalog = catalog.replace("  character: string;\n", "  character: string;\n  category: MessageStickerCategory;\n", 1)
+
+          def category_for(key):
+              if key.startswith('nekoha-shizuku'): return 'nekoha-shizuku'
+              if key.startswith('nachoneko'): return 'nachoneko'
+              if key.startswith('journal-'): return 'journal'
+              return 'sanrio'
+
+          def add_existing_category(match):
+              block = match.group(0)
+              key_match = re.search(r"key:\s*'([^']+)'", block)
+              if not key_match or "category:" in block:
+                  return block
+              category = category_for(key_match.group(1))
+              return block.replace("    character:", f"    category: '{category}',\n    character:", 1)
+
+          catalog = re.sub(r"  \{\n    key: '[^']+',[\s\S]*?\n  \},", add_existing_category, catalog)
+          catalog = catalog.replace("character: '玉桂狗'", "character: '大耳狗'")
+
+          groups = [
+              ('kuromi-pack', 14, '酷洛米', 'sanrio', 96, 96, '库洛米'),
+              ('cinnamoroll-pack', 14, '大耳狗', 'sanrio', 96, 96, '大耳狗'),
+              ('pochacco-pack', 10, '帕恰狗', 'sanrio', 92, 92, '帕恰狗'),
+              ('nachoneko-pack', 17, '甘城猫猫', 'nachoneko', 96, 96, '猫猫'),
+              ('nekoha-shizuku-pack', 17, '猫羽雫', 'nekoha-shizuku', 96, 96, '雫'),
+          ]
+          new_entries = []
+          worker_entries = []
+          for prefix, count, character, category, width, height, label_prefix in groups:
+              for index in range(1, count + 1):
+                  key = f'{prefix}-{index:02d}'
+                  if f"key: '{key}'" in catalog:
+                      raise SystemExit(f'duplicate browser key before append: {key}')
+                  new_entries.extend([
+                      "  {",
+                      f"    key: '{key}',",
+                      f"    label: '{label_prefix} · {index:02d}',",
+                      f"    category: '{category}',",
+                      f"    character: '{character}',",
+                      f"    imageUrl: '/assets/message-stickers/{key}.png',",
+                      f"    width: {width},",
+                      f"    height: {height},",
+                      "  },",
+                  ])
+                  worker_entries.append(f"  '{key}': {{ width: {width}, height: {height} }},")
+
+          journal = [
+              ('journal-heart-02', '小爱心'),
+              ('journal-star-02', '小星星'),
+              ('journal-clover-02', '四叶草'),
+              ('journal-ribbon-02', '蝴蝶结'),
+              ('journal-rainbow-02', '小彩虹'),
+              ('journal-flower-02', '小花花'),
+              ('journal-leaf-02', '一片叶子'),
+              ('journal-cloud-02', '软软云朵'),
+          ]
+          for key, label in journal:
+              if f"key: '{key}'" in catalog:
+                  raise SystemExit(f'duplicate browser key before append: {key}')
+              new_entries.extend([
+                  "  {",
+                  f"    key: '{key}',",
+                  f"    label: '{label}',",
+                  "    category: 'journal',",
+                  "    character: '手帐装饰',",
+                  f"    imageUrl: '/assets/message-stickers/{key}.png',",
+                  "    width: 80,",
+                  "    height: 80,",
+                  "  },",
+              ])
+              worker_entries.append(f"  '{key}': {{ width: 80, height: 80 }},")
+
+          marker = "] as const;"
+          if marker not in catalog:
+              raise SystemExit('browser catalog marker missing')
+          catalog = catalog.replace(marker, "\n".join(new_entries) + "\n" + marker, 1)
+          catalog_path.write_text(catalog)
+
+          worker_path = Path('danmaku-api/src/message-stickers.ts')
+          worker = worker_path.read_text()
+          for line in worker_entries:
+              key = line.split("'")[1]
+              if f"'{key}':" in worker:
+                  raise SystemExit(f'duplicate Worker key before append: {key}')
+          worker_marker = "} as const;\n\nconst BOARD_WIDTH"
+          if worker_marker not in worker:
+              raise SystemExit('Worker definitions marker missing')
+          worker = worker.replace(worker_marker, "\n".join(worker_entries) + "\n} as const;\n\nconst BOARD_WIDTH", 1)
+          worker_path.write_text(worker)
+          PY
+      - name: Verify 112-sticker contract
+        run: node --test tests/message-board-public-stickers.test.mjs
+      - name: Commit synchronized catalogs
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/lib/message-sticker-catalog.ts danmaku-api/src/message-stickers.ts
+          git diff --cached --quiet && exit 0
+          git commit -m 'feat: categorize and register 112 message stickers'
+          git push origin HEAD:feat/sticker-categories-layering-expansion
