@@ -8,88 +8,38 @@ permissions:
   contents: write
 
 jobs:
-  capture-assets:
+  patch-worker:
     if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: feat/add-nekoha-nachoneko-stickers
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install Pillow
-        run: python -m pip install pillow
-      - name: Download and normalize six transparent stickers
-        shell: bash
+      - name: Add six sticker definitions to Worker
         run: |
-          set -euo pipefail
-          mkdir -p /tmp/stickers public/assets/message-stickers
-
-          curl -fsSL --retry 2 -A 'Mozilla/5.0 sticker-localizer' -e 'https://www.bilibili.com/' \
-            'https://i0.hdslb.com/bfs/article/2cb3157638c1dab7d3070475fd3f85a4187d34fb.png' \
-            -o /tmp/stickers/nekoha-shizuku-wave-01.src
-          curl -fsSL --retry 2 -A 'Mozilla/5.0 sticker-localizer' -e 'https://www.bilibili.com/' \
-            'https://i0.hdslb.com/bfs/article/92306026a50eb87f53d06d65a2fa4c180d5e40c7.png' \
-            -o /tmp/stickers/nekoha-shizuku-hug-01.src
-          curl -fsSL --retry 2 -A 'Mozilla/5.0 sticker-localizer' -e 'https://www.bilibili.com/' \
-            'https://i0.hdslb.com/bfs/article/39dcd50440de26cca4084d3e1881ed7ab0169d91.png' \
-            -o /tmp/stickers/nekoha-shizuku-cheer-01.src
-
-          curl -fsSL --retry 2 -A 'Mozilla/5.0 sticker-localizer' \
-            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/0.webp' \
-            -o /tmp/stickers/nachoneko-love-01.src
-          curl -fsSL --retry 2 -A 'Mozilla/5.0 sticker-localizer' \
-            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/1.webp' \
-            -o /tmp/stickers/nachoneko-peek-01.src
-          curl -fsSL --retry 2 -A 'Mozilla/5.0 sticker-localizer' \
-            'https://imgcdn.sigstick.com/SWE6Ibz7eXTNFZgEdZnJ/2.webp' \
-            -o /tmp/stickers/nachoneko-pizza-01.src
-
           python <<'PY'
           from pathlib import Path
-          from PIL import Image
-
-          keys = [
-              'nekoha-shizuku-wave-01',
-              'nekoha-shizuku-hug-01',
-              'nekoha-shizuku-cheer-01',
-              'nachoneko-love-01',
-              'nachoneko-peek-01',
-              'nachoneko-pizza-01',
-          ]
-          out_dir = Path('public/assets/message-stickers')
-          for key in keys:
-              with Image.open(Path('/tmp/stickers') / f'{key}.src') as im:
-                  rgba = im.convert('RGBA')
-                  if max(rgba.size) > 512:
-                      rgba.thumbnail((512, 512), Image.Resampling.LANCZOS)
-                  alpha = rgba.getchannel('A')
-                  amin, amax = alpha.getextrema()
-                  hist = alpha.histogram()
-                  transparent_pct = sum(hist[:255]) / (rgba.width * rgba.height) * 100
-                  corners = [
-                      alpha.getpixel((0, 0)),
-                      alpha.getpixel((rgba.width - 1, 0)),
-                      alpha.getpixel((0, rgba.height - 1)),
-                      alpha.getpixel((rgba.width - 1, rgba.height - 1)),
-                  ]
-                  if amin == 255 or transparent_pct < 5:
-                      raise SystemExit(f'{key}: not genuinely transparent ({transparent_pct:.2f}%)')
-                  if sum(value < 255 for value in corners) < 3:
-                      raise SystemExit(f'{key}: opaque outer corners {corners}')
-                  if rgba.width < 96 or rgba.height < 96:
-                      raise SystemExit(f'{key}: image too small {rgba.width}x{rgba.height}')
-                  out = out_dir / f'{key}.png'
-                  rgba.save(out, 'PNG', optimize=True)
-                  print(f'{key}: {rgba.width}x{rgba.height} alpha={amin}-{amax} transparent={transparent_pct:.2f}% {out.stat().st_size} bytes')
+          path = Path('danmaku-api/src/message-stickers.ts')
+          source = path.read_text()
+          if "'nekoha-shizuku-wave-01'" not in source:
+              needle = "  'my-melody-heart-01': { width: 88, height: 100 },\n"
+              replacement = needle + """  'nekoha-shizuku-wave-01': { width: 96, height: 96 },
+  'nekoha-shizuku-hug-01': { width: 96, height: 96 },
+  'nekoha-shizuku-cheer-01': { width: 96, height: 96 },
+  'nachoneko-love-01': { width: 94, height: 96 },
+  'nachoneko-peek-01': { width: 108, height: 82 },
+  'nachoneko-pizza-01': { width: 108, height: 82 },
+"""
+              if needle not in source:
+                  raise SystemExit('Worker sticker definition anchor not found')
+              source = source.replace(needle, replacement, 1)
+              path.write_text(source)
           PY
-
-      - name: Commit localized sticker assets
+      - name: Commit Worker allow-list
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add public/assets/message-stickers
+          git add danmaku-api/src/message-stickers.ts
           git diff --cached --quiet && exit 0
-          git commit -m 'assets: add Nekoha and Nachoneko stickers'
+          git commit -m 'feat: allow Nekoha and Nachoneko stickers'
           git push origin HEAD:feat/add-nekoha-nachoneko-stickers
