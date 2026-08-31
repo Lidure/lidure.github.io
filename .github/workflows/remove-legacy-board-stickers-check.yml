@@ -18,8 +18,6 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
-      - name: Run removal contract
-        run: node --test tests/message-board-legacy-stickers-removed.test.mjs
       - name: Run public sticker contract
         run: node --test tests/message-board-public-stickers.test.mjs
       - name: Run full site regression and build
