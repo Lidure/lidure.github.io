@@ -1,0 +1,129 @@
+name: Sticker bulk ingest fast
+
+on:
+  push:
+    branches: [feat/sticker-categories-layering-expansion]
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/sticker-categories-layering-expansion
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install --disable-pip-version-check pillow requests
+      - name: Download 80 transparent stickers in parallel
+        run: |
+          python <<'PY'
+          from __future__ import annotations
+          from concurrent.futures import ThreadPoolExecutor, as_completed
+          from io import BytesIO
+          from pathlib import Path
+          import hashlib
+          import re
+          import requests
+          from PIL import Image
+
+          OUT = Path('public/assets/message-stickers')
+          OUT.mkdir(parents=True, exist_ok=True)
+          existing_hashes = {hashlib.sha256(p.read_bytes()).hexdigest() for p in OUT.glob('*.png')}
+          created = []
+
+          def get(url, referer='https://www.sigstick.com/'):
+              try:
+                  r = requests.get(url, timeout=(3, 5), headers={'User-Agent':'Mozilla/5.0','Referer':referer})
+                  return r.content if r.ok and len(r.content) > 500 else None
+              except requests.RequestException:
+                  return None
+
+          def normalized(raw):
+              try:
+                  im = Image.open(BytesIO(raw)).convert('RGBA')
+              except Exception:
+                  return None
+              if im.width < 32 or im.height < 32:
+                  return None
+              alpha = im.getchannel('A')
+              ratio = sum(v < 250 for v in alpha.getdata()) / (im.width * im.height)
+              if ratio < .03:
+                  return None
+              if max(im.size) > 512:
+                  im.thumbnail((512,512), Image.Resampling.LANCZOS)
+              buf=BytesIO(); im.save(buf,'PNG',optimize=True); data=buf.getvalue()
+              return data, im.size, ratio
+
+          def save(key, raw):
+              result=normalized(raw)
+              if not result: return False
+              data,size,ratio=result
+              digest=hashlib.sha256(data).hexdigest()
+              if digest in existing_hashes: return False
+              existing_hashes.add(digest)
+              (OUT/f'{key}.png').write_bytes(data)
+              created.append(key)
+              print(f'{key}: {size[0]}x{size[1]}, transparent={ratio:.1%}')
+              return True
+
+          def sigstick(prefix, pack, count, start=0):
+              candidates=[]
+              for i in range(start, min(start+80,120)):
+                  for host in ('cdn.cdnstep.com','cdn2.cdnstep.com'):
+                      candidates.append((i, f'https://{host}/{pack}/{i}.thumb128.png'))
+              found={}
+              with ThreadPoolExecutor(max_workers=24) as ex:
+                  futs={ex.submit(get,url):(i,url) for i,url in candidates}
+                  for fut in as_completed(futs):
+                      i,_=futs[fut]
+                      raw=fut.result()
+                      if raw and i not in found: found[i]=raw
+              saved=0
+              for i in sorted(found):
+                  if saved>=count: break
+                  if save(f'{prefix}-{saved+1:02d}', found[i]): saved+=1
+              if saved != count: raise SystemExit(f'{prefix}: expected {count}, got {saved}, fetched indices={len(found)}')
+
+          sigstick('kuromi-pack','yHWLdH2iHKeLZpcA9fXE',14)
+          sigstick('cinnamoroll-pack','tMvS8n1yNstiBeI5x5of',14)
+          sigstick('pochacco-pack','g1d8xHkd5nRRtQg9tkbm',10,8)
+          sigstick('nachoneko-pack','RiUAgMEYfFbGY3pu9K0d',17)
+
+          article=get('https://www.bilibili.com/opus/647121893650858000','https://www.bilibili.com/')
+          if not article: raise SystemExit('failed to load Shizuku article')
+          html=article.decode('utf-8','ignore').replace('\\u002F','/')
+          urls=[]
+          for pattern in (r'https://i0\.hdslb\.com/bfs/article/[0-9a-f]+\.png', r'https://i0\.hdslb\.com/bfs/new_dyn/[0-9a-f]+\.png'):
+              for u in re.findall(pattern,html):
+                  if u not in urls: urls.append(u)
+          raws=[]
+          with ThreadPoolExecutor(max_workers=20) as ex:
+              futs={ex.submit(get,u,'https://www.bilibili.com/'):u for u in urls}
+              for fut in as_completed(futs):
+                  raw=fut.result()
+                  if raw: raws.append(raw)
+          saved=0
+          for raw in raws:
+              if saved>=17: break
+              if save(f'nekoha-shizuku-pack-{saved+1:02d}',raw): saved+=1
+          if saved!=17: raise SystemExit(f'nekoha-shizuku: expected 17 got {saved}; urls={len(urls)} raws={len(raws)}')
+
+          journal={'journal-heart-02':'2764','journal-star-02':'2B50','journal-clover-02':'1F340','journal-ribbon-02':'1F380','journal-rainbow-02':'1F308','journal-flower-02':'1F33C','journal-leaf-02':'1F343','journal-cloud-02':'2601'}
+          for key,code in journal.items():
+              raw=get(f'https://raw.githubusercontent.com/hfg-gmuend/openmoji/master/color/618x618/{code}.png','https://github.com/hfg-gmuend/openmoji')
+              if not raw or not save(key,raw): raise SystemExit(f'journal asset failed: {key}')
+          if len(created)!=80: raise SystemExit(f'expected 80 assets got {len(created)}')
+          PY
+      - name: Commit assets
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/message-stickers/*.png
+          git diff --cached --quiet && exit 0
+          git commit -m 'feat: add large categorized sticker artwork set'
+          git push origin HEAD:feat/sticker-categories-layering-expansion
