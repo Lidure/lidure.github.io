@@ -1,19 +1,73 @@
-name: Sticker expansion sync check
+name: Sticker expansion implementation check
 
 on:
   push:
     branches: [feat/expand-message-sticker-house]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  test:
+  patch-and-test:
+    if: github.actor != 'github-actions[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: feat/expand-message-sticker-house
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
+      - name: Add new sticker definitions to Worker
+        run: |
+          python <<'PY'
+          from pathlib import Path
+          path = Path('danmaku-api/src/message-stickers.ts')
+          source = path.read_text()
+          marker = "  'nachoneko-pizza-01': { width: 108, height: 82 },\n"
+          additions = [
+              "  'nekoha-shizuku-04': { width: 96, height: 96 },",
+              "  'nekoha-shizuku-05': { width: 96, height: 96 },",
+              "  'nekoha-shizuku-06': { width: 96, height: 96 },",
+              "  'nekoha-shizuku-07': { width: 96, height: 96 },",
+              "  'nachoneko-cry-02': { width: 96, height: 96 },",
+              "  'nachoneko-angry-02': { width: 96, height: 96 },",
+              "  'nachoneko-donut-02': { width: 96, height: 96 },",
+              "  'nachoneko-sorry-02': { width: 96, height: 96 },",
+              "  'pochacco-play-02': { width: 92, height: 92 },",
+              "  'pochacco-kawaii-03': { width: 92, height: 92 },",
+              "  'pochacco-fun-04': { width: 92, height: 92 },",
+              "  'pochacco-friends-05': { width: 92, height: 92 },",
+              "  'journal-sparkles-01': { width: 80, height: 80 },",
+              "  'journal-blossom-01': { width: 80, height: 80 },",
+          ]
+          if "'nekoha-shizuku-04'" in source:
+              raise SystemExit('new definitions already present; refusing duplicate patch')
+          if marker not in source:
+              raise SystemExit('Worker sticker insertion marker not found')
+          source = source.replace(marker, marker + '\n'.join(additions) + '\n', 1)
+          path.write_text(source)
+          PY
+      - name: Install root dependencies
+        run: npm ci
       - name: Run sticker contract
         run: node --test tests/message-board-public-stickers.test.mjs
+      - name: Run full site regression
+        run: npm test
+      - name: Install Worker dependencies
+        working-directory: danmaku-api
+        run: npm ci
+      - name: Run Worker tests
+        working-directory: danmaku-api
+        run: npm test
+      - name: Run Worker typecheck
+        working-directory: danmaku-api
+        run: npm run check
+      - name: Commit Worker allow-list
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add danmaku-api/src/message-stickers.ts
+          git commit -m 'feat: allow expanded message sticker catalog'
+          git push origin HEAD:feat/expand-message-sticker-house
