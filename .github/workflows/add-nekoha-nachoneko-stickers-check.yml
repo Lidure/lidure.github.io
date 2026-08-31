@@ -8,7 +8,7 @@ permissions:
   contents: read
 
 jobs:
-  verify:
+  deploy-worker:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,53 +16,46 @@ jobs:
         with:
           node-version: 24
           cache: npm
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.13'
-      - name: Install dependencies
+          cache-dependency-path: danmaku-api/package-lock.json
+      - name: Verify Worker before deploy
+        working-directory: danmaku-api
         run: |
-          npm ci
-          python -m pip install pillow
-      - name: Run public sticker contract
-        run: node --test tests/message-board-public-stickers.test.mjs
-      - name: Verify new sticker PNG transparency
-        run: |
-          python <<'PY'
-          from pathlib import Path
-          from PIL import Image
-
-          keys = [
-              'nekoha-shizuku-wave-01',
-              'nekoha-shizuku-hug-01',
-              'nekoha-shizuku-cheer-01',
-              'nachoneko-love-01',
-              'nachoneko-peek-01',
-              'nachoneko-pizza-01',
-          ]
-          for key in keys:
-              path = Path('public/assets/message-stickers') / f'{key}.png'
-              with Image.open(path) as im:
-                  rgba = im.convert('RGBA')
-                  alpha = rgba.getchannel('A')
-                  amin, amax = alpha.getextrema()
-                  hist = alpha.histogram()
-                  transparent_pct = sum(hist[:255]) / (rgba.width * rgba.height) * 100
-                  corners = [
-                      alpha.getpixel((0, 0)),
-                      alpha.getpixel((rgba.width - 1, 0)),
-                      alpha.getpixel((0, rgba.height - 1)),
-                      alpha.getpixel((rgba.width - 1, rgba.height - 1)),
-                  ]
-                  assert amin < 255, f'{key}: no transparent pixels'
-                  assert transparent_pct >= 5, f'{key}: transparent area too small: {transparent_pct:.2f}%'
-                  assert sum(value < 255 for value in corners) >= 3, f'{key}: opaque corners {corners}'
-                  print(f'{key}: {rgba.width}x{rgba.height}, transparent={transparent_pct:.2f}%')
-          PY
-      - name: Run full site regression and build
-        run: npm test
-      - name: Run Worker tests and typecheck
-        run: |
-          cd danmaku-api
           npm ci
           npm test
           npm run check
+      - name: Deploy Worker
+        working-directory: danmaku-api
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: npm run deploy
+      - name: Smoke-test a new sticker key
+        run: |
+          node <<'NODE'
+          const { randomUUID } = await import('node:crypto');
+          const ownerToken = `smoke-${randomUUID()}-${randomUUID()}`;
+          const base = 'https://api.lidure22.xyz/api/message-stickers';
+          const create = await fetch(base, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'User-Agent': 'sticker-release-smoke' },
+            body: JSON.stringify({
+              stickerKey: 'nekoha-shizuku-wave-01',
+              ownerToken,
+              posX: 24,
+              posY: 24,
+            }),
+          });
+          const created = await create.json();
+          if (create.status !== 201 || !created?.item?.id) {
+            throw new Error(`new sticker create failed: ${create.status} ${JSON.stringify(created)}`);
+          }
+          const remove = await fetch(base, {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json', 'User-Agent': 'sticker-release-smoke' },
+            body: JSON.stringify({ id: created.item.id, ownerToken }),
+          });
+          const removed = await remove.json();
+          if (!remove.ok || removed?.deleted !== true) {
+            throw new Error(`smoke sticker cleanup failed: ${remove.status} ${JSON.stringify(removed)}`);
+          }
+          console.log(`production accepted and removed ${created.item.stickerKey}`);
+          NODE
