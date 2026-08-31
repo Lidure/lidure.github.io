@@ -1,0 +1,22 @@
+name: Add Nekoha and Nachoneko stickers check
+
+on:
+  push:
+    branches: [feat/add-nekoha-nachoneko-stickers]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run sticker contract
+        run: node --test tests/message-board-public-stickers.test.mjs
