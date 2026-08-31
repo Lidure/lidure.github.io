@@ -21,23 +21,11 @@ jobs:
           cache: npm
       - name: Remove redundant drag hint
         run: |
-          python <<'PY'
-          from pathlib import Path
-          path = Path('src/lib/message-sticker-controller.ts')
-          source = path.read_text()
-          old = """    const hint = document.createElement('button');
-    hint.type = 'button';
-    hint.textContent = '拖动整理';
-    hint.addEventListener('pointerdown', (event) => event.stopPropagation());
-    hint.addEventListener('click', (event) => { event.stopPropagation(); }, { signal });
-"""
-          if old not in source:
-              raise SystemExit('drag hint block not found')
-          source = source.replace(old, '', 1)
-          source = source.replace('    actions.append(hint, remove);', '    actions.append(remove);', 1)
-          source = source.replace('`${definition.character}公共贴纸，可点击管理或拖动`', '`${definition.character}公共贴纸，可点击删除或直接拖动`', 1)
-          path.write_text(source)
-          PY
+          perl -0pi -e "s/    const hint = document\.createElement\('button'\);\n    hint\.type = 'button';\n    hint\.textContent = '拖动整理';\n    hint\.addEventListener\('pointerdown', \(event\) => event\.stopPropagation\(\)\);\n    hint\.addEventListener\('click', \(event\) => \{ event\.stopPropagation\(\); \}, \{ signal \}\);\n//" src/lib/message-sticker-controller.ts
+          perl -pi -e "s/actions\.append\(hint, remove\);/actions.append(remove);/" src/lib/message-sticker-controller.ts
+          perl -pi -e "s/可点击管理或拖动/可点击删除或直接拖动/" src/lib/message-sticker-controller.ts
+          grep -q "remove.textContent = '删除'" src/lib/message-sticker-controller.ts
+          ! grep -q "拖动整理" src/lib/message-sticker-controller.ts
       - name: Commit production change
         run: |
           git config user.name 'github-actions[bot]'
