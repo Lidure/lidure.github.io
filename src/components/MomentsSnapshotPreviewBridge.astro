@@ -97,6 +97,8 @@
       image.src = fallback;
     }, true);
 
+    if (!('popover' in HTMLElement.prototype)) return;
+
     function enhanceSnapshotButtons() {
       scheduled = false;
       const buttons = Array.from(shell.querySelectorAll<HTMLButtonElement>('.moments-side-photo:not([data-native-snapshot])'));
