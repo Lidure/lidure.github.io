@@ -12,7 +12,7 @@ function replaceOnce(before, after, label) {
 
 replaceOnce(
   `];\n\nconst DEFAULT_INTERVAL = 15000;`,
-  `];\n\nconst WALLPAPER_WIDTHS = [640, 960, 1280, 1920];\n\nfunction wallpaperVariantStem(src: string) {\n  const filename = src.split('/').pop() || 'wallpaper';\n  const dot = filename.lastIndexOf('.');\n  const stem = dot > 0 ? filename.slice(0, dot) : filename;\n  return stem\n    .replace(/[^A-Za-z0-9_-]+/g, '-')\n    .replace(/^-+|-+$/g, '') || 'wallpaper';\n}\n\nconst defaultImageSrcsets = Object.fromEntries(\n  defaultImages\n    .filter((src) => /^\\/assets\\/wallpapers\\/.+\\.(?:jpe?g|png|webp|avif)$/i.test(src))\n    .map((src) => [\n      src,\n      WALLPAPER_WIDTHS\n        .map((width) => \\`/assets/wallpapers/generated/\\${wallpaperVariantStem(src)}-\\${width}.webp \\${width}w\\`)\n        .join(', '),\n    ]),\n);\n\nconst DEFAULT_INTERVAL = 15000;`,
+  `];\n\nconst WALLPAPER_WIDTHS = [640, 960, 1280, 1920];\n\nfunction wallpaperVariantStem(src: string) {\n  const filename = src.split('/').pop() || 'wallpaper';\n  const dot = filename.lastIndexOf('.');\n  const stem = dot > 0 ? filename.slice(0, dot) : filename;\n  return stem\n    .replace(/[^A-Za-z0-9_-]+/g, '-')\n    .replace(/^-+|-+$/g, '') || 'wallpaper';\n}\n\nconst defaultImageSrcsets = Object.fromEntries(\n  defaultImages\n    .filter((src) => /^\\/assets\\/wallpapers\\/.+\\.(?:jpe?g|png|webp|avif)$/i.test(src))\n    .map((src) => [\n      src,\n      WALLPAPER_WIDTHS\n        .map((width) =>\n          '/assets/wallpapers/generated/' +\n          wallpaperVariantStem(src) +\n          '-' + width + '.webp ' + width + 'w'\n        )\n        .join(', '),\n    ]),\n);\n\nconst DEFAULT_INTERVAL = 15000;`,
   'frontmatter responsive source map',
 );
 
