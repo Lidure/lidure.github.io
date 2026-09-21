@@ -26,6 +26,32 @@ const defaultImages: string[] = [
   '/assets/wallpapers/output.mp4'
 ];
 
+const WALLPAPER_WIDTHS = [640, 960, 1280, 1920];
+
+function wallpaperVariantStem(src: string) {
+  const filename = src.split('/').pop() || 'wallpaper';
+  const dot = filename.lastIndexOf('.');
+  const stem = dot > 0 ? filename.slice(0, dot) : filename;
+  return stem
+    .replace(/[^A-Za-z0-9_-]+/g, '-')
+    .replace(/^-+|-+$/g, '') || 'wallpaper';
+}
+
+const defaultImageSrcsets = Object.fromEntries(
+  defaultImages
+    .filter((src) => /^\/assets\/wallpapers\/.+\.(?:jpe?g|png|webp|avif)$/i.test(src))
+    .map((src) => [
+      src,
+      WALLPAPER_WIDTHS
+        .map((width) =>
+          '/assets/wallpapers/generated/' +
+          wallpaperVariantStem(src) +
+          '-' + width + '.webp ' + width + 'w'
+        )
+        .join(', '),
+    ]),
+);
+
 const DEFAULT_INTERVAL = 15000;
 const DEFAULT_OPACITY = 0.45;
 ---
@@ -35,6 +61,8 @@ const DEFAULT_OPACITY = 0.45;
   id="hero-slideshow"
   transition:persist
   data-defaults={JSON.stringify(defaultImages)}
+  data-srcset={JSON.stringify(defaultImageSrcsets)}
+  data-sizes="100vw"
   data-default-interval={String(DEFAULT_INTERVAL)}
   data-default-opacity={String(DEFAULT_OPACITY)}
 >
@@ -747,6 +775,10 @@ const DEFAULT_OPACITY = 0.45;
     _destroyed = false;
 
     var defaults = JSON.parse(container.dataset.defaults || '[]');
+    var defaultImageSrcsets = {};
+    try { defaultImageSrcsets = JSON.parse(container.dataset.srcset || '{}'); } catch (e) {}
+    var defaultImageSizes = container.dataset.sizes || '100vw';
+    var responsiveImagePreloads = Object.create(null);
     var defInterval = parseInt(container.dataset.defaultInterval || '15000', 10);
     var defOpacity = parseFloat(container.dataset.defaultOpacity || '0.45');
 
@@ -1095,6 +1127,42 @@ const DEFAULT_OPACITY = 0.45;
       return defaults.concat(custom);
     }
 
+    function prepareWallpaperImage(src, priority, sizesOverride) {
+      var img = new Image();
+      var srcset = defaultImageSrcsets[src];
+      if (srcset) {
+        img.srcset = srcset;
+        img.sizes = sizesOverride || defaultImageSizes;
+      }
+      img.decoding = 'async';
+      if (priority === 'high') img.setAttribute('fetchpriority', 'high');
+      else if (priority === 'low') img.setAttribute('fetchpriority', 'low');
+      img.src = src;
+      return img;
+    }
+
+    function prefetchNextImage(index) {
+      if (_destroyed || !state.autoplay) return;
+      var imgs = allImages();
+      if (imgs.length < 2) return;
+      var nextSrc = imgs[(index + 1) % imgs.length];
+      if (!nextSrc || isVideo(nextSrc) || responsiveImagePreloads[nextSrc]) return;
+
+      responsiveImagePreloads[nextSrc] = true;
+      var warmImage = function() {
+        if (_destroyed) return;
+        var img = prepareWallpaperImage(nextSrc, 'low');
+        responsiveImagePreloads[nextSrc] = img;
+        img.onerror = function() { delete responsiveImagePreloads[nextSrc]; };
+      };
+
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(warmImage, { timeout: 4000 });
+      } else {
+        window.setTimeout(warmImage, 1500);
+      }
+    }
+
     function save() {
       try {
         var payload = {
@@ -1314,8 +1382,7 @@ const DEFAULT_OPACITY = 0.45;
           mark.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>';
           card.appendChild(mark);
         } else {
-          var img = document.createElement('img');
-          img.src = src;
+          var img = prepareWallpaperImage(src, 'low', '(max-width: 480px) 140px, 200px');
           img.alt = '';
           img.loading = 'lazy';
           img.onerror = function() { img.style.opacity = '0.3'; };
@@ -1562,13 +1629,14 @@ const DEFAULT_OPACITY = 0.45;
       if (isVideo(src)) {
         showSlide(src);
       } else {
-        var img = new Image();
+        var img = prepareWallpaperImage(src, 'high');
         img.onload = function() {
           if (!_destroyed) {
-            showSlide(img.src);
+            showSlide(img.currentSrc || img.src || src);
             if (imgs.length > 1) {
               var nextSrc = imgs[(index + 1) % imgs.length];
               scheduleVideoPreload(nextSrc);
+              prefetchNextImage(index);
             }
           }
         };
@@ -1578,7 +1646,6 @@ const DEFAULT_OPACITY = 0.45;
             loadAt(idx);
           }
         };
-        img.src = src;
       }
 
       // Preload next slide's video in the background

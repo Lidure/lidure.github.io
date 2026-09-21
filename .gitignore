@@ -12,6 +12,7 @@ dist
 !public/favicon.png
 .tmp/
 public/music/
+public/assets/wallpapers/generated/
 music-proxy/
 danmaku-api/.wrangler/
 
