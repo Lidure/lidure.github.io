@@ -27,20 +27,23 @@ jobs:
 
           path = Path('src/components/HeroSlideshow.astro')
           source = path.read_text()
-          replacement = """const defaultImages: string[] = [
-  '/assets/wallpapers/953c5e02532e4eeb9ec758e7fd7e8ad3.jpg',
-  '/assets/wallpapers/miku_star.mp4',
-  '/assets/wallpapers/1b87e2c5880511ebb6edd017c2d2eca2.png',
-  '/assets/wallpapers/wallhaven-1p9z61.jpg',
-  '/assets/wallpapers/25_1(1).png',
-  '/assets/wallpapers/25_2.jpg',
-  '/assets/wallpapers/shizuku.jpg',
-  '/assets/wallpapers/B292469EBE40CB0DE50A866C73C61F81.jpg',
-  '/assets/wallpapers/miku_ying1.mp4',
-  '/assets/wallpapers/3dmiku1.mp4',
-  '/assets/wallpapers/snow.mp4',
-  '/assets/wallpapers/output.mp4'
-];"""
+          lines = [
+              'const defaultImages: string[] = [',
+              "  '/assets/wallpapers/953c5e02532e4eeb9ec758e7fd7e8ad3.jpg',",
+              "  '/assets/wallpapers/miku_star.mp4',",
+              "  '/assets/wallpapers/1b87e2c5880511ebb6edd017c2d2eca2.png',",
+              "  '/assets/wallpapers/wallhaven-1p9z61.jpg',",
+              "  '/assets/wallpapers/25_1(1).png',",
+              "  '/assets/wallpapers/25_2.jpg',",
+              "  '/assets/wallpapers/shizuku.jpg',",
+              "  '/assets/wallpapers/B292469EBE40CB0DE50A866C73C61F81.jpg',",
+              "  '/assets/wallpapers/miku_ying1.mp4',",
+              "  '/assets/wallpapers/3dmiku1.mp4',",
+              "  '/assets/wallpapers/snow.mp4',",
+              "  '/assets/wallpapers/output.mp4'",
+              '];',
+          ]
+          replacement = '\n'.join(lines)
           updated, count = re.subn(r"const defaultImages: string\[\] = \[[\s\S]*?\n\];", replacement, source, count=1)
           if count != 1:
               raise SystemExit('defaultImages block not found exactly once')
