@@ -47,8 +47,8 @@ test('background library defers thumbnail media work until the panel is opened',
 
   assert.match(
     hero,
-    /function syncUI\(\)\s*\{[\s\S]*?if \(mediaPanel && mediaPanel\.classList\.contains\('open'\)\) renderList\(\);/,
-    'syncUI should not build the media library while its panel is closed',
+    /function syncUI\(\)\s*\{[\s\S]*?mediaCount\.textContent = String\(allImages\(\)\.length\);[\s\S]*?if \(mediaPanel && mediaPanel\.classList\.contains\('open'\)\) renderList\(\);/,
+    'syncUI should keep the count current without building the closed media library',
   );
   assert.match(
     hero,
