@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 
 const readSource = (path) => readFileSync(new URL(`../${path}`, import.meta.url), 'utf8');
@@ -25,4 +25,19 @@ test('fullscreen wallpaper parent is neutral so only the image blur ramp control
   assert.ok(match, 'fullscreen/overlay hero-slideshow rule should exist');
   assert.match(match[1], /filter:\s*none/);
   assert.match(match[1], /transform:\s*none/);
+});
+
+test('all built-in wallpaper media is served from same-origin local assets', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+  const defaultBlock = hero.match(/const defaultImages: string\[\] = \[([\s\S]*?)\n\];/);
+  assert.ok(defaultBlock, 'HeroSlideshow should expose a defaultImages list');
+
+  const urls = [...defaultBlock[1].matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1]);
+  assert.equal(urls.length, 12, 'expected all 12 built-in wallpapers/videos to remain available');
+  assert.doesNotMatch(defaultBlock[1], /https?:\/\//, 'built-in wallpaper defaults must not depend on remote hosts');
+
+  for (const url of urls) {
+    assert.match(url, /^\/assets\/wallpapers\/[A-Za-z0-9._()-]+$/);
+    assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), `missing local wallpaper asset: ${url}`);
+  }
 });
