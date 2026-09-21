@@ -29,6 +29,6 @@ test('build prepares responsive WebP variants from the existing local wallpapers
   assert.match(pkg.scripts['test:site'], /firefly-wallpaper-loading\.test\.mjs/);
   assert.match(generator, /from ['"]sharp['"]/);
   assert.match(generator, /\[640,\s*960,\s*1280,\s*1920\]/);
-  assert.match(generator, /assets[\\/]wallpapers[\\/]generated/);
+  assert.match(generator, /path\.join\(WALLPAPER_DIR,\s*['"]generated['"]\)/);
   assert.match(generator, /\.webp\(/);
 });
