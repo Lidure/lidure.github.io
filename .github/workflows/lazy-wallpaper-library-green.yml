@@ -1,0 +1,63 @@
+name: Lazy wallpaper library GREEN
+
+on:
+  push:
+    branches: [perf/lazy-wallpaper-library]
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-verify:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/lazy-wallpaper-library
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Defer background library thumbnails
+        run: |
+          python <<'PY'
+          from pathlib import Path
+
+          path = Path('src/components/HeroSlideshow.astro')
+          source = path.read_text()
+
+          old_preload = "      vid.preload = 'auto';"
+          new_preload = "      vid.preload = 'metadata';"
+          if source.count(old_preload) != 1:
+              raise SystemExit(f'expected exactly one eager thumbnail preload, got {source.count(old_preload)}')
+          source = source.replace(old_preload, new_preload, 1)
+
+          old_sync = "      qualitySelect.value = state.quality;\n      renderList();\n      applyOverlay();"
+          new_sync = "      qualitySelect.value = state.quality;\n      if (mediaCount) mediaCount.textContent = String(allImages().length);\n      if (mediaPanel && mediaPanel.classList.contains('open')) renderList();\n      applyOverlay();"
+          if old_sync not in source:
+              raise SystemExit('syncUI render block not found')
+          source = source.replace(old_sync, new_sync, 1)
+
+          old_open = "        settingsPanel.classList.remove('open');\n        mediaPanel.classList.add('open');"
+          new_open = "        settingsPanel.classList.remove('open');\n        mediaPanel.classList.add('open');\n        renderList();"
+          if old_open not in source:
+              raise SystemExit('media library open handler not found')
+          source = source.replace(old_open, new_open, 1)
+
+          path.write_text(source)
+          PY
+      - name: Install dependencies
+        run: npm ci
+      - name: Verify lazy wallpaper contract
+        run: node --test tests/native-wallpaper-image.test.mjs
+      - name: Run full site regression
+        run: npm test
+      - name: Commit lazy background library behavior
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/components/HeroSlideshow.astro
+          git diff --cached --quiet && exit 0
+          git commit -m 'perf: defer background library thumbnails'
+          git push origin HEAD:perf/lazy-wallpaper-library
