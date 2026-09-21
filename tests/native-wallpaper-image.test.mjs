@@ -41,3 +41,23 @@ test('all built-in wallpaper media is served from same-origin local assets', () 
     assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), `missing local wallpaper asset: ${url}`);
   }
 });
+
+test('background library defers thumbnail media work until the panel is opened', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+
+  assert.match(
+    hero,
+    /function syncUI\(\)\s*\{[\s\S]*?if \(mediaPanel && mediaPanel\.classList\.contains\('open'\)\) renderList\(\);/,
+    'syncUI should not build the media library while its panel is closed',
+  );
+  assert.match(
+    hero,
+    /mediaManageBtn\.addEventListener\('click',[\s\S]*?mediaPanel\.classList\.add\('open'\);[\s\S]*?renderList\(\);/,
+    'opening the background library should build the thumbnails on demand',
+  );
+
+  const thumbnailBlock = hero.match(/function drawVideoThumbnail\([\s\S]*?\n    \}/);
+  assert.ok(thumbnailBlock, 'drawVideoThumbnail should exist');
+  assert.match(thumbnailBlock[0], /vid\.preload = 'metadata'/);
+  assert.doesNotMatch(thumbnailBlock[0], /vid\.preload = 'auto'/);
+});
