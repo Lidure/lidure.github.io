@@ -26,6 +26,8 @@ test('build prepares responsive WebP variants from the existing local wallpapers
 
   assert.equal(pkg.scripts.prebuild, 'node scripts/generate-wallpaper-variants.mjs');
   assert.equal(pkg.scripts.predev, 'node scripts/generate-wallpaper-variants.mjs');
+  assert.equal(pkg.scripts.prestart, 'node scripts/generate-wallpaper-variants.mjs');
+  assert.match(pkg.dependencies.sharp, /^\^0\.34\./);
   assert.match(pkg.scripts['test:site'], /firefly-wallpaper-loading\.test\.mjs/);
   assert.match(generator, /from ['"]sharp['"]/);
   assert.match(generator, /\[640,\s*960,\s*1280,\s*1920\]/);
