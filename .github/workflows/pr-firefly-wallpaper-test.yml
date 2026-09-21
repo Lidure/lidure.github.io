@@ -5,7 +5,7 @@ on:
     branches: [codex/firefly-wallpaper-loading]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   test:
@@ -15,15 +15,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - name: Apply implementation once
-        run: |
-          if ! grep -q 'data-srcset=' src/components/HeroSlideshow.astro; then
-            node scripts/apply-firefly-wallpaper-loading.mjs
-            git config user.name 'github-actions[bot]'
-            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-            git add src/components/HeroSlideshow.astro
-            git commit -m 'perf: use responsive wallpaper candidates'
-            git push
-          fi
-      - name: Run wallpaper loading contract
-        run: node --test tests/firefly-wallpaper-loading.test.mjs
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run full test suite
+        run: npm test
