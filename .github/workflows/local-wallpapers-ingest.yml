@@ -1,0 +1,69 @@
+name: Local wallpapers ingest
+
+on:
+  push:
+    branches: [perf/localize-default-wallpapers]
+
+permissions:
+  contents: write
+
+jobs:
+  ingest:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/localize-default-wallpapers
+      - name: Download built-in wallpapers and videos
+        run: |
+          set -euo pipefail
+          mkdir -p public/assets/wallpapers
+          python <<'PY'
+          from pathlib import Path
+          import urllib.request
+
+          items = [
+              ('953c5e02532e4eeb9ec758e7fd7e8ad3.jpg', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/953c5e02532e4eeb9ec758e7fd7e8ad3.jpg'),
+              ('miku_star.mp4', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/miku_star.mp4'),
+              ('1b87e2c5880511ebb6edd017c2d2eca2.png', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/1b87e2c5880511ebb6edd017c2d2eca2.png'),
+              ('wallhaven-1p9z61.jpg', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/wallhaven-1p9z61.jpg'),
+              ('25_1(1).png', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_1(1).png'),
+              ('25_2.jpg', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/25_2.jpg'),
+              ('shizuku.jpg', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/shizuku.jpg'),
+              ('B292469EBE40CB0DE50A866C73C61F81.jpg', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/B292469EBE40CB0DE50A866C73C61F81.jpg'),
+              ('miku_ying1.mp4', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/miku_ying1.mp4'),
+              ('3dmiku1.mp4', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/3dmiku1.mp4'),
+              ('snow.mp4', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/snow.mp4'),
+              ('output.mp4', 'https://pub-6108779417b647c592c51538e44c8bd0.r2.dev/%E8%83%8C%E6%99%AF%E5%9B%BE/output.mp4'),
+          ]
+
+          out = Path('public/assets/wallpapers')
+          total = 0
+          for name, url in items:
+              path = out / name
+              req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+              with urllib.request.urlopen(req, timeout=120) as response, path.open('wb') as fh:
+                  while True:
+                      chunk = response.read(1024 * 1024)
+                      if not chunk:
+                          break
+                      fh.write(chunk)
+              size = path.stat().st_size
+              total += size
+              mib = size / 1024 / 1024
+              print(f'{name}: {mib:.2f} MiB')
+              if size <= 0:
+                  raise SystemExit(f'{name}: empty download')
+              if size >= 95 * 1024 * 1024:
+                  raise SystemExit(f'{name}: {mib:.2f} MiB exceeds safe GitHub per-file threshold')
+          print(f'total: {total / 1024 / 1024:.2f} MiB')
+          PY
+      - name: Commit local wallpaper media
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add public/assets/wallpapers
+          git diff --cached --quiet && exit 0
+          git commit -m 'assets: localize all built-in wallpaper media'
+          git push origin HEAD:perf/localize-default-wallpapers
