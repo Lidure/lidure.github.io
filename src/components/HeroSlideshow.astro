@@ -1003,7 +1003,7 @@ const DEFAULT_OPACITY = 0.45;
       vid.className = 'media-card-poster';
       vid.muted = true;
       vid.playsInline = true;
-      vid.preload = 'auto';
+      vid.preload = 'metadata';
       vid.controls = false;
       vid.setAttribute('aria-hidden', 'true');
       vid.addEventListener('loadedmetadata', function() {
@@ -1238,7 +1238,8 @@ const DEFAULT_OPACITY = 0.45;
       opacityRange.value = Math.round(state.opacity * 100);
       opacityVal.textContent = Math.round(state.opacity * 100) + '%';
       qualitySelect.value = state.quality;
-      renderList();
+      if (mediaCount) mediaCount.textContent = String(allImages().length);
+      if (mediaPanel && mediaPanel.classList.contains('open')) renderList();
       applyOverlay();
       document.dispatchEvent(new CustomEvent('lidure:sakura-setting', { detail: { enabled: state.sakura } }));
     }
@@ -1750,6 +1751,7 @@ const DEFAULT_OPACITY = 0.45;
       mediaManageBtn.addEventListener('click', function() {
         settingsPanel.classList.remove('open');
         mediaPanel.classList.add('open');
+        renderList();
       });
     }
 
