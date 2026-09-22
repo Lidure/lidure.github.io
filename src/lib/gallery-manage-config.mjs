@@ -7,6 +7,7 @@ export const GITHUB_API_ROOT = `https://api.github.com/repos/${GALLERY_REPOSITOR
 
 export function githubApi(path = '') {
   const suffix = String(path || '');
+  if (!suffix) return GITHUB_API_ROOT;
   return `${GITHUB_API_ROOT}${suffix.startsWith('/') ? suffix : `/${suffix}`}`;
 }
 
