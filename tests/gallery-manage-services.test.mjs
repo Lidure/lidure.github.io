@@ -4,6 +4,7 @@ import {
   createGalleryGitHubClient,
 } from '../src/lib/gallery-github-client.mjs';
 import {
+  GALLERY_INDEX_ALGORITHM,
   GALLERY_INDEX_PATH,
   nextGlobalImageNumber,
   planUploadPaths,
@@ -54,11 +55,26 @@ test('GitHub client categorizes auth and rate-limit errors without token text', 
   await assert.rejects(limited.getBranchSnapshot(), (error) => error.code === 'rate-limit');
 });
 
-test('Gallery index keeps manifest shape and global numbering across categories', () => {
+test('Gallery index preserves the existing Cloud manifest schema and algorithm', () => {
   assert.equal(GALLERY_INDEX_PATH, 'gallery/gallery_index.json');
-  const parsed = parseGalleryIndex({ files: { 'gallery/A/1.png': 'aa' } });
-  assert.deepEqual(parsed, { 'gallery/A/1.png': 'aa' });
-  assert.deepEqual(JSON.parse(serializeGalleryIndex(parsed)), { files: parsed });
+  assert.equal(GALLERY_INDEX_ALGORITHM, 'dhash64-nn-white-v1');
+  const payload = {
+    version: 1,
+    algorithm: GALLERY_INDEX_ALGORITHM,
+    files: {
+      'gallery/A/1.png': { perceptual_hash: '0011223344556677' },
+    },
+  };
+  const parsed = parseGalleryIndex(payload);
+  assert.deepEqual(parsed, { 'gallery/A/1.png': '0011223344556677' });
+  assert.deepEqual(JSON.parse(serializeGalleryIndex(parsed)), payload);
+  assert.throws(
+    () => parseGalleryIndex({ ...payload, algorithm: 'average-hash-v0' }),
+    /算法不兼容/,
+  );
+});
+
+test('Gallery path planning keeps global numbering across categories', () => {
   const tree = [
     { type: 'blob', path: 'gallery/A/8.png' },
     { type: 'blob', path: 'gallery/B/12.gif' },
