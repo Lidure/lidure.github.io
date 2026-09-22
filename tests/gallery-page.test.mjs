@@ -1,0 +1,28 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import test from 'node:test';
+
+const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+
+test('gallery route joins Blog navigation and responsive styling', async () => {
+  const [page, header, css] = await Promise.all([
+    read('src/pages/gallery.astro'),
+    read('src/components/SiteHeader.astro'),
+    read('src/styles/gallery.css'),
+  ]);
+  assert.match(header, /href:\s*['"]\/gallery['"][^}]*label:\s*['"]画廊['"]/);
+  assert.match(page, /BaseLayout/);
+  assert.match(page, /GalleryBrowser/);
+  assert.match(page, /GalleryLightbox/);
+  assert.match(page, /GalleryManager/);
+  assert.match(page, /gallery\.css/);
+  assert.match(css, /\.gallery-grid/);
+  assert.match(css, /grid-template-columns/);
+  assert.match(css, /repeat\(5,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*repeat\(4,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width:\s*900px\)[\s\S]*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
+  assert.match(css, /\.gallery-manager-overlay/);
+  assert.match(css, /\.gallery-lightbox/);
+});
