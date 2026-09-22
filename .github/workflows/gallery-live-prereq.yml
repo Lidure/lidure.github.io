@@ -1,0 +1,34 @@
+name: Gallery Live Prerequisite
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify-cloud:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify live Gallery Cloud framing policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          headers="$(curl -fsSI --retry 3 --retry-delay 2 https://airigallery.lidure22.xyz/ | tr -d '\r')"
+          printf '%s\n' "$headers"
+          printf '%s\n' "$headers" | grep -i '^content-security-policy:' | grep -F 'frame-ancestors https://lidure22.xyz'
+          if printf '%s\n' "$headers" | grep -qi '^x-frame-options:.*deny'; then
+            echo 'Gallery Cloud still sends X-Frame-Options: DENY' >&2
+            exit 1
+          fi
+
+      - name: Verify public gallery manifest is reachable and parseable
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL --retry 3 --retry-delay 2 \
+            https://raw.githubusercontent.com/Lidure/airi-gallery-images/main/gallery/gallery_index.json \
+            -o /tmp/gallery_index.json
+          node -e "const fs=require('fs'); const v=JSON.parse(fs.readFileSync('/tmp/gallery_index.json','utf8')); if(!v.files || Array.isArray(v.files) || typeof v.files!=='object') process.exit(1); console.log('manifest images:', Object.keys(v.files).length);"
