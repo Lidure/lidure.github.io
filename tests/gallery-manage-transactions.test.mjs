@@ -8,11 +8,23 @@ test('git blob sha uses Git object framing', async () => {
   assert.equal(await gitBlobSha(blob), 'b6fc4c620b67d95f953a5c1c1230aaab5db5a1b0');
 });
 
-test('perceptual hash is deterministic for injected grayscale pixels', async () => {
-  const pixels = Uint8Array.from({ length: 64 }, (_, index) => index);
-  const hash = await perceptualHash(new Blob(['x']), { readGray8x8: async () => pixels });
-  assert.match(hash, /^[0-9a-f]{16}$/);
-  assert.equal(hash, await perceptualHash(new Blob(['y']), { readGray8x8: async () => pixels }));
+test('perceptual hash matches Cloud dhash64 left-greater-than-right semantics', async () => {
+  const descending = new Uint8Array(72);
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 9; x++) descending[y * 9 + x] = 9 - x;
+  }
+  const ascending = new Uint8Array(72);
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 9; x++) ascending[y * 9 + x] = x;
+  }
+  assert.equal(
+    await perceptualHash(new Blob(['x']), { readGray9x8: async () => descending }),
+    'ffffffffffffffff',
+  );
+  assert.equal(
+    await perceptualHash(new Blob(['y']), { readGray9x8: async () => ascending }),
+    '0000000000000000',
+  );
 });
 
 function makeDeleteHarness() {
@@ -29,7 +41,7 @@ function makeDeleteHarness() {
     if (method === 'POST' && path.endsWith('/git/blobs')) return { data: { sha: 'manifest-new' } };
     if (method === 'POST' && path.endsWith('/git/trees')) return { data: { sha: 'tree-new' } };
     if (method === 'POST' && path.endsWith('/git/commits')) return { data: { sha: 'commit-new' } };
-    if (method === 'PATCH' && path.endsWith('/git/refs/heads/main')) return { data: { object: { sha: 'commit-new' } } };
+    if (method === 'PATCH' && path.endsWith('/git/refs/heads/main')) return { data: { object: { sha: 'commit-new' } };
     throw new Error(`unexpected ${method} ${path}`);
   };
   return { calls, request };
