@@ -1,6 +1,7 @@
 import { isSafeManagedCategory, isSafeManagedImagePath } from './gallery-manage-config.mjs';
 
 export const GALLERY_INDEX_PATH = 'gallery/gallery_index.json';
+export const GALLERY_INDEX_ALGORITHM = 'dhash64-nn-white-v1';
 
 const EXTENSIONS = new Set(['.bmp', '.gif', '.jpeg', '.jpg', '.jfif', '.png', '.tif', '.tiff', '.webp']);
 
@@ -21,25 +22,35 @@ function imageNumber(path) {
 }
 
 export function parseGalleryIndex(payload) {
-  const files = payload?.files;
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error('图库感知索引格式无效');
+  if (payload.algorithm && payload.algorithm !== GALLERY_INDEX_ALGORITHM) {
+    throw new Error(`图库感知索引算法不兼容：${payload.algorithm}`);
+  }
+  const files = payload.files;
   if (!files || typeof files !== 'object' || Array.isArray(files)) throw new Error('图库感知索引格式无效');
   const result = {};
-  for (const [path, hash] of Object.entries(files)) {
+  for (const [path, entry] of Object.entries(files)) {
     if (!isSafeManagedImagePath(path)) continue;
-    if (typeof hash !== 'string' || !/^[0-9a-f]+$/i.test(hash)) continue;
+    const hash = typeof entry === 'string' ? entry : entry?.perceptual_hash;
+    if (typeof hash !== 'string' || !/^[0-9a-f]{16}$/i.test(hash)) continue;
     result[path] = hash.toLowerCase();
   }
   return result;
 }
 
 export function serializeGalleryIndex(index) {
-  const safe = {};
+  const entries = [];
   for (const [path, hash] of Object.entries(index || {})) {
-    if (isSafeManagedImagePath(path) && typeof hash === 'string' && /^[0-9a-f]+$/i.test(hash)) {
-      safe[path] = hash.toLowerCase();
+    if (isSafeManagedImagePath(path) && typeof hash === 'string' && /^[0-9a-f]{16}$/i.test(hash)) {
+      entries.push([path, { perceptual_hash: hash.toLowerCase() }]);
     }
   }
-  return JSON.stringify({ files: safe }, null, 2) + '\n';
+  entries.sort(([left], [right]) => left.localeCompare(right));
+  return JSON.stringify({
+    version: 1,
+    algorithm: GALLERY_INDEX_ALGORITHM,
+    files: Object.fromEntries(entries),
+  });
 }
 
 export function nextGlobalImageNumber(tree) {
@@ -65,7 +76,7 @@ export function planUploadPaths(tree, category, files) {
 export function addIndexEntries(index, planned) {
   const next = { ...(index || {}) };
   for (const item of planned || []) {
-    if (!isSafeManagedImagePath(item?.path) || typeof item?.perceptualHash !== 'string') {
+    if (!isSafeManagedImagePath(item?.path) || typeof item?.perceptualHash !== 'string' || !/^[0-9a-f]{16}$/i.test(item.perceptualHash)) {
       throw new Error('待写入的图库索引项无效');
     }
     next[item.path] = item.perceptualHash.toLowerCase();
