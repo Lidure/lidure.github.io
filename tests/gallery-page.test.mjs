@@ -26,3 +26,12 @@ test('gallery route joins Blog navigation and responsive styling', async () => {
   assert.match(css, /\.gallery-manager-overlay/);
   assert.match(css, /\.gallery-lightbox/);
 });
+
+test('gallery shell neutralizes Grid automatic minimum sizing', async () => {
+  const css = await read('src/styles/gallery.css');
+  assert.match(
+    css,
+    /\.gallery-page-shell\s*\{[^}]*\bmin-width:\s*0\s*;/s,
+    'the page shell must allow the parent Grid track to shrink instead of using the category strip min-content width',
+  );
+});
