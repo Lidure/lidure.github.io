@@ -1,0 +1,42 @@
+<section class="gallery-browser" id="gallery-browser-root" aria-labelledby="gallery-title">
+  <header class="gallery-browser-head">
+    <div>
+      <p class="gallery-eyebrow">Airi Gallery</p>
+      <h1 id="gallery-title">画廊</h1>
+      <p class="gallery-summary">收集喜欢的画面、角色与瞬间。</p>
+    </div>
+    <button id="gallery-refresh" class="gallery-refresh" type="button">刷新图库</button>
+  </header>
+
+  <div id="gallery-notice" class="gallery-notice" role="status" aria-live="polite"></div>
+  <nav id="gallery-category-tabs" class="gallery-category-tabs" aria-label="图库分类"></nav>
+  <div id="gallery-grid" class="gallery-grid" aria-live="polite"></div>
+  <nav id="gallery-pager" class="gallery-pager" aria-label="图库分页"></nav>
+</section>
+
+<script>
+  import { initGalleryBrowser } from '../lib/gallery-browser-controller.mjs';
+
+  const galleryWindow = window as any;
+
+  function cleanupGalleryBrowser() {
+    const root = document.getElementById('gallery-browser-root') as any;
+    root?.__galleryBrowserCleanup?.();
+    if (root) root.__galleryBrowserCleanup = null;
+  }
+
+  function mountGalleryBrowser() {
+    const root = document.getElementById('gallery-browser-root') as any;
+    if (!root) return;
+    root.__galleryBrowserCleanup?.();
+    root.__galleryBrowserCleanup = initGalleryBrowser(root);
+  }
+
+  if (!galleryWindow.__galleryBrowserLifecycleBound) {
+    galleryWindow.__galleryBrowserLifecycleBound = true;
+    document.addEventListener('astro:page-load', mountGalleryBrowser);
+    document.addEventListener('astro:before-swap', cleanupGalleryBrowser);
+  }
+
+  mountGalleryBrowser();
+</script>
