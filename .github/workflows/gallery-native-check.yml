@@ -1,0 +1,18 @@
+name: Gallery native management check
+
+on:
+  push:
+    branches: [codex/native-gallery-management]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/gallery-manager.test.mjs tests/gallery-integration.test.mjs
