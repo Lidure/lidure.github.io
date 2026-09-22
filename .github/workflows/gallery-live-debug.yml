@@ -36,8 +36,18 @@ jobs:
             --dump-dom \
             https://lidure22.xyz/gallery/ > /tmp/gallery-dom.html 2> /tmp/gallery-chrome.log
           chrome_status=$?
+          timeout 40s "$CHROME" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=12000 \
+            --window-size=1440,1600 \
+            --screenshot=/tmp/gallery-live.png \
+            https://lidure22.xyz/gallery/ >> /tmp/gallery-chrome.log 2>&1
+          screenshot_status=$?
           set -e
-          echo "chrome_status=$chrome_status"
+          echo "chrome_status=$chrome_status screenshot_status=$screenshot_status"
           echo '=== rendered counts ==='
           printf 'category tabs: '; grep -o 'gallery-category-tab' /tmp/gallery-dom.html | wc -l || true
           printf 'gallery tiles: '; grep -o 'gallery-tile' /tmp/gallery-dom.html | wc -l || true
@@ -52,3 +62,10 @@ jobs:
           PY
           echo '=== Chrome console/errors ==='
           grep -Ei 'CONSOLE|ERROR|failed|blocked|cors|refused' /tmp/gallery-chrome.log | tail -120 || true
+
+      - name: Upload screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: gallery-live-screenshot
+          path: /tmp/gallery-live.png
+          if-no-files-found: error
