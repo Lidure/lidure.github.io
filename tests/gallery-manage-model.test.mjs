@@ -13,7 +13,14 @@ test('remote tree keeps only safe image blobs and preserves sha/size', () => {
     { type: 'blob', path: 'gallery/A/.airi-renumber-x.png', sha: 'b', size: 4 },
     { type: 'tree', path: 'gallery/A', sha: 'c' },
   ]);
-  assert.deepEqual(items, [{ path: 'gallery/A/1.png', category: 'A', filename: '1.png', sha: 'a', size: 3 }]);
+  assert.deepEqual(items, [{
+    path: 'gallery/A/1.png',
+    category: 'A',
+    filename: '1.png',
+    imageUrl: 'https://airigallery.lidure22.xyz/__gallery-image/gallery/A/1.png',
+    sha: 'a',
+    size: 3,
+  }]);
 });
 
 test('managed categories are naturally sorted and paginated', () => {
