@@ -10,6 +10,7 @@ function normalizeGalleryImagePath(path) {
   if (parts.length !== 3 || parts[0] !== 'gallery') return null;
   if (parts.some((part) => !part || part === '.' || part === '..')) return null;
   const filename = parts[2];
+  if (filename.startsWith('.airi-renumber-')) return null;
   const dot = filename.lastIndexOf('.');
   if (dot <= 0) return null;
   const extension = filename.slice(dot).toLowerCase();
