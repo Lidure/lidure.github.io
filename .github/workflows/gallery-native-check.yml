@@ -1,0 +1,23 @@
+name: Gallery Native Check
+
+on:
+  push:
+    branches:
+      - codex/gallery-native-management-native
+
+jobs:
+  transaction-core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: >-
+          node --test
+          tests/gallery-upload-transaction.test.mjs
+          tests/gallery-image-hash.test.mjs
+          tests/gallery-index-transaction.test.mjs
+          tests/gallery-delete-transaction.test.mjs
