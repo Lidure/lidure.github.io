@@ -31,3 +31,4 @@ jobs:
           tests/gallery-large-upload-client.test.mjs
           tests/gallery-manage-dialog.test.mjs
           tests/gallery-manage-page.test.mjs
+          tests/gallery-manage-controller.test.mjs
