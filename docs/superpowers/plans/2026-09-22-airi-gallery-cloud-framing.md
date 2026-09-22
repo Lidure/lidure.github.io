@@ -113,7 +113,7 @@ def test_cloud_preserves_existing_restrictive_security_headers():
 Run:
 
 ```bash
-pytest -q tests/test_cloud_framing_headers.py
+python -m pytest -q tests/test_cloud_framing_headers.py
 ```
 
 Expected: FAIL because the current file still contains `frame-ancestors 'none'` and `X-Frame-Options: DENY`.
@@ -168,7 +168,7 @@ Do not alter any other header or CSP directive.
 Run:
 
 ```bash
-pytest -q tests/test_cloud_framing_headers.py
+python -m pytest -q tests/test_cloud_framing_headers.py
 ```
 
 Expected: `2 passed`.
@@ -178,7 +178,7 @@ Expected: `2 passed`.
 Run:
 
 ```bash
-pytest -q \
+python -m pytest -q \
   tests/test_repository_contract.py \
   tests/test_cloud_anonymous_manifest_read.py \
   tests/test_github_http_classification.py \
@@ -187,15 +187,23 @@ pytest -q \
 
 Expected: all selected tests PASS.
 
-- [ ] **Step 4: Run the repository's normal regression suite**
+- [ ] **Step 4: Reproduce the repository CI test command locally**
 
-Run the repository's documented full test command. If the repository uses plain pytest, run:
+Install the same Python test dependencies used by `.github/workflows/ci.yml`:
 
 ```bash
-pytest -q
+python -m pip install -r requirements.txt pytest pyyaml quart
 ```
 
-Expected: PASS with no new failures attributable to this change.
+Then run the exact CI test command:
+
+```bash
+python -m pytest tests -v
+```
+
+Expected: all tests PASS.
+
+The repository CI also repeats the suite on Python 3.10 and 3.12, plus an AstrBot smoke job; those matrix/smoke jobs are verified by GitHub Actions after the PR opens rather than emulated by changing the local interpreter mid-task.
 
 - [ ] **Step 5: Inspect the diff for scope creep**
 
@@ -246,7 +254,8 @@ PR body must state:
 ## Verification
 - framing-header contract tests pass
 - existing Cloud/security regressions pass
-- full repository regression suite passes
+- `python -m pytest tests -v` passes locally
+- GitHub Actions Python 3.10/3.12, dependency-floor, and AstrBot smoke jobs pass
 ```
 
 - [ ] **Step 2: Review the PR diff before merge**
@@ -267,6 +276,15 @@ tests/test_cloud_framing_headers.py
 Expected: no unrelated files changed.
 
 - [ ] **Step 3: Merge only after CI is green**
+
+Required successful jobs:
+
+```text
+test (Python 3.10)
+test (Python 3.12)
+dependency-floor (3.10)
+astrbot-smoke
+```
 
 Preferred merge method: squash.
 
