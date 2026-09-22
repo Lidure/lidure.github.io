@@ -23,3 +23,5 @@ jobs:
           tests/gallery-delete-transaction.test.mjs
           tests/gallery-manager.test.mjs
           tests/gallery-integration.test.mjs
+          tests/gallery-manage-config.test.mjs
+          tests/gallery-manage-model.test.mjs
