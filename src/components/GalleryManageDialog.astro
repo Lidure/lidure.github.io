@@ -1,0 +1,54 @@
+<div id="gallery-manage-dialog-backdrop" class="gallery-manage-dialog-backdrop" hidden></div>
+<section
+  id="gallery-manage-dialog"
+  class="gallery-manage-dialog"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="gallery-manage-dialog-title"
+  aria-describedby="gallery-manage-dialog-description"
+  hidden
+>
+  <div class="gallery-manage-dialog-panel" tabindex="-1">
+    <header class="gallery-manage-dialog-head">
+      <div>
+        <p class="gallery-manage-kicker" id="gallery-manage-dialog-kicker">Airi Gallery</p>
+        <h2 id="gallery-manage-dialog-title">图库管理</h2>
+      </div>
+      <button
+        id="gallery-manage-dialog-close"
+        class="gallery-manage-icon-button"
+        type="button"
+        aria-label="关闭对话框"
+      >×</button>
+    </header>
+
+    <div id="gallery-manage-dialog-body" class="gallery-manage-dialog-body">
+      <p id="gallery-manage-dialog-description" class="gallery-manage-dialog-description"></p>
+
+      <div id="gallery-manage-dialog-media" class="gallery-manage-dialog-media" hidden>
+        <img id="gallery-manage-dialog-image" alt="" />
+      </div>
+
+      <div id="gallery-manage-dialog-comparisons" class="gallery-manage-dialog-comparisons" hidden></div>
+
+      <label id="gallery-manage-token-field" class="gallery-manage-token-field" hidden>
+        <span>GitHub Token</span>
+        <input
+          id="gallery-manage-token-input"
+          type="password"
+          autocomplete="off"
+          spellcheck="false"
+          placeholder="输入具有图库写入权限的 Token"
+        />
+        <small>Token 只保存在当前页面内存中，刷新或离开页面后即失效。</small>
+      </label>
+
+      <div id="gallery-manage-dialog-message" class="gallery-manage-dialog-message" role="status" aria-live="polite"></div>
+    </div>
+
+    <footer class="gallery-manage-dialog-actions">
+      <button id="gallery-manage-dialog-cancel" class="gallery-manage-button gallery-manage-button-ghost" type="button">取消</button>
+      <button id="gallery-manage-dialog-confirm" class="gallery-manage-button gallery-manage-button-primary" type="button">确认</button>
+    </footer>
+  </div>
+</section>
