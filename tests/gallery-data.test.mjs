@@ -14,6 +14,7 @@ test('manifest parser accepts only safe one-level gallery image paths', () => {
       'gallery/airi/10.png': { perceptual_hash: '0'.repeat(16) },
       'gallery/airi/2.gif': { perceptual_hash: '1'.repeat(16) },
       'gallery/cat/a.webp': { perceptual_hash: '2'.repeat(16) },
+      'gallery/Bang/.airi-renumber-1-1787908336064376247-3797.gif': { perceptual_hash: '3'.repeat(16) },
       'gallery/airi/nested/b.png': {},
       'gallery/../secret.png': {},
       'gallery//empty.jpg': {},

@@ -1,15 +1,26 @@
 <section class="gallery-browser" id="gallery-browser-root" aria-labelledby="gallery-title">
   <header class="gallery-browser-head">
-    <div>
+    <div class="gallery-hero-copy">
       <p class="gallery-eyebrow">Airi Gallery</p>
       <h1 id="gallery-title">画廊</h1>
-      <p class="gallery-summary">收集喜欢的画面、角色与瞬间。</p>
+      <p class="gallery-summary">收集喜欢的画面、角色与瞬间，把它们留在这里慢慢翻看。</p>
     </div>
-    <button id="gallery-refresh" class="gallery-refresh" type="button">刷新图库</button>
+    <button id="gallery-refresh" class="gallery-refresh" type="button">↻ 刷新图库</button>
   </header>
 
   <div id="gallery-notice" class="gallery-notice" role="status" aria-live="polite"></div>
-  <nav id="gallery-category-tabs" class="gallery-category-tabs" aria-label="图库分类"></nav>
+
+  <section class="gallery-filter-panel" aria-labelledby="gallery-filter-title">
+    <div class="gallery-filter-heading">
+      <div>
+        <p class="gallery-filter-kicker">Collections</p>
+        <h2 id="gallery-filter-title">按分类浏览</h2>
+      </div>
+      <p>选择一个收藏夹，下面只展示这一类图片。</p>
+    </div>
+    <nav id="gallery-category-tabs" class="gallery-category-tabs" aria-label="图库分类"></nav>
+  </section>
+
   <div id="gallery-grid" class="gallery-grid" aria-live="polite"></div>
   <nav id="gallery-pager" class="gallery-pager" aria-label="图库分页"></nav>
 </section>
