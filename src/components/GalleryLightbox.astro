@@ -1,0 +1,54 @@
+<div
+  id="gallery-lightbox"
+  class="gallery-lightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="gallery-lightbox-title"
+  hidden
+>
+  <div class="gallery-lightbox-backdrop" data-gallery-lightbox-close></div>
+  <div class="gallery-lightbox-panel">
+    <header class="gallery-lightbox-head">
+      <div>
+        <p class="gallery-eyebrow">Airi Gallery</p>
+        <h2 id="gallery-lightbox-title">图片预览</h2>
+      </div>
+      <button id="gallery-lightbox-close" type="button" aria-label="关闭图片预览">关闭</button>
+    </header>
+    <div class="gallery-lightbox-stage">
+      <button id="gallery-lightbox-prev" class="gallery-lightbox-nav gallery-lightbox-prev" type="button" aria-label="上一张">‹</button>
+      <figure class="gallery-lightbox-figure">
+        <img id="gallery-lightbox-image" alt="" decoding="async" />
+        <figcaption id="gallery-lightbox-caption"></figcaption>
+      </figure>
+      <button id="gallery-lightbox-next" class="gallery-lightbox-nav gallery-lightbox-next" type="button" aria-label="下一张">›</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initGalleryLightbox } from '../lib/gallery-lightbox-controller.mjs';
+
+  const galleryWindow = window as any;
+
+  function cleanupGalleryLightbox() {
+    const root = document.getElementById('gallery-lightbox') as any;
+    root?.__galleryLightboxCleanup?.();
+    if (root) root.__galleryLightboxCleanup = null;
+  }
+
+  function mountGalleryLightbox() {
+    const root = document.getElementById('gallery-lightbox') as any;
+    if (!root) return;
+    root.__galleryLightboxCleanup?.();
+    root.__galleryLightboxCleanup = initGalleryLightbox(root);
+  }
+
+  if (!galleryWindow.__galleryLightboxLifecycleBound) {
+    galleryWindow.__galleryLightboxLifecycleBound = true;
+    document.addEventListener('astro:page-load', mountGalleryLightbox);
+    document.addEventListener('astro:before-swap', cleanupGalleryLightbox);
+  }
+
+  mountGalleryLightbox();
+</script>
