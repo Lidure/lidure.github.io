@@ -1,5 +1,6 @@
 .gallery-page-shell {
   width: min(100%, 1320px);
+  min-width: 0;
   margin: 0 auto;
   padding: 0 20px 24px;
   box-sizing: border-box;
