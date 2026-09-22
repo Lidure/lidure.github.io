@@ -1,4 +1,4 @@
-import { githubApi } from './gallery-manage-config.mjs';
+import { GALLERY_REPOSITORY, githubApi } from './gallery-manage-config.mjs';
 
 function sanitizeMessage(message, token) {
   const raw = String(message || 'GitHub 请求失败');
@@ -26,11 +26,21 @@ function classifyError(response, body, token) {
   return makeError('github', rawMessage, { status });
 }
 
+function fixedRepoRelativePath(path) {
+  const raw = String(path || '');
+  const prefix = `/repos/${GALLERY_REPOSITORY}`;
+  if (raw === prefix) return '';
+  if (raw.startsWith(`${prefix}/`)) return raw.slice(prefix.length);
+  if (raw.startsWith('/repos/')) throw makeError('scope', '拒绝访问非固定图库仓库');
+  return raw;
+}
+
 export function createGalleryGitHubClient({ fetchImpl = fetch, token = '' } = {}) {
   if (!token) throw makeError('auth', 'GitHub Token 不能为空');
 
   async function request(method, path, options = {}) {
-    const url = new URL(githubApi(path));
+    const relativePath = fixedRepoRelativePath(path);
+    const url = new URL(githubApi(relativePath));
     for (const [key, value] of Object.entries(options.params || {})) url.searchParams.set(key, value);
     const headers = {
       Accept: 'application/vnd.github+json',
