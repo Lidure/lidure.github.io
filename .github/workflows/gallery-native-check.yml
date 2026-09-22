@@ -6,7 +6,7 @@ on:
       - codex/gallery-native-management-native
 
 jobs:
-  transaction-core:
+  native-gallery:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -21,3 +21,5 @@ jobs:
           tests/gallery-image-hash.test.mjs
           tests/gallery-index-transaction.test.mjs
           tests/gallery-delete-transaction.test.mjs
+          tests/gallery-manager.test.mjs
+          tests/gallery-integration.test.mjs
