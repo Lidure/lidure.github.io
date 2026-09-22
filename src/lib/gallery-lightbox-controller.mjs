@@ -108,7 +108,7 @@ export function initGalleryLightbox(root) {
     const controls = focusables();
     if (!controls.length) return;
     const current = controls.indexOf(doc.activeElement);
-    if (event.shiftKey && (current <= 0)) {
+    if (event.shiftKey && current <= 0) {
       event.preventDefault();
       controls.at(-1)?.focus();
     } else if (!event.shiftKey && current === controls.length - 1) {
@@ -138,10 +138,18 @@ export function initGalleryLightbox(root) {
     move(delta > 0 ? -1 : 1);
   }
 
+  function onPrevClick() {
+    move(-1);
+  }
+
+  function onNextClick() {
+    move(1);
+  }
+
   closeButton.addEventListener('click', close);
   backdrop?.addEventListener('click', close);
-  prevButton.addEventListener('click', () => move(-1));
-  nextButton.addEventListener('click', () => move(1));
+  prevButton.addEventListener('click', onPrevClick);
+  nextButton.addEventListener('click', onNextClick);
   doc.addEventListener('gallery:image-open', onOpen);
   doc.addEventListener('keydown', onKeydown);
   root.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -150,6 +158,8 @@ export function initGalleryLightbox(root) {
   return function cleanupGalleryLightbox() {
     closeButton.removeEventListener('click', close);
     backdrop?.removeEventListener('click', close);
+    prevButton.removeEventListener('click', onPrevClick);
+    nextButton.removeEventListener('click', onNextClick);
     doc.removeEventListener('gallery:image-open', onOpen);
     doc.removeEventListener('keydown', onKeydown);
     root.removeEventListener('touchstart', onTouchStart);
