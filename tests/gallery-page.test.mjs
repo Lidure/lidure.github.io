@@ -14,7 +14,9 @@ test('gallery route joins Blog navigation and responsive styling', async () => {
   assert.match(page, /BaseLayout/);
   assert.match(page, /GalleryBrowser/);
   assert.match(page, /GalleryLightbox/);
-  assert.match(page, /GalleryManager/);
+  assert.match(page, /gallery-manage-entry/);
+  assert.doesNotMatch(page, /GalleryManager/);
+  assert.doesNotMatch(page, /gallery-manager-overlay/);
   assert.match(page, /gallery\.css/);
   assert.match(css, /\.gallery-grid/);
   assert.match(css, /grid-template-columns/);
@@ -23,7 +25,6 @@ test('gallery route joins Blog navigation and responsive styling', async () => {
   assert.match(css, /@media \(max-width:\s*900px\)[\s\S]*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
-  assert.match(css, /\.gallery-manager-overlay/);
   assert.match(css, /\.gallery-lightbox/);
 });
 
