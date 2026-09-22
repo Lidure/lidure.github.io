@@ -11,6 +11,7 @@ export const GALLERY_CLOUD_ORIGIN = 'https://airigallery.lidure22.xyz';
 
 export function githubApi(path = '') {
   const suffix = String(path || '');
+  if (!suffix) return GITHUB_API_ROOT;
   return `${GITHUB_API_ROOT}${suffix.startsWith('/') ? suffix : `/${suffix}`}`;
 }
 
