@@ -1,0 +1,108 @@
+---
+import GalleryManageDialog from './GalleryManageDialog.astro';
+---
+
+<section id="gallery-manage-root" class="gallery-manage-shell" aria-labelledby="gallery-manage-title">
+  <header class="gallery-manage-hero">
+    <div class="gallery-manage-hero-copy">
+      <p class="gallery-manage-kicker">Airi Gallery · Workspace</p>
+      <h1 id="gallery-manage-title">图库管理</h1>
+      <p>直接管理 Blog 图库。浏览保持公开只读，上传与删除仅在本页连接 GitHub 后启用。</p>
+    </div>
+    <div class="gallery-manage-hero-actions">
+      <a class="gallery-manage-button gallery-manage-button-ghost" href="/gallery">← 返回画廊</a>
+      <button id="gallery-manage-sync" class="gallery-manage-button gallery-manage-button-ghost" type="button">↻ 同步</button>
+    </div>
+  </header>
+
+  <div class="gallery-manage-statusbar">
+    <div id="gallery-manage-status" class="gallery-manage-status" role="status" aria-live="polite" data-state="readonly">
+      <span class="gallery-manage-status-dot" aria-hidden="true"></span>
+      <span class="gallery-manage-status-copy">只读模式</span>
+      <small>可浏览图库；上传和删除需要临时连接 GitHub。</small>
+    </div>
+    <div class="gallery-manage-connection-actions">
+      <button id="gallery-manage-connect" class="gallery-manage-button gallery-manage-button-primary" type="button">连接 GitHub</button>
+      <button id="gallery-manage-disconnect" class="gallery-manage-button gallery-manage-button-ghost" type="button" hidden>断开连接</button>
+    </div>
+  </div>
+
+  <div class="gallery-manage-layout">
+    <aside class="gallery-manage-rail" aria-labelledby="gallery-manage-upload-title">
+      <section class="gallery-manage-card gallery-manage-upload-card">
+        <div class="gallery-manage-card-head">
+          <div>
+            <p class="gallery-manage-kicker">Upload</p>
+            <h2 id="gallery-manage-upload-title">添加图片</h2>
+          </div>
+          <span id="gallery-manage-upload-count" class="gallery-manage-count">0</span>
+        </div>
+
+        <div class="gallery-manage-field">
+          <label for="gallery-manage-category-select">上传到分类</label>
+          <select id="gallery-manage-category-select">
+            <option value="">选择已有分类</option>
+          </select>
+        </div>
+
+        <div class="gallery-manage-field">
+          <label for="gallery-manage-new-category">或新建分类</label>
+          <input id="gallery-manage-new-category" type="text" autocomplete="off" placeholder="输入新分类名称" />
+        </div>
+
+        <button id="gallery-manage-dropzone" class="gallery-manage-dropzone" type="button">
+          <span class="gallery-manage-dropzone-icon" aria-hidden="true">＋</span>
+          <strong>拖拽图片到这里</strong>
+          <span>也可以点击选择，多张图片可一次加入队列</span>
+        </button>
+        <input id="gallery-manage-file-input" type="file" accept="image/*" multiple hidden />
+
+        <div id="gallery-manage-upload-list" class="gallery-manage-upload-list" aria-live="polite">
+          <div class="gallery-manage-empty gallery-manage-empty-compact">
+            <span>还没有待上传图片</span>
+            <small>图片会先在本地查重并预览，再进行远端提交。</small>
+          </div>
+        </div>
+
+        <div class="gallery-manage-upload-actions">
+          <button id="gallery-manage-upload-start" class="gallery-manage-button gallery-manage-button-primary" type="button" disabled>开始上传</button>
+          <button id="gallery-manage-upload-clear" class="gallery-manage-button gallery-manage-button-ghost" type="button" disabled>清空队列</button>
+        </div>
+      </section>
+
+      <section class="gallery-manage-note" aria-label="凭据说明">
+        <strong>凭据不会保存</strong>
+        <p>GitHub Token 只存在当前页面内存。刷新页面、离开管理页或点击断开后都会清除。</p>
+      </section>
+    </aside>
+
+    <section class="gallery-manage-browser" aria-labelledby="gallery-manage-library-title">
+      <div class="gallery-manage-browser-head">
+        <div>
+          <p class="gallery-manage-kicker">Library</p>
+          <h2 id="gallery-manage-library-title">图库内容</h2>
+          <p id="gallery-manage-library-summary">正在读取公开图库索引…</p>
+        </div>
+        <div class="gallery-manage-browser-meta">
+          <span id="gallery-manage-total" class="gallery-manage-count">—</span>
+          <small>图片</small>
+        </div>
+      </div>
+
+      <nav id="gallery-manage-tabs" class="gallery-manage-tabs" aria-label="图库分类"></nav>
+
+      <div id="gallery-manage-notice" class="gallery-manage-notice" role="status" aria-live="polite" hidden></div>
+
+      <div id="gallery-manage-grid" class="gallery-manage-grid" aria-live="polite">
+        <div class="gallery-manage-empty gallery-manage-grid-empty">
+          <span>正在载入图库</span>
+          <small>管理页默认以公开索引进入只读状态。</small>
+        </div>
+      </div>
+
+      <nav id="gallery-manage-pager" class="gallery-manage-pager" aria-label="图库管理分页"></nav>
+    </section>
+  </div>
+
+  <GalleryManageDialog />
+</section>
