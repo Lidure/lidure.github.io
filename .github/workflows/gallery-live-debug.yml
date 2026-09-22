@@ -11,7 +11,7 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect gallery grid placement
+      - name: Validate candidate Gallery layout fixes
         shell: bash
         run: |
           set -euo pipefail
@@ -29,7 +29,6 @@ jobs:
           node <<'NODE'
           const pages = await (await fetch('http://127.0.0.1:9222/json/list')).json();
           const page = pages.find((p) => p.url.includes('/gallery')) || pages[0];
-          if (!page?.webSocketDebuggerUrl) throw new Error('No debuggable page');
           const ws = new WebSocket(page.webSocketDebuggerUrl);
           await new Promise((resolve, reject) => {
             ws.addEventListener('open', resolve, { once: true });
@@ -51,66 +50,47 @@ jobs:
             });
           }
           await call('Runtime.enable');
-          const expression = `(() => {
+          async function evaluate(expression) {
+            const result = await call('Runtime.evaluate', { expression, returnByValue: true });
+            return result.result.value;
+          }
+          const snapshot = `(() => {
             const parent = document.querySelector('.standard-content');
-            if (!parent) return { error: 'standard-content not found' };
-            const ps = getComputedStyle(parent);
-            const children = [...parent.children].map((el, index) => {
-              const r = el.getBoundingClientRect();
-              const s = getComputedStyle(el);
-              return {
-                index,
-                tag: el.tagName,
-                id: el.id,
-                className: typeof el.className === 'string' ? el.className : '',
-                display: s.display,
-                position: s.position,
-                gridColumnStart: s.gridColumnStart,
-                gridColumnEnd: s.gridColumnEnd,
-                gridRowStart: s.gridRowStart,
-                gridRowEnd: s.gridRowEnd,
-                justifySelf: s.justifySelf,
-                alignSelf: s.alignSelf,
-                order: s.order,
-                marginLeft: s.marginLeft,
-                marginRight: s.marginRight,
-                x: r.x,
-                y: r.y,
-                width: r.width,
-                height: r.height
-              };
-            });
             const shell = document.querySelector('.gallery-page-shell');
-            const ss = shell ? getComputedStyle(shell) : null;
+            const browser = document.querySelector('#gallery-browser-root');
+            const grid = document.querySelector('#gallery-grid');
+            const p = getComputedStyle(parent);
+            const sr = shell.getBoundingClientRect();
+            const br = browser.getBoundingClientRect();
             return {
-              parentGrid: {
-                display: ps.display,
-                gridTemplateColumns: ps.gridTemplateColumns,
-                gridTemplateRows: ps.gridTemplateRows,
-                gridAutoColumns: ps.gridAutoColumns,
-                gridAutoRows: ps.gridAutoRows,
-                gridAutoFlow: ps.gridAutoFlow,
-                justifyContent: ps.justifyContent,
-                justifyItems: ps.justifyItems,
-                alignItems: ps.alignItems,
-                columnGap: ps.columnGap,
-                rowGap: ps.rowGap
-              },
-              children,
-              shell: ss ? {
-                gridColumnStart: ss.gridColumnStart,
-                gridColumnEnd: ss.gridColumnEnd,
-                gridRowStart: ss.gridRowStart,
-                gridRowEnd: ss.gridRowEnd,
-                justifySelf: ss.justifySelf,
-                alignSelf: ss.alignSelf,
-                order: ss.order,
-                marginLeft: ss.marginLeft,
-                marginRight: ss.marginRight
-              } : null
+              track: p.gridTemplateColumns,
+              shellX: sr.x,
+              shellWidth: sr.width,
+              browserX: br.x,
+              browserWidth: br.width,
+              pageScrollWidth: document.documentElement.scrollWidth,
+              viewportWidth: innerWidth,
+              gridScrollWidth: grid.scrollWidth,
+              gridClientWidth: grid.clientWidth
             };
           })()`;
-          const result = await call('Runtime.evaluate', { expression, returnByValue: true });
-          console.log(JSON.stringify(result.result.value, null, 2));
+          const original = await evaluate(snapshot);
+          const minWidthOnly = await evaluate(`(() => {
+            const shell = document.querySelector('.gallery-page-shell');
+            shell.style.minWidth = '0';
+            return true;
+          })()`);
+          await new Promise(r => setTimeout(r, 100));
+          const afterMinWidth = await evaluate(snapshot);
+          await evaluate(`(() => {
+            const shell = document.querySelector('.gallery-page-shell');
+            shell.style.minWidth = '';
+            const parent = document.querySelector('.standard-content');
+            parent.style.gridTemplateColumns = 'minmax(0, 1fr)';
+            return true;
+          })()`);
+          await new Promise(r => setTimeout(r, 100));
+          const afterTrackFix = await evaluate(snapshot);
+          console.log(JSON.stringify({ original, afterMinWidth, afterTrackFix }, null, 2));
           ws.close();
           NODE
