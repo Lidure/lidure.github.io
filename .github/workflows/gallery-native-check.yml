@@ -25,3 +25,7 @@ jobs:
           tests/gallery-integration.test.mjs
           tests/gallery-manage-config.test.mjs
           tests/gallery-manage-model.test.mjs
+          tests/gallery-github-client.test.mjs
+          tests/gallery-upload-queue.test.mjs
+          tests/gallery-duplicate-check.test.mjs
+          tests/gallery-large-upload-client.test.mjs
