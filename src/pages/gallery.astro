@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import GalleryBrowser from '../components/GalleryBrowser.astro';
+import GalleryLightbox from '../components/GalleryLightbox.astro';
+import GalleryManager from '../components/GalleryManager.astro';
+import '../styles/gallery.css';
+---
+
+<BaseLayout
+  title="画廊 | 搁浅 的小窝"
+  description="Airi Gallery：收藏喜欢的画面、角色与瞬间。"
+  bannerTitle="Airi Gallery"
+  bannerSubtitle="收藏喜欢的画面、角色与瞬间"
+>
+  <div class="gallery-page-shell">
+    <GalleryBrowser />
+  </div>
+  <GalleryLightbox />
+  <GalleryManager />
+</BaseLayout>
