@@ -1,7 +1,7 @@
 # Native Gallery Management Workspace Design
 
 Date: 2026-09-22
-Status: Approved design, pending implementation-plan review
+Status: Chat design approved; written spec pending user review
 
 ## 1. Goal
 
@@ -115,6 +115,18 @@ Validation must distinguish at least:
 - GitHub rate limiting.
 
 The UI must not persist the token after validation.
+
+### 4.4 Browser connection policy
+
+The native manager requires browser connections to:
+
+- `https://api.github.com` for authenticated GitHub repository operations;
+- `https://raw.githubusercontent.com` for public manifest fallback where already used;
+- `https://airigallery.lidure22.xyz` for image proxying and the large-upload Worker route.
+
+The Blog repository currently has no explicit `connect-src` rule that blocks these destinations, but implementation and deployment verification must still check the effective production CSP/Cloudflare policy. If a CSP is introduced or tightened, it must explicitly permit only the required connection origins rather than falling back to a broad wildcard.
+
+The large-upload Worker must return CORS headers only for the allowed Blog origin and must not become a generic cross-origin GitHub proxy.
 
 ## 5. Page information architecture
 
@@ -506,7 +518,8 @@ Verify at minimum:
 - connection dialog is a single Blog-owned layer;
 - preview/delete/duplicate dialogs do not stack incompatible masks;
 - keyboard Escape/focus restoration works;
-- mobile controls are reachable without hover.
+- mobile controls are reachable without hover;
+- effective production connection policy allows the required GitHub and Cloud origins without broadening unrelated CSP destinations.
 
 Where safe test credentials are unavailable, authenticated GitHub mutation behavior is validated with unit/integration mocks and existing Cloud transaction tests rather than embedding real secrets into CI.
 
@@ -555,3 +568,4 @@ The design is complete when the implementation satisfies all of the following:
 13. Desktop and mobile management layouts have no document-level horizontal overflow.
 14. Blog and Cloud automated tests pass, including new security and regression coverage.
 15. Browser verification confirms the production-shaped build has no iframe/old manager overlay and that the native management workspace is usable at desktop and mobile widths.
+16. Production connection policy permits only the required GitHub/Cloud origins needed by the native manager and does not rely on a wildcard CSP allowance.
