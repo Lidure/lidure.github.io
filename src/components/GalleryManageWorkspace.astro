@@ -1,0 +1,100 @@
+<section id="gallery-manage-root" class="gallery-manage-workspace" aria-labelledby="gallery-manage-title">
+  <header class="gallery-manage-hero">
+    <div class="gallery-manage-hero-copy">
+      <p class="gallery-manage-eyebrow">Airi Gallery · Workspace</p>
+      <h1 id="gallery-manage-title">图库管理</h1>
+      <p>管理 <code>Lidure/airi-gallery-images</code>。Token 只保留在当前页面，刷新后自动回到只读模式。</p>
+    </div>
+    <div class="gallery-manage-hero-actions">
+      <a class="gallery-manage-button is-quiet" href="/gallery">← 返回画廊</a>
+      <button id="gallery-manage-sync" class="gallery-manage-button is-quiet" type="button">↻ 同步</button>
+      <button id="gallery-manage-connect" class="gallery-manage-button is-primary" type="button">连接 GitHub</button>
+      <button id="gallery-manage-disconnect" class="gallery-manage-button is-danger" type="button" hidden>断开连接</button>
+    </div>
+  </header>
+
+  <div id="gallery-manage-status" class="gallery-manage-status" role="status" aria-live="polite">
+    <span class="gallery-manage-status-dot" aria-hidden="true"></span>
+    <strong>只读模式</strong>
+    <span>可浏览图库；上传和删除需要临时连接 GitHub。</span>
+  </div>
+
+  <div class="gallery-manage-layout">
+    <aside class="gallery-manage-upload-panel" aria-labelledby="gallery-upload-title">
+      <div class="gallery-manage-section-head">
+        <div>
+          <p class="gallery-manage-kicker">Upload</p>
+          <h2 id="gallery-upload-title">添加图片</h2>
+        </div>
+        <span class="gallery-manage-mini-badge">批量上传</span>
+      </div>
+
+      <label class="gallery-manage-field">
+        <span>选择已有分类</span>
+        <select id="gallery-manage-category">
+          <option value="">选择分类…</option>
+        </select>
+      </label>
+
+      <label class="gallery-manage-field">
+        <span>或新建分类</span>
+        <input id="gallery-manage-new-category" type="text" maxlength="80" placeholder="输入新分类名称" autocomplete="off" />
+      </label>
+
+      <button id="gallery-manage-dropzone" class="gallery-manage-dropzone" type="button">
+        <span class="gallery-manage-drop-icon" aria-hidden="true">＋</span>
+        <strong>选择或拖入图片</strong>
+        <span>支持多选；加入后先查重，再由你确认上传。</span>
+      </button>
+      <input id="gallery-manage-file-input" type="file" accept="image/*" multiple hidden />
+
+      <div id="gallery-manage-queue" class="gallery-manage-queue" aria-live="polite">
+        <div class="gallery-manage-empty-small">还没有待上传图片</div>
+      </div>
+
+      <button id="gallery-manage-upload" class="gallery-manage-button is-primary is-wide" type="button" disabled>
+        开始上传
+      </button>
+    </aside>
+
+    <section class="gallery-manage-library" aria-labelledby="gallery-library-title">
+      <div class="gallery-manage-section-head gallery-manage-library-head">
+        <div>
+          <p class="gallery-manage-kicker">Library</p>
+          <h2 id="gallery-library-title">管理图库</h2>
+          <p id="gallery-manage-count" class="gallery-manage-muted">正在读取图库…</p>
+        </div>
+      </div>
+
+      <nav id="gallery-manage-categories" class="gallery-manage-categories" aria-label="图库分类"></nav>
+      <div id="gallery-manage-grid" class="gallery-manage-grid" aria-live="polite"></div>
+      <nav id="gallery-manage-pager" class="gallery-manage-pager" aria-label="图库管理分页"></nav>
+    </section>
+  </div>
+</section>
+
+<script>
+  import { initGalleryManageController } from '../lib/gallery-manage-controller.mjs';
+
+  const galleryWindow = window as any;
+
+  function cleanupNativeGalleryManager() {
+    const root = document.getElementById('gallery-manage-root') as any;
+    root?.__galleryManageCleanup?.();
+    if (root) root.__galleryManageCleanup = null;
+  }
+
+  function mountNativeGalleryManager() {
+    const root = document.getElementById('gallery-manage-root') as any;
+    if (!root) return;
+    root.__galleryManageCleanup?.();
+    root.__galleryManageCleanup = initGalleryManageController(root);
+  }
+
+  if (!galleryWindow.__nativeGalleryManagerLifecycleBound) {
+    galleryWindow.__nativeGalleryManagerLifecycleBound = true;
+    document.addEventListener('astro:page-load', mountNativeGalleryManager);
+    document.addEventListener('astro:before-swap', cleanupNativeGalleryManager);
+  }
+  mountNativeGalleryManager();
+</script>
