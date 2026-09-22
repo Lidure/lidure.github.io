@@ -35,3 +35,15 @@ test('gallery shell neutralizes Grid automatic minimum sizing', async () => {
     'the page shell must allow the parent Grid track to shrink instead of using the category strip min-content width',
   );
 });
+
+test('gallery categories use a wrapped filter panel instead of a single scrolling row', async () => {
+  const [component, css] = await Promise.all([
+    read('src/components/GalleryBrowser.astro'),
+    read('src/styles/gallery.css'),
+  ]);
+
+  assert.match(component, /class="gallery-filter-panel"/);
+  assert.match(component, /class="gallery-filter-heading"/);
+  assert.match(css, /\.gallery-category-tabs\s*\{[^}]*\bflex-wrap:\s*wrap\s*;/s);
+  assert.doesNotMatch(css, /\.gallery-category-tabs\s*\{[^}]*\boverflow-x:\s*auto\s*;/s);
+});
