@@ -4,24 +4,15 @@ import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('gallery manager stays hidden until explicit entry and never ships eager iframe', async () => {
-  const [component, controller] = await Promise.all([
-    read('src/components/GalleryManager.astro'),
-    read('src/lib/gallery-manager-controller.mjs'),
-  ]);
-  assert.match(component, /gallery-manager-overlay/);
-  assert.match(component, /gallery-manager-frame-host/);
-  assert.doesNotMatch(component, /<iframe/);
-  assert.match(component, /gallery-manager-retry/);
-  assert.match(component, /gallery-manager-close/);
-  assert.match(component, /gallery-manager-direct/);
-  assert.match(controller, /searchParams\.get\(['"]manage['"]\)\s*===\s*['"]1['"]/);
-  assert.match(controller, /event\.ctrlKey\s*&&\s*event\.altKey/);
-  assert.match(controller, /event\.key\.toLowerCase\(\)\s*===\s*['"]g['"]/);
-  assert.match(controller, /document\.createElement\(['"]iframe['"]\)/);
-  assert.match(controller, /https:\/\/airigallery\.lidure22\.xyz\//);
-  assert.match(controller, /12_000|12000/);
-  assert.match(controller, /frame\.remove\(\)|replaceChildren\(\)/);
-  assert.match(controller, /history\.replaceState/);
-  assert.doesNotMatch(controller, /postMessage\([^)]*token/i);
+test('public Gallery no longer renders the iframe manager overlay', async () => {
+  const page = await read('src/pages/gallery.astro');
+  assert.doesNotMatch(page, /GalleryManager/);
+  assert.doesNotMatch(page, /gallery-manager-overlay/);
+  assert.match(page, /gallery-manage-entry/);
+});
+
+test('legacy manager controller is not wired into the public Gallery page', async () => {
+  const page = await read('src/pages/gallery.astro');
+  assert.doesNotMatch(page, /gallery-manager-controller/);
+  assert.doesNotMatch(page, /airigallery\.lidure22\.xyz/);
 });
