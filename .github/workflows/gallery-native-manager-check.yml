@@ -14,4 +14,4 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      - run: node --test tests/gallery-manager.test.mjs tests/gallery-integration.test.mjs tests/gallery-upload-transaction.test.mjs tests/gallery-manage-core.test.mjs tests/gallery-manage-services.test.mjs tests/gallery-manage-transactions.test.mjs
+      - run: npm test
