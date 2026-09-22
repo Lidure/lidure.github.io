@@ -1,0 +1,54 @@
+name: Gallery Live Debug
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect live response headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '=== gallery headers ==='
+          curl -fsSI --retry 3 --retry-delay 2 https://lidure22.xyz/gallery/ | tr -d '\r'
+          echo '=== manifest headers ==='
+          curl -fsSI --retry 3 --retry-delay 2 https://raw.githubusercontent.com/Lidure/airi-gallery-images/main/gallery/gallery_index.json | tr -d '\r'
+
+      - name: Render live Gallery in Chrome
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
+          echo "chrome=$CHROME"
+          set +e
+          timeout 40s "$CHROME" \
+            --headless \
+            --no-sandbox \
+            --disable-gpu \
+            --disable-dev-shm-usage \
+            --virtual-time-budget=12000 \
+            --dump-dom \
+            https://lidure22.xyz/gallery/ > /tmp/gallery-dom.html 2> /tmp/gallery-chrome.log
+          chrome_status=$?
+          set -e
+          echo "chrome_status=$chrome_status"
+          echo '=== rendered counts ==='
+          printf 'category tabs: '; grep -o 'gallery-category-tab' /tmp/gallery-dom.html | wc -l || true
+          printf 'gallery tiles: '; grep -o 'gallery-tile' /tmp/gallery-dom.html | wc -l || true
+          echo '=== gallery notice ==='
+          grep -o '<div id="gallery-notice"[^>]*>[^<]*' /tmp/gallery-dom.html || true
+          echo '=== gallery root excerpt ==='
+          python3 - <<'PY'
+          from pathlib import Path
+          html = Path('/tmp/gallery-dom.html').read_text(errors='replace')
+          start = html.find('id="gallery-browser-root"')
+          print(html[max(0, start-300):start+5000] if start >= 0 else 'gallery root not found')
+          PY
+          echo '=== Chrome console/errors ==='
+          grep -Ei 'CONSOLE|ERROR|failed|blocked|cors|refused' /tmp/gallery-chrome.log | tail -120 || true
