@@ -124,7 +124,7 @@ Responsibilities:
 - derive categories and naturally sorted image lists;
 - render category tabs, pagination, loading state, error state, and refresh action;
 - request only images needed by the current page;
-- prefetch a small number of upcoming images during idle time.
+- prefetch at most two non-GIF images from the next page during idle time.
 
 This component has no management/write behavior.
 
@@ -138,7 +138,7 @@ Responsibilities:
 - support keyboard arrow navigation;
 - support touch swipe on mobile;
 - preserve GIF animation;
-- preload only adjacent lightbox images.
+- preload only the immediate previous and next image.
 
 ### `src/components/GalleryManager.astro`
 
@@ -147,10 +147,10 @@ Responsibilities:
 - install the `Ctrl + Alt + G` handler while `/gallery` is active;
 - detect initial `?manage=1`;
 - create the management iframe only when management mode opens;
-- provide a Blog-owned header and close action;
+- provide a Blog-owned header with close and direct-open controls;
 - remove iframe and listeners during close and Astro navigation cleanup.
 
-The hotkey path does not need to mutate the URL. Closing a query-parameter-launched manager removes `manage=1` from the current URL with `history.replaceState` so refresh returns to public mode.
+The hotkey path does not mutate the URL. Closing a query-parameter-launched manager removes `manage=1` from the current URL with `history.replaceState` so refresh returns to public mode.
 
 ### `src/lib/gallery-*.mjs`
 
@@ -199,27 +199,29 @@ The page follows the Blog's existing translucent cards, theme hue, border, radiu
 
 ### Manifest
 
-Normal public loading first checks a `sessionStorage` cache keyed to the fixed manifest URL.
+Normal public loading first checks a `sessionStorage` cache keyed to the fixed manifest URL. The cache stores both the validated manifest-derived path list and its fetch timestamp.
 
 - Freshness window: 5 minutes.
-- A valid fresh cache can render immediately.
+- Maximum stale fallback age: 24 hours.
+- A valid fresh cache can render immediately without a network request.
 - The explicit `刷新图库` action invalidates that entry and performs a `cache: 'no-store'` fetch.
-- When the network fetch succeeds, the cache is replaced.
-- When the network fails but a previously validated stale cache exists, the stale data remains usable and the page shows a non-blocking stale/offline notice.
-- When neither network nor valid cached data is available, the Blog shell remains visible and the gallery shows a retryable error state.
+- When the network fetch succeeds, the cache is replaced with newly validated data and a new timestamp.
+- When the network fails but a previously validated cache is between 5 minutes and 24 hours old, stale data remains usable and the page shows a non-blocking stale/offline notice.
+- Cache entries older than 24 hours are discarded rather than shown as gallery truth.
+- When neither network nor acceptable cached data is available, the Blog shell remains visible and the gallery shows a retryable error state.
 
 This gives newly uploaded images a manual refresh path without requiring a Blog rebuild.
 
 ### Images
 
 - Only the current page's `<img>` elements are created.
-- Images use native lazy loading and asynchronous decoding.
-- The first visible row may load eagerly; the rest remain lazy.
-- Idle prefetch is limited to a small fixed number of images from the next page, never an entire category.
-- Large GIFs are never bulk-prefetched.
-- Lightbox prefetch is limited to the immediate previous and next image.
+- The first image is `loading="eager"` with high fetch priority so the page gets a prompt visual anchor.
+- Every remaining grid image uses native lazy loading and asynchronous decoding.
+- Idle prefetch is limited to the first two non-GIF images from the next page.
+- GIFs are never next-page-prefetched.
+- Lightbox prefetch is limited to the immediate previous and next image selected by navigation order.
 
-The image proxy already supplies public cache headers and Cloudflare edge caching, so the Blog should not add a second image-fetch/cache subsystem.
+The image proxy already supplies public cache headers and Cloudflare edge caching, so the Blog does not add a second image-fetch/cache subsystem.
 
 ## Astro ClientRouter Lifecycle
 
@@ -228,7 +230,7 @@ All page-global listeners and temporary resources must be safe across Astro tran
 On initialization:
 
 - bind gallery keyboard handlers once for the current page instance;
-- create AbortControllers for manifest/image-adjacent work where appropriate.
+- create AbortControllers for manifest and prefetch work where appropriate.
 
 On `astro:before-swap` or component teardown:
 
@@ -267,15 +269,19 @@ Replace only that tile with an image-failed placeholder and retry control. Other
 
 ### Management iframe unavailable
 
-Keep the overlay shell usable, show that Airi Gallery Cloud could not load, and provide:
+The management overlay header always includes a direct-open link to `https://airigallery.lidure22.xyz/`, independent of iframe state.
 
-- retry;
-- close/return to gallery;
-- a direct-open link to `https://airigallery.lidure22.xyz/` as a fallback.
+After the iframe is created:
+
+- show a loading state until its `load` event;
+- if no `load` event is observed within 12 seconds, show a non-destructive warning with retry, direct-open, and close controls;
+- keep the iframe mounted so a slow load can still complete unless the user retries or closes.
+
+Because the iframe is cross-origin, the parent cannot reliably inspect the rendered Cloud document or distinguish every browser-level CSP/frame error from a successful navigation. The Cloud framing contract test and production smoke test are therefore the primary protection against framing regressions; the 12-second warning is a best-effort usability fallback, not a security check.
 
 ### Cross-origin framing regression
 
-If future Cloud headers accidentally forbid embedding, Blog public browsing must remain unaffected. The management overlay failure state should make this failure obvious instead of presenting a blank frame indefinitely.
+If future Cloud headers accidentally forbid embedding, Blog public browsing remains unaffected. The always-visible direct-open control ensures management is still reachable even if the embedded surface fails.
 
 ## Testing Strategy
 
@@ -289,11 +295,13 @@ Add tests for:
 - category and image sorting is deterministic;
 - pagination boundaries are correct;
 - image proxy URLs are encoded safely;
+- cache freshness uses 5 minutes and stale fallback is capped at 24 hours;
 - normal source does not eagerly include/create the Cloud iframe;
 - `?manage=1` and `Ctrl + Alt + G` are both supported;
 - close/ClientRouter teardown removes the management iframe and listeners;
-- public thumbnails use lazy/async image loading;
-- next-page prefetch is bounded and excludes bulk GIF prefetch.
+- only the first grid image is eager and remaining thumbnails are lazy/async;
+- next-page prefetch is capped at two non-GIF images;
+- management overlay always provides the direct-open fallback.
 
 Run the existing full Blog test/build suite after the new tests pass.
 
