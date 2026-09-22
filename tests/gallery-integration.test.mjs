@@ -4,40 +4,37 @@ import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-const galleryFiles = [
+const publicGalleryFiles = [
   'src/pages/gallery.astro',
   'src/components/GalleryBrowser.astro',
   'src/components/GalleryLightbox.astro',
-  'src/components/GalleryManager.astro',
   'src/lib/gallery-data.mjs',
   'src/lib/gallery-manifest-client.mjs',
   'src/lib/gallery-browser-controller.mjs',
   'src/lib/gallery-lightbox-controller.mjs',
-  'src/lib/gallery-manager-controller.mjs',
+  'src/lib/gallery-manage-entry.mjs',
 ];
 
-test('Blog gallery never owns write credentials or mutation APIs', async () => {
-  const parts = await Promise.all(galleryFiles.map(read));
+test('public Blog gallery never owns write credentials or mutation APIs', async () => {
+  const parts = await Promise.all(publicGalleryFiles.map(read));
   const source = parts.join('\n');
   const pageSource = parts[0];
-  const managerSource = parts[3];
 
   assert.doesNotMatch(source, /ghp_[A-Za-z0-9]/);
-  assert.doesNotMatch(source, /access[_-]?token/i);
   assert.doesNotMatch(source, /Authorization\s*:/i);
   assert.doesNotMatch(source, /method:\s*['"](?:POST|PUT|PATCH|DELETE)['"]/i);
   assert.doesNotMatch(pageSource, /<iframe/i);
-  assert.doesNotMatch(managerSource, /<iframe/i);
+  assert.doesNotMatch(pageSource, /GalleryManager/);
 });
 
-test('gallery keeps remote loading runtime-only and bounded', async () => {
-  const [page, browserComponent, browser, manifest, lightbox, manager] = await Promise.all([
+test('public gallery keeps remote loading runtime-only and bounded', async () => {
+  const [page, browserComponent, browser, manifest, lightbox, entry] = await Promise.all([
     read('src/pages/gallery.astro'),
     read('src/components/GalleryBrowser.astro'),
     read('src/lib/gallery-browser-controller.mjs'),
     read('src/lib/gallery-manifest-client.mjs'),
     read('src/lib/gallery-lightbox-controller.mjs'),
-    read('src/lib/gallery-manager-controller.mjs'),
+    read('src/lib/gallery-manage-entry.mjs'),
   ]);
 
   assert.doesNotMatch(page, /raw\.githubusercontent\.com/);
@@ -48,7 +45,22 @@ test('gallery keeps remote loading runtime-only and bounded', async () => {
   assert.match(browser, /abortController\.abort\(\)/);
   assert.match(browser, /nextPagePrefetchCandidates\([^)]*,\s*2\)/s);
   assert.match(lightbox, /new Set\(\[previousIndex, nextIndex\]\)/);
-  assert.match(manager, /frame\.remove\(\)/);
-  assert.match(manager, /12_000|12000/);
-  assert.doesNotMatch(manager, /contentWindow|contentDocument/);
+  assert.match(entry, /location\.assign\(['"]\/gallery\/manage['"]\)/);
+  assert.doesNotMatch(entry, /iframe|airigallery\.lidure22\.xyz/);
+});
+
+test('native manager owns writes but keeps token ephemeral and repository fixed', async () => {
+  const [page, controller, client, largeUpload] = await Promise.all([
+    read('src/pages/gallery/manage.astro'),
+    read('src/lib/gallery-manage-controller.mjs'),
+    read('src/lib/gallery-github-client.mjs'),
+    read('src/lib/gallery-large-upload-client.mjs'),
+  ]);
+
+  assert.doesNotMatch(page, /<iframe/i);
+  assert.match(controller, /let\s+token\s*=\s*['"]['"]/);
+  assert.doesNotMatch(controller, /localStorage|sessionStorage|document\.cookie/);
+  assert.match(client, /Lidure\/airi-gallery-images|GALLERY_REPOSITORY/);
+  assert.match(largeUpload, /__gallery-github-blob\/Lidure\/airi-gallery-images/);
+  assert.doesNotMatch(largeUpload, /localStorage|sessionStorage|document\.cookie/);
 });
