@@ -131,7 +131,8 @@ export function initGalleryBrowser(root, options = {}) {
     img.alt = item.filename;
     img.loading = index === 0 ? 'eager' : 'lazy';
     img.decoding = 'async';
-    img.src = galleryProxyUrl(item.path);
+    const sourceUrl = galleryProxyUrl(item.path);
+    img.src = sourceUrl;
 
     const meta = doc.createElement('span');
     meta.className = 'gallery-tile-meta';
@@ -148,10 +149,10 @@ export function initGalleryBrowser(root, options = {}) {
         tile.classList.remove('is-error');
         img.hidden = false;
         meta.textContent = item.filename;
-        img.src = `${galleryProxyUrl(item.path)}${galleryProxyUrl(item.path).includes('?') ? '&' : '?'}retry=${Date.now()}`;
+        img.src = `${sourceUrl}${sourceUrl.includes('?') ? '&' : '?'}retry=${Date.now()}`;
         return;
       }
-      root.dispatchEvent(new CustomEvent('gallery:image-open', {
+      tile.dispatchEvent(new CustomEvent('gallery:image-open', {
         bubbles: true,
         detail: { index: absoluteIndex, images },
       }));
