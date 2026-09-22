@@ -45,24 +45,25 @@ export function initGalleryManager(root) {
     loading.hidden = false;
     failure.hidden = true;
 
-    frame = document.createElement('iframe');
-    frame.className = 'gallery-manager-frame';
-    frame.src = CLOUD_URL;
-    frame.title = 'Airi Gallery Cloud 管理界面';
-    frame.referrerPolicy = 'strict-origin-when-cross-origin';
-    frame.loading = 'eager';
-    frame.addEventListener('load', () => {
-      if (!frame || disposed) return;
+    const currentFrame = document.createElement('iframe');
+    frame = currentFrame;
+    currentFrame.className = 'gallery-manager-frame';
+    currentFrame.src = CLOUD_URL;
+    currentFrame.title = 'Airi Gallery Cloud 管理界面';
+    currentFrame.referrerPolicy = 'strict-origin-when-cross-origin';
+    currentFrame.loading = 'eager';
+    currentFrame.addEventListener('load', () => {
+      if (frame !== currentFrame || disposed) return;
       loaded = true;
       clearFrameTimer();
       loading.hidden = true;
       failure.hidden = true;
     }, { once: true });
-    host.append(frame);
+    host.append(currentFrame);
 
     timeoutId = win.setTimeout(() => {
       timeoutId = null;
-      if (!loaded && !disposed) showFailure();
+      if (frame === currentFrame && !loaded && !disposed) showFailure();
     }, FRAME_TIMEOUT_MS);
   }
 
