@@ -9,33 +9,40 @@ export async function gitBlobSha(file) {
   return bytesToHex(new Uint8Array(digest));
 }
 
-async function defaultReadGray8x8(blob) {
+async function defaultReadGray9x8(blob) {
   let bitmap;
   try {
     try {
-      bitmap = await createImageBitmap(blob, { resizeWidth: 8, resizeHeight: 8, resizeQuality: 'low' });
+      bitmap = await createImageBitmap(blob, {
+        resizeWidth: 9,
+        resizeHeight: 8,
+        resizeQuality: 'pixelated',
+      });
     } catch {
       bitmap = await createImageBitmap(blob);
     }
 
     let canvas;
     let context;
-    if (typeof OffscreenCanvas === 'function') {
-      canvas = new OffscreenCanvas(8, 8);
-      context = canvas.getContext('2d', { willReadFrequently: true });
-    } else if (typeof document !== 'undefined') {
+    if (typeof document !== 'undefined') {
       canvas = document.createElement('canvas');
-      canvas.width = 8;
+      canvas.width = 9;
       canvas.height = 8;
+      context = canvas.getContext('2d', { willReadFrequently: true });
+    } else if (typeof OffscreenCanvas === 'function') {
+      canvas = new OffscreenCanvas(9, 8);
       context = canvas.getContext('2d', { willReadFrequently: true });
     }
     if (!context) throw new Error('当前浏览器无法读取图片像素');
-    context.drawImage(bitmap, 0, 0, 8, 8);
-    const rgba = context.getImageData(0, 0, 8, 8).data;
-    const gray = new Uint8Array(64);
-    for (let i = 0; i < 64; i++) {
+    context.imageSmoothingEnabled = false;
+    context.fillStyle = '#fff';
+    context.fillRect(0, 0, 9, 8);
+    context.drawImage(bitmap, 0, 0, 9, 8);
+    const rgba = context.getImageData(0, 0, 9, 8).data;
+    const gray = new Uint8Array(72);
+    for (let i = 0; i < 72; i++) {
       const offset = i * 4;
-      gray[i] = Math.round(rgba[offset] * 0.299 + rgba[offset + 1] * 0.587 + rgba[offset + 2] * 0.114);
+      gray[i] = Math.floor((299 * rgba[offset] + 587 * rgba[offset + 1] + 114 * rgba[offset + 2]) / 1000);
     }
     return gray;
   } catch {
@@ -45,15 +52,18 @@ async function defaultReadGray8x8(blob) {
   }
 }
 
-export async function perceptualHash(blob, { readGray8x8 = defaultReadGray8x8 } = {}) {
-  const pixels = await readGray8x8(blob);
-  if (!pixels || pixels.length !== 64) throw Object.assign(new Error('感知哈希像素数据无效'), { code: 'IMAGE_DECODE_FAILED' });
-  let total = 0;
-  for (const value of pixels) total += Number(value);
-  const average = total / 64;
+export async function perceptualHash(blob, { readGray9x8 = defaultReadGray9x8 } = {}) {
+  const gray = await readGray9x8(blob);
+  if (!gray || gray.length !== 72) {
+    throw Object.assign(new Error('感知哈希像素数据无效'), { code: 'IMAGE_DECODE_FAILED' });
+  }
   let bits = 0n;
-  for (const value of pixels) {
-    bits = (bits << 1n) | (Number(value) >= average ? 1n : 0n);
+  for (let y = 0; y < 8; y++) {
+    for (let x = 0; x < 8; x++) {
+      const left = Number(gray[y * 9 + x]);
+      const right = Number(gray[y * 9 + x + 1]);
+      bits = (bits << 1n) | (left > right ? 1n : 0n);
+    }
   }
   return bits.toString(16).padStart(16, '0');
 }
