@@ -29,3 +29,5 @@ jobs:
           tests/gallery-upload-queue.test.mjs
           tests/gallery-duplicate-check.test.mjs
           tests/gallery-large-upload-client.test.mjs
+          tests/gallery-manage-dialog.test.mjs
+          tests/gallery-manage-page.test.mjs
