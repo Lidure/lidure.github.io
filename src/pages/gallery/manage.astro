@@ -1,0 +1,16 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import GalleryManageWorkspace from '../../components/GalleryManageWorkspace.astro';
+import '../../styles/gallery-manage.css';
+---
+
+<BaseLayout
+  title="图库管理 | 搁浅 的小窝"
+  description="Airi Gallery 原生图库管理工作台。"
+  bannerTitle="Gallery Workspace"
+  bannerSubtitle="上传、整理与维护 Airi Gallery"
+>
+  <div class="gallery-manage-page-shell">
+    <GalleryManageWorkspace />
+  </div>
+</BaseLayout>
