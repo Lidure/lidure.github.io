@@ -11,59 +11,7 @@ jobs:
   diagnose:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect live response headers
-        shell: bash
-        run: |
-          set -euo pipefail
-          echo '=== gallery headers ==='
-          curl -fsSI --retry 3 --retry-delay 2 https://lidure22.xyz/gallery/ | tr -d '\r'
-          echo '=== manifest headers ==='
-          curl -fsSI --retry 3 --retry-delay 2 https://raw.githubusercontent.com/Lidure/airi-gallery-images/main/gallery/gallery_index.json | tr -d '\r'
-
-      - name: Render live Gallery in Chrome
-        shell: bash
-        run: |
-          set -euo pipefail
-          CHROME="$(command -v google-chrome || command -v chromium || command -v chromium-browser)"
-          echo "chrome=$CHROME"
-          set +e
-          timeout 40s "$CHROME" \
-            --headless \
-            --no-sandbox \
-            --disable-gpu \
-            --disable-dev-shm-usage \
-            --virtual-time-budget=12000 \
-            --dump-dom \
-            https://lidure22.xyz/gallery/ > /tmp/gallery-dom.html 2> /tmp/gallery-chrome.log
-          chrome_status=$?
-          timeout 40s "$CHROME" \
-            --headless \
-            --no-sandbox \
-            --disable-gpu \
-            --disable-dev-shm-usage \
-            --virtual-time-budget=12000 \
-            --window-size=1440,1600 \
-            --screenshot=/tmp/gallery-live.png \
-            https://lidure22.xyz/gallery/ >> /tmp/gallery-chrome.log 2>&1
-          screenshot_status=$?
-          set -e
-          echo "chrome_status=$chrome_status screenshot_status=$screenshot_status"
-          echo '=== rendered counts ==='
-          printf 'category tabs: '; grep -o 'gallery-category-tab' /tmp/gallery-dom.html | wc -l || true
-          printf 'gallery tiles: '; grep -o 'gallery-tile' /tmp/gallery-dom.html | wc -l || true
-          echo '=== gallery notice ==='
-          grep -o '<div id="gallery-notice"[^>]*>[^<]*' /tmp/gallery-dom.html || true
-          echo '=== gallery root excerpt ==='
-          python3 - <<'PY'
-          from pathlib import Path
-          html = Path('/tmp/gallery-dom.html').read_text(errors='replace')
-          start = html.find('id="gallery-browser-root"')
-          print(html[max(0, start-300):start+5000] if start >= 0 else 'gallery root not found')
-          PY
-          echo '=== Chrome console/errors ==='
-          grep -Ei 'CONSOLE|ERROR|failed|blocked|cors|refused' /tmp/gallery-chrome.log | tail -120 || true
-
-      - name: Inspect computed layout via DevTools
+      - name: Inspect gallery grid placement
         shell: bash
         run: |
           set -euo pipefail
@@ -104,42 +52,65 @@ jobs:
           }
           await call('Runtime.enable');
           const expression = `(() => {
-            const pick = (sel) => {
-              const el = document.querySelector(sel);
-              if (!el) return null;
+            const parent = document.querySelector('.standard-content');
+            if (!parent) return { error: 'standard-content not found' };
+            const ps = getComputedStyle(parent);
+            const children = [...parent.children].map((el, index) => {
               const r = el.getBoundingClientRect();
               const s = getComputedStyle(el);
               return {
-                selector: sel,
-                rect: {x:r.x,y:r.y,width:r.width,height:r.height,top:r.top,bottom:r.bottom},
-                display:s.display, visibility:s.visibility, opacity:s.opacity,
-                position:s.position, zIndex:s.zIndex, overflow:s.overflow,
-                color:s.color, background:s.backgroundColor,
-                transform:s.transform
+                index,
+                tag: el.tagName,
+                id: el.id,
+                className: typeof el.className === 'string' ? el.className : '',
+                display: s.display,
+                position: s.position,
+                gridColumnStart: s.gridColumnStart,
+                gridColumnEnd: s.gridColumnEnd,
+                gridRowStart: s.gridRowStart,
+                gridRowEnd: s.gridRowEnd,
+                justifySelf: s.justifySelf,
+                alignSelf: s.alignSelf,
+                order: s.order,
+                marginLeft: s.marginLeft,
+                marginRight: s.marginRight,
+                x: r.x,
+                y: r.y,
+                width: r.width,
+                height: r.height
               };
-            };
+            });
+            const shell = document.querySelector('.gallery-page-shell');
+            const ss = shell ? getComputedStyle(shell) : null;
             return {
-              viewport:{w:innerWidth,h:innerHeight,scrollY,scrollHeight:document.documentElement.scrollHeight},
-              html:{classes:document.documentElement.className,wallpaper:document.documentElement.dataset.wallpaperMode},
-              body:{classes:document.body.className},
-              banner:pick('.blog-banner-stage'),
-              surface:pick('.standard-page-surface'),
-              content:pick('.standard-content'),
-              shell:pick('.gallery-page-shell'),
-              browser:pick('#gallery-browser-root'),
-              tabs:pick('#gallery-category-tabs'),
-              grid:pick('#gallery-grid'),
-              tile:pick('.gallery-tile')
+              parentGrid: {
+                display: ps.display,
+                gridTemplateColumns: ps.gridTemplateColumns,
+                gridTemplateRows: ps.gridTemplateRows,
+                gridAutoColumns: ps.gridAutoColumns,
+                gridAutoRows: ps.gridAutoRows,
+                gridAutoFlow: ps.gridAutoFlow,
+                justifyContent: ps.justifyContent,
+                justifyItems: ps.justifyItems,
+                alignItems: ps.alignItems,
+                columnGap: ps.columnGap,
+                rowGap: ps.rowGap
+              },
+              children,
+              shell: ss ? {
+                gridColumnStart: ss.gridColumnStart,
+                gridColumnEnd: ss.gridColumnEnd,
+                gridRowStart: ss.gridRowStart,
+                gridRowEnd: ss.gridRowEnd,
+                justifySelf: ss.justifySelf,
+                alignSelf: ss.alignSelf,
+                order: ss.order,
+                marginLeft: ss.marginLeft,
+                marginRight: ss.marginRight
+              } : null
             };
           })()`;
           const result = await call('Runtime.evaluate', { expression, returnByValue: true });
           console.log(JSON.stringify(result.result.value, null, 2));
           ws.close();
           NODE
-
-      - name: Upload screenshot
-        uses: actions/upload-artifact@v4
-        with:
-          name: gallery-live-screenshot
-          path: /tmp/gallery-live.png
-          if-no-files-found: error
