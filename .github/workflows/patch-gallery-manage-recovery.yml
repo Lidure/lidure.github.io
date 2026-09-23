@@ -1,0 +1,38 @@
+name: Patch Gallery Manager Recovery
+
+on:
+  push:
+    branches:
+      - codex/gallery-catalog-session-token-fix
+    paths:
+      - 'scripts/patch_gallery_manage_recovery.py'
+      - '.github/workflows/patch-gallery-manage-recovery.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: codex/gallery-catalog-session-token-fix
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: python scripts/patch_gallery_manage_recovery.py
+      - run: npm ci
+      - run: node --test tests/gallery-manifest-client.test.mjs tests/gallery-manage-core.test.mjs tests/gallery-manage-services.test.mjs
+      - name: Commit verified controller patch
+        run: |
+          if git diff --quiet -- src/lib/gallery-manage-controller.mjs; then
+            echo 'No controller changes to commit.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/lib/gallery-manage-controller.mjs
+          git commit -m 'fix: restore Gallery GitHub session safely'
+          git push origin HEAD:codex/gallery-catalog-session-token-fix
