@@ -7,6 +7,7 @@ function safeMessage(code) {
     'rate-limit': 'GitHub API 请求次数已达到限制，请稍后重试',
     conflict: '远端图库刚刚发生变化，请同步后重试',
     network: '无法连接 GitHub，请检查网络后重试',
+    scope: 'GitHub 请求超出固定图库范围',
     other: 'GitHub 请求失败，请稍后重试',
   })[code] || 'GitHub 请求失败';
 }
@@ -27,15 +28,21 @@ function galleryError(code, status = 0) {
 
 export function createGalleryGitHubClient({ fetchImpl = fetch, token = '' } = {}) {
   const credential = String(token || '').trim();
+  const fixedRepoPath = `/repos/${GALLERY_REPOSITORY}`;
 
   async function request(method, path, options = {}) {
+    const rawPath = String(path || '');
     let url;
-    if (/^https?:\/\//i.test(path)) {
-      url = new URL(path);
-    } else if (path.startsWith('/repos/')) {
-      url = new URL(`https://api.github.com${path}`);
+    if (/^https?:\/\//i.test(rawPath)) {
+      throw galleryError('scope');
+    }
+    if (rawPath.startsWith('/repos/')) {
+      if (rawPath !== fixedRepoPath && !rawPath.startsWith(`${fixedRepoPath}/`)) {
+        throw galleryError('scope');
+      }
+      url = new URL(`https://api.github.com${rawPath}`);
     } else {
-      url = new URL(githubApi(path));
+      url = new URL(githubApi(rawPath));
     }
     for (const [name, value] of Object.entries(options.params || {})) {
       if (value != null) url.searchParams.set(name, String(value));
