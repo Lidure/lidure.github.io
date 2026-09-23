@@ -48,7 +48,9 @@ test('GitHub token session persists only for the current browser session', async
 
 test('controller cleanup does not erase a valid session token', async () => {
   const source = await read('src/lib/gallery-manage-controller.mjs');
-  const cleanupBody = source.split('return () => {')[1] || '';
+  const cleanupAt = source.lastIndexOf('return () => {');
+  assert.ok(cleanupAt >= 0, 'controller must expose a cleanup function');
+  const cleanupBody = source.slice(cleanupAt);
   assert.doesNotMatch(cleanupBody, /tokenSession\.clear\(\)/);
 });
 
