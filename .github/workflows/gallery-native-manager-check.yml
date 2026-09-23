@@ -15,7 +15,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - name: Verify management layout in Chrome
+      - name: Verify management layout and dialog in Chrome
         shell: bash
         run: |
           set -euo pipefail
@@ -121,6 +121,45 @@ jobs:
           const desktop = await probe('desktop');
           if (desktop.layoutColumnCount !== 2) throw new Error('desktop: management layout is not two-column');
           if (desktop.gridColumnCount !== 4) throw new Error('desktop: image grid is not four-column');
+
+          const opened = await evaluate(`(() => {
+            const trigger = document.querySelector('#gallery-manage-connect');
+            trigger.focus();
+            trigger.click();
+            return true;
+          })()`);
+          if (!opened) throw new Error('dialog: connect trigger unavailable');
+          await sleep(100);
+          const dialogOpen = await evaluate(`(() => {
+            const dialog = document.querySelector('#gallery-manage-dialog');
+            return {
+              visible: !!dialog && !dialog.hidden,
+              visibleDialogCount: [...document.querySelectorAll('#gallery-manage-dialog')].filter(node => !node.hidden).length,
+              iframeCount: document.querySelectorAll('iframe').length,
+              legacyOverlayCount: document.querySelectorAll('.gallery-manager-overlay').length,
+              scrollLocked: document.documentElement.classList.contains('gallery-manage-dialog-open'),
+              activeType: document.activeElement?.getAttribute?.('type') || '',
+              activeAutocomplete: document.activeElement?.getAttribute?.('autocomplete') || '',
+            };
+          })()`);
+          console.log('dialog-open', JSON.stringify(dialogOpen));
+          if (!dialogOpen.visible || dialogOpen.visibleDialogCount !== 1) throw new Error('dialog: native connection dialog did not open as the single layer');
+          if (dialogOpen.iframeCount !== 0 || dialogOpen.legacyOverlayCount !== 0) throw new Error('dialog: legacy layering returned while open');
+          if (!dialogOpen.scrollLocked) throw new Error('dialog: page scroll was not locked');
+          if (dialogOpen.activeType !== 'password' || dialogOpen.activeAutocomplete !== 'off') throw new Error('dialog: token input did not receive safe focus');
+
+          await evaluate(`(() => {
+            document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+          })()`);
+          await sleep(100);
+          const dialogClosed = await evaluate(`(() => ({
+            hidden: document.querySelector('#gallery-manage-dialog')?.hidden === true,
+            scrollUnlocked: !document.documentElement.classList.contains('gallery-manage-dialog-open'),
+            focusId: document.activeElement?.id || '',
+          }))()`);
+          console.log('dialog-closed', JSON.stringify(dialogClosed));
+          if (!dialogClosed.hidden || !dialogClosed.scrollUnlocked) throw new Error('dialog: Escape did not close and unlock the page');
+          if (dialogClosed.focusId !== 'gallery-manage-connect') throw new Error('dialog: focus did not return to the connect trigger');
 
           await send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
           await sleep(500);
