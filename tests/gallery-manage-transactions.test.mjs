@@ -41,7 +41,7 @@ function makeDeleteHarness() {
     if (method === 'POST' && path.endsWith('/git/blobs')) return { data: { sha: 'manifest-new' } };
     if (method === 'POST' && path.endsWith('/git/trees')) return { data: { sha: 'tree-new' } };
     if (method === 'POST' && path.endsWith('/git/commits')) return { data: { sha: 'commit-new' } };
-    if (method === 'PATCH' && path.endsWith('/git/refs/heads/main')) return { data: { object: { sha: 'commit-new' } };
+    if (method === 'PATCH' && path.endsWith('/git/refs/heads/main')) return { data: { object: { sha: 'commit-new' } } };
     throw new Error(`unexpected ${method} ${path}`);
   };
   return { calls, request };
