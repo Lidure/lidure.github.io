@@ -53,3 +53,11 @@ test('connection keeps write controls locked until the first remote sync complet
   assert.ok(connectedAt >= 0 && syncAt > connectedAt, 'connect must establish authenticated state before initial remote sync');
   assert.ok(unlockAt > syncAt, 'write controls must stay disabled until the initial remote sync finishes');
 });
+
+test('management lifecycle clears authenticated runtime on pagehide and remounts after BFCache restore', async () => {
+  const workspace = await read('src/components/GalleryManageWorkspace.astro');
+  assert.match(workspace, /addEventListener\(['"]pagehide['"],\s*cleanupGalleryManage\)/);
+  assert.match(workspace, /addEventListener\(['"]pageshow['"],/);
+  assert.match(workspace, /event\.persisted/);
+  assert.match(workspace, /mountGalleryManage\(\)/);
+});
