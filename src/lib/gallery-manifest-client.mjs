@@ -1,9 +1,11 @@
 import { parseGalleryManifest } from './gallery-data.mjs';
 
-export const GALLERY_MANIFEST_URL =
-  'https://raw.githubusercontent.com/Lidure/airi-gallery-images/main/gallery/gallery_index.json';
+export const GALLERY_CATALOG_URL =
+  'https://airigallery.lidure22.xyz/__gallery-catalog';
+// Compatibility alias for callers that still use the old constant name.
+export const GALLERY_MANIFEST_URL = GALLERY_CATALOG_URL;
 
-const CACHE_KEY = 'lidure_gallery_manifest_v1';
+const CACHE_KEY = 'lidure_gallery_catalog_v1';
 const FRESH_MS = 5 * 60 * 1000;
 const MAX_STALE_MS = 24 * 60 * 60 * 1000;
 
@@ -45,13 +47,13 @@ export async function loadGalleryManifest({
   }
 
   try {
-    const response = await fetchImpl(GALLERY_MANIFEST_URL, {
+    const response = await fetchImpl(GALLERY_CATALOG_URL, {
       signal,
       cache: 'no-store',
       headers: { Accept: 'application/json' },
     });
     if (!response.ok) {
-      throw new Error(`图库索引请求失败：HTTP ${response.status}`);
+      throw new Error(`图库目录请求失败：HTTP ${response.status}`);
     }
     const payload = await response.json();
     const categories = parseGalleryManifest(payload);

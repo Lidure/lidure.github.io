@@ -10,11 +10,9 @@ import {
 import { createGalleryGitHubClient } from './gallery-github-client.mjs';
 import { prepareGalleryFile } from './gallery-image-hash.mjs';
 import {
-  addIndexEntries,
   parseGalleryIndex,
+  patchGalleryIndexPayload,
   planUploadPaths,
-  removeIndexEntry,
-  serializeGalleryIndex,
 } from './gallery-index-transaction.mjs';
 import {
   CLOUD_PROXY_BLOB_THRESHOLD_BYTES,
@@ -32,12 +30,34 @@ import { commitGitHubDeleteTransaction } from './gallery-delete-transaction.mjs'
 const PAGE_SIZE = 24;
 const collator = new Intl.Collator('zh-CN', { numeric: true, sensitivity: 'base' });
 
-export function createTokenSession() {
-  let token = '';
+export const GALLERY_TOKEN_SESSION_KEY = 'lidure_gallery_github_token_v1';
+
+function defaultTokenStorage() {
+  try { return globalThis.sessionStorage ?? null; }
+  catch { return null; }
+}
+
+export function createTokenSession(storage = defaultTokenStorage()) {
+  let fallback = '';
   return {
-    get() { return token; },
-    set(nextToken) { token = String(nextToken || '').trim(); },
-    clear() { token = ''; },
+    get() {
+      try {
+        if (storage?.getItem) return String(storage.getItem(GALLERY_TOKEN_SESSION_KEY) || '').trim();
+      } catch {}
+      return fallback;
+    },
+    set(nextToken) {
+      const token = String(nextToken || '').trim();
+      fallback = token;
+      try {
+        if (token) storage?.setItem?.(GALLERY_TOKEN_SESSION_KEY, token);
+        else storage?.removeItem?.(GALLERY_TOKEN_SESSION_KEY);
+      } catch {}
+    },
+    clear() {
+      fallback = '';
+      try { storage?.removeItem?.(GALLERY_TOKEN_SESSION_KEY); } catch {}
+    },
   };
 }
 
@@ -142,6 +162,7 @@ export function initGalleryManage(root, {
     client: null,
     remoteTree: [],
     galleryIndex: {},
+    galleryIndexPayload: null,
     manifestSha: null,
     queue: [],
     busy: false,
@@ -415,7 +436,7 @@ export function initGalleryManage(root, {
     return dialogPromise('连接 GitHub', (body, finish) => {
       const copy = doc.createElement('p');
       copy.className = 'gallery-manage-dialog-copy';
-      copy.textContent = 'Token 只保存在当前页面内存中；刷新、离开或断开连接后立即清空。';
+      copy.textContent = 'Token 只保存在当前浏览器会话中；刷新或离开后可自动恢复，断开连接、凭据失效或关闭浏览器会话后清空。';
       const label = doc.createElement('label');
       label.className = 'gallery-manage-field';
       const labelText = doc.createElement('span');
@@ -560,10 +581,12 @@ export function initGalleryManage(root, {
     const manifestResponse = await state.client.getContent(GALLERY_INDEX_PATH, { signal: abortController.signal });
     const content = manifestResponse.data?.content;
     if (!content) throw new Error('无法读取远端图库索引');
-    const index = parseGalleryIndex(JSON.parse(base64ToUtf8(content)));
+    const indexPayload = JSON.parse(base64ToUtf8(content));
+    const index = parseGalleryIndex(indexPayload);
     if (disposed || generation !== state.syncGeneration) return;
     state.remoteTree = snapshot.tree;
     state.galleryIndex = index;
+    state.galleryIndexPayload = indexPayload;
     state.manifestSha = manifestEntry.sha;
     state.categories = normalizeRemoteTree(snapshot.tree);
     renderAll();
@@ -578,6 +601,7 @@ export function initGalleryManage(root, {
       state.client = null;
       state.remoteTree = [];
       state.galleryIndex = {};
+      state.galleryIndexPayload = null;
       state.manifestSha = null;
       renderAll();
       await loadPublic(true);
@@ -587,22 +611,63 @@ export function initGalleryManage(root, {
     if (!token || disposed) return;
     setBusy(true);
     setStatus('正在验证 GitHub 权限…', 'loading');
-    tokenSession.set(token);
-    const client = githubClientFactory({ token: tokenSession.get() });
+    const client = githubClientFactory({ token });
     try {
       await client.validateWriteAccess();
       state.client = client;
       state.connected = true;
       await syncRemote();
+      tokenSession.set(token);
       setBusy(false);
       renderAll();
     } catch (error) {
       tokenSession.clear();
       state.client = null;
       state.connected = false;
+      state.remoteTree = [];
+      state.galleryIndex = {};
+      state.galleryIndexPayload = null;
+      state.manifestSha = null;
       setBusy(false);
       renderAll();
       setStatus(error?.message || 'GitHub 连接失败', 'error');
+    }
+  }
+
+  async function restoreSavedConnection() {
+    const token = tokenSession.get();
+    if (!token) {
+      await loadPublic(false);
+      return;
+    }
+    setBusy(true);
+    setStatus('正在恢复 GitHub 会话…', 'loading');
+    const client = githubClientFactory({ token });
+    try {
+      await client.validateWriteAccess();
+      if (disposed) return;
+      state.client = client;
+      state.connected = true;
+      await syncRemote();
+      if (disposed) return;
+      renderAll();
+    } catch (error) {
+      tokenSession.clear();
+      state.client = null;
+      state.connected = false;
+      state.remoteTree = [];
+      state.galleryIndex = {};
+      state.galleryIndexPayload = null;
+      state.manifestSha = null;
+      if (!disposed) {
+        await loadPublic(false);
+        if (error?.code === 'auth') setStatus('GitHub 会话已失效，请重新连接', 'error');
+      }
+    } finally {
+      if (!disposed) {
+        setBusy(false);
+        renderAll();
+      }
     }
   }
 
@@ -693,8 +758,18 @@ export function initGalleryManage(root, {
         item: accepted[index],
         perceptualHash: accepted[index].perceptualHash,
       }));
-      const nextIndex = addIndexEntries(state.galleryIndex, planned);
-      const manifestBase64 = utf8ToBase64(serializeGalleryIndex(nextIndex));
+      if (!state.galleryIndexPayload) throw new Error('无法确认远端图库索引内容');
+      const upserts = Object.fromEntries(planned.map(plan => [plan.path, plan.perceptualHash]));
+      const plannedMaxIndex = planned.reduce((max, plan) => {
+        const fileName = plan.path.split('/').pop() || '';
+        const value = Number(fileName.slice(0, fileName.lastIndexOf('.')));
+        return Number.isSafeInteger(value) ? Math.max(max, value) : max;
+      }, Number(state.galleryIndexPayload.max_index) || 0);
+      const nextIndexPayload = patchGalleryIndexPayload(state.galleryIndexPayload, {
+        upserts,
+        maxIndex: plannedMaxIndex,
+      });
+      const manifestBase64 = utf8ToBase64(JSON.stringify(nextIndexPayload));
       for (const plan of planned) plan.item.status = '上传';
       renderQueue();
 
@@ -763,8 +838,10 @@ export function initGalleryManage(root, {
     try {
       await syncRemote();
       const currentManifestSha = state.manifestSha;
-      if (!currentManifestSha) throw new Error('无法确认远端图库索引版本');
-      const nextIndex = removeIndexEntry(state.galleryIndex, image.path);
+      if (!currentManifestSha || !state.galleryIndexPayload) throw new Error('无法确认远端图库索引版本');
+      const nextIndexPayload = patchGalleryIndexPayload(state.galleryIndexPayload, {
+        removePaths: [image.path],
+      });
       await commitGitHubDeleteTransaction({
         owner: 'Lidure',
         repo: 'airi-gallery-images',
@@ -773,7 +850,7 @@ export function initGalleryManage(root, {
         imagePath: image.path,
         manifest: {
           path: GALLERY_INDEX_PATH,
-          contentBase64: utf8ToBase64(serializeGalleryIndex(nextIndex)),
+          contentBase64: utf8ToBase64(JSON.stringify(nextIndexPayload)),
           expectedSha: currentManifestSha,
         },
       });
@@ -846,14 +923,13 @@ export function initGalleryManage(root, {
   listen(doc, 'keydown', onDialogKeydown);
 
   updateWriteControls();
-  loadPublic(false);
+  restoreSavedConnection();
 
   return () => {
     if (disposed) return;
     disposed = true;
     abortController.abort();
     state.syncGeneration += 1;
-    tokenSession.clear();
     closeDialog(null);
     for (const item of state.queue) {
       try { URL.revokeObjectURL(item.previewUrl); } catch {}

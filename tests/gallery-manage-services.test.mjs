@@ -7,6 +7,7 @@ import {
   GALLERY_INDEX_ALGORITHM,
   GALLERY_INDEX_PATH,
   nextGlobalImageNumber,
+  patchGalleryIndexPayload,
   planUploadPaths,
   parseGalleryIndex,
   serializeGalleryIndex,
@@ -92,6 +93,41 @@ test('Gallery index preserves the existing Cloud manifest schema and algorithm',
     () => parseGalleryIndex({ ...payload, algorithm: 'average-hash-v0' }),
     /算法不兼容/,
   );
+});
+
+test('Gallery index patch preserves unrelated categories and unknown top-level fields', () => {
+  const payload = {
+    version: 1,
+    algorithm: GALLERY_INDEX_ALGORITHM,
+    max_index: 42,
+    future_field: { keep: true },
+    files: {
+      'gallery/airi/1.png': { perceptual_hash: '0011223344556677', extra: 'keep' },
+      'gallery/saki/41.png': { perceptual_hash: '1111222233334444' },
+      'gallery/Bang/42.gif': { perceptual_hash: 'aaaabbbbccccdddd' },
+    },
+  };
+  const patched = patchGalleryIndexPayload(payload, {
+    upserts: {
+      'gallery/saki/43.png': '0123456789abcdef',
+    },
+    removePaths: ['gallery/saki/41.png'],
+    maxIndex: 43,
+  });
+
+  assert.deepEqual(patched.future_field, { keep: true });
+  assert.deepEqual(patched.files['gallery/airi/1.png'], {
+    perceptual_hash: '0011223344556677',
+    extra: 'keep',
+  });
+  assert.deepEqual(patched.files['gallery/Bang/42.gif'], {
+    perceptual_hash: 'aaaabbbbccccdddd',
+  });
+  assert.equal(patched.files['gallery/saki/41.png'], undefined);
+  assert.deepEqual(patched.files['gallery/saki/43.png'], {
+    perceptual_hash: '0123456789abcdef',
+  });
+  assert.equal(patched.max_index, 43);
 });
 
 test('Gallery path planning keeps global numbering across categories', () => {

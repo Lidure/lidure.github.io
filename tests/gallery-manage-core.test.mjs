@@ -4,6 +4,15 @@ import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
+function memoryStorage(seed = {}) {
+  const map = new Map(Object.entries(seed));
+  return {
+    getItem: (key) => map.has(key) ? map.get(key) : null,
+    setItem: (key, value) => map.set(key, String(value)),
+    removeItem: (key) => map.delete(key),
+  };
+}
+
 test('manager configuration is fixed to the Blog gallery repository', async () => {
   const config = await import('../src/lib/gallery-manage-config.mjs');
   assert.equal(config.GALLERY_REPOSITORY, 'Lidure/airi-gallery-images');
@@ -18,16 +27,31 @@ test('manager configuration is fixed to the Blog gallery repository', async () =
   assert.equal(config.isSafeManagedImagePath('gallery/Bang/nested/12.gif'), false);
 });
 
-test('ephemeral token session never touches Web Storage', async () => {
+test('GitHub token session persists only for the current browser session', async () => {
   const source = await read('src/lib/gallery-manage-controller.mjs');
-  assert.doesNotMatch(source, /localStorage|sessionStorage|document\.cookie/);
-  const { createTokenSession } = await import('../src/lib/gallery-manage-controller.mjs');
-  const session = createTokenSession();
+  assert.doesNotMatch(source, /localStorage|document\.cookie/);
+  assert.match(source, /sessionStorage/);
+  const { createTokenSession, GALLERY_TOKEN_SESSION_KEY } = await import('../src/lib/gallery-manage-controller.mjs');
+  const storage = memoryStorage();
+  const session = createTokenSession(storage);
   assert.equal(session.get(), '');
   session.set('secret-token');
   assert.equal(session.get(), 'secret-token');
-  session.clear();
+  assert.equal(storage.getItem(GALLERY_TOKEN_SESSION_KEY), 'secret-token');
+
+  const restored = createTokenSession(storage);
+  assert.equal(restored.get(), 'secret-token');
+  restored.clear();
+  assert.equal(storage.getItem(GALLERY_TOKEN_SESSION_KEY), null);
   assert.equal(session.get(), '');
+});
+
+test('controller cleanup does not erase a valid session token', async () => {
+  const source = await read('src/lib/gallery-manage-controller.mjs');
+  const cleanupAt = source.lastIndexOf('return () => {');
+  assert.ok(cleanupAt >= 0, 'controller must expose a cleanup function');
+  const cleanupBody = source.slice(cleanupAt);
+  assert.doesNotMatch(cleanupBody, /tokenSession\.clear\(\)/);
 });
 
 test('native management route has no iframe or legacy overlay', async () => {
@@ -54,7 +78,7 @@ test('connection keeps write controls locked until the first remote sync complet
   assert.ok(unlockAt > syncAt, 'write controls must stay disabled until the initial remote sync finishes');
 });
 
-test('management lifecycle clears authenticated runtime on pagehide and remounts after BFCache restore', async () => {
+test('management lifecycle remounts after BFCache restore without destroying session credentials', async () => {
   const workspace = await read('src/components/GalleryManageWorkspace.astro');
   assert.match(workspace, /addEventListener\(['"]pagehide['"],\s*cleanupGalleryManage\)/);
   assert.match(workspace, /addEventListener\(['"]pageshow['"],/);
