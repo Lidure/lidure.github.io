@@ -55,6 +55,26 @@ test('GitHub client categorizes auth and rate-limit errors without token text', 
   await assert.rejects(limited.getBranchSnapshot(), (error) => error.code === 'rate-limit');
 });
 
+test('GitHub client refuses token-bearing requests outside the fixed Gallery repository', async () => {
+  let calls = 0;
+  const client = createGalleryGitHubClient({
+    token: 'secret-token',
+    fetchImpl: async () => {
+      calls += 1;
+      return jsonResponse({});
+    },
+  });
+  await assert.rejects(
+    client.request('GET', 'https://evil.example/repos/Lidure/airi-gallery-images'),
+    (error) => error.code === 'scope',
+  );
+  await assert.rejects(
+    client.request('GET', '/repos/Lidure/other-repo/git/ref/heads/main'),
+    (error) => error.code === 'scope',
+  );
+  assert.equal(calls, 0);
+});
+
 test('Gallery index preserves the existing Cloud manifest schema and algorithm', () => {
   assert.equal(GALLERY_INDEX_PATH, 'gallery/gallery_index.json');
   assert.equal(GALLERY_INDEX_ALGORITHM, 'dhash64-nn-white-v1');
