@@ -26,3 +26,30 @@ test('gallery browser exposes native structure and bounded loading behavior', as
   assert.match(controller, /AbortController/);
   assert.match(component, /astro:before-swap/);
 });
+
+test('gallery browser uses responsive page sizing instead of a fixed 24-image page', async () => {
+  const controller = await read('src/lib/gallery-browser-controller.mjs');
+
+  assert.match(controller, /galleryPageSizeForWidth/);
+  assert.match(controller, /remapGalleryPage/);
+  assert.match(controller, /addEventListener\(['"]resize['"]/);
+  assert.doesNotMatch(controller, /const\s+PAGE_SIZE\s*=\s*24/);
+});
+
+test('failed gallery images render a designed fallback and retry without native broken-image chrome', async () => {
+  const [controller, styles] = await Promise.all([
+    read('src/lib/gallery-browser-controller.mjs'),
+    read('src/styles/gallery.css'),
+  ]);
+
+  assert.match(controller, /gallery-tile-fallback/);
+  assert.match(controller, /gallery-tile-fallback-icon/);
+  assert.match(controller, /gallery-tile-fallback-title/);
+  assert.match(controller, /gallery-tile-fallback-filename/);
+  assert.match(controller, /暂时无法加载/);
+  assert.match(controller, /is-retrying/);
+  assert.match(controller, /setTimeout/);
+  assert.match(styles, /\.gallery-tile-fallback\s*\{/);
+  assert.match(styles, /\.gallery-tile\.is-error/);
+  assert.doesNotMatch(styles, /\.gallery-tile\.is-error::before\s*\{/);
+});
