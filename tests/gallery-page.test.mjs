@@ -32,12 +32,13 @@ test('public Gallery exposes a visible native management entry beside refresh', 
     read('src/components/GalleryBrowser.astro'),
     read('src/styles/gallery.css'),
   ]);
+  const styles = `${component}\n${css}`;
 
   assert.match(component, /class="gallery-hero-actions"/);
   assert.match(component, /href="\/gallery\/manage"[^>]*class="gallery-manage-link"/);
   assert.match(component, />图库管理<\/a>/);
-  assert.match(css, /\.gallery-hero-actions\s*\{[^}]*display:\s*flex\s*;[^}]*align-items:\s*center\s*;/s);
-  assert.match(css, /\.gallery-manage-link\s*\{[^}]*display:\s*inline-flex\s*;[^}]*align-items:\s*center\s*;[^}]*justify-content:\s*center\s*;/s);
+  assert.match(styles, /\.gallery-hero-actions\s*\{[^}]*display:\s*flex\s*;[^}]*align-items:\s*center\s*;/s);
+  assert.match(styles, /\.gallery-manage-link\s*\{[^}]*display:\s*inline-flex\s*;[^}]*align-items:\s*center\s*;[^}]*justify-content:\s*center\s*;/s);
 });
 
 test('native Gallery management route is standalone and iframe-free', async () => {
