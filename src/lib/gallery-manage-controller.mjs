@@ -593,9 +593,9 @@ export function initGalleryManage(root, {
       await client.validateWriteAccess();
       state.client = client;
       state.connected = true;
+      await syncRemote();
       setBusy(false);
       renderAll();
-      await syncRemote();
     } catch (error) {
       tokenSession.clear();
       state.client = null;
