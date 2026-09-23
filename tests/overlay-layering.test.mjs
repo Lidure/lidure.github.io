@@ -48,6 +48,12 @@ test('blocking dialogs, previews, toasts, and progress use their semantic layers
   assert.match(css, /#page-transition-progress[^{]*\{[^}]*z-index:\s*var\(--layer-progress\)/s);
 });
 
+test('Gallery management dialog uses the shared modal layer instead of a magic z-index', () => {
+  const css = read('src/styles/gallery-manage.css');
+  assert.match(css, /\.gallery-manage-dialog\s*\{[^}]*z-index:\s*var\(--layer-modal\)/s);
+  assert.doesNotMatch(css, /\.gallery-manage-dialog\s*\{[^}]*z-index:\s*12500\b/s);
+});
+
 test('message-board expanded surfaces escape the page stacking context without elevating all content', () => {
   const css = read('src/styles/overlay-layers.css');
   const component = read('src/components/MessageBoard.astro');
