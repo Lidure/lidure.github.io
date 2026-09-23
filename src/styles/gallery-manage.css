@@ -63,15 +63,21 @@
 }
 
 .gallery-manage-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 42px;
   padding: 0 16px;
+  box-sizing: border-box;
   border: 1px solid var(--standard-accent);
   border-radius: 999px;
   background: var(--standard-accent);
   color: #fff;
   font: inherit;
   font-weight: 650;
+  line-height: 1;
   text-decoration: none;
+  white-space: nowrap;
   cursor: pointer;
 }
 

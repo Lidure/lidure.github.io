@@ -27,6 +27,20 @@ test('gallery route joins Blog navigation and responsive styling', async () => {
   assert.match(css, /\.gallery-lightbox/);
 });
 
+test('public Gallery exposes a visible native management entry beside refresh', async () => {
+  const [component, css] = await Promise.all([
+    read('src/components/GalleryBrowser.astro'),
+    read('src/styles/gallery.css'),
+  ]);
+  const styles = `${component}\n${css}`;
+
+  assert.match(component, /class="gallery-hero-actions"/);
+  assert.match(component, /href="\/gallery\/manage"[^>]*class="gallery-manage-link"/);
+  assert.match(component, />图库管理<\/a>/);
+  assert.match(styles, /\.gallery-hero-actions\s*\{[^}]*display:\s*flex\s*;[^}]*align-items:\s*center\s*;/s);
+  assert.match(styles, /\.gallery-manage-link\s*\{[^}]*display:\s*inline-flex\s*;[^}]*align-items:\s*center\s*;[^}]*justify-content:\s*center\s*;/s);
+});
+
 test('native Gallery management route is standalone and iframe-free', async () => {
   const [page, workspace, css] = await Promise.all([
     read('src/pages/gallery/manage.astro'),
@@ -40,6 +54,14 @@ test('native Gallery management route is standalone and iframe-free', async () =
   assert.doesNotMatch(`${page}\n${workspace}`, /<iframe/i);
   assert.match(css, /\.gallery-manage-layout/);
   assert.match(css, /grid-template-columns:\s*minmax\(260px,\s*330px\)\s*minmax\(0,\s*1fr\)/);
+});
+
+test('Gallery management hero buttons share true vertical centering', async () => {
+  const css = await read('src/styles/gallery-manage.css');
+  assert.match(
+    css,
+    /\.gallery-manage-button\s*\{[^}]*display:\s*inline-flex\s*;[^}]*align-items:\s*center\s*;[^}]*justify-content:\s*center\s*;[^}]*line-height:\s*1\s*;/s,
+  );
 });
 
 test('gallery shell neutralizes Grid automatic minimum sizing', async () => {
