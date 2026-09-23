@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
+import * as galleryData from '../src/lib/gallery-data.mjs';
 import {
   galleryProxyUrl,
   isGifPath,
@@ -57,6 +58,23 @@ test('pagination clamps invalid page numbers and reports totals', () => {
     items: [49, 50],
   });
   assert.equal(paginate([], 1, 24).totalPages, 1);
+});
+
+test('Gallery page size fills desktop five-column rows and compact rows', () => {
+  assert.equal(typeof galleryData.galleryPageSizeForWidth, 'function');
+  assert.equal(galleryData.galleryPageSizeForWidth(1440), 25);
+  assert.equal(galleryData.galleryPageSizeForWidth(1181), 25);
+  assert.equal(galleryData.galleryPageSizeForWidth(1180), 24);
+  assert.equal(galleryData.galleryPageSizeForWidth(900), 24);
+  assert.equal(galleryData.galleryPageSizeForWidth(390), 24);
+});
+
+test('Gallery page remapping keeps the previous first image visible after resize', () => {
+  assert.equal(typeof galleryData.remapGalleryPage, 'function');
+  assert.equal(galleryData.remapGalleryPage(2, 25, 24), 2);
+  assert.equal(galleryData.remapGalleryPage(3, 25, 24), 3);
+  assert.equal(galleryData.remapGalleryPage(3, 24, 25), 2);
+  assert.equal(galleryData.remapGalleryPage(1, 25, 24), 1);
 });
 
 test('proxy URL encodes each path segment safely', () => {

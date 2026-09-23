@@ -55,6 +55,19 @@ export function paginate(items, page, pageSize) {
   };
 }
 
+export function galleryPageSizeForWidth(width) {
+  const viewportWidth = Number(width);
+  return Number.isFinite(viewportWidth) && viewportWidth > 1180 ? 25 : 24;
+}
+
+export function remapGalleryPage(page, previousPageSize, nextPageSize) {
+  const previousSize = Math.max(1, Math.trunc(Number(previousPageSize) || 1));
+  const nextSize = Math.max(1, Math.trunc(Number(nextPageSize) || 1));
+  const currentPage = Math.max(1, Math.trunc(Number(page) || 1));
+  const firstVisibleIndex = (currentPage - 1) * previousSize;
+  return Math.floor(firstVisibleIndex / nextSize) + 1;
+}
+
 export function galleryProxyUrl(path) {
   return 'https://airigallery.lidure22.xyz/__gallery-image/'
     + path.split('/').map(encodeURIComponent).join('/');
