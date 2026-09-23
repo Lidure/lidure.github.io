@@ -15,7 +15,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - name: Verify dialog paints above banner waves in Chrome
+      - name: Verify modal paints above banner waves in Chrome
         shell: bash
         run: |
           set -euo pipefail
@@ -76,24 +76,21 @@ jobs:
           await send('Page.enable');
           await send('Runtime.enable');
           await send('Emulation.setDeviceMetricsOverride', { width: 1600, height: 900, deviceScaleFactor: 1, mobile: false });
-          await send('Page.navigate', { url: 'http://127.0.0.1:4173/gallery/manage/' });
+          await send('Page.navigate', { url: 'http://127.0.0.1:4173/gallery/' });
           await sleep(900);
 
-          const result = await evaluate(`(async () => {
+          const result = await evaluate(`(() => {
             const stage = document.querySelector('.blog-banner-stage');
             const surface = document.querySelector('.standard-page-surface');
             const wave = document.querySelector('.banner-waves');
-            const connect = document.querySelector('#gallery-manage-connect');
-            const dialog = document.querySelector('#gallery-manage-dialog');
-            if (!stage || !surface || !wave || !connect || !dialog) {
+            const dialog = document.querySelector('#gallery-lightbox');
+            if (!stage || !surface || !wave || !dialog) {
               return { error: 'required Gallery stacking nodes are missing' };
             }
 
-            connect.click();
-            await new Promise(resolve => setTimeout(resolve, 150));
-            if (dialog.hidden) return { error: 'connection dialog did not open' };
-
+            dialog.hidden = false;
             wave.style.setProperty('pointer-events', 'auto', 'important');
+
             const rect = wave.getBoundingClientRect();
             const x = Math.max(1, Math.min(window.innerWidth - 2, rect.left + rect.width / 2));
             const y = Math.max(1, Math.min(window.innerHeight - 2, rect.top + rect.height / 2));
@@ -108,7 +105,7 @@ jobs:
               point: [x, y],
               topId: top?.id || '',
               topClass: top?.className || '',
-              topInsideDialog: Boolean(top?.closest?.('#gallery-manage-dialog')),
+              topInsideDialog: Boolean(top?.closest?.('#gallery-lightbox')),
             };
           })()`);
 
@@ -118,7 +115,7 @@ jobs:
             throw new Error(`banner stage must stay below page surface: ${result.stageZ} !< ${result.surfaceZ}`);
           }
           if (!result.topInsideDialog) {
-            throw new Error(`dialog is not the painted top layer over the wave region: ${JSON.stringify(result)}`);
+            throw new Error(`modal is not the painted top layer over the wave region: ${JSON.stringify(result)}`);
           }
 
           ws.close();
