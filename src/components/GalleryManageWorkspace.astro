@@ -88,13 +88,34 @@
     const root = document.getElementById('gallery-manage-root') as any;
     if (!root) return;
     root.__galleryManageCleanup?.();
-    root.__galleryManageCleanup = initGalleryManage(root);
+
+    const controllerCleanup = initGalleryManage(root);
+    const dialogCard = root.querySelector('.gallery-manage-dialog-card') as HTMLElement | null;
+    const preferTokenField = (event: FocusEvent) => {
+      if (event.target !== dialogCard) return;
+      const tokenInput = dialogCard?.querySelector(
+        'input[type="password"][autocomplete="off"]',
+      ) as HTMLInputElement | null;
+      tokenInput?.focus();
+    };
+
+    dialogCard?.addEventListener('focus', preferTokenField);
+    root.__galleryManageCleanup = () => {
+      dialogCard?.removeEventListener('focus', preferTokenField);
+      controllerCleanup?.();
+    };
+  }
+
+  function restoreGalleryManage(event: PageTransitionEvent) {
+    if (event.persisted) mountGalleryManage();
   }
 
   if (!manageWindow.__galleryManageLifecycleBound) {
     manageWindow.__galleryManageLifecycleBound = true;
     document.addEventListener('astro:page-load', mountGalleryManage);
     document.addEventListener('astro:before-swap', cleanupGalleryManage);
+    window.addEventListener('pagehide', cleanupGalleryManage);
+    window.addEventListener('pageshow', restoreGalleryManage);
   }
 
   mountGalleryManage();
