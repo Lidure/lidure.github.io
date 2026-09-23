@@ -4,6 +4,7 @@ export const GALLERY_INDEX_PATH = 'gallery/gallery_index.json';
 export const GALLERY_INDEX_ALGORITHM = 'dhash64-nn-white-v1';
 
 const EXTENSIONS = new Set(['.bmp', '.gif', '.jpeg', '.jpg', '.jfif', '.png', '.tif', '.tiff', '.webp']);
+const HASH_PATTERN = /^[0-9a-f]{16}$/i;
 
 function extensionOf(name) {
   const value = String(name || '');
@@ -21,18 +22,23 @@ function imageNumber(path) {
   return /^\d+$/.test(stem) ? Number(stem) : 0;
 }
 
-export function parseGalleryIndex(payload) {
+function validatePayload(payload) {
   if (!payload || typeof payload !== 'object' || Array.isArray(payload)) throw new Error('图库感知索引格式无效');
   if (payload.algorithm && payload.algorithm !== GALLERY_INDEX_ALGORITHM) {
     throw new Error(`图库感知索引算法不兼容：${payload.algorithm}`);
   }
-  const files = payload.files;
-  if (!files || typeof files !== 'object' || Array.isArray(files)) throw new Error('图库感知索引格式无效');
+  if (!payload.files || typeof payload.files !== 'object' || Array.isArray(payload.files)) {
+    throw new Error('图库感知索引格式无效');
+  }
+}
+
+export function parseGalleryIndex(payload) {
+  validatePayload(payload);
   const result = {};
-  for (const [path, entry] of Object.entries(files)) {
+  for (const [path, entry] of Object.entries(payload.files)) {
     if (!isSafeManagedImagePath(path)) continue;
     const hash = typeof entry === 'string' ? entry : entry?.perceptual_hash;
-    if (typeof hash !== 'string' || !/^[0-9a-f]{16}$/i.test(hash)) continue;
+    if (typeof hash !== 'string' || !HASH_PATTERN.test(hash)) continue;
     result[path] = hash.toLowerCase();
   }
   return result;
@@ -41,7 +47,7 @@ export function parseGalleryIndex(payload) {
 export function serializeGalleryIndex(index) {
   const entries = [];
   for (const [path, hash] of Object.entries(index || {})) {
-    if (isSafeManagedImagePath(path) && typeof hash === 'string' && /^[0-9a-f]{16}$/i.test(hash)) {
+    if (isSafeManagedImagePath(path) && typeof hash === 'string' && HASH_PATTERN.test(hash)) {
       entries.push([path, { perceptual_hash: hash.toLowerCase() }]);
     }
   }
@@ -51,6 +57,40 @@ export function serializeGalleryIndex(index) {
     algorithm: GALLERY_INDEX_ALGORITHM,
     files: Object.fromEntries(entries),
   });
+}
+
+export function patchGalleryIndexPayload(payload, {
+  upserts = {},
+  removePaths = [],
+  maxIndex,
+} = {}) {
+  validatePayload(payload);
+  const files = { ...payload.files };
+
+  for (const path of removePaths || []) {
+    if (!isSafeManagedImagePath(path)) throw new Error('待删除的图库索引路径无效');
+    delete files[path];
+  }
+
+  for (const [path, hash] of Object.entries(upserts || {})) {
+    if (!isSafeManagedImagePath(path) || typeof hash !== 'string' || !HASH_PATTERN.test(hash)) {
+      throw new Error('待写入的图库索引项无效');
+    }
+    files[path] = { perceptual_hash: hash.toLowerCase() };
+  }
+
+  const next = {
+    ...payload,
+    version: payload.version ?? 1,
+    algorithm: GALLERY_INDEX_ALGORITHM,
+    files,
+  };
+  if (maxIndex !== undefined) {
+    const value = Number(maxIndex);
+    if (!Number.isSafeInteger(value) || value < 0) throw new Error('图库最大编号无效');
+    next.max_index = Math.max(Number(payload.max_index) || 0, value);
+  }
+  return next;
 }
 
 export function nextGlobalImageNumber(tree) {
@@ -76,7 +116,7 @@ export function planUploadPaths(tree, category, files) {
 export function addIndexEntries(index, planned) {
   const next = { ...(index || {}) };
   for (const item of planned || []) {
-    if (!isSafeManagedImagePath(item?.path) || typeof item?.perceptualHash !== 'string' || !/^[0-9a-f]{16}$/i.test(item.perceptualHash)) {
+    if (!isSafeManagedImagePath(item?.path) || typeof item?.perceptualHash !== 'string' || !HASH_PATTERN.test(item.perceptualHash)) {
       throw new Error('待写入的图库索引项无效');
     }
     next[item.path] = item.perceptualHash.toLowerCase();
