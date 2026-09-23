@@ -4,24 +4,48 @@ import test from 'node:test';
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 
-test('gallery manager stays hidden until explicit entry and never ships eager iframe', async () => {
-  const [component, controller] = await Promise.all([
-    read('src/components/GalleryManager.astro'),
-    read('src/lib/gallery-manager-controller.mjs'),
-  ]);
-  assert.match(component, /gallery-manager-overlay/);
-  assert.match(component, /gallery-manager-frame-host/);
-  assert.doesNotMatch(component, /<iframe/);
-  assert.match(component, /gallery-manager-retry/);
-  assert.match(component, /gallery-manager-close/);
-  assert.match(component, /gallery-manager-direct/);
-  assert.match(controller, /searchParams\.get\(['"]manage['"]\)\s*===\s*['"]1['"]/);
-  assert.match(controller, /event\.ctrlKey\s*&&\s*event\.altKey/);
-  assert.match(controller, /event\.key\.toLowerCase\(\)\s*===\s*['"]g['"]/);
-  assert.match(controller, /document\.createElement\(['"]iframe['"]\)/);
-  assert.match(controller, /https:\/\/airigallery\.lidure22\.xyz\//);
-  assert.match(controller, /12_000|12000/);
-  assert.match(controller, /frame\.remove\(\)|replaceChildren\(\)/);
-  assert.match(controller, /history\.replaceState/);
-  assert.doesNotMatch(controller, /postMessage\([^)]*token/i);
+function makeHarness(href = 'https://lidure22.xyz/gallery') {
+  const listeners = new Map();
+  const doc = {
+    addEventListener(type, fn) { listeners.set(type, fn); },
+    removeEventListener(type, fn) { if (listeners.get(type) === fn) listeners.delete(type); },
+  };
+  const win = {
+    location: {
+      href,
+      assign(url) { win.__navigatedTo = url; },
+    },
+    __navigatedTo: '',
+  };
+  return { doc, win, listeners };
+}
+
+test('manage=1 navigates to the standalone native manager', async () => {
+  const { initGalleryManageEntry } = await import('../src/lib/gallery-manage-entry.mjs');
+  const { doc, win } = makeHarness('https://lidure22.xyz/gallery?manage=1');
+  const cleanup = initGalleryManageEntry(doc, win);
+  assert.equal(win.__navigatedTo, '/gallery/manage');
+  cleanup();
+});
+
+test('Ctrl+Alt+G navigates to the standalone native manager', async () => {
+  const { initGalleryManageEntry } = await import('../src/lib/gallery-manage-entry.mjs');
+  const { doc, win, listeners } = makeHarness();
+  const cleanup = initGalleryManageEntry(doc, win);
+  let prevented = false;
+  listeners.get('keydown')({
+    ctrlKey: true, altKey: true, metaKey: false, shiftKey: false, key: 'g',
+    preventDefault() { prevented = true; },
+  });
+  assert.equal(prevented, true);
+  assert.equal(win.__navigatedTo, '/gallery/manage');
+  cleanup();
+});
+
+test('public gallery no longer ships the old iframe manager', async () => {
+  const page = await read('src/pages/gallery.astro');
+  assert.doesNotMatch(page, /GalleryManager/);
+  assert.doesNotMatch(page, /gallery-manager-overlay/);
+  assert.doesNotMatch(page, /<iframe/i);
+  assert.match(page, /gallery-manage-entry\.mjs/);
 });

@@ -1,0 +1,128 @@
+<section id="gallery-manage-root" class="gallery-manage-root" aria-labelledby="gallery-manage-title">
+  <header class="gallery-manage-hero">
+    <div>
+      <p class="gallery-manage-eyebrow">Airi Gallery · Workspace</p>
+      <h1 id="gallery-manage-title">图库管理</h1>
+      <p>管理固定图库 <code>Lidure/airi-gallery-images</code>。默认只读，连接 GitHub 后才会启用写入操作。</p>
+    </div>
+    <div class="gallery-manage-hero-actions">
+      <a class="gallery-manage-button is-ghost" href="/gallery">返回画廊</a>
+      <button id="gallery-manage-sync" class="gallery-manage-button is-ghost" type="button">同步</button>
+      <button id="gallery-manage-connect" class="gallery-manage-button" type="button">连接 GitHub</button>
+    </div>
+  </header>
+
+  <div class="gallery-manage-statusbar">
+    <span class="gallery-manage-statusdot" aria-hidden="true"></span>
+    <span id="gallery-manage-status" role="status" aria-live="polite">只读模式</span>
+    <span id="gallery-manage-count" class="gallery-manage-count"></span>
+  </div>
+
+  <div class="gallery-manage-layout">
+    <aside id="gallery-manage-upload" class="gallery-manage-panel gallery-manage-upload" aria-labelledby="gallery-manage-upload-title">
+      <div class="gallery-manage-section-heading">
+        <div>
+          <p class="gallery-manage-kicker">Upload</p>
+          <h2 id="gallery-manage-upload-title">上传图片</h2>
+        </div>
+        <span id="gallery-manage-write-chip" class="gallery-manage-readonly-chip">连接后可用</span>
+      </div>
+
+      <label class="gallery-manage-field">
+        <span>分类</span>
+        <select id="gallery-manage-category-select" disabled>
+          <option value="">选择已有分类</option>
+        </select>
+      </label>
+      <label class="gallery-manage-field">
+        <span>或新建分类</span>
+        <input id="gallery-manage-category-new" type="text" placeholder="输入分类名称" disabled />
+      </label>
+
+      <button id="gallery-manage-dropzone" class="gallery-manage-dropzone" type="button" disabled>
+        <strong>拖拽图片到这里</strong>
+        <span>或点击选择文件 · 支持多选</span>
+      </button>
+      <input id="gallery-manage-file-input" type="file" accept="image/*" multiple hidden />
+      <div id="gallery-manage-upload-queue" class="gallery-manage-upload-queue" aria-live="polite"></div>
+      <button id="gallery-manage-upload-start" class="gallery-manage-button gallery-manage-upload-start" type="button" disabled>开始上传</button>
+    </aside>
+
+    <section class="gallery-manage-panel gallery-manage-browser" aria-labelledby="gallery-manage-browser-title">
+      <div class="gallery-manage-section-heading">
+        <div>
+          <p class="gallery-manage-kicker">Library</p>
+          <h2 id="gallery-manage-browser-title">图库内容</h2>
+        </div>
+      </div>
+      <nav id="gallery-manage-categories" class="gallery-manage-categories" aria-label="图库分类"></nav>
+      <div id="gallery-manage-grid" class="gallery-manage-grid" aria-live="polite"></div>
+      <nav id="gallery-manage-pager" class="gallery-manage-pager" aria-label="图库管理分页"></nav>
+    </section>
+  </div>
+
+  <div id="gallery-manage-dialog" class="gallery-manage-dialog" role="dialog" aria-modal="true" aria-labelledby="gallery-manage-dialog-title" hidden>
+    <button class="gallery-manage-dialog-backdrop" type="button" data-dialog-close aria-label="关闭对话框"></button>
+    <section class="gallery-manage-dialog-card" tabindex="-1">
+      <header>
+        <h2 id="gallery-manage-dialog-title">图库管理</h2>
+        <button type="button" class="gallery-manage-dialog-close" data-dialog-close aria-label="关闭">×</button>
+      </header>
+      <div id="gallery-manage-dialog-body"></div>
+    </section>
+  </div>
+</section>
+
+<script>
+  import { initGalleryManage } from '../lib/gallery-manage-controller.mjs';
+
+  const manageWindow = window as any;
+
+  function cleanupGalleryManage() {
+    const root = document.getElementById('gallery-manage-root') as any;
+    root?.__galleryManageCleanup?.();
+    if (root) root.__galleryManageCleanup = null;
+  }
+
+  function mountGalleryManage() {
+    const root = document.getElementById('gallery-manage-root') as any;
+    if (!root) return;
+    root.__galleryManageCleanup?.();
+
+    const controllerCleanup = initGalleryManage(root);
+    const dialog = root.querySelector('#gallery-manage-dialog') as HTMLElement | null;
+    let tokenFocusTimer = 0;
+    const focusTokenField = () => {
+      window.clearTimeout(tokenFocusTimer);
+      tokenFocusTimer = window.setTimeout(() => {
+        if (!dialog || dialog.hidden) return;
+        const tokenInput = dialog.querySelector(
+          'input[type="password"][autocomplete="off"]',
+        ) as HTMLInputElement | null;
+        tokenInput?.focus();
+      }, 0);
+    };
+    const dialogObserver = new MutationObserver(focusTokenField);
+    if (dialog) dialogObserver.observe(dialog, { attributes: true, attributeFilter: ['hidden'] });
+
+    root.__galleryManageCleanup = () => {
+      dialogObserver.disconnect();
+      window.clearTimeout(tokenFocusTimer);
+      controllerCleanup?.();
+    };
+  }
+
+  function restoreGalleryManage(event: PageTransitionEvent) {
+    if (event.persisted) mountGalleryManage();
+  }
+
+  if (!manageWindow.__galleryManageLifecycleBound) {
+    manageWindow.__galleryManageLifecycleBound = true;
+    document.addEventListener('astro:page-load', mountGalleryManage);
+    document.addEventListener('astro:before-swap', cleanupGalleryManage);
+    window.addEventListener('pagehide', cleanupGalleryManage);
+    window.addEventListener('pageshow', restoreGalleryManage);
+  }
+
+  mountGalleryManage();
+</script>

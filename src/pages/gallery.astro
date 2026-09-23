@@ -2,7 +2,6 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import GalleryBrowser from '../components/GalleryBrowser.astro';
 import GalleryLightbox from '../components/GalleryLightbox.astro';
-import GalleryManager from '../components/GalleryManager.astro';
 import '../styles/gallery.css';
 ---
 
@@ -16,5 +15,28 @@ import '../styles/gallery.css';
     <GalleryBrowser />
   </div>
   <GalleryLightbox />
-  <GalleryManager />
 </BaseLayout>
+
+<script>
+  import { initGalleryManageEntry } from '../lib/gallery-manage-entry.mjs';
+
+  const galleryWindow = window as any;
+
+  function cleanupGalleryManageEntry() {
+    galleryWindow.__galleryManageEntryCleanup?.();
+    galleryWindow.__galleryManageEntryCleanup = null;
+  }
+
+  function mountGalleryManageEntry() {
+    cleanupGalleryManageEntry();
+    galleryWindow.__galleryManageEntryCleanup = initGalleryManageEntry(document, window);
+  }
+
+  if (!galleryWindow.__galleryManageEntryLifecycleBound) {
+    galleryWindow.__galleryManageEntryLifecycleBound = true;
+    document.addEventListener('astro:page-load', mountGalleryManageEntry);
+    document.addEventListener('astro:before-swap', cleanupGalleryManageEntry);
+  }
+
+  mountGalleryManageEntry();
+</script>
