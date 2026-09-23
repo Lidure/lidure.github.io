@@ -43,3 +43,13 @@ test('native management route has no iframe or legacy overlay', async () => {
   assert.doesNotMatch(source, /<iframe/i);
   assert.doesNotMatch(source, /gallery-manager-overlay/);
 });
+
+test('connection keeps write controls locked until the first remote sync completes', async () => {
+  const source = await read('src/lib/gallery-manage-controller.mjs');
+  const connectBody = source.split('async function connect() {')[1]?.split('async function addFiles')[0] || '';
+  const connectedAt = connectBody.indexOf('state.connected = true');
+  const syncAt = connectBody.indexOf('await syncRemote()');
+  const unlockAt = connectBody.indexOf('setBusy(false)', connectedAt);
+  assert.ok(connectedAt >= 0 && syncAt > connectedAt, 'connect must establish authenticated state before initial remote sync');
+  assert.ok(unlockAt > syncAt, 'write controls must stay disabled until the initial remote sync finishes');
+});
