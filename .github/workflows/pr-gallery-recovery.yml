@@ -1,0 +1,24 @@
+name: Gallery Recovery PR
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/gallery-**'
+      - 'src/components/Gallery**'
+      - 'tests/gallery-**'
+      - '.github/workflows/pr-gallery-recovery.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  focused:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node --test tests/gallery-manifest-client.test.mjs tests/gallery-manage-core.test.mjs tests/gallery-manage-services.test.mjs
