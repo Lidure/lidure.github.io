@@ -37,6 +37,23 @@ test('expanded non-blocking panels outrank navigation without becoming modals', 
   assert.match(css, /\.message-drawer[^{]*\{[^}]*z-index:\s*var\(--layer-overlay\)/s);
 });
 
+test('non-home banner stage stays below the page surface so waves cannot cover dialogs', () => {
+  const banner = read('src/components/BlogBanner.astro');
+
+  assert.match(
+    banner,
+    /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard:not\(\.is-home\)\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*2\b/s,
+  );
+  assert.match(
+    banner,
+    /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\s+\.standard-page-surface\s*\{[^}]*z-index:\s*3\b/s,
+  );
+  assert.match(
+    banner,
+    /html\[data-wallpaper-mode="banner"\]\s+body\.layout-standard\.is-home\s+\.blog-banner-stage\s*\{[^}]*z-index:\s*auto\b/s,
+  );
+});
+
 test('blocking dialogs, previews, toasts, and progress use their semantic layers', () => {
   const css = read('src/styles/overlay-layers.css');
   assert.match(css, /\.message-composer-backdrop[^{]*\{[^}]*z-index:\s*var\(--layer-modal\)/s);
