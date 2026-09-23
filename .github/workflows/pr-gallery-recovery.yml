@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  focused:
+  full:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -21,4 +21,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: node --test tests/gallery-manifest-client.test.mjs tests/gallery-manage-core.test.mjs tests/gallery-manage-services.test.mjs
+      - run: npm test
