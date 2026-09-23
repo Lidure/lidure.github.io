@@ -75,10 +75,10 @@ export async function commitGitHubDeleteTransaction({
       body: { message: `Delete ${imagePath}`, tree: newTreeSha, parents: [base.headSha] },
     });
     if (!commit?.data?.sha) throw new Error('删除事务 commit 创建失败');
-    return { commitSha: commit.data.sha, entries };
+    return { commitSha: commit.data.sha, entries, manifestBlobSha };
   }
 
-  async function verify(commitSha) {
+  async function verify(commitSha, expectedManifestSha) {
     try {
       const ref = await safeRequest(request, 'GET', refPath, {}, sleep);
       if (ref?.data?.object?.sha === commitSha) return true;
@@ -87,7 +87,7 @@ export async function commitGitHubDeleteTransaction({
       const entries = tree?.data?.tree || [];
       const imageStillExists = entries.some(entry => entry?.type === 'blob' && entry.path === imagePath);
       const manifestEntry = entries.find(entry => entry?.type === 'blob' && entry.path === manifest.path);
-      return !imageStillExists && Boolean(manifestEntry?.sha);
+      return !imageStillExists && manifestEntry?.sha === expectedManifestSha;
     } catch {
       return false;
     }
@@ -107,11 +107,11 @@ export async function commitGitHubDeleteTransaction({
         await request('PATCH', updateRefPath, { body: { sha: built.commitSha, force: false } });
         return { commitSha: built.commitSha };
       } catch (retryError) {
-        if (transient(retryError) && await verify(built.commitSha)) return { commitSha: built.commitSha };
+        if (transient(retryError) && await verify(built.commitSha, built.manifestBlobSha)) return { commitSha: built.commitSha };
         throw retryError;
       }
     }
-    if (transient(error) && await verify(built.commitSha)) return { commitSha: built.commitSha };
+    if (transient(error) && await verify(built.commitSha, built.manifestBlobSha)) return { commitSha: built.commitSha };
     throw error;
   }
 }
