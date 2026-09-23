@@ -5,7 +5,10 @@
       <h1 id="gallery-title">画廊</h1>
       <p class="gallery-summary">收集喜欢的画面、角色与瞬间，把它们留在这里慢慢翻看。</p>
     </div>
-    <button id="gallery-refresh" class="gallery-refresh" type="button">↻ 刷新图库</button>
+    <div class="gallery-hero-actions">
+      <a href="/gallery/manage" class="gallery-manage-link">图库管理</a>
+      <button id="gallery-refresh" class="gallery-refresh" type="button">↻ 刷新图库</button>
+    </div>
   </header>
 
   <div id="gallery-notice" class="gallery-notice" role="status" aria-live="polite"></div>
@@ -24,6 +27,66 @@
   <div id="gallery-grid" class="gallery-grid" aria-live="polite"></div>
   <nav id="gallery-pager" class="gallery-pager" aria-label="图库分页"></nav>
 </section>
+
+<style>
+  .gallery-hero-actions {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 9px;
+  }
+
+  .gallery-manage-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 0 15px;
+    box-sizing: border-box;
+    border: 1px solid color-mix(in srgb, var(--standard-line) 78%, transparent);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--standard-card-soft) 76%, transparent);
+    color: var(--standard-muted);
+    font: inherit;
+    font-weight: 650;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: transform 160ms ease, border-color 160ms ease, background 160ms ease, color 160ms ease;
+  }
+
+  .gallery-manage-link:hover {
+    transform: translateY(-1px);
+    border-color: color-mix(in srgb, var(--standard-accent) 38%, var(--standard-line));
+    color: var(--standard-accent);
+    background: color-mix(in srgb, var(--standard-accent-soft) 34%, var(--standard-card-soft));
+  }
+
+  .gallery-manage-link:focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--standard-accent) 72%, transparent);
+    outline-offset: 2px;
+  }
+
+  @media (max-width: 720px) {
+    .gallery-hero-actions {
+      justify-content: flex-start;
+      width: 100%;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gallery-manage-link {
+      transition: none;
+    }
+
+    .gallery-manage-link:hover {
+      transform: none;
+    }
+  }
+</style>
 
 <script>
   import { initGalleryBrowser } from '../lib/gallery-browser-controller.mjs';
