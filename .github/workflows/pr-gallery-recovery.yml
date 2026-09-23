@@ -20,5 +20,24 @@ jobs:
         with:
           node-version: 22
           cache: npm
+      - name: Verify production Gallery catalog
+        run: |
+          curl --fail --silent --show-error --retry 8 --retry-delay 10 --retry-all-errors \
+            https://airigallery.lidure22.xyz/__gallery-catalog \
+            -o /tmp/gallery-catalog.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          data = json.loads(Path('/tmp/gallery-catalog.json').read_text(encoding='utf-8'))
+          files = data.get('files') or {}
+          categories = {path.split('/')[1] for path in files if path.startswith('gallery/') and path.count('/') == 2}
+          required = {'airi', 'Bang', 'saki'}
+          missing = required - categories
+          assert data.get('source') == 'github-tree', data.get('source')
+          assert not missing, f'missing production Gallery categories: {sorted(missing)}'
+          assert len(categories) > 3, f'catalog unexpectedly small: {sorted(categories)}'
+          print(f'production catalog OK: {len(categories)} categories, {len(files)} images')
+          PY
       - run: npm ci
       - run: npm test
