@@ -90,18 +90,24 @@
     root.__galleryManageCleanup?.();
 
     const controllerCleanup = initGalleryManage(root);
-    const dialogCard = root.querySelector('.gallery-manage-dialog-card') as HTMLElement | null;
-    const preferTokenField = (event: FocusEvent) => {
-      if (event.target !== dialogCard) return;
-      const tokenInput = dialogCard?.querySelector(
-        'input[type="password"][autocomplete="off"]',
-      ) as HTMLInputElement | null;
-      tokenInput?.focus();
+    const dialog = root.querySelector('#gallery-manage-dialog') as HTMLElement | null;
+    let tokenFocusTimer = 0;
+    const focusTokenField = () => {
+      window.clearTimeout(tokenFocusTimer);
+      tokenFocusTimer = window.setTimeout(() => {
+        if (!dialog || dialog.hidden) return;
+        const tokenInput = dialog.querySelector(
+          'input[type="password"][autocomplete="off"]',
+        ) as HTMLInputElement | null;
+        tokenInput?.focus();
+      }, 0);
     };
+    const dialogObserver = new MutationObserver(focusTokenField);
+    if (dialog) dialogObserver.observe(dialog, { attributes: true, attributeFilter: ['hidden'] });
 
-    dialogCard?.addEventListener('focus', preferTokenField);
     root.__galleryManageCleanup = () => {
-      dialogCard?.removeEventListener('focus', preferTokenField);
+      dialogObserver.disconnect();
+      window.clearTimeout(tokenFocusTimer);
       controllerCleanup?.();
     };
   }
