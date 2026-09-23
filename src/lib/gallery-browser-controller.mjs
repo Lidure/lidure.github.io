@@ -1,14 +1,14 @@
 import {
+  galleryPageSizeForWidth,
   galleryProxyUrl,
   nextPagePrefetchCandidates,
   paginate,
+  remapGalleryPage,
 } from './gallery-data.mjs';
 import {
   clearGalleryManifestCache,
   loadGalleryManifest,
 } from './gallery-manifest-client.mjs';
-
-const PAGE_SIZE = 24;
 
 function textButton(doc, label, onClick, options = {}) {
   const button = doc.createElement('button');
@@ -42,6 +42,7 @@ export function initGalleryBrowser(root, options = {}) {
     categories: [],
     category: '',
     page: 1,
+    pageSize: galleryPageSizeForWidth(win.innerWidth),
     loading: false,
     disposed: false,
   };
@@ -49,7 +50,9 @@ export function initGalleryBrowser(root, options = {}) {
   let abortController = new AbortController();
   let idleHandle = null;
   let idleFallback = null;
+  let resizeTimer = null;
   const preloads = new Set();
+  const imageRetryTimers = new Set();
 
   function setNotice(message = '', kind = '') {
     notice.textContent = message;
@@ -71,9 +74,22 @@ export function initGalleryBrowser(root, options = {}) {
     preloads.clear();
   }
 
+  function cancelImageRetries() {
+    for (const timer of imageRetryTimers) win.clearTimeout(timer);
+    imageRetryTimers.clear();
+  }
+
+  function scheduleImageRetry(callback, delay = 320) {
+    const timer = win.setTimeout(() => {
+      imageRetryTimers.delete(timer);
+      callback();
+    }, delay);
+    imageRetryTimers.add(timer);
+  }
+
   function scheduleNextPagePrefetch(images) {
     cancelPrefetch();
-    const candidates = nextPagePrefetchCandidates(images, state.page, PAGE_SIZE, 2);
+    const candidates = nextPagePrefetchCandidates(images, state.page, state.pageSize, 2);
     if (!candidates.length) return;
 
     const preload = () => {
@@ -132,24 +148,83 @@ export function initGalleryBrowser(root, options = {}) {
     img.loading = index === 0 ? 'eager' : 'lazy';
     img.decoding = 'async';
     const sourceUrl = galleryProxyUrl(item.path);
-    img.src = sourceUrl;
 
     const meta = doc.createElement('span');
     meta.className = 'gallery-tile-meta';
     meta.textContent = item.filename;
 
-    img.addEventListener('error', () => {
+    const fallback = doc.createElement('span');
+    fallback.className = 'gallery-tile-fallback';
+    fallback.hidden = true;
+    fallback.setAttribute('aria-hidden', 'true');
+
+    const fallbackIcon = doc.createElement('span');
+    fallbackIcon.className = 'gallery-tile-fallback-icon';
+    fallbackIcon.textContent = '↻';
+
+    const fallbackTitle = doc.createElement('span');
+    fallbackTitle.className = 'gallery-tile-fallback-title';
+    fallbackTitle.textContent = '暂时无法加载';
+
+    const fallbackFilename = doc.createElement('span');
+    fallbackFilename.className = 'gallery-tile-fallback-filename';
+    fallbackFilename.textContent = item.filename;
+
+    const fallbackHint = doc.createElement('span');
+    fallbackHint.className = 'gallery-tile-fallback-hint';
+    fallbackHint.textContent = '点击重试';
+
+    fallback.append(fallbackIcon, fallbackTitle, fallbackFilename, fallbackHint);
+
+    let automaticRetryUsed = false;
+
+    function showFallback(title, hint) {
+      fallbackTitle.textContent = title;
+      fallbackHint.textContent = hint;
+      fallback.hidden = false;
+    }
+
+    function showLoaded() {
+      tile.classList.remove('is-error', 'is-retrying');
+      img.hidden = false;
+      fallback.hidden = true;
+      tile.setAttribute('aria-label', `打开 ${item.filename}`);
+    }
+
+    function showError() {
+      tile.classList.remove('is-retrying');
       tile.classList.add('is-error');
       img.hidden = true;
-      meta.textContent = '图片加载失败 · 点击重试';
+      showFallback('暂时无法加载', '点击重试');
+      tile.setAttribute('aria-label', `重试加载 ${item.filename}`);
+    }
+
+    function retryImage(automatic = false) {
+      tile.classList.remove('is-error');
+      tile.classList.add('is-retrying');
+      img.hidden = true;
+      showFallback('正在重新加载…', automatic ? '网络波动，正在自动重试' : '正在重新请求图片');
+      tile.setAttribute('aria-label', `正在重试 ${item.filename}`);
+      scheduleImageRetry(() => {
+        if (state.disposed || !tile.isConnected) return;
+        img.src = `${sourceUrl}${sourceUrl.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+      });
+    }
+
+    img.addEventListener('load', showLoaded);
+    img.addEventListener('error', () => {
+      if (!automaticRetryUsed) {
+        automaticRetryUsed = true;
+        retryImage(true);
+        return;
+      }
+      showError();
     });
 
     tile.addEventListener('click', () => {
+      if (tile.classList.contains('is-retrying')) return;
       if (tile.classList.contains('is-error')) {
-        tile.classList.remove('is-error');
-        img.hidden = false;
-        meta.textContent = item.filename;
-        img.src = `${sourceUrl}${sourceUrl.includes('?') ? '&' : '?'}retry=${Date.now()}`;
+        retryImage(false);
         return;
       }
       tile.dispatchEvent(new CustomEvent('gallery:image-open', {
@@ -158,11 +233,13 @@ export function initGalleryBrowser(root, options = {}) {
       }));
     });
 
-    tile.append(img, meta);
+    tile.append(img, fallback, meta);
+    img.src = sourceUrl;
     return tile;
   }
 
   function renderGrid(entry) {
+    cancelImageRetries();
     grid.replaceChildren();
     if (!entry || !entry.images.length) {
       const empty = doc.createElement('p');
@@ -172,10 +249,10 @@ export function initGalleryBrowser(root, options = {}) {
       return;
     }
 
-    const pageData = paginate(entry.images, state.page, PAGE_SIZE);
+    const pageData = paginate(entry.images, state.page, state.pageSize);
     state.page = pageData.page;
     pageData.items.forEach((item, index) => {
-      const absoluteIndex = (pageData.page - 1) * PAGE_SIZE + index;
+      const absoluteIndex = (pageData.page - 1) * state.pageSize + index;
       grid.append(makeImageTile(item, absoluteIndex, index, entry.images));
     });
     scheduleNextPagePrefetch(entry.images);
@@ -183,7 +260,7 @@ export function initGalleryBrowser(root, options = {}) {
 
   function renderPager(entry) {
     pager.replaceChildren();
-    const pageData = paginate(entry?.images || [], state.page, PAGE_SIZE);
+    const pageData = paginate(entry?.images || [], state.page, state.pageSize);
     state.page = pageData.page;
 
     const go = (page) => {
@@ -261,14 +338,32 @@ export function initGalleryBrowser(root, options = {}) {
     load({ forceRefresh: true });
   }
 
+  function onResize() {
+    if (resizeTimer != null) win.clearTimeout(resizeTimer);
+    resizeTimer = win.setTimeout(() => {
+      resizeTimer = null;
+      if (state.disposed) return;
+      const nextPageSize = galleryPageSizeForWidth(win.innerWidth);
+      if (nextPageSize === state.pageSize) return;
+      state.page = remapGalleryPage(state.page, state.pageSize, nextPageSize);
+      state.pageSize = nextPageSize;
+      render();
+    }, 120);
+  }
+
   refresh.addEventListener('click', onRefresh);
+  win.addEventListener('resize', onResize);
   load();
 
   return function cleanupGalleryBrowser() {
     if (state.disposed) return;
     state.disposed = true;
     refresh.removeEventListener('click', onRefresh);
+    win.removeEventListener('resize', onResize);
+    if (resizeTimer != null) win.clearTimeout(resizeTimer);
+    resizeTimer = null;
     abortController.abort();
     cancelPrefetch();
+    cancelImageRetries();
   };
 }
