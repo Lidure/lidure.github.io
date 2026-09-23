@@ -43,11 +43,13 @@ const { title, subtitle } = Astro.props;
     --home-banner-content-inset: 0.75rem;
   }
 
-  /* Non-home banner pages retain the original stacking boundary. On the
-     homepage the stage must not create one, otherwise the content panel cannot
-     cross the banner seam like Firefly's z-30 content-panel. */
+  /* Non-home banner pages retain a local stacking boundary, but the whole
+     banner stage stays below the page surface so decorative waves can never
+     outrank dialogs or other UI inside the content surface. On the homepage
+     the stage must not create one, otherwise the content panel cannot cross
+     the banner seam like Firefly's z-30 content-panel. */
   html[data-wallpaper-mode="banner"] body.layout-standard:not(.is-home) .blog-banner-stage {
-    z-index: 4;
+    z-index: 2;
   }
 
   html[data-wallpaper-mode="banner"] body.layout-standard.is-home .blog-banner-stage {
