@@ -68,6 +68,7 @@
 <script>
   import {
     fetchMoments,
+    getCachedMoments,
     MomentApiError,
     setMomentPinned as setMomentPinnedViaApi,
     type MomentApiItem,
@@ -345,6 +346,7 @@
 
     async function refreshItems({ reorder = false } = {}) {
       const response = await fetchMoments({ limit: 200, signal });
+      if (signal.aborted) return;
       items = response.items;
       if (reorder) announceOrderChange();
       decorate();
@@ -394,6 +396,11 @@
     const observer = new MutationObserver(() => queueDecorate());
     observer.observe(listRoot, { childList: true, subtree: true });
 
+    const cachedMoments = getCachedMoments();
+    if (cachedMoments) {
+      items = cachedMoments.items;
+      decorate();
+    }
     void refreshItems().catch(() => {
       // The moments page owns loading/error UI. Companion/pin enhancements fail quietly.
       queueDecorate();
