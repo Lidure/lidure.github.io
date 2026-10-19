@@ -24,33 +24,24 @@ const featuredHref = featuredPost
 ---
 
 <BaseLayout
-  title="搁浅 的小窝"
+  title="搁浅的小窝"
   description="一个充满二次元氛围的个人博客，记录游戏、音乐、项目与日常。"
   bannerTitle="搁浅的小窝"
   bannerSubtitle="把喜欢的东西，认真地收进小站里。"
 >
   <div class="home-layout">
-    <HomeLeftSidebar
-      postCount={posts.length}
-      tagCount={tagCount}
-      featuredHref={featuredHref}
-      topTags={topTags}
-    />
-
     <div class="home-center-column">
       <nav class="home-category-bar" aria-label="首页内容导航">
-        <a class="is-featured" href={featuredHref}>✦ 精选</a>
-        <a href="#latest-posts-title">最新</a>
-        <a href="/tags">标签</a>
-        <a href="/moments">碎碎念</a>
-        <a href="/messages">留言</a>
+        <span class="home-welcome">随便逛逛，发现一点喜欢。</span>
+        <a href="#latest-posts-title">阅读文章 <span aria-hidden="true">↓</span></a>
+        <a href="#home-activity">最近动态 <span aria-hidden="true">↗</span></a>
       </nav>
 
       <section class="home-main-column" aria-labelledby="latest-posts-title">
         {featuredPost && (
           <a class="home-featured-card" href={featuredHref}>
-            <span class="home-featured-label">FEATURED · 精选</span>
-            <strong>{featuredPost.data.title}</strong>
+            <span class="home-featured-label">EDITOR’S PICK · 精选阅读</span>
+            <h2 class="home-featured-title">{featuredPost.data.title}</h2>
             <p>{featuredPost.data.description}</p>
             <span class="home-featured-link">阅读全文 →</span>
           </a>
@@ -69,6 +60,161 @@ const featuredHref = featuredPost
       </section>
     </div>
 
-    <HomeRightSidebar topTags={topTags} postCount={posts.length} tagCount={tagCount} />
+    <HomeLeftSidebar postCount={posts.length} tagCount={tagCount} topTags={topTags} />
+    <HomeRightSidebar />
   </div>
 </BaseLayout>
+
+<style is:global>
+  /* Homepage-only composition. Shared theme and wallpaper tokens stay authoritative. */
+  body.layout-standard.is-home .home-layout {
+    grid-template-columns: 218px minmax(0, 1fr) 264px;
+    gap: 24px;
+  }
+  body.layout-standard.is-home .home-center-column {
+    grid-area: main;
+    min-width: 0;
+  }
+  body.layout-standard.is-home .home-category-bar {
+    width: 100%;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    padding: 0 0 18px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    overflow: visible;
+  }
+  body.layout-standard.is-home .home-welcome {
+    flex: 1 1 180px;
+    color: var(--standard-muted);
+    font-size: .85rem;
+    line-height: 1.7;
+  }
+  body.layout-standard.is-home .home-category-bar a {
+    padding: 9px 0;
+    font-size: .82rem;
+    color: var(--firefly-btn-content);
+    background: transparent;
+  }
+  body.layout-standard.is-home .home-featured-card {
+    padding: clamp(24px, 3vw, 38px);
+    margin-bottom: 32px;
+    border-radius: 20px;
+    box-shadow: none;
+  }
+  body.layout-standard.is-home .home-featured-card::after { display: none; }
+  body.layout-standard.is-home .home-featured-label {
+    font-size: .72rem;
+    letter-spacing: .12em;
+    margin-bottom: 18px;
+  }
+  body.layout-standard.is-home .home-featured-title {
+    margin: 0;
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+  body.layout-standard.is-home .home-featured-card p {
+    font-size: .96rem;
+    line-height: 1.85;
+    margin: 12px 0 24px;
+  }
+  body.layout-standard.is-home .home-featured-link { font-size: .85rem; }
+  body.layout-standard.is-home .home-section-header { margin-bottom: 18px; gap: 12px; }
+  body.layout-standard.is-home #latest-posts-title,
+  body.layout-standard.is-home #home-activity { scroll-margin-top: 100px; }
+  body.layout-standard.is-home .home-post-list { gap: 20px; }
+  body.layout-standard.is-home .home-post-card { box-shadow: none; border-radius: 18px; }
+  body.layout-standard.is-home .home-post-card.has-cover,
+  body.layout-standard.is-home .home-post-card:nth-child(even).has-cover {
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 30%);
+  }
+  body.layout-standard.is-home .home-post-card.has-cover .home-post-copy,
+  body.layout-standard.is-home .home-post-card:not(.has-cover) .home-post-copy,
+  body.layout-standard.is-home .home-post-card:nth-child(even).has-cover .home-post-copy {
+    grid-column: 1;
+    grid-row: 1;
+    padding: 26px;
+  }
+  body.layout-standard.is-home .home-post-card.has-cover .home-post-cover,
+  body.layout-standard.is-home .home-post-card:nth-child(even).has-cover .home-post-cover {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+  }
+  body.layout-standard.is-home .home-post-card h2 {
+    padding-left: 0;
+    font-size: clamp(1.14rem, 1.5vw, 1.35rem);
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+  body.layout-standard.is-home .home-post-card h2::before,
+  body.layout-standard.is-home .home-post-card:not(.has-cover)::before { display: none; }
+  body.layout-standard.is-home .home-post-meta { font-size: .78rem; margin-bottom: 12px; }
+  body.layout-standard.is-home .home-post-card p {
+    font-size: .94rem;
+    line-height: 1.85;
+    margin: 10px 0 20px;
+  }
+  body.layout-standard.is-home .home-post-tags a { font-size: .74rem; padding: 7px 9px; }
+  body.layout-standard.is-home .home-post-read { font-size: .8rem; padding: 8px 0; opacity: 1; }
+  body.layout-standard.is-home .sidebar-widget { box-shadow: none; border-radius: 18px; }
+  body.layout-standard.is-home .sidebar-widget-header {
+    background: transparent;
+    border-bottom: 0;
+    padding: 18px 18px 6px;
+  }
+  body.layout-standard.is-home .sidebar-widget-body { padding: 14px 18px 20px; }
+  body.layout-standard.is-home .home-right-sidebar,
+  body.layout-standard.is-home .home-left-sidebar { gap: 20px; position: static; }
+  body.layout-standard.is-home .sidebar-profile-copy p { line-height: 1.85; font-size: .84rem; }
+  body.layout-standard.is-home .sidebar-widget-more { display: inline-block; padding-block: 9px; }
+  body.layout-standard.is-home .home-layout a:focus-visible {
+    outline: 2px solid var(--firefly-btn-content);
+    outline-offset: 4px;
+    border-radius: 6px;
+  }
+  @media (max-width: 1199px) and (min-width: 850px) {
+    body.layout-standard.is-home .home-layout {
+      grid-template-columns: minmax(0, 1fr) 250px;
+      grid-template-areas: "main left" "main right";
+      gap: 22px;
+    }
+  }
+  @media (max-width: 849px) {
+    body.layout-standard.is-home .home-layout {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "main" "left" "right";
+      gap: 28px;
+    }
+    body.layout-standard.is-home .home-left-sidebar,
+    body.layout-standard.is-home .home-right-sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    body.layout-standard.is-home .home-left-sidebar .profile-widget { grid-column: auto; }
+    body.layout-standard.is-home .profile-avatar-frame { max-width: 128px; }
+  }
+  @media (max-width: 600px) {
+    body.layout-standard.is-home .home-welcome { flex-basis: 100%; }
+    body.layout-standard.is-home .home-featured-card { padding: 24px; }
+    body.layout-standard.is-home .home-post-card.has-cover,
+    body.layout-standard.is-home .home-post-card:nth-child(even).has-cover { grid-template-columns: minmax(0, 1fr); }
+    body.layout-standard.is-home .home-post-card.has-cover .home-post-copy,
+    body.layout-standard.is-home .home-post-card:not(.has-cover) .home-post-copy,
+    body.layout-standard.is-home .home-post-card:nth-child(even).has-cover .home-post-copy { padding: 22px; }
+    body.layout-standard.is-home .home-post-card.has-cover .home-post-copy,
+    body.layout-standard.is-home .home-post-card:nth-child(even).has-cover .home-post-copy { grid-row: 2; }
+    body.layout-standard.is-home .home-post-card.has-cover .home-post-cover,
+    body.layout-standard.is-home .home-post-card:nth-child(even).has-cover .home-post-cover {
+      grid-column: 1;
+      grid-row: 1;
+      aspect-ratio: 16 / 9;
+      min-height: 0;
+    }
+    body.layout-standard.is-home .home-left-sidebar,
+    body.layout-standard.is-home .home-right-sidebar { grid-template-columns: minmax(0, 1fr); }
+    body.layout-standard.is-home .home-post-read span:first-child { display: inline; }
+  }
+</style>

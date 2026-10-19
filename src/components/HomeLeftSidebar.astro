@@ -9,11 +9,10 @@ interface TagItem {
 interface Props {
   postCount: number;
   tagCount: number;
-  featuredHref: string;
   topTags: TagItem[];
 }
 
-const { postCount, tagCount, featuredHref, topTags } = Astro.props;
+const { postCount, tagCount, topTags } = Astro.props;
 const socialLinks = [
   {
     href: 'https://github.com/Lidure',
@@ -62,15 +61,6 @@ const socialLinks = [
       <div><dt>文章</dt><dd>{postCount}</dd></div>
       <div><dt>标签</dt><dd>{tagCount}</dd></div>
     </dl>
-  </SidebarWidget>
-
-  <SidebarWidget title="快速入口" icon="⌁" tone="purple">
-    <nav class="sidebar-link-list" aria-label="首页快速入口">
-      <a href={featuredHref}><span>精选文章</span><span>→</span></a>
-      <a href="/posts"><span>文章归档</span><span>→</span></a>
-      <a href="/moments"><span>碎碎念</span><span>→</span></a>
-      <a href="/messages"><span>留言板</span><span>→</span></a>
-    </nav>
   </SidebarWidget>
 
   <SidebarWidget title="常用标签" icon="#" tone="cyan">
