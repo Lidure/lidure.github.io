@@ -317,11 +317,18 @@
 
     function decorate() {
       decorateQueued = false;
-      cards().forEach((card, index) => {
-        syncSunlitDecoration(card, index);
-        syncCardDecoration(card, itemForCard(card, index));
-      });
-      syncMomentsCompanions();
+      if (signal.aborted) return;
+      // Our own text/badge mutations must not schedule another decoration pass.
+      observer.disconnect();
+      try {
+        cards().forEach((card, index) => {
+          syncSunlitDecoration(card, index);
+          syncCardDecoration(card, itemForCard(card, index));
+        });
+        syncMomentsCompanions();
+      } finally {
+        observer.observe(listRoot, { childList: true, subtree: true });
+      }
     }
 
     function queueDecorate() {

@@ -101,6 +101,17 @@
 
     function enhanceSnapshotButtons() {
       scheduled = false;
+      if (signal.aborted) return;
+      // Reinitialization removes the old targets; allow surviving buttons to rebind.
+      shell.querySelectorAll<HTMLElement>('.moments-side-photo[data-native-snapshot]').forEach((button) => {
+        if (!document.getElementById(button.getAttribute('popovertarget') || '')) {
+          delete button.dataset.nativeSnapshot;
+        }
+      });
+      const activeTargets = new Set(Array.from(shell.querySelectorAll('[popovertarget]'), (button) => button.getAttribute('popovertarget')));
+      document.querySelectorAll('.moments-snapshot-popover').forEach((preview) => {
+        if (!activeTargets.has(preview.id)) preview.remove();
+      });
       const buttons = Array.from(shell.querySelectorAll<HTMLButtonElement>('.moments-side-photo:not([data-native-snapshot])'));
       buttons.forEach((button) => {
         const sourceThumb = button.querySelector<HTMLImageElement>('img');
