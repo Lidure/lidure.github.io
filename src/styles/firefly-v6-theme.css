@@ -274,7 +274,7 @@ body.layout-standard .home-featured-link {
   color: var(--firefly-btn-content);
 }
 
-body.layout-standard .home-featured-card strong {
+body.layout-standard .home-featured-card .home-featured-title {
   color: color-mix(in oklch, var(--firefly-deep-text) 82%, var(--firefly-primary));
 }
 

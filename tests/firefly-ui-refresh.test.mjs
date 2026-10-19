@@ -111,7 +111,8 @@ test('homepage widgets consume real tag, moments, player, and visitor sources', 
   const right = readSource('src/components/HomeRightSidebar.astro');
   const moments = readSource('src/components/RecentMomentsWidget.astro');
   const music = readSource('src/components/MusicStatusWidget.astro');
-  assert.match(right, /topTags/);
+  const left = readSource('src/components/HomeLeftSidebar.astro');
+  assert.match(left, /topTags/);
   assert.match(right, /VisitorCounter/);
   assert.match(moments, /fetchMoments\(\{\s*limit:\s*3\s*\}\)/);
   assert.match(music, /__sekaiOpenPlayer/);
