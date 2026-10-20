@@ -8,6 +8,31 @@ A Chinese personal blog built with Astro and published to GitHub Pages.
 - Worker API base: `https://api.lidure.xyz/api`
 - Media base: `https://media.lidure.xyz`
 
+## Native gallery management and Cloud integration
+
+The Blog's `/gallery/manage` page is a **native Astro workspace** maintained in this
+repository (`src/components/GalleryManageWorkspace.astro` and
+`src/lib/gallery-manage-controller.mjs`). It is not an iframe that automatically
+loads Airi Gallery Cloud's UI from the plugin repository. Both sites share the
+remote GitHub image data (`Lidure/airi-gallery-images/main`) and selected Cloud
+image/upload endpoints, **not frontend feature releases**.
+
+**Move images in the Blog:** connect GitHub with a token that can write to the
+gallery repository; open a category and select the image's **移动** button, or
+choose **批量移动** for up to 50 images across pages within one category.
+Select an existing/new destination, inspect the thumbnail grid (tap to enlarge),
+choose **预览迁移**, then **确认移动** within five minutes.
+
+The transaction reuses existing Git Blob SHA identifiers and moves image paths
+and the perceptual index in one non-force GitHub commit. It rejects stale branch
+HEADs, invalid filenames, duplicate global image IDs, missing index entries and
+target collisions. Read-only browsing and normal upload/delete are unaffected.
+
+Updating the Airi Gallery Cloud code does not deploy the Blog frontend. Blog
+releases are published by `.github/workflows/deploy.yml` after changes merge into
+this repository's `main` branch. The Cloud Worker still handles shared images,
+catalog and upload proxy operations separately.
+
 ## Development
 
 ```bash

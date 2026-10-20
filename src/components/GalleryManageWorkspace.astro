@@ -56,6 +56,15 @@
         </div>
       </div>
       <nav id="gallery-manage-categories" class="gallery-manage-categories" aria-label="图库分类"></nav>
+      <div id="gallery-manage-move-bar" class="gallery-manage-move-bar" hidden>
+        <button id="gallery-manage-move-mode" class="gallery-manage-button is-ghost" type="button" aria-pressed="false">批量移动</button>
+        <div id="gallery-manage-move-tools" class="gallery-manage-move-tools" hidden>
+          <span id="gallery-manage-move-count" aria-live="polite">已选择 0 / 50 张</span>
+          <button id="gallery-manage-move-page" class="gallery-manage-button is-ghost" type="button">选择本页</button>
+          <button id="gallery-manage-move-clear" class="gallery-manage-button is-ghost" type="button">清空</button>
+          <button id="gallery-manage-move-open" class="gallery-manage-button" type="button" disabled>移动所选图片</button>
+        </div>
+      </div>
       <div id="gallery-manage-grid" class="gallery-manage-grid" aria-live="polite"></div>
       <nav id="gallery-manage-pager" class="gallery-manage-pager" aria-label="图库管理分页"></nav>
     </section>
