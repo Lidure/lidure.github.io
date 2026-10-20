@@ -74,15 +74,24 @@ test('gallery shell neutralizes Grid automatic minimum sizing', async () => {
   );
 });
 
-test('gallery categories wrap on desktop and become a compact swipeable row on mobile', async () => {
-  const [component, css] = await Promise.all([
+test('gallery categories are discoverable in a wrapped mobile list with an expand control', async () => {
+  const [component, css, controller] = await Promise.all([
     read('src/components/GalleryBrowser.astro'),
     read('src/styles/gallery.css'),
+    read('src/lib/gallery-browser-controller.mjs'),
   ]);
 
   assert.match(component, /class="gallery-filter-panel"/);
   assert.match(component, /class="gallery-filter-heading"/);
+  assert.match(component, /id="gallery-categories-toggle"/);
+  assert.match(component, /aria-controls="gallery-category-tabs"/);
   assert.match(css, /\.gallery-category-tabs\s*\{[^}]*\bflex-wrap:\s*wrap\s*;/s);
-  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-category-tabs\s*\{[^}]*\bflex-wrap:\s*nowrap\s*;[^}]*\boverflow-x:\s*auto\s*;/s);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-category-tabs\s*\{[^}]*\bflex-wrap:\s*wrap\s*;[^}]*\bmax-height:\s*76px\s*;[^}]*\boverflow:\s*hidden\s*;/s);
+  assert.match(css, /\.gallery-category-tabs\.is-expanded\s*\{[^}]*max-height:\s*none\s*;/s);
+  assert.match(css, /\.gallery-categories-toggle/);
+  assert.doesNotMatch(css, /\.gallery-category-tabs\s*\{[^}]*\boverflow-x:\s*auto\s*;/s);
+  assert.match(controller, /scrollHeight\s*>\s*tabs\.clientHeight\s*\+\s*1/);
+  assert.match(controller, /categoriesToggle\?\.addEventListener\(['"]click['"],\s*onCategoriesToggle\)/);
+  assert.match(controller, /展开全部分类/);
   assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-filter-heading\s*>\s*p\s*\{[^}]*display:\s*none\s*;/s);
 });

@@ -12,6 +12,8 @@ test('gallery browser exposes native structure and bounded loading behavior', as
 
   assert.match(component, /id="gallery-browser-root"/);
   assert.match(component, /id="gallery-category-tabs"/);
+  assert.match(component, /id="gallery-categories-toggle"/);
+  assert.match(component, /aria-controls="gallery-category-tabs"/);
   assert.match(component, /id="gallery-grid"/);
   assert.match(component, /id="gallery-refresh"/);
   assert.match(component, /id="gallery-pager"/);
@@ -52,4 +54,16 @@ test('failed gallery images render a designed fallback and retry without native 
   assert.match(styles, /\.gallery-tile-fallback\s*\{/);
   assert.match(styles, /\.gallery-tile\.is-error/);
   assert.doesNotMatch(styles, /\.gallery-tile\.is-error::before\s*\{/);
+});
+
+
+test('mobile category list expands on demand and collapses after a category is selected', async () => {
+  const controller = await read('src/lib/gallery-browser-controller.mjs');
+
+  assert.match(controller, /categoriesExpanded:\s*false/);
+  assert.match(controller, /function updateCategoryToggle\(\)/);
+  assert.match(controller, /function onCategoriesToggle\(\)/);
+  assert.match(controller, /state\.categoriesExpanded\s*=\s*!state\.categoriesExpanded/);
+  assert.match(controller, /state\.categoriesExpanded\s*=\s*false/);
+  assert.match(controller, /categoriesToggle\?\.removeEventListener\(['"]click['"],\s*onCategoriesToggle\)/);
 });
