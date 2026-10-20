@@ -212,6 +212,43 @@ export function initGalleryManage(root, {
     updateMoveToolbar();
   }
 
+  function resetMoveSelection() {
+    state.moveMode = false;
+    state.moveSelection.clear();
+    root.classList.remove('is-selecting-move');
+    updateMoveToolbar();
+  }
+
+  function updateMoveToolbar() {
+    if (!moveBar || !moveModeBtn || !moveTools || !moveCount || !moveOpen) return;
+    const visible = state.connected && !!state.selectedCategory;
+    moveBar.hidden = !visible;
+    if (!visible) {
+      state.moveMode = false;
+      state.moveSelection.clear();
+    }
+    moveModeBtn.disabled = state.busy;
+    moveModeBtn.textContent = state.moveMode ? '退出批量移动' : '批量移动';
+    moveModeBtn.setAttribute('aria-pressed', String(state.moveMode));
+    moveTools.hidden = !state.moveMode;
+    moveCount.textContent = '已选择 ' + state.moveSelection.size + ' / ' + CLOUD_MOVE_MAX + ' 张';
+    moveOpen.disabled = state.busy || state.moveSelection.size === 0;
+    if (moveClear) moveClear.disabled = state.busy || state.moveSelection.size === 0;
+    if (movePage) movePage.disabled = state.busy;
+    root.classList.toggle('is-selecting-move', visible && state.moveMode);
+  }
+
+  function toggleMoveSelected(imagePath) {
+    if (!state.moveMode || !state.connected || state.busy) return;
+    if (state.moveSelection.has(imagePath)) state.moveSelection.delete(imagePath);
+    else if (state.moveSelection.size < CLOUD_MOVE_MAX) state.moveSelection.add(imagePath);
+    else {
+      setStatus('每次最多移动 50 张图片，请分批操作', 'error');
+      return;
+    }
+    renderGrid();
+  }
+
   function updateCounts() {
     const total = flatImages(state.categories).length;
     count.textContent = `${state.categories.length} 个分类 · ${total} 张图片`;
@@ -372,6 +409,7 @@ export function initGalleryManage(root, {
       for (const image of page.items) grid.append(createImageCard(image));
     }
     pager.replaceChildren();
+    updateMoveToolbar();
     if (page.totalPages > 1) {
       const previous = doc.createElement('button');
       previous.type = 'button';
@@ -933,6 +971,31 @@ export function initGalleryManage(root, {
     }
   }
 
+  if (moveModeBtn) listen(moveModeBtn, 'click', () => {
+    if (!state.connected || state.busy || !state.selectedCategory) return;
+    state.moveMode = !state.moveMode;
+    state.moveSelection.clear();
+    renderGrid();
+    updateMoveToolbar();
+  });
+  if (moveClear) listen(moveClear, 'click', () => {
+    if (state.busy) return;
+    state.moveSelection.clear();
+    renderGrid();
+  });
+  if (movePage) listen(movePage, 'click', () => {
+    if (!state.connected || state.busy || !state.moveMode) return;
+    for (const image of paginate(currentImages(), state.page, PAGE_SIZE).items) {
+      if (state.moveSelection.size >= CLOUD_MOVE_MAX) break;
+      state.moveSelection.add(image.path);
+    }
+    renderGrid();
+    updateMoveToolbar();
+  });
+  if (moveOpen) listen(moveOpen, 'click', () => {
+    if (!state.connected || state.busy || !state.moveMode || !state.selectedCategory) return;
+    void requestMove([...state.moveSelection], state.selectedCategory, moveOpen);
+  });
   listen(connectButton, 'click', connect);
   listen(syncButton, 'click', manualSync);
   listen(dropzone, 'click', () => fileInput.click());
