@@ -91,7 +91,7 @@ test('gallery categories are discoverable in a wrapped mobile list with an expan
   assert.match(css, /\.gallery-categories-toggle/);
   assert.doesNotMatch(css, /\.gallery-category-tabs\s*\{[^}]*\boverflow-x:\s*auto\s*;/s);
   assert.match(controller, /scrollHeight\s*>\s*tabs\.clientHeight\s*\+\s*1/);
-  assert.match(controller, /categoriesToggle\.addEventListener\(['"]click['"],\s*onCategoriesToggle\)/);
+  assert.match(controller, /categoriesToggle\?\.addEventListener\(['"]click['"],\s*onCategoriesToggle\)/);
   assert.match(controller, /展开全部分类/);
   assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-filter-heading\s*>\s*p\s*\{[^}]*display:\s*none\s*;/s);
 });
