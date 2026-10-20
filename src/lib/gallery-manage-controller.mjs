@@ -26,6 +26,7 @@ import {
   similarRemoteMatches,
 } from './gallery-upload-transaction.mjs';
 import { commitGitHubDeleteTransaction } from './gallery-delete-transaction.mjs';
+import { previewCloudMove, confirmCloudMove, CLOUD_MOVE_MAX } from './gallery-move-transaction.mjs';
 
 const PAGE_SIZE = 24;
 const collator = new Intl.Collator('zh-CN', { numeric: true, sensitivity: 'base' });
@@ -138,6 +139,13 @@ export function initGalleryManage(root, {
   const categoryNav = root.querySelector('#gallery-manage-categories');
   const grid = root.querySelector('#gallery-manage-grid');
   const pager = root.querySelector('#gallery-manage-pager');
+  const moveBar = root.querySelector('#gallery-manage-move-bar');
+  const moveModeBtn = root.querySelector('#gallery-manage-move-mode');
+  const moveTools = root.querySelector('#gallery-manage-move-tools');
+  const moveCount = root.querySelector('#gallery-manage-move-count');
+  const movePage = root.querySelector('#gallery-manage-move-page');
+  const moveClear = root.querySelector('#gallery-manage-move-clear');
+  const moveOpen = root.querySelector('#gallery-manage-move-open');
   const categorySelect = root.querySelector('#gallery-manage-category-select');
   const categoryNew = root.querySelector('#gallery-manage-category-new');
   const dropzone = root.querySelector('#gallery-manage-dropzone');
@@ -169,6 +177,8 @@ export function initGalleryManage(root, {
     syncGeneration: 0,
     dialogResolve: null,
     dialogInvoker: null,
+    moveMode: false,
+    moveSelection: new Set(),
   };
   let disposed = false;
   const abortController = new AbortController();
@@ -199,6 +209,7 @@ export function initGalleryManage(root, {
     uploadStart.disabled = !writable || !state.queue.some(item => item.status === '等待' || item.status === '失败');
     writeChip.textContent = state.connected ? '已连接 · 可写入' : '连接后可用';
     connectButton.textContent = state.connected ? '断开 GitHub' : '连接 GitHub';
+    updateMoveToolbar();
   }
 
   function updateCounts() {
@@ -245,6 +256,8 @@ export function initGalleryManage(root, {
       badge.textContent = String(choice.count);
       button.append(label, badge);
       button.addEventListener('click', () => {
+        if (state.busy) return;
+        resetMoveSelection();
         state.selectedCategory = choice.category;
         state.page = 1;
         renderAll();
@@ -273,6 +286,7 @@ export function initGalleryManage(root, {
     const card = doc.createElement('article');
     card.className = 'gallery-manage-card';
     card.dataset.galleryPath = image.path;
+    card.classList.toggle('is-move-selected', state.moveMode && state.moveSelection.has(image.path));
 
     const thumb = doc.createElement('button');
     thumb.type = 'button';
@@ -292,6 +306,7 @@ export function initGalleryManage(root, {
       failed.hidden = false;
     });
     thumb.addEventListener('click', () => {
+      if (state.moveMode) { toggleMoveSelected(image.path); return; }
       if (img.hidden) {
         failed.hidden = true;
         img.hidden = false;
@@ -301,6 +316,16 @@ export function initGalleryManage(root, {
       openPreview(image, thumb);
     });
     thumb.append(img, failed);
+    if (state.connected && state.moveMode && image.category === state.selectedCategory) {
+      const mark = doc.createElement('button');
+      mark.type = 'button';
+      mark.className = 'gallery-manage-move-mark';
+      mark.textContent = state.moveSelection.has(image.path) ? '✓' : '+';
+      mark.setAttribute('aria-label', '选择此图片进行移动');
+      mark.setAttribute('aria-pressed', String(state.moveSelection.has(image.path)));
+      mark.addEventListener('click', () => toggleMoveSelected(image.path));
+      card.append(mark);
+    }
 
     const footer = doc.createElement('footer');
     const text = doc.createElement('div');
@@ -317,6 +342,11 @@ export function initGalleryManage(root, {
     preview.addEventListener('click', () => openPreview(image, preview));
     actions.append(preview);
     if (state.connected) {
+      const move = doc.createElement('button');
+      move.type = 'button';
+      move.textContent = '移动';
+      move.addEventListener('click', () => { void requestMove([image.path], image.category, move); });
+      actions.append(move);
       const remove = doc.createElement('button');
       remove.type = 'button';
       remove.className = 'is-danger';
@@ -369,6 +399,7 @@ export function initGalleryManage(root, {
     renderCategories();
     renderGrid();
     updateWriteControls();
+    updateMoveToolbar();
   }
 
   function renderQueue() {
@@ -598,6 +629,7 @@ export function initGalleryManage(root, {
     if (state.connected) {
       tokenSession.clear();
       state.connected = false;
+      resetMoveSelection();
       state.client = null;
       state.remoteTree = [];
       state.galleryIndex = {};
