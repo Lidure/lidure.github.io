@@ -335,3 +335,5 @@ html.gallery-manage-dialog-open { overflow: hidden; }
   .gallery-manage-move-preview { grid-template-columns: repeat(3,minmax(0,1fr)); max-height: 30vh; }
   .gallery-manage-move-preview.is-single { grid-template-columns: minmax(160px,250px); }
 }
+
+.gallery-manage-card { position: relative; }
