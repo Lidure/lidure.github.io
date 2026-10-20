@@ -32,6 +32,7 @@ export function initGalleryBrowser(root, options = {}) {
   const clearCache = options.clearCache || clearGalleryManifestCache;
 
   const tabs = root.querySelector('#gallery-category-tabs');
+  const categoriesToggle = root.querySelector('#gallery-categories-toggle');
   const grid = root.querySelector('#gallery-grid');
   const pager = root.querySelector('#gallery-pager');
   const refresh = root.querySelector('#gallery-refresh');
@@ -41,6 +42,7 @@ export function initGalleryBrowser(root, options = {}) {
   const state = {
     categories: [],
     category: '',
+    categoriesExpanded: false,
     page: 1,
     pageSize: galleryPageSizeForWidth(win.innerWidth),
     loading: false,
@@ -62,6 +64,34 @@ export function initGalleryBrowser(root, options = {}) {
 
   function currentCategory() {
     return state.categories.find((entry) => entry.category === state.category) || state.categories[0] || null;
+  }
+
+  function updateCategoryToggle() {
+    if (!categoriesToggle) return;
+    const isMobile = typeof win.matchMedia === 'function'
+      ? win.matchMedia('(max-width: 720px)').matches
+      : win.innerWidth <= 720;
+    if (!isMobile) {
+      state.categoriesExpanded = false;
+      tabs.classList.remove('is-expanded');
+      categoriesToggle.hidden = true;
+      categoriesToggle.setAttribute('aria-expanded', 'false');
+      return;
+    }
+
+    tabs.classList.remove('is-expanded');
+    const needsToggle = tabs.scrollHeight > tabs.clientHeight + 1;
+    tabs.classList.toggle('is-expanded', state.categoriesExpanded);
+    categoriesToggle.hidden = !needsToggle;
+    categoriesToggle.setAttribute('aria-expanded', String(state.categoriesExpanded));
+    categoriesToggle.textContent = state.categoriesExpanded
+      ? '收起分类 ↑'
+      : `展开全部分类（${state.categories.length}） ↓`;
+  }
+
+  function onCategoriesToggle() {
+    state.categoriesExpanded = !state.categoriesExpanded;
+    updateCategoryToggle();
   }
 
   function cancelPrefetch() {
@@ -121,7 +151,12 @@ export function initGalleryBrowser(root, options = {}) {
         doc,
         `${entry.category} · ${entry.images.length}`,
         () => {
-          if (state.category === entry.category) return;
+          const changed = state.category !== entry.category;
+          state.categoriesExpanded = false;
+          if (!changed) {
+            updateCategoryToggle();
+            return;
+          }
           state.category = entry.category;
           state.page = 1;
           render();
@@ -134,6 +169,7 @@ export function initGalleryBrowser(root, options = {}) {
       button.dataset.category = entry.category;
       tabs.append(button);
     }
+    updateCategoryToggle();
   }
 
   function makeImageTile(item, absoluteIndex, index, images) {
@@ -324,6 +360,9 @@ export function initGalleryBrowser(root, options = {}) {
     } catch (error) {
       if (error?.name === 'AbortError' || state.disposed) return;
       tabs.replaceChildren();
+      state.categories = [];
+      state.categoriesExpanded = false;
+      updateCategoryToggle();
       grid.replaceChildren();
       pager.replaceChildren();
       setNotice(`图库加载失败：${error?.message || '未知错误'}`, 'error');
@@ -343,6 +382,7 @@ export function initGalleryBrowser(root, options = {}) {
     resizeTimer = win.setTimeout(() => {
       resizeTimer = null;
       if (state.disposed) return;
+      updateCategoryToggle();
       const nextPageSize = galleryPageSizeForWidth(win.innerWidth);
       if (nextPageSize === state.pageSize) return;
       state.page = remapGalleryPage(state.page, state.pageSize, nextPageSize);
@@ -352,6 +392,7 @@ export function initGalleryBrowser(root, options = {}) {
   }
 
   refresh.addEventListener('click', onRefresh);
+  categoriesToggle?.addEventListener('click', onCategoriesToggle);
   win.addEventListener('resize', onResize);
   load();
 
@@ -359,6 +400,7 @@ export function initGalleryBrowser(root, options = {}) {
     if (state.disposed) return;
     state.disposed = true;
     refresh.removeEventListener('click', onRefresh);
+    categoriesToggle?.removeEventListener('click', onCategoriesToggle);
     win.removeEventListener('resize', onResize);
     if (resizeTimer != null) win.clearTimeout(resizeTimer);
     resizeTimer = null;
