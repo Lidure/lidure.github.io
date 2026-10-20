@@ -228,13 +228,14 @@ export function initGalleryManage(root, {
       state.moveSelection.clear();
     }
     moveModeBtn.disabled = state.busy;
-    moveModeBtn.textContent = state.moveMode ? '退出批量移动' : '批量移动';
+    moveModeBtn.textContent = state.moveMode ? '退出选择' : '批量移动图片';
+    moveModeBtn.setAttribute('aria-label', state.moveMode ? '退出批量选择模式' : '批量移动图片，单次最多 50 张');
     moveModeBtn.setAttribute('aria-pressed', String(state.moveMode));
     moveTools.hidden = !state.moveMode;
-    moveCount.textContent = '已选择 ' + state.moveSelection.size + ' / ' + CLOUD_MOVE_MAX + ' 张';
+    moveCount.textContent = '已选 ' + state.moveSelection.size + ' 张';
     moveOpen.disabled = state.busy || state.moveSelection.size === 0;
     if (moveClear) moveClear.disabled = state.busy || state.moveSelection.size === 0;
-    if (movePage) movePage.disabled = state.busy;
+    if (movePage) movePage.disabled = state.busy || state.moveSelection.size >= CLOUD_MOVE_MAX;
     root.classList.toggle('is-selecting-move', visible && state.moveMode);
   }
 
