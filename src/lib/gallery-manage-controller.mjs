@@ -536,6 +536,161 @@ export function initGalleryManage(root, {
     }, invoker);
   }
 
+  function requestMove(paths, source, invoker) {
+    if (!state.connected || !state.client || state.busy || !paths.length || paths.length > CLOUD_MOVE_MAX) return;
+    // Blog is a separate native workspace: use its existing modal, Token and scoped GitHub client.
+    return dialogPromise('移动图片到其他分类', (body, finish) => {
+      const intro = doc.createElement('p');
+      intro.className = 'gallery-manage-move-copy';
+      intro.textContent = '从「' + source + '」移动 ' + paths.length + ' 张图片，请核对下方缩略图。';
+      const preview = doc.createElement('div');
+      preview.className = 'gallery-manage-move-preview';
+      preview.classList.toggle('is-single', paths.length === 1);
+      for (const path of paths) {
+        const thumb = doc.createElement('button');
+        thumb.type = 'button';
+        thumb.title = '点击放大 / 缩小';
+        thumb.setAttribute('aria-label', '放大查看待迁移图片');
+        const image = doc.createElement('img');
+        image.src = galleryProxyUrl(path);
+        image.alt = '待迁移图片';
+        image.loading = 'lazy';
+        image.decoding = 'async';
+        thumb.append(image);
+        thumb.addEventListener('click', () => {
+          thumb.classList.toggle('is-large');
+          thumb.setAttribute('aria-pressed', String(thumb.classList.contains('is-large')));
+        });
+        preview.append(thumb);
+      }
+      const label = doc.createElement('label');
+      label.className = 'gallery-manage-field';
+      const labelText = doc.createElement('span');
+      labelText.textContent = '目标分类';
+      const select = doc.createElement('select');
+      const first = doc.createElement('option');
+      first.value = '';
+      first.textContent = '选择已有分类';
+      select.append(first);
+      for (const category of state.categories) {
+        if (category.category === source) continue;
+        const option = doc.createElement('option');
+        option.value = category.category;
+        option.textContent = category.category;
+        select.append(option);
+      }
+      label.append(labelText, select);
+      const newLabel = doc.createElement('label');
+      newLabel.className = 'gallery-manage-field';
+      const newLabelText = doc.createElement('span');
+      newLabelText.textContent = '或新建分类（优先使用输入名称）';
+      const newInput = doc.createElement('input');
+      newInput.type = 'text';
+      newInput.autocomplete = 'off';
+      newInput.maxLength = 80;
+      newInput.placeholder = '例如 airi图片';
+      newLabel.append(newLabelText, newInput);
+      const summary = doc.createElement('p');
+      summary.className = 'gallery-manage-move-summary';
+      summary.hidden = true;
+      const feedback = doc.createElement('p');
+      feedback.className = 'gallery-manage-move-feedback';
+      feedback.setAttribute('role', 'status');
+      const actions = doc.createElement('div');
+      actions.className = 'gallery-manage-dialog-actions';
+      const cancel = doc.createElement('button');
+      cancel.type = 'button';
+      cancel.className = 'gallery-manage-button is-ghost';
+      cancel.textContent = '取消';
+      const next = doc.createElement('button');
+      next.type = 'button';
+      next.className = 'gallery-manage-button';
+      next.textContent = '预览迁移';
+      cancel.addEventListener('click', () => finish(null));
+      let plan = null;
+      let submitting = false;
+      const review = async () => {
+        if (submitting || disposed || !state.client || !state.connected) return;
+        feedback.textContent = '';
+        if (!plan) {
+          const target = newInput.value.trim() || select.value;
+          if (!target || target === source) {
+            feedback.textContent = '请选择与原分类不同的目标分类';
+            return;
+          }
+          submitting = true;
+          setBusy(true);
+          cancel.disabled = true;
+          next.disabled = true;
+          try {
+            plan = await previewCloudMove({
+              owner: 'Lidure', repo: 'airi-gallery-images', branch: GALLERY_BRANCH,
+              request: state.client.request, source, target, paths,
+            });
+            if (disposed || dialog.hidden) return;
+            summary.textContent = '将 ' + plan.items.length + ' 张图片从「' + source + '」移动到「'
+              + target + '」。\nGitHub 将以一个 Commit 更新图片路径与感知索引。\n请在 5 分钟内确认。';
+            summary.hidden = false;
+            select.disabled = true;
+            newInput.disabled = true;
+            next.textContent = '确认移动 ' + plan.items.length + ' 张';
+          } catch (error) {
+            feedback.textContent = error?.message || '预览失败，请重试';
+          } finally {
+            submitting = false;
+            setBusy(false);
+            cancel.disabled = false;
+            next.disabled = false;
+          }
+          return;
+        }
+        submitting = true;
+        setBusy(true);
+        cancel.disabled = true;
+        next.disabled = true;
+        const selectedPlan = plan;
+        plan = null; // A confirmed preview can only be submitted once.
+        try {
+          const result = await confirmCloudMove({ plan: selectedPlan, request: state.client.request });
+          if (!disposed) finish({ moved: result.moved, source, target: selectedPlan.target, paths });
+        } catch (error) {
+          if (!disposed) {
+            summary.hidden = true;
+            select.disabled = false;
+            newInput.disabled = false;
+            next.textContent = '重新预览迁移';
+            feedback.textContent = error?.message || '迁移结果未确认，请同步核对';
+          }
+        } finally {
+          submitting = false;
+          setBusy(false);
+          cancel.disabled = false;
+          next.disabled = false;
+        }
+      };
+      next.addEventListener('click', () => { void review(); });
+      actions.append(cancel, next);
+      body.append(intro, preview, label, newLabel, summary, feedback, actions);
+    }, invoker).then(async result => {
+      if (!result || disposed) return;
+      resetMoveSelection();
+      setBusy(true);
+      try {
+        await syncRemote();
+        const originalPaths = new Set(result.paths);
+        if (state.remoteTree.some(entry => entry?.type === 'blob' && originalPaths.has(entry.path))) {
+          setStatus('GitHub 已提交迁移，但远端刷新尚未收敛；请点击同步核对', 'error');
+        } else {
+          setStatus('已移动 ' + result.moved + ' 张图片到「' + result.target + '」', 'connected');
+        }
+      } catch {
+        setStatus('GitHub 已提交迁移，但页面刷新失败；请点击同步核对', 'error');
+      } finally {
+        setBusy(false);
+      }
+    });
+  }
+
   function confirmDelete(image, invoker) {
     return dialogPromise('确认删除图片', (body, finish) => {
       const preview = doc.createElement('div');
