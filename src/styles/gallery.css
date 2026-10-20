@@ -171,6 +171,34 @@
   padding: 0;
 }
 
+.gallery-categories-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 36px;
+  margin-top: 8px;
+  padding: 7px 12px;
+  border: 1px solid color-mix(in srgb, var(--standard-accent) 30%, var(--standard-line));
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--standard-accent-soft) 24%, var(--standard-card-bg));
+  color: var(--standard-accent);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: border-color 160ms ease, background 160ms ease, color 160ms ease;
+}
+
+.gallery-categories-toggle[hidden] {
+  display: none !important;
+}
+
+.gallery-categories-toggle:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--standard-accent) 72%, transparent);
+  outline-offset: 2px;
+}
+
 .gallery-category-tab {
   flex: 0 0 auto;
   max-width: 100%;
@@ -186,6 +214,7 @@
   background: color-mix(in srgb, var(--standard-accent-soft) 76%, var(--standard-card-soft));
   color: var(--standard-accent);
   box-shadow: 0 4px 14px color-mix(in srgb, var(--standard-accent) 10%, transparent);
+  font-weight: 700;
 }
 
 .gallery-grid {
@@ -666,31 +695,32 @@ html.gallery-manager-open {
   }
 
   .gallery-category-tabs {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    overflow-y: hidden;
+    flex-wrap: wrap;
+    max-height: 76px;
+    overflow: hidden;
     gap: 6px;
     margin-top: 8px;
     padding: 2px 0 4px;
-    overscroll-behavior-inline: contain;
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x proximity;
   }
 
-  .gallery-category-tabs::-webkit-scrollbar {
-    display: none;
+  .gallery-category-tabs.is-expanded {
+    max-height: none;
+    overflow: visible;
   }
 
   .gallery-category-tab {
-    max-width: 42vw;
+    box-sizing: border-box;
+    max-width: 100%;
     min-height: 32px;
     overflow: hidden;
     padding: 6px 10px;
     font-size: 0.78rem;
     line-height: 1.2;
     text-overflow: ellipsis;
-    scroll-snap-align: start;
+  }
+
+  .gallery-categories-toggle {
+    display: flex;
   }
 
   .gallery-grid {
@@ -829,6 +859,7 @@ html.gallery-manager-open {
   .gallery-tile-meta,
   .gallery-refresh,
   .gallery-category-tab,
+  .gallery-categories-toggle,
   .gallery-pager button,
   .gallery-lightbox button,
   .gallery-manager-overlay button,
