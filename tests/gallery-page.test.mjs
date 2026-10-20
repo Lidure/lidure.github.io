@@ -22,7 +22,8 @@ test('gallery route joins Blog navigation and responsive styling', async () => {
   assert.match(css, /repeat\(5,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /@media \(max-width:\s*1180px\)[\s\S]*repeat\(4,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /@media \(max-width:\s*900px\)[\s\S]*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
-  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*repeat\(3,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-filter-panel\s*\{[^}]*padding:\s*10px 12px 11px/s);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)/);
   assert.match(css, /\.gallery-lightbox/);
 });
@@ -73,7 +74,7 @@ test('gallery shell neutralizes Grid automatic minimum sizing', async () => {
   );
 });
 
-test('gallery categories use a wrapped filter panel instead of a single scrolling row', async () => {
+test('gallery categories wrap on desktop and become a compact swipeable row on mobile', async () => {
   const [component, css] = await Promise.all([
     read('src/components/GalleryBrowser.astro'),
     read('src/styles/gallery.css'),
@@ -82,5 +83,6 @@ test('gallery categories use a wrapped filter panel instead of a single scrollin
   assert.match(component, /class="gallery-filter-panel"/);
   assert.match(component, /class="gallery-filter-heading"/);
   assert.match(css, /\.gallery-category-tabs\s*\{[^}]*\bflex-wrap:\s*wrap\s*;/s);
-  assert.doesNotMatch(css, /\.gallery-category-tabs\s*\{[^}]*\boverflow-x:\s*auto\s*;/s);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-category-tabs\s*\{[^}]*\bflex-wrap:\s*nowrap\s*;[^}]*\boverflow-x:\s*auto\s*;/s);
+  assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-filter-heading\s*>\s*p\s*\{[^}]*display:\s*none\s*;/s);
 });
