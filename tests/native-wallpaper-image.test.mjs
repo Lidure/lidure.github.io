@@ -34,7 +34,7 @@ test('all built-in wallpaper media is served from same-origin local assets', () 
 
   const urls = [...defaultBlock[1].matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1]);
   assert.equal(urls.length, 13, 'expected the new default plus 12 built-in wallpapers/videos');
-  assert.equal(urls[0], '/assets/wallpapers/blog-default-night-moon.webp', 'the supplied moon artwork should be the first default wallpaper');
+  assert.equal(urls[0], '/assets/wallpapers/blog-default-night-moon.avif', 'the supplied moon artwork should be the first default wallpaper');
   assert.doesNotMatch(defaultBlock[1], /https?:\/\//, 'built-in wallpaper defaults must not depend on remote hosts');
 
   for (const url of urls) {
