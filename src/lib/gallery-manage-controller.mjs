@@ -137,6 +137,7 @@ export function initGalleryManage(root, {
   const connectButton = root.querySelector('#gallery-manage-connect');
   const syncButton = root.querySelector('#gallery-manage-sync');
   const categoryNav = root.querySelector('#gallery-manage-categories');
+  const categoriesToggle = root.querySelector('#gallery-manage-categories-toggle');
   const grid = root.querySelector('#gallery-manage-grid');
   const pager = root.querySelector('#gallery-manage-pager');
   const moveBar = root.querySelector('#gallery-manage-move-bar');
@@ -165,6 +166,7 @@ export function initGalleryManage(root, {
   const state = {
     categories: [],
     selectedCategory: '',
+    categoriesExpanded: false,
     page: 1,
     connected: false,
     client: null,
@@ -296,12 +298,43 @@ export function initGalleryManage(root, {
       button.addEventListener('click', () => {
         if (state.busy) return;
         resetMoveSelection();
+        state.categoriesExpanded = false;
         state.selectedCategory = choice.category;
         state.page = 1;
         renderAll();
       });
       categoryNav.append(button);
     }
+    updateCategoryToggle();
+  }
+
+  function updateCategoryToggle() {
+    if (!categoriesToggle) return;
+    const isMobile = typeof win.matchMedia === 'function'
+      ? win.matchMedia('(max-width: 700px)').matches
+      : win.innerWidth <= 700;
+    if (!isMobile) {
+      state.categoriesExpanded = false;
+      categoryNav.classList.remove('is-expanded');
+      categoriesToggle.hidden = true;
+      categoriesToggle.setAttribute('aria-expanded', 'false');
+      return;
+    }
+
+    categoryNav.classList.remove('is-expanded');
+    const needsToggle = categoryNav.scrollHeight > categoryNav.clientHeight + 1;
+    if (!needsToggle) state.categoriesExpanded = false;
+    categoryNav.classList.toggle('is-expanded', state.categoriesExpanded);
+    categoriesToggle.hidden = !needsToggle;
+    categoriesToggle.setAttribute('aria-expanded', String(state.categoriesExpanded));
+    categoriesToggle.textContent = state.categoriesExpanded
+      ? '收起分类 ↑'
+      : `展开全部分类（${state.categories.length + 1}） ↓`;
+  }
+
+  function onCategoriesToggle() {
+    state.categoriesExpanded = !state.categoriesExpanded;
+    updateCategoryToggle();
   }
 
   function openPreview(image, invoker) {
@@ -1152,6 +1185,8 @@ export function initGalleryManage(root, {
     if (!state.connected || state.busy || !state.moveMode || !state.selectedCategory) return;
     void requestMove([...state.moveSelection], state.selectedCategory, moveOpen);
   });
+  if (categoriesToggle) listen(categoriesToggle, 'click', onCategoriesToggle);
+  listen(win, 'resize', updateCategoryToggle);
   listen(connectButton, 'click', connect);
   listen(syncButton, 'click', manualSync);
   listen(dropzone, 'click', () => fileInput.click());
@@ -1173,6 +1208,7 @@ export function initGalleryManage(root, {
   }
   listen(doc, 'keydown', onDialogKeydown);
 
+  updateCategoryToggle();
   updateWriteControls();
   restoreSavedConnection();
 
