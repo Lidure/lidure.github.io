@@ -141,3 +141,25 @@ test('gallery categories are discoverable in a wrapped mobile list with an expan
   assert.match(controller, /展开全部分类/);
   assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-filter-heading\s*>\s*p\s*\{[^}]*display:\s*none\s*;/s);
 });
+
+
+test('mobile management workspace expands horizontally and keeps card actions visible', async () => {
+  const [manageCss, componentCss] = await Promise.all([
+    read('src/styles/gallery-manage.css'),
+    read('src/styles/gallery-manage-components.css'),
+  ]);
+
+  assert.ok(manageCss.includes('width: calc(100% + 20px)'));
+  assert.ok(manageCss.includes('margin-inline: -10px'));
+  assert.ok(manageCss.includes('padding-inline: 4px'));
+  assert.ok(manageCss.includes('width: calc(100% + 24px)'));
+  assert.ok(manageCss.includes('margin-inline: -12px'));
+  assert.ok(manageCss.includes('.gallery-manage-panel {\n    padding: 12px;'));
+  assert.ok(manageCss.includes('.gallery-manage-panel {\n    padding: 9px;'));
+
+  assert.ok(componentCss.includes('grid-template-columns: repeat(2, minmax(0, 1fr))'));
+  assert.ok(componentCss.includes('.gallery-manage-card-actions button:first-child'));
+  assert.ok(componentCss.includes('grid-column: 1 / -1'));
+  assert.ok(componentCss.includes('min-width: 0;'));
+  assert.ok(componentCss.includes('white-space: nowrap;'));
+});

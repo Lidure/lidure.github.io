@@ -327,7 +327,9 @@
 
 @media (max-width: 700px) {
   .gallery-manage-page-shell {
-    padding-inline: 12px;
+    width: calc(100% + 20px);
+    margin-inline: -10px;
+    padding-inline: 4px;
   }
   .gallery-manage-hero {
     align-items: stretch;
@@ -341,7 +343,7 @@
     flex: 1 1 auto;
   }
   .gallery-manage-panel {
-    padding: 16px;
+    padding: 12px;
   }
   .gallery-manage-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -369,6 +371,14 @@
 }
 
 @media (max-width: 390px) {
+  .gallery-manage-page-shell {
+    width: calc(100% + 24px);
+    margin-inline: -12px;
+    padding-inline: 4px;
+  }
+  .gallery-manage-panel {
+    padding: 9px;
+  }
   .gallery-manage-grid {
     gap: 6px;
   }
