@@ -1,14 +1,14 @@
 export const VISUAL_SETTINGS_KEY = 'hero_settings';
 
 export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
-  version: 3,
+  version: 4,
   enabled: true,
   autoplay: true,
   interval: 15000,
   opacity: 0.45,
   quality: 'high',
   sakura: true,
-  wallpaperMode: 'banner',
+  wallpaperMode: 'fullscreen',
   bannerHeight: 65,
   backgroundBlur: 5,
   cardOpacity: 0.92,
@@ -35,10 +35,14 @@ const finiteOr = (value, fallback) =>
 export function normalizeVisualSettings(raw = {}) {
   const safeRaw = raw && typeof raw === 'object' ? raw : {};
   const merged = { ...DEFAULT_VISUAL_SETTINGS, ...safeRaw };
+  const previousVersion = Number(safeRaw.version || 0);
+  const wallpaperMode = previousVersion < 4 && safeRaw.wallpaperMode === 'banner'
+    ? 'fullscreen'
+    : merged.wallpaperMode;
 
   return {
     ...merged,
-    version: 3,
+    version: 4,
     enabled: merged.enabled !== false,
     autoplay: merged.autoplay !== false,
     interval: clamp(finiteOr(merged.interval, 15000), 2000, 20000),
@@ -47,9 +51,9 @@ export function normalizeVisualSettings(raw = {}) {
       ? merged.quality
       : 'high',
     sakura: merged.sakura === true,
-    wallpaperMode: ['fullscreen', 'overlay'].includes(merged.wallpaperMode)
-      ? merged.wallpaperMode
-      : 'banner',
+    wallpaperMode: ['fullscreen', 'overlay', 'banner'].includes(wallpaperMode)
+      ? wallpaperMode
+      : 'fullscreen',
     bannerHeight: clamp(finiteOr(merged.bannerHeight, 65), 45, 80),
     backgroundBlur: clamp(finiteOr(merged.backgroundBlur, 5), 0, 20),
     cardOpacity: clamp(finiteOr(merged.cardOpacity, 0.92), 0.2, 1),
