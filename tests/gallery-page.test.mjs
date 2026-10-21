@@ -141,3 +141,36 @@ test('gallery categories are discoverable in a wrapped mobile list with an expan
   assert.match(controller, /展开全部分类/);
   assert.match(css, /@media \(max-width:\s*720px\)[\s\S]*\.gallery-filter-heading\s*>\s*p\s*\{[^}]*display:\s*none\s*;/s);
 });
+
+
+test('mobile management workspace expands horizontally and keeps card actions visible', async () => {
+  const [manageCss, componentCss] = await Promise.all([
+    read('src/styles/gallery-manage.css'),
+    read('src/styles/gallery-manage-components.css'),
+  ]);
+
+  assert.match(
+    manageCss,
+    /@media \\(max-width:\\s*700px\\)[\\s\\S]*?\\.gallery-manage-page-shell\\s*\\{[^}]*width:\\s*calc\\(100%\\s*\\+\\s*20px\\)[^}]*margin-inline:\\s*-10px[^}]*padding-inline:\\s*4px/s,
+  );
+  assert.match(
+    manageCss,
+    /@media \\(max-width:\\s*390px\\)[\\s\\S]*?\\.gallery-manage-page-shell\\s*\\{[^}]*width:\\s*calc\\(100%\\s*\\+\\s*24px\\)[^}]*margin-inline:\\s*-12px[^}]*padding-inline:\\s*4px/s,
+  );
+  assert.match(
+    manageCss,
+    /@media \\(max-width:\\s*700px\\)[\\s\\S]*?\\.gallery-manage-panel\\s*\\{[^}]*padding:\\s*12px/s,
+  );
+  assert.match(
+    componentCss,
+    /@media \\(max-width:\\s*700px\\)[\\s\\S]*\\.gallery-manage-card-actions\\s*\\{[^}]*display:\\s*grid[^}]*grid-template-columns:\\s*repeat\\(2,\\s*minmax\\(0,\\s*1fr\\)\\)[^}]*width:\\s*100%/s,
+  );
+  assert.match(
+    componentCss,
+    /\\.gallery-manage-card-actions button:first-child\\s*\\{[^}]*grid-column:\\s*1\\s*\\/\\s*-1/s,
+  );
+  assert.match(
+    componentCss,
+    /@media \\(max-width:\\s*700px\\)[\\s\\S]*?\\.gallery-manage-card-actions button\\s*\\{[^}]*min-width:\\s*0[^}]*white-space:\\s*nowrap/s,
+  );
+});
