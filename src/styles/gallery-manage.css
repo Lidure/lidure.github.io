@@ -344,8 +344,11 @@
     padding: 16px;
   }
   .gallery-manage-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 9px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  .gallery-manage-card {
+    border-radius: 11px;
   }
   .gallery-manage-count {
     white-space: normal;
@@ -362,6 +365,12 @@
   }
   .gallery-manage-categories-toggle:not([hidden]) {
     display: flex;
+  }
+}
+
+@media (max-width: 390px) {
+  .gallery-manage-grid {
+    gap: 6px;
   }
 }
 

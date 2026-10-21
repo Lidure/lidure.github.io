@@ -79,6 +79,30 @@ test('mobile management categories are discoverable in a wrapped list with an ex
   assert.match(controller, /展开全部分类/);
 });
 
+test('mobile management image grid matches the public gallery three-column layout', async () => {
+  const [manageCss, galleryCss] = await Promise.all([
+    read('src/styles/gallery-manage.css'),
+    read('src/styles/gallery.css'),
+  ]);
+
+  assert.match(
+    manageCss,
+    /@media \(max-width:\s*700px\)[\s\S]*\.gallery-manage-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)\s*;[^}]*gap:\s*8px\s*;/s,
+  );
+  assert.match(
+    manageCss,
+    /@media \(max-width:\s*390px\)[\s\S]*\.gallery-manage-grid\s*\{[^}]*gap:\s*6px\s*;/s,
+  );
+  assert.match(
+    galleryCss,
+    /@media \(max-width:\s*720px\)[\s\S]*\.gallery-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)\s*;[^}]*gap:\s*8px\s*;/s,
+  );
+  assert.match(
+    galleryCss,
+    /@media \(max-width:\s*390px\)[\s\S]*\.gallery-grid\s*\{[^}]*grid-template-columns:\s*repeat\(3,\s*minmax\(0,\s*1fr\)\)\s*;[^}]*gap:\s*6px\s*;/s,
+  );
+});
+
 test('Gallery management hero buttons share true vertical centering', async () => {
   const css = await read('src/styles/gallery-manage.css');
   assert.match(
