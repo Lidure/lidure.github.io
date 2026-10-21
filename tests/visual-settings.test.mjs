@@ -6,7 +6,7 @@ import {
   normalizeVisualSettings,
 } from '../src/lib/visual-settings.mjs';
 
-test('old values and unknown keys survive v3 normalization', () => {
+test('old values and unknown keys survive v4 normalization', () => {
   const settings = normalizeVisualSettings({
     enabled: false,
     autoplay: false,
@@ -23,7 +23,7 @@ test('old values and unknown keys survive v3 normalization', () => {
   assert.equal(settings.opacity, 0.25);
   assert.equal(settings.quality, 'original');
   assert.equal(settings.sakura, true);
-  assert.equal(settings.wallpaperMode, 'banner');
+  assert.equal(settings.wallpaperMode, 'fullscreen');
   assert.equal(settings.backgroundBlur, 5);
   assert.equal(settings.cardOpacity, 0.92);
   assert.equal(settings.themeHue, 255);
@@ -40,7 +40,7 @@ test('invalid values are clamped or replaced', () => {
     sakuraSpeed: -2,
   });
 
-  assert.equal(settings.wallpaperMode, 'banner');
+  assert.equal(settings.wallpaperMode, 'fullscreen');
   assert.equal(settings.opacity, 1);
   assert.equal(settings.backgroundBlur, 0);
   assert.equal(settings.cardOpacity, 0.2);
@@ -48,7 +48,15 @@ test('invalid values are clamped or replaced', () => {
   assert.equal(settings.sakuraSpeed, 0.25);
 });
 
-test('v3 visual defaults add waves while preserving unknown legacy keys', () => {
+test('v4 wallpaper defaults migrate the previous banner default but preserve explicit v4 choices', () => {
+  const upgraded = normalizeVisualSettings({ version: 3, wallpaperMode: 'banner' });
+  assert.equal(upgraded.version, 4);
+  assert.equal(upgraded.wallpaperMode, 'fullscreen');
+  assert.equal(normalizeVisualSettings({ version: 4, wallpaperMode: 'banner' }).wallpaperMode, 'banner');
+  assert.equal(normalizeVisualSettings({ version: 3, wallpaperMode: 'overlay' }).wallpaperMode, 'overlay');
+});
+
+test('v4 visual defaults add waves while preserving unknown legacy keys', () => {
   const value = normalizeVisualSettings({
     version: 2,
     images: ['legacy-image'],
@@ -56,10 +64,11 @@ test('v3 visual defaults add waves while preserving unknown legacy keys', () => 
     waveSpeed: 'invalid',
   });
 
-  assert.equal(DEFAULT_VISUAL_SETTINGS.version, 3);
+  assert.equal(DEFAULT_VISUAL_SETTINGS.version, 4);
+  assert.equal(DEFAULT_VISUAL_SETTINGS.wallpaperMode, 'fullscreen');
   assert.equal(DEFAULT_VISUAL_SETTINGS.backgroundBlur, 5);
   assert.equal(DEFAULT_VISUAL_SETTINGS.themeHue, 255);
-  assert.equal(value.version, 3);
+  assert.equal(value.version, 4);
   assert.equal(value.waveEnabled, true);
   assert.equal(value.waveStrength, 'standard');
   assert.equal(value.waveSpeed, 'normal');
