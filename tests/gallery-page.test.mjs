@@ -57,6 +57,28 @@ test('native Gallery management route is standalone and iframe-free', async () =
   assert.match(css, /grid-template-columns:\s*minmax\(260px,\s*330px\)\s*minmax\(0,\s*1fr\)/);
 });
 
+test('mobile management categories are discoverable in a wrapped list with an expand control', async () => {
+  const [workspace, controller, css] = await Promise.all([
+    read('src/components/GalleryManageWorkspace.astro'),
+    read('src/lib/gallery-manage-controller.mjs'),
+    read('src/styles/gallery-manage.css'),
+  ]);
+
+  assert.match(workspace, /id="gallery-manage-categories-toggle"/);
+  assert.match(workspace, /aria-controls="gallery-manage-categories"/);
+  assert.match(css, /\.gallery-manage-categories\s*\{[^}]*\bflex-wrap:\s*wrap\s*;/s);
+  assert.match(css, /@media \(max-width:\s*700px\)[\s\S]*\.gallery-manage-categories\s*\{[^}]*\bmax-height:\s*76px\s*;[^}]*\boverflow:\s*hidden\s*;/s);
+  assert.match(css, /\.gallery-manage-categories\.is-expanded\s*\{[^}]*max-height:\s*none\s*;/s);
+  assert.match(css, /\.gallery-manage-categories-toggle/);
+  assert.match(controller, /categoriesExpanded:\s*false/);
+  assert.match(controller, /function updateCategoryToggle\(\)/);
+  assert.match(controller, /scrollHeight\s*>\s*categoryNav\.clientHeight\s*\+\s*1/);
+  assert.match(controller, /state\.categoriesExpanded\s*=\s*false/);
+  assert.match(controller, /if \(categoriesToggle\) listen\(categoriesToggle, ['"]click['"], onCategoriesToggle\)/);
+  assert.match(controller, /listen\(win, ['"]resize['"], updateCategoryToggle\)/);
+  assert.match(controller, /展开全部分类/);
+});
+
 test('Gallery management hero buttons share true vertical centering', async () => {
   const css = await read('src/styles/gallery-manage.css');
   assert.match(
