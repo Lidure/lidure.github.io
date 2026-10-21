@@ -33,13 +33,20 @@ test('all built-in wallpaper media is served from same-origin local assets', () 
   assert.ok(defaultBlock, 'HeroSlideshow should expose a defaultImages list');
 
   const urls = [...defaultBlock[1].matchAll(/['"]([^'"]+)['"]/g)].map((match) => match[1]);
-  assert.equal(urls.length, 12, 'expected all 12 built-in wallpapers/videos to remain available');
+  assert.equal(urls.length, 13, 'expected the new default plus 12 built-in wallpapers/videos');
+  assert.equal(urls[0], '/assets/wallpapers/blog-default-night-moon.avif', 'the supplied moon artwork should be the first default wallpaper');
   assert.doesNotMatch(defaultBlock[1], /https?:\/\//, 'built-in wallpaper defaults must not depend on remote hosts');
 
   for (const url of urls) {
     assert.match(url, /^\/assets\/wallpapers\/[A-Za-z0-9._()-]+$/);
     assert.ok(existsSync(new URL(`../public${url}`, import.meta.url)), `missing local wallpaper asset: ${url}`);
   }
+});
+
+test('old built-in wallpaper selection migrates when the new default is added first', () => {
+  const hero = readSource('src/components/HeroSlideshow.astro');
+  assert.match(hero, /var savedVersion = Number\(s\.version \|\| 0\)/);
+  assert.match(hero, /savedVersion < 4 && s\.selectedIndex > 0[\s\S]*?s\.selectedIndex \+ 1/);
 });
 
 test('background library defers thumbnail media work until the panel is opened', () => {

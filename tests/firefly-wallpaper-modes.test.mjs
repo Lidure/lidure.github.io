@@ -12,7 +12,10 @@ const controller = read('src/components/FullscreenWallpaperController.astro');
 const modeCssPath = new URL('src/styles/firefly-wallpaper-modes.css', root);
 
 test('visual settings support banner, fullscreen, and overlay wallpaper modes', () => {
-  assert.match(visual, /wallpaperMode:[\s\S]*overlay[\s\S]*fullscreen[\s\S]*banner|wallpaperMode:[\s\S]*fullscreen[\s\S]*overlay[\s\S]*banner/);
+  assert.match(visual, /wallpaperMode: 'fullscreen'/);
+  assert.match(visual, /\['fullscreen', 'overlay', 'banner'\]\.includes\(wallpaperMode\)/);
+  assert.match(panel, /id="wallpaper-mode-fullscreen" class="segment-option wallpaper-mode-option is-active" type="button" aria-pressed="true">全屏/);
+  assert.match(layout, /migratedDefaultBanner[\s\S]*raw\.wallpaperMode === 'banner'[\s\S]*'fullscreen'/);
   assert.match(panel, /id="wallpaper-mode-overlay"[\s\S]*>覆盖透明</);
   assert.match(panel, /wallpaperMode:\s*'overlay'/);
   assert.match(layout, /raw\.wallpaperMode[\s\S]*overlay[\s\S]*fullscreen/);

@@ -89,7 +89,7 @@ test('rendered background configuration starts with a static image', () => {
   const defaults = JSON.parse(
     match[1].replaceAll('&quot;', '"').replaceAll('&amp;', '&'),
   );
-  assert.match(defaults[0], /\.(?:jpe?g|png|webp)$/i);
+  assert.match(defaults[0], /\.(?:jpe?g|png|webp|avif)$/i);
   assert.ok(defaults.some((source) => /\.mp4$/i.test(source)));
 });
 

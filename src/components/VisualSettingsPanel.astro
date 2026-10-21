@@ -53,8 +53,8 @@
         <div class="settings-card-title"><span>壁纸显示</span><small>Wallpaper</small></div>
         <div class="setting-group">
           <div class="segmented-control three wallpaper-mode-switch" role="group" aria-label="壁纸显示模式">
-            <button id="wallpaper-mode-banner" class="segment-option wallpaper-mode-option is-active" type="button" aria-pressed="true">横幅</button>
-            <button id="wallpaper-mode-fullscreen" class="segment-option wallpaper-mode-option" type="button" aria-pressed="false">全屏</button>
+            <button id="wallpaper-mode-banner" class="segment-option wallpaper-mode-option" type="button" aria-pressed="false">横幅</button>
+            <button id="wallpaper-mode-fullscreen" class="segment-option wallpaper-mode-option is-active" type="button" aria-pressed="true">全屏</button>
             <button id="wallpaper-mode-overlay" class="segment-option wallpaper-mode-option" type="button" aria-pressed="false">覆盖透明</button>
           </div>
         </div>
@@ -354,7 +354,7 @@
 
     function sync(settings) {
       settings = settings || readSettings();
-      var mode = settings.wallpaperMode === 'fullscreen' || settings.wallpaperMode === 'overlay' ? settings.wallpaperMode : 'banner';
+      var mode = ['fullscreen', 'overlay', 'banner'].includes(settings.wallpaperMode) ? settings.wallpaperMode : 'fullscreen';
       var bannerButton = document.getElementById('wallpaper-mode-banner');
       var fullscreenButton = document.getElementById('wallpaper-mode-fullscreen');
       var overlayButton = document.getElementById('wallpaper-mode-overlay');
@@ -442,7 +442,7 @@
       var opacity = document.getElementById('opacity-range'); if (opacity) { opacity.value = '45'; opacity.dispatchEvent(new Event('input', { bubbles: true })); }
       var quality = document.getElementById('quality-select'); if (quality) { quality.value = 'high'; quality.dispatchEvent(new Event('change', { bubbles: true })); }
       sync(writeSettings({
-        wallpaperMode: 'banner', backgroundBlur: 6, cardOpacity: 0.92,
+        wallpaperMode: 'fullscreen', backgroundBlur: 5, cardOpacity: 0.92,
         bannerGradient: true, bannerTitle: true,
         waveEnabled: true, waveStrength: 'standard', waveSpeed: 'normal', waveMobile: true
       }));

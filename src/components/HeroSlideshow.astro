@@ -12,6 +12,7 @@
  *   '/hero.mp4'                         → public/hero.mp4 (video)
  */
 const defaultImages: string[] = [
+  '/assets/wallpapers/blog-default-night-moon.avif',
   '/assets/wallpapers/953c5e02532e4eeb9ec758e7fd7e8ad3.jpg',
   '/assets/wallpapers/miku_star.mp4',
   '/assets/wallpapers/1b87e2c5880511ebb6edd017c2d2eca2.png',
@@ -1112,7 +1113,12 @@ const DEFAULT_OPACITY = 0.45;
         if (s.interval) state.interval = s.interval;
         if (s.opacity != null) state.opacity = s.opacity;
         if (s.quality) state.quality = s.quality;
-        if (typeof s.selectedIndex === 'number') state.selectedIndex = s.selectedIndex;
+        var savedVersion = Number(s.version || 0);
+        if (typeof s.selectedIndex === 'number') {
+          state.selectedIndex = savedVersion < 4 && s.selectedIndex > 0
+            ? s.selectedIndex + 1
+            : s.selectedIndex;
+        }
         if (Array.isArray(s.images)) state.images = s.images;
         if (s.posters && typeof s.posters === 'object') state.posters = s.posters;
       }
