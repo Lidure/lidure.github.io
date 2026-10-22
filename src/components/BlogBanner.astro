@@ -13,7 +13,7 @@ const { title, subtitle } = Astro.props;
 <section class="blog-banner" aria-labelledby="blog-banner-title">
   <div class="blog-banner-copy">
     <div id="blog-banner-title" class="blog-banner-title">{title}</div>
-    {subtitle && <p>{subtitle}</p>}
+    {subtitle && <p class="blog-banner-subtitle" data-original-subtitle={subtitle}>{subtitle}</p>}
   </div>
 </section>
 
@@ -157,5 +157,120 @@ const { title, subtitle } = Astro.props;
       overflow-y: hidden;
       border-radius: 14px;
     }
+  }
+</style>
+
+
+<script>
+  const phrases = [
+    '把喜欢的东西，认真地收进小站里。',
+    '记录游戏、音乐与日常。',
+    '折腾技术，也收藏热爱。',
+    '让灵感在这里慢慢生长。',
+  ];
+
+  let typingTimer: number | undefined;
+  let activeSubtitle: HTMLElement | null = null;
+  let phraseIndex = 0;
+  let charIndex = 0;
+  let deleting = false;
+
+  function stopTypewriter() {
+    if (typingTimer !== undefined) window.clearTimeout(typingTimer);
+    typingTimer = undefined;
+    if (activeSubtitle) {
+      activeSubtitle.textContent = activeSubtitle.dataset.originalSubtitle || '';
+      activeSubtitle.removeAttribute('aria-label');
+      activeSubtitle = null;
+    }
+  }
+
+  function startTypewriter() {
+    stopTypewriter();
+
+    const subtitle = document.querySelector<HTMLElement>('.blog-banner-subtitle');
+    const root = document.documentElement;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      || root.dataset.reduceMotion === 'true';
+
+    if (!subtitle || root.dataset.wallpaperMode !== 'banner' || reducedMotion) return;
+
+    activeSubtitle = subtitle;
+    phraseIndex = 0;
+    charIndex = 0;
+    deleting = false;
+    subtitle.setAttribute('aria-label', phrases[0]);
+    subtitle.textContent = '';
+
+    const tick = () => {
+      if (!activeSubtitle || !activeSubtitle.isConnected) {
+        stopTypewriter();
+        return;
+      }
+
+      const phrase = phrases[phraseIndex];
+      charIndex += deleting ? -1 : 1;
+      activeSubtitle.textContent = phrase.slice(0, charIndex);
+
+      let delay = deleting ? 48 : 105;
+      if (!deleting && charIndex >= phrase.length) {
+        deleting = true;
+        delay = 1500;
+      } else if (deleting && charIndex <= 0) {
+        deleting = false;
+        phraseIndex = (phraseIndex + 1) % phrases.length;
+        delay = 350;
+      }
+
+      typingTimer = window.setTimeout(tick, delay);
+    };
+
+    typingTimer = window.setTimeout(tick, 450);
+  }
+
+  let lifecycleBound = false;
+  function bindTypewriterLifecycle() {
+    if (lifecycleBound) return;
+    lifecycleBound = true;
+    document.addEventListener('astro:page-load', startTypewriter);
+    document.addEventListener('astro:before-swap', stopTypewriter);
+    const observer = new MutationObserver(() => {
+      if (document.documentElement.dataset.wallpaperMode === 'banner' && !activeSubtitle) {
+        startTypewriter();
+      } else if (document.documentElement.dataset.wallpaperMode !== 'banner' && activeSubtitle) {
+        stopTypewriter();
+      } else if (document.documentElement.dataset.reduceMotion === 'true' && activeSubtitle) {
+        stopTypewriter();
+      }
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-wallpaper-mode', 'data-reduce-motion'] });
+  }
+
+  bindTypewriterLifecycle();
+  startTypewriter();
+</script>
+
+<style is:global>
+  .blog-banner-subtitle {
+    min-height: 1.8em;
+  }
+
+  html[data-wallpaper-mode="banner"] .blog-banner-subtitle::after {
+    content: '';
+    display: inline-block;
+    width: 1px;
+    height: 1em;
+    margin-left: 4px;
+    vertical-align: -0.12em;
+    background: currentColor;
+    animation: banner-typewriter-caret 0.85s steps(1, end) infinite;
+  }
+
+  @keyframes banner-typewriter-caret {
+    50% { opacity: 0; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .blog-banner-subtitle::after { animation: none; }
   }
 </style>
