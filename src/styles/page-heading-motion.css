@@ -1,0 +1,28 @@
+/*
+ * Shared, restrained entrance motion for primary page headings.
+ * Keep text static for readability; the banner subtitle owns the typewriter loop.
+ */
+body.layout-standard .post-title,
+body.layout-standard .article-archive-head h1,
+body.layout-standard .moments-wall-head h1 {
+  animation: page-heading-reveal 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@keyframes page-heading-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.layout-standard .post-title,
+  body.layout-standard .article-archive-head h1,
+  body.layout-standard .moments-wall-head h1 {
+    animation: none;
+  }
+}
