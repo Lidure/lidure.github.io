@@ -228,11 +228,32 @@ const { title, subtitle } = Astro.props;
     typingTimer = window.setTimeout(tick, 450);
   }
 
+  function revealFullscreenHomeTitle() {
+    const root = document.documentElement;
+    const title = document.querySelector<HTMLElement>('body.layout-standard.is-home .blog-banner-title');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      || root.dataset.reduceMotion === 'true';
+
+    if (!title || root.dataset.wallpaperMode !== 'fullscreen' || reducedMotion) {
+      title?.classList.remove('is-title-revealing');
+      return;
+    }
+
+    title.classList.remove('is-title-revealing');
+    // Force a style recalculation so the entrance animation can replay after
+    // changing wallpaper mode or navigating back to the homepage.
+    void title.offsetWidth;
+    title.classList.add('is-title-revealing');
+  }
+
   let lifecycleBound = false;
   function bindTypewriterLifecycle() {
     if (lifecycleBound) return;
     lifecycleBound = true;
-    document.addEventListener('astro:page-load', startTypewriter);
+    document.addEventListener('astro:page-load', () => {
+      startTypewriter();
+      revealFullscreenHomeTitle();
+    });
     document.addEventListener('astro:before-swap', stopTypewriter);
     const observer = new MutationObserver(() => {
       if (document.documentElement.dataset.wallpaperMode === 'banner' && !activeSubtitle) {
@@ -242,19 +263,25 @@ const { title, subtitle } = Astro.props;
       } else if (document.documentElement.dataset.reduceMotion === 'true' && activeSubtitle) {
         stopTypewriter();
       }
+      revealFullscreenHomeTitle();
     });
     observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-wallpaper-mode', 'data-reduce-motion'] });
   }
 
   bindTypewriterLifecycle();
   startTypewriter();
+  revealFullscreenHomeTitle();
 </script>
 
 <style is:global>
-  /* Keep the main banner heading readable and immediate; give it only a subtle entrance. */
-  html[data-wallpaper-mode="banner"] .blog-banner-title,
-  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-title {
+  /* The fullscreen homepage title is replayed by the lifecycle handler so
+     the animation is visible even when visual settings are applied after load. */
+  html[data-wallpaper-mode="banner"] .blog-banner-title {
     animation: banner-title-reveal 650ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-title.is-title-revealing {
+    animation: banner-title-reveal 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
 
   .blog-banner-subtitle {
