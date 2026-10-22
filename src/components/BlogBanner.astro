@@ -193,7 +193,10 @@ const { title, subtitle } = Astro.props;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       || root.dataset.reduceMotion === 'true';
 
-    if (!subtitle || root.dataset.wallpaperMode !== 'banner' || reducedMotion) return;
+    const mode = root.dataset.wallpaperMode;
+    const shouldType = mode === 'banner'
+      || (mode === 'fullscreen' && document.body.classList.contains('is-home'));
+    if (!subtitle || !shouldType || reducedMotion) return;
 
     activeSubtitle = subtitle;
     phraseIndex = 0;
@@ -256,9 +259,12 @@ const { title, subtitle } = Astro.props;
     });
     document.addEventListener('astro:before-swap', stopTypewriter);
     const observer = new MutationObserver(() => {
-      if (document.documentElement.dataset.wallpaperMode === 'banner' && !activeSubtitle) {
+      const mode = document.documentElement.dataset.wallpaperMode;
+      const shouldType = mode === 'banner'
+        || (mode === 'fullscreen' && document.body.classList.contains('is-home'));
+      if (shouldType && !activeSubtitle) {
         startTypewriter();
-      } else if (document.documentElement.dataset.wallpaperMode !== 'banner' && activeSubtitle) {
+      } else if (!shouldType && activeSubtitle) {
         stopTypewriter();
       } else if (document.documentElement.dataset.reduceMotion === 'true' && activeSubtitle) {
         stopTypewriter();
@@ -288,7 +294,8 @@ const { title, subtitle } = Astro.props;
     min-height: 1.8em;
   }
 
-  html[data-wallpaper-mode="banner"] .blog-banner-subtitle::after {
+  html[data-wallpaper-mode="banner"] .blog-banner-subtitle::after,
+  html[data-wallpaper-mode="fullscreen"] body.layout-standard.is-home .blog-banner-subtitle::after {
     content: '';
     display: inline-block;
     width: 1px;
