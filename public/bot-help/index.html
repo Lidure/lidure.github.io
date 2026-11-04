@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#fff6fa">
+  <meta name="description" content="Super Airi！小浅子新手帮助：聊天、画廊、游戏、语音、趣味互动和实用工具，几步就能上手。">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="小浅子 · 使用指南 | Super Airi!">
+  <meta property="og:description" content="一份不复杂的 QQ Bot 新手帮助。选择想玩的功能，复制命令，马上开始！">
+  <meta property="og:image" content="https://lidure22.xyz/site-icon-512.png">
+  <link rel="canonical" href="https://lidure22.xyz/bot-help/">
+  <link rel="icon" href="/favicon-32.png">
+  <title>小浅子 · 使用指南 | Super Airi!</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #fff8fa;
+      --ink: #333344;
+      --secondary: #717182;
+      --pink: #ec72a2;
+      --pink-strong: #db508b;
+      --pink-light: #fff0f6;
+      --line: #f2e5ec;
+      --white: rgba(255,255,255,.93);
+      --shadow: 0 15px 50px rgba(126,77,113,.08);
+      --radius: 25px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 8% 7%, rgba(251,184,215,.33), transparent 27rem),
+        radial-gradient(circle at 95% 18%, rgba(209,204,255,.36), transparent 28rem),
+        radial-gradient(circle at 55% 70%, rgba(255,227,193,.24), transparent 30rem),
+        var(--bg);
+      font-family: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", "Hiragino Sans GB", system-ui, sans-serif;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      min-width: 320px;
+    }
+    a { text-decoration: none; color: inherit; }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    :focus-visible { outline: 3px solid #cc5eac; outline-offset: 3px; }
+    .wrap { width: min(1080px, calc(100% - 40px)); margin-inline: auto; }
+    .nav {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(255,249,252,.82);
+      border-bottom: 1px solid rgba(245,223,233,.85);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    }
+    .nav-inner { min-height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { display: inline-flex; align-items: center; gap: 10px; font-size: 16px; font-weight: 900; letter-spacing: -.3px; }
+    .brand-mark { width: 36px; height: 36px; display: grid; place-items: center; color: white; border-radius: 13px; background: linear-gradient(145deg,#f49dc2,#d981bc); box-shadow: 0 5px 12px #f4b4d255; }
+    .brand span + span { display: block; color: #a5a1b0; font-size: 10px; letter-spacing: 1.5px; font-weight: 700; line-height: 1.1; }
+    .nav-links { display: flex; gap: 22px; align-items: center; font-size: 13px; font-weight: 700; color: #686476; }
+    .nav-links a:hover { color: var(--pink-strong); }
+    .nav-blog { padding: 9px 13px; border: 1px solid #eddce6; border-radius: 999px; background: white; }
+    .hero {
+      position: relative; overflow: hidden;
+      margin-top: 28px; padding: 58px 64px 56px;
+      min-height: 390px; display: grid; grid-template-columns: minmax(0,1.25fr) minmax(260px,.75fr); align-items: center; gap: 22px;
+      border-radius: 34px;
+      background: linear-gradient(118deg,#fff3f8 0%,#fff8fc 50%,#f4efff 100%);
+      border: 1px solid #f7e6ef;
+      box-shadow: var(--shadow);
+    }
+    .hero::before { content: ""; position: absolute; width: 230px; height: 230px; border: 42px solid rgba(243,166,202,.15); border-radius: 100%; top: -145px; right: 20%; pointer-events: none; }
+    .eyebrow { display: inline-flex; align-items: center; gap: 8px; color: #c66395; font-size: 12px; font-weight: 900; letter-spacing: 1.2px; }
+    .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 100%; background: #e78cb5; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { position: relative; margin: 17px 0 12px; font-size: clamp(38px,5vw,66px); letter-spacing: -2px; line-height: 1.22; font-weight: 900; }
+    h1 em { font-style: normal; color: var(--pink-strong); }
+    .hero-desc { position: relative; font-size: 16px; line-height: 1.95; color: #777184; max-width: 450px; }
+    .hero-actions { margin-top: 26px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn { display: inline-flex; gap: 8px; align-items: center; justify-content: center; min-height: 45px; border-radius: 14px; padding: 10px 20px; font-weight: 800; font-size: 14px; transition: transform .2s, box-shadow .2s, background .2s; }
+    .btn:hover { transform: translateY(-2px); }
+    .btn-primary { color: white; background: linear-gradient(112deg, #f18aae, #da69a0); box-shadow: 0 9px 17px #e88bb74c; border: 0; }
+    .btn-secondary { color: #af628c; background: rgba(255,255,255,.85); border: 1px solid #efcede; }
+    .hero-illustration { position: relative; height: 264px; display: grid; place-items: center; isolation: isolate; }
+    .orb { position: absolute; width: 228px; height: 228px; background: radial-gradient(circle at 33% 30%, #fff, #f7bfda 68%, #e6b8e7); border-radius: 50%; box-shadow: 0 22px 55px #d89fc261; }
+    .orb::before { content: ""; position: absolute; inset: 16px; border: 2px dashed #ffffffb6; border-radius: inherit; }
+    .mascot { position: relative; z-index: 1; font-size: 98px; filter: drop-shadow(0 12px 12px #cb93a47d); transform: rotate(-7deg); }
+    .float-tag { position: absolute; z-index: 2; background: #fffffff0; border: 1px solid white; padding: 9px 14px; border-radius: 16px; box-shadow: 0 12px 24px #b48fad25; color: #8d6185; font-size: 12px; font-weight: 800; }
+    .float-a { top: 10px; left: 1%; transform: rotate(-9deg); }
+    .float-b { right: -2%; top: 48px; transform: rotate(8deg); }
+    .float-c { left: -3%; bottom: 20px; transform: rotate(5deg); }
+    .sparkle { position: absolute; color: #df90bb; font-size: 30px; z-index: 2; }
+    .sparkle.s1 { right: 20%; bottom: 12px; }
+    .sparkle.s2 { left: 10%; top: 40%; }
+    .intro { padding: 44px 0 0; }
+    .section-top { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    .section-label { font-size: 12px; font-weight: 800; color: #d18aab; letter-spacing: 1.1px; }
+    h2 { font-size: clamp(23px,3vw,32px); line-height: 1.35; letter-spacing: -.8px; margin: 6px 0; font-weight: 900; }
+    .section-note { margin: 0; color: #8e8998; font-size: 13px; }
+    .quick-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .quick-card { border: 1px solid var(--line); background: var(--white); border-radius: 22px; padding: 20px; box-shadow: 0 6px 22px #d7a9bf13; display: flex; flex-direction: column; gap: 9px; }
+    .quick-card strong { font-size: 14px; }
+    .quick-title { display: flex; align-items: center; gap: 9px; }
+    .step { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 9px; background: #fff0f6; color: #d36f9c; font-size: 12px; font-weight: 900; }
+    .quick-card p { color: var(--secondary); font-size: 12px; margin: 0; }
+    .cmd-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+    .cmd { font-family: "SFMono-Regular", Consolas, "Microsoft YaHei", monospace; font-size: 13px; font-weight: 800; color: #c94d87; word-break: break-word; }
+    .copy { border-radius: 10px; padding: 6px 10px; border: 1px solid #f1d8e4; background: #fff6fa; color: #b76f92; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+    .copy:hover { background: #ffe8f2; }
+    .features { scroll-margin-top: 90px; padding: 62px 0 0; }
+    .search-wrap { display: flex; align-items: center; gap: 10px; width: 268px; max-width: 100%; height: 44px; padding: 0 14px; border: 1px solid #f0dfeb; border-radius: 13px; background: #fff; color: #bd789d; }
+    .search-wrap input { border: 0; outline: 0; width: 100%; background: transparent; color: var(--ink); font-size: 13px; }
+    .search-wrap input::placeholder { color: #aca2af; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 15px; }
+    .feature {
+      text-align: left; width: 100%; min-height: 178px; display: flex; flex-direction: column; align-items: flex-start;
+      padding: 23px 24px 18px; border-radius: var(--radius); background: #fff; border: 1px solid #f0e4ed;
+      box-shadow: 0 5px 23px #dcbccc13; color: var(--ink); transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .feature:hover { transform: translateY(-4px); border-color: #edb4cd; box-shadow: 0 16px 35px #dcb3c646; }
+    .feature[aria-expanded="true"] { border-color: #eb95b7; background: linear-gradient(160deg,#fff,#fff7fb); box-shadow: 0 12px 24px #e6b6cf50; }
+    .feature-icon { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 16px; font-size: 25px; background: var(--icon-bg); }
+    .feature-title { font-size: 19px; margin: 12px 0 3px; font-weight: 900; }
+    .feature-sub { color: var(--secondary); font-size: 12px; }
+    .feature-foot { margin-top: auto; padding-top: 9px; font-size: 11px; font-weight: 800; color: #cd77a3; }
+    .no-results { text-align: center; margin-top: 13px; padding: 24px; background: white; border: 1px dashed #e9c6d8; border-radius: 18px; color: #8a8192; }
+    .detail-shell { margin-top: 22px; scroll-margin-top: 95px; border-radius: 26px; padding: 28px; border: 1px solid #efdee9; background: #fff; box-shadow: var(--shadow); }
+    .detail-shell[hidden], .guide[hidden], .feature[hidden], .no-results[hidden] { display: none !important; }
+    .detail-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .detail-header h3 { margin: 3px 0 8px; font-size: 22px; font-weight: 900; }
+    .detail-desc { color: #7e7a89; margin: 0 0 20px; font-size: 14px; }
+    .close-detail { background: #fff1f7; color: #ba668f; border: 0; border-radius: 11px; width: 36px; height: 36px; font-size: 20px; }
+    .guide-caption { font-size: 11px; letter-spacing: .8px; color: #ba89a1; font-weight: 900; margin: 18px 0 9px; }
+    .commands { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+    .command-item { min-width: 0; border: 1px solid #f0e5eb; border-radius: 14px; padding: 14px 15px; background: #fffafc; }
+    .command-item .cmd-row { padding-top: 4px; }
+    .command-title { color: #777080; font-size: 12px; font-weight: 700; }
+    .tip { display: flex; align-items: flex-start; gap: 10px; margin-top: 18px; background: #f9f5ff; color: #77708e; border: 1px solid #efebfa; border-radius: 14px; padding: 13px 16px; font-size: 12px; }
+    .game-tags { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
+    .game-tag { padding: 7px 12px; background: #faf8fd; border: 1px solid #eee9f5; border-radius: 999px; font-size: 12px; font-weight: 750; color: #746c84; }
+    .simple-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+    .simple-list div { padding: 14px; border: 1px solid #f0e5eb; border-radius: 14px; color: #766e7d; font-size: 13px; background: #fffafc; }
+    .simple-list strong { color: #413b4a; display: block; margin-bottom: 3px; }
+    .faq { scroll-margin-top: 90px; margin-top: 62px; margin-bottom: 68px; }
+    .faq-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
+    .faq details { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; }
+    .faq summary { list-style: none; cursor: pointer; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content:"＋"; color: #e078a6; font-size: 20px; font-weight: 500; }
+    .faq details[open] summary::after { content:"－"; }
+    .faq details p { color: #807b89; font-size: 13px; margin: 12px 0 0; }
+    .footer { border-top: 1px solid #efdee7; padding: 25px 0 34px; color: #92909b; font-size: 12px; }
+    .footer-content { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .footer a { color: #bd6d98; font-weight: 750; }
+    .toast { position: fixed; bottom: calc(22px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%,14px); padding: 10px 18px; border-radius: 13px; background: #393142; color: white; box-shadow: 0 12px 30px #3c273a3b; z-index: 50; font-size: 13px; font-weight: 750; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; white-space: nowrap; }
+    .toast.show { opacity: 1; transform: translate(-50%,0); }
+    @media (max-width: 780px) {
+      .hero { grid-template-columns: 1fr; padding: 40px 30px 30px; gap: 0; min-height: 0; }
+      .hero-illustration { display: none; }
+      .quick-grid { grid-template-columns: 1fr; gap: 10px; }
+      .quick-card { padding: 15px 18px; }
+      .feature-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+      .feature { min-height: 150px; padding: 19px 17px; }
+      .commands { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 580px) {
+      .wrap { width: min(100% - 28px,1080px); }
+      .nav-inner { min-height: 62px; }
+      .nav-links { gap: 12px; font-size: 12px; }
+      .nav-links a:nth-child(1) { display: none; }
+      .nav-blog { padding: 8px 10px; }
+      .hero { margin-top: 15px; padding: 34px 24px 30px; border-radius: 23px; }
+      h1 { letter-spacing: -1px; font-size: 38px; }
+      .hero-desc { font-size: 14px; line-height: 1.9; }
+      .intro { padding-top: 36px; }
+      .features { padding-top: 47px; }
+      .section-top { align-items: flex-start; flex-direction: column; gap: 14px; }
+      .search-wrap { width: 100%; }
+      .feature { min-height: 151px; border-radius: 17px; }
+      .feature-icon { width: 43px; height: 43px; border-radius: 14px; font-size: 22px; }
+      .feature-title { font-size: 16px; margin-top: 11px; }
+      .feature-sub { font-size: 11px; line-height: 1.5; }
+      .detail-shell { padding: 20px 17px; border-radius: 20px; }
+      .faq-grid, .simple-list { grid-template-columns: 1fr; }
+      .faq { margin: 48px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .feature, .btn, .toast { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="wrap nav-inner">
+      <a class="brand" href="#top" aria-label="返回帮助首页"><span class="brand-mark" aria-hidden="true">✿</span><span>小浅子 <span>SUPER AIRI!</span></span></a>
+      <nav class="nav-links" aria-label="页面导航">
+        <a href="#features">功能一览</a>
+        <a href="#faq">常见问题</a>
+        <a class="nav-blog" href="/" title="返回博客">返回小窝 ↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="wrap">
+    <section class="hero" aria-labelledby="hero-title">
+      <div>
+        <span class="eyebrow">SUPER AIRI! · 新手使用指南</span>
+        <h1 id="hero-title">嗨，来认识<br><em>小浅子</em> 吧！<span aria-hidden="true"> ♡</span></h1>
+        <p class="hero-desc">会聊天、会找图、会查游戏，还能陪你一起整活。<br>不用背一大堆命令，选你感兴趣的功能就好～</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#features">看看能玩什么 <span aria-hidden="true">↗</span></a>
+          <button class="btn btn-secondary" type="button" data-copy="/help">复制 /help</button>
+        </div>
+      </div>
+      <div class="hero-illustration" aria-hidden="true">
+        <div class="orb"></div><span class="mascot">🐱</span>
+        <span class="float-tag float-a">💬 随时聊聊</span>
+        <span class="float-tag float-b">🎀 图片收藏</span>
+        <span class="float-tag float-c">🎮 游戏助手</span>
+        <span class="sparkle s1">✦</span><span class="sparkle s2">✧</span>
+      </div>
+    </section>
+
+    <section class="intro" aria-labelledby="start-title">
+      <div class="section-top">
+        <div><span class="section-label">01 · FIRST STEPS</span><h2 id="start-title">第一次来？试试这 3 个</h2><p class="section-note">点击“复制”，回到 QQ 粘贴发送就可以啦。</p></div>
+      </div>
+      <div class="quick-grid">
+        <div class="quick-card">
+          <div class="quick-title"><span class="step">1</span><strong>和小浅子打个招呼</strong></div>
+          <div class="cmd-row"><span class="cmd">@小浅子 你好呀</span><button class="copy" type="button" data-copy="@小浅子 你好呀">复制</button></div>
+          <p>群聊里记得正确 @ 到 Bot 哦。</p>
+        </div>
+        <div class="quick-card">
+          <div class="quick-title"><span class="step">2</span><strong>看看收藏的图片</strong></div>
+          <div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div>
+          <p>先选分类，再看你喜欢的图片。</p>
+        </div>
+        <div class="quick-card">
+          <div class="quick-title"><span class="step">3</span><strong>随机抽一张表情</strong></div>
+          <div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div>
+          <p>不知道玩什么时，就从这里开始！</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="features" class="features" aria-labelledby="feature-title">
+      <div class="section-top">
+        <div><span class="section-label">02 · EXPLORE</span><h2 id="feature-title">你想玩哪个？</h2><p class="section-note">点开分类，只看你需要的用法。</p></div>
+        <label class="search-wrap" for="help-search"><span aria-hidden="true">⌕</span><input id="help-search" type="search" placeholder="搜功能，例如：签到、表情、点歌" autocomplete="off" aria-label="搜索功能"></label>
+      </div>
+
+      <div class="feature-grid" id="feature-grid">
+        <button class="feature" type="button" data-open="chat" data-keywords="ai 聊天 对话 问答 看图 识图 回复 消息 @ 聊天" aria-controls="detail-chat" aria-expanded="false" style="--icon-bg:#ffeaf2">
+          <span class="feature-icon" aria-hidden="true">💬</span><span class="feature-title">AI 聊天</span><span class="feature-sub">陪你聊天 · 回答问题 · 看图</span><span class="feature-foot">查看玩法 ↗</span>
+        </button>
+        <button class="feature" type="button" data-open="gallery" data-keywords="画廊 图片 表情包 上传 分类 抽表情 看图 收藏 图库" aria-controls="detail-gallery" aria-expanded="false" style="--icon-bg:#e8f5ff">
+          <span class="feature-icon" aria-hidden="true">🖼️</span><span class="feature-title">图片画廊</span><span class="feature-sub">抽表情 · 看图库 · 上传图片</span><span class="feature-foot">查看玩法 ↗</span>
+        </button>
+        <button class="feature" type="button" data-open="games" data-keywords="游戏 原神 星穹铁道 星铁 绝区零 鸣潮 异环 崩坏3 世界计划 pjsk steam 抽卡 签到 面板 体力" aria-controls="detail-games" aria-expanded="false" style="--icon-bg:#fff1df">
+          <span class="feature-icon" aria-hidden="true">🎮</span><span class="feature-title">游戏工具</span><span class="feature-sub">角色面板 · 抽卡记录 · 签到</span><span class="feature-foot">查看玩法 ↗</span>
+        </button>
+        <button class="feature" type="button" data-open="voice" data-keywords="语音 爱莉 朗读 tts 说话 日语 声音" aria-controls="detail-voice" aria-expanded="false" style="--icon-bg:#f1eaff">
+          <span class="feature-icon" aria-hidden="true">🎤</span><span class="feature-title">语音互动</span><span class="feature-sub">爱莉语音 · AI 语音朗读</span><span class="feature-foot">查看玩法 ↗</span>
+        </button>
+        <button class="feature" type="button" data-open="fun" data-keywords="趣味 娱乐 戳一戳 排行 今日小猪 整活 表情" aria-controls="detail-fun" aria-expanded="false" style="--icon-bg:#fff2e5">
+          <span class="feature-icon" aria-hidden="true">🎲</span><span class="feature-title">趣味娱乐</span><span class="feature-sub">戳一戳 · 今日小猪 · 排行</span><span class="feature-foot">查看玩法 ↗</span>
+        </button>
+        <button class="feature" type="button" data-open="tools" data-keywords="实用 工具 天气 点歌 音乐 pixiv 搜图 识图 来源 视频解析 绘图" aria-controls="detail-tools" aria-expanded="false" style="--icon-bg:#e8f7f4">
+          <span class="feature-icon" aria-hidden="true">🛠️</span><span class="feature-title">实用工具</span><span class="feature-sub">点歌 · 搜图 · 天气 · Pixiv</span><span class="feature-foot">查看玩法 ↗</span>
+        </button>
+      </div>
+      <p id="no-results" class="no-results" hidden>没找到这个关键词呢，试试搜索「画廊」「游戏」或「签到」吧 ♡</p>
+
+      <div class="detail-shell" id="detail-shell" hidden aria-live="polite">
+        <section id="detail-chat" class="guide" data-guide="chat" hidden aria-label="AI 聊天使用帮助">
+          <div class="detail-header"><div><span class="section-label">CHAT</span><h3>💬 想聊什么，都可以试试</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">在群里 @小浅子，就能和她聊天、提问；也可以带上图片，让她帮你看看。</p>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">打个招呼</span><div class="cmd-row"><span class="cmd">@小浅子 你好呀</span><button class="copy" type="button" data-copy="@小浅子 你好呀">复制</button></div></div>
+            <div class="command-item"><span class="command-title">问个问题</span><div class="cmd-row"><span class="cmd">@小浅子 帮我解释一下</span><button class="copy" type="button" data-copy="@小浅子 帮我解释一下">复制</button></div></div>
+          </div>
+          <div class="tip"><span>💡</span><span>图片理解：发送图片并 @小浅子提问；如果是回复图片消息，也可以接着提问。AI 回复会受网络服务状态影响。</span></div>
+        </section>
+
+        <section id="detail-gallery" class="guide" data-guide="gallery" hidden aria-label="图片画廊使用帮助">
+          <div class="detail-header"><div><span class="section-label">GALLERY</span><h3>🖼️ 抽个表情，看看收藏</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">不知道有哪些图？先查看画廊分类，再按分类看图就好。</p>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">查看有哪些分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
+            <div class="command-item"><span class="command-title">随机抽表情</span><div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看某类图片</span><div class="cmd-row"><span class="cmd">/看 分类名</span><button class="copy" type="button" data-copy="/看 分类名">复制</button></div></div>
+            <div class="command-item"><span class="command-title">向分类里上传</span><div class="cmd-row"><span class="cmd">/上传 分类名</span><button class="copy" type="button" data-copy="/上传 分类名">复制</button></div></div>
+          </div>
+          <div class="tip"><span>💡</span><span>「分类名」要换成画廊里真实存在的分类。上传时按 Bot 提示附上或回复图片即可。</span></div>
+        </section>
+
+        <section id="detail-games" class="guide" data-guide="games" hidden aria-label="游戏工具使用帮助">
+          <div class="detail-header"><div><span class="section-label">GAMES</span><h3>🎮 游戏查询，一站搞定</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">查角色面板、抽卡记录、养成数据，还能设置部分游戏的每日签到。</p>
+          <div class="game-tags"><span class="game-tag">原神</span><span class="game-tag">崩坏：星穹铁道</span><span class="game-tag">绝区零</span><span class="game-tag">鸣潮</span><span class="game-tag">异环</span><span class="game-tag">崩坏 3</span><span class="game-tag">世界计划</span><span class="game-tag">Steam</span></div>
+          <div class="guide-caption">先看对应游戏的帮助</div>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">原神</span><div class="cmd-row"><span class="cmd">gs帮助</span><button class="copy" type="button" data-copy="gs帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">星穹铁道</span><div class="cmd-row"><span class="cmd">sr帮助</span><button class="copy" type="button" data-copy="sr帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">鸣潮</span><div class="cmd-row"><span class="cmd">waves帮助</span><button class="copy" type="button" data-copy="waves帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">异环</span><div class="cmd-row"><span class="cmd">nte帮助</span><button class="copy" type="button" data-copy="nte帮助">复制</button></div></div>
+          </div>
+          <div class="tip"><span>💡</span><span>首次查询可能需要绑定游戏 UID 或账号。自动签到需要完成对应游戏的授权；请勿在群聊公开密码、Cookie 或 Token。</span></div>
+        </section>
+
+        <section id="detail-voice" class="guide" data-guide="voice" hidden aria-label="语音互动使用帮助">
+          <div class="detail-header"><div><span class="section-label">VOICE</span><h3>🎤 让小浅子说句话</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">收听爱莉相关的语音素材，或尝试让 AI 用语音回复你。</p>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">试试语音互动</span><div class="cmd-row"><span class="cmd">@小浅子 说句晚安吧</span><button class="copy" type="button" data-copy="@小浅子 说句晚安吧">复制</button></div></div>
+          </div>
+          <div class="tip"><span>💡</span><span>部分语音需要指定的触发方式，且不是每次聊天都会发语音。以当前群聊开启的功能为准。</span></div>
+        </section>
+
+        <section id="detail-fun" class="guide" data-guide="fun" hidden aria-label="趣味娱乐使用帮助">
+          <div class="detail-header"><div><span class="section-label">FUN</span><h3>🎲 戳一戳，来点小惊喜</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">不想认真聊天？和小浅子玩点有趣的！</p>
+          <div class="simple-list">
+            <div><strong>👆 戳一戳</strong>直接戳小浅子，看看有什么反应。</div>
+            <div><strong>🐷 今日小猪</strong>参与群聊里的今日小猪玩法。</div>
+          </div>
+          <div class="guide-caption">想看谁最爱戳她？</div>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">戳一戳排行榜</span><div class="cmd-row"><span class="cmd">/poke排行</span><button class="copy" type="button" data-copy="/poke排行">复制</button></div></div>
+          </div>
+          <div class="tip"><span>💡</span><span>部分趣味功能有触发间隔或群聊权限限制，没反应时不必连续刷屏。</span></div>
+        </section>
+
+        <section id="detail-tools" class="guide" data-guide="tools" hidden aria-label="实用工具使用帮助">
+          <div class="detail-header"><div><span class="section-label">TOOLS</span><h3>🛠️ 日常小工具，随手就用</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">查天气、点歌、搜索 Pixiv 作品，也有图片来源查找和视频链接解析等功能。</p>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">查看天气</span><div class="cmd-row"><span class="cmd">/天气 青岛</span><button class="copy" type="button" data-copy="/天气 青岛">复制</button></div></div>
+            <div class="command-item"><span class="command-title">搜索歌曲</span><div class="cmd-row"><span class="cmd">/点歌 歌名</span><button class="copy" type="button" data-copy="/点歌 歌名">复制</button></div></div>
+            <div class="command-item"><span class="command-title">搜索 Pixiv 图片</span><div class="cmd-row"><span class="cmd">/pixiv 初音未来</span><button class="copy" type="button" data-copy="/pixiv 初音未来">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看所有帮助</span><div class="cmd-row"><span class="cmd">/help</span><button class="copy" type="button" data-copy="/help">复制</button></div></div>
+          </div>
+          <div class="tip"><span>💡</span><span>Pixiv、视频解析和点歌依赖外部服务，偶尔可能暂时不可用。部分命令因群聊配置而有差异。</span></div>
+        </section>
+      </div>
+    </section>
+
+    <section id="faq" class="faq" aria-labelledby="faq-title">
+      <div class="section-top"><div><span class="section-label">03 · LITTLE TIPS</span><h2 id="faq-title">还有一点小提醒</h2><p class="section-note">遇到问题时，不用着急。</p></div></div>
+      <div class="faq-grid">
+        <details><summary>命令发了没反应？</summary><p>检查命令有没有写错，是否需要“/”前缀；群聊里聊天请正确 @小浅子。部分功能可能有冷却时间或权限限制。</p></details>
+        <details><summary>游戏查询提示未绑定？</summary><p>先打开对应游戏帮助，按指引绑定 UID 或账号；不同游戏通常需要分别绑定。</p></details>
+        <details><summary>为什么有时回复很慢？</summary><p>AI、语音、Pixiv 和游戏数据都依赖外部接口。服务繁忙或网络波动时可能变慢甚至暂时不可用。</p></details>
+        <details><summary>找不到想要的功能？</summary><p>先在本页上方搜索关键词，或者在 QQ 发送 /help。还可以到博客留言板反馈建议。</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="wrap footer-content">
+    <span>✿ Super Airi! 小浅子 · 让每一次聊天多一点开心</span>
+    <span><a href="/messages/">反馈建议</a>　·　<a href="/">返回搁浅的小窝</a></span>
+  </div></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    (function () {
+      var cards = Array.prototype.slice.call(document.querySelectorAll('[data-open]'));
+      var guides = Array.prototype.slice.call(document.querySelectorAll('[data-guide]'));
+      var shell = document.getElementById('detail-shell');
+      var toast = document.getElementById('toast');
+      var search = document.getElementById('help-search');
+      var noResults = document.getElementById('no-results');
+      var toastTimer;
+
+      function announce(message) {
+        toast.textContent = message;
+        toast.classList.add('show');
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(function () { toast.classList.remove('show'); }, 2200);
+      }
+
+      function closeGuide() {
+        shell.hidden = true;
+        cards.forEach(function (card) { card.setAttribute('aria-expanded', 'false'); });
+        guides.forEach(function (guide) { guide.hidden = true; });
+      }
+
+      function openGuide(name, scroll) {
+        var selected = guides.find(function (guide) { return guide.dataset.guide === name; });
+        if (!selected) return;
+        cards.forEach(function (card) { card.setAttribute('aria-expanded', String(card.dataset.open === name)); });
+        guides.forEach(function (guide) { guide.hidden = guide !== selected; });
+        shell.hidden = false;
+        if (scroll) shell.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+      }
+
+      async function copyText(value) {
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(value);
+          } else {
+            var field = document.createElement('textarea');
+            field.value = value;
+            field.style.position = 'fixed';
+            field.style.opacity = '0';
+            document.body.appendChild(field);
+            field.focus();
+            field.select();
+            var ok = document.execCommand('copy');
+            field.remove();
+            if (!ok) throw new Error('copy unsupported');
+          }
+          announce('已复制，回到 QQ 粘贴发送吧 ♡');
+        } catch (_) { window.prompt('请手动复制这条命令：', value); }
+      }
+
+      document.addEventListener('click', function (event) {
+        var copyButton = event.target.closest('[data-copy]');
+        if (copyButton) { copyText(copyButton.dataset.copy); return; }
+        var card = event.target.closest('[data-open]');
+        if (card) {
+          if (card.getAttribute('aria-expanded') === 'true') { closeGuide(); }
+          else { openGuide(card.dataset.open, true); }
+          return;
+        }
+        if (event.target.closest('[data-close]')) {
+          closeGuide();
+          document.getElementById('feature-title').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+
+      search.addEventListener('input', function () {
+        var q = search.value.trim().toLowerCase();
+        var count = 0;
+        cards.forEach(function (card) {
+          var match = !q || (card.dataset.keywords + ' ' + card.textContent).toLowerCase().includes(q);
+          card.hidden = !match;
+          if (match) count++;
+        });
+        noResults.hidden = count !== 0;
+        if (q && count === 1) {
+          var one = cards.find(function (card) { return !card.hidden; });
+          if (one && shell.hidden === false) openGuide(one.dataset.open, false);
+        }
+      });
+
+      var hash = window.location.hash.replace(/^#/, '');
+      if (hash.indexOf('guide-') === 0) openGuide(hash.slice(6), false);
+    })();
+  </script>
+</body>
+</html>
