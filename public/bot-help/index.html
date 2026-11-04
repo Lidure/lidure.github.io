@@ -274,19 +274,19 @@
         <button class="feature" type="button" data-open="chat" data-keywords="ai 聊天 对话 问答 看图 识图 回复 消息 @ 聊天" aria-controls="detail-chat" aria-expanded="false" style="--icon-bg:#ffeaf2">
           <span class="feature-icon" aria-hidden="true">💬</span><span class="feature-title">AI 聊天</span><span class="feature-sub">陪你聊天 · 回答问题 · 看图</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
-        <button class="feature" type="button" data-open="gallery" data-keywords="画廊 图片 表情包 上传 分类 抽表情 看图 收藏 图库" aria-controls="detail-gallery" aria-expanded="false" style="--icon-bg:#e8f5ff">
+        <button class="feature" type="button" data-open="gallery" data-keywords="画廊 图片 表情包 上传 分类 抽表情 看图 收藏 图库 看全部 多图 批量 编号 airi miku" aria-controls="detail-gallery" aria-expanded="false" style="--icon-bg:#e8f5ff">
           <span class="feature-icon" aria-hidden="true">🖼️</span><span class="feature-title">图片画廊</span><span class="feature-sub">抽表情 · 看图库 · 上传图片</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
-        <button class="feature" type="button" data-open="games" data-keywords="游戏 原神 星穹铁道 星铁 绝区零 鸣潮 异环 崩坏3 世界计划 pjsk steam 抽卡 签到 面板 体力" aria-controls="detail-games" aria-expanded="false" style="--icon-bg:#fff1df">
+        <button class="feature" type="button" data-open="games" data-keywords="游戏 原神 星穹铁道 星铁 绝区零 鸣潮 异环 崩坏3 崩坏三 米游社 库街区 社区 自动签到 扫码登录 绑定 uid 世界计划 pjsk steam 抽卡 签到 面板 体力" aria-controls="detail-games" aria-expanded="false" style="--icon-bg:#fff1df">
           <span class="feature-icon" aria-hidden="true">🎮</span><span class="feature-title">游戏工具</span><span class="feature-sub">角色面板 · 抽卡记录 · 签到</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
-        <button class="feature" type="button" data-open="voice" data-keywords="语音 爱莉 朗读 tts 说话 日语 声音" aria-controls="detail-voice" aria-expanded="false" style="--icon-bg:#f1eaff">
+        <button class="feature" type="button" data-open="voice" data-keywords="语音 爱莉 朗读 tts 说话 日语 声音 voice.list 随机语音 语音列表" aria-controls="detail-voice" aria-expanded="false" style="--icon-bg:#f1eaff">
           <span class="feature-icon" aria-hidden="true">🎤</span><span class="feature-title">语音互动</span><span class="feature-sub">爱莉语音 · AI 语音朗读</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
-        <button class="feature" type="button" data-open="fun" data-keywords="趣味 娱乐 戳一戳 排行 今日小猪 整活 表情" aria-controls="detail-fun" aria-expanded="false" style="--icon-bg:#fff2e5">
+        <button class="feature" type="button" data-open="fun" data-keywords="趣味 娱乐 戳一戳 排行 今日小猪 整活 表情 猪圈 图鉴 小猪" aria-controls="detail-fun" aria-expanded="false" style="--icon-bg:#fff2e5">
           <span class="feature-icon" aria-hidden="true">🎲</span><span class="feature-title">趣味娱乐</span><span class="feature-sub">戳一戳 · 今日小猪 · 排行</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
-        <button class="feature" type="button" data-open="tools" data-keywords="实用 工具 天气 点歌 音乐 pixiv 搜图 识图 来源 视频解析 绘图" aria-controls="detail-tools" aria-expanded="false" style="--icon-bg:#e8f7f4">
+        <button class="feature" type="button" data-open="tools" data-keywords="实用 工具 天气 点歌 音乐 pixiv 搜图 以图搜图 识图 来源 视频解析 绘图" aria-controls="detail-tools" aria-expanded="false" style="--icon-bg:#e8f7f4">
           <span class="feature-icon" aria-hidden="true">🛠️</span><span class="feature-title">实用工具</span><span class="feature-sub">点歌 · 搜图 · 天气 · Pixiv</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
       </div>
@@ -294,13 +294,19 @@
 
       <div class="detail-shell" id="detail-shell" hidden aria-live="polite">
         <section id="detail-chat" class="guide" data-guide="chat" hidden aria-label="AI 聊天使用帮助">
-          <div class="detail-header"><div><span class="section-label">CHAT</span><h3>💬 想聊什么，都可以试试</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">在群里 @小浅子，就能和她聊天、提问；也可以带上图片，让她帮你看看。</p>
+          <div class="detail-header"><div><span class="section-label">CHAT</span><h3>💬 找小浅子聊天、提问</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">不需要背聊天命令。在群聊中真正 @小浅子，再说出你想聊的内容就好。</p>
+          <ol class="howto-steps">
+            <li>在 QQ 群输入 <strong>@</strong>，从弹出的成员列表中<strong>选中小浅子</strong>，不要只打出“@小浅子”文字。</li>
+            <li>发送你想问的话，例如问好、解释问题或讨论作品。</li>
+            <li>想让小浅子识图？<strong>发送图片并 @她提问</strong>，或者回复图片消息继续问。</li>
+          </ol>
+          <div class="guide-caption">先真正 @小浅子，再粘贴以下文字</div>
           <div class="commands">
-            <div class="command-item"><span class="command-title">先在 QQ 中选中「@小浅子」，再发：</span><div class="cmd-row"><span class="cmd">你好呀！</span><button class="copy" type="button" data-copy="你好呀！">复制文字</button></div></div>
-            <div class="command-item"><span class="command-title">提问前先在 QQ 中真实 @小浅子</span><div class="cmd-row"><span class="cmd">帮我解释一下这张图</span><button class="copy" type="button" data-copy="帮我解释一下这张图">复制文字</button></div></div>
+            <div class="command-item"><span class="command-title">聊天示例</span><div class="cmd-row"><span class="cmd">你好呀，今天过得怎么样？</span><button class="copy" type="button" data-copy="你好呀，今天过得怎么样？">复制文字</button></div></div>
+            <div class="command-item"><span class="command-title">识图示例（记得附图）</span><div class="cmd-row"><span class="cmd">帮我解释一下这张图片</span><button class="copy" type="button" data-copy="帮我解释一下这张图片">复制文字</button></div></div>
           </div>
-          <div class="tip"><span>💡</span><span>图片理解：发送图片并 @小浅子提问；如果是回复图片消息，也可以接着提问。AI 回复会受网络服务状态影响。</span></div>
+          <div class="tip"><span>💡</span><span>纯文字“@小浅子”不等于 QQ 的真实 @。私聊可以直接提问；AI 聊天和图片识别依赖模型服务，可能有延迟。</span></div>
         </section>
 
         <section id="detail-gallery" class="guide" data-guide="gallery" hidden aria-label="图片画廊使用帮助">
@@ -434,38 +440,65 @@
         </section>
 
         <section id="detail-voice" class="guide" data-guide="voice" hidden aria-label="语音互动使用帮助">
-          <div class="detail-header"><div><span class="section-label">VOICE</span><h3>🎤 让小浅子说句话</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">收听爱莉相关的语音素材，或尝试让 AI 用语音回复你。</p>
+          <div class="detail-header"><div><span class="section-label">VOICE</span><h3>🎤 听语音，或让小浅子说句话</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">语音分为两类：<strong>已收录的角色语音</strong>和<strong>AI 临时生成的语音</strong>。推荐先从语音列表开始。</p>
+          <ol class="howto-steps">
+            <li>发送 <span class="inline-command">/voice.list</span>，查看当前可以用的语音关键词。</li>
+            <li>在列表中找到喜欢的关键词，按列表给出的文字发送，即可尝试播放对应的预设语音。</li>
+            <li>不想挑选就发送 <span class="inline-command">/随机语音</span>；更多规则可看 <span class="inline-command">/voice.help</span>。</li>
+          </ol>
           <div class="commands">
-            <div class="command-item"><span class="command-title">先真正 @小浅子，再发送</span><div class="cmd-row"><span class="cmd">说句晚安吧</span><button class="copy" type="button" data-copy="说句晚安吧">复制文字</button></div></div>
+            <div class="command-item"><span class="command-title">查看可用的语音关键词</span><div class="cmd-row"><span class="cmd">/voice.list</span><button class="copy" type="button" data-copy="/voice.list">复制</button></div></div>
+            <div class="command-item"><span class="command-title">随机播放一条语音</span><div class="cmd-row"><span class="cmd">/随机语音</span><button class="copy" type="button" data-copy="/随机语音">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看语音使用帮助</span><div class="cmd-row"><span class="cmd">/voice.help</span><button class="copy" type="button" data-copy="/voice.help">复制</button></div></div>
           </div>
-          <div class="tip"><span>💡</span><span>部分语音需要指定的触发方式，且不是每次聊天都会发语音。以当前群聊开启的功能为准。</span></div>
+          <div class="howto"><details><summary>🤖 如果想让 AI 临时说一句话？</summary><div class="howto-body">
+            <ol class="howto-steps"><li>在群里真正 @小浅子。</li><li>明确提出想听语音，例如“能用语音说一句晚安吗？”</li><li>如果当前语音生成服务可用，小浅子可能发送语音；否则可能只返回文字。</li></ol>
+            <p class="howto-note">AI 生成语音和预设语音不是一回事，无法保证每次聊天都自动发语音。</p>
+          </div></details></div>
+          <div class="tip"><span>💡</span><span>预设语音关键词因收录内容而变化，请以 <strong>/voice.list</strong> 的实际结果为准，不必自己猜。</span></div>
         </section>
 
         <section id="detail-fun" class="guide" data-guide="fun" hidden aria-label="趣味娱乐使用帮助">
-          <div class="detail-header"><div><span class="section-label">FUN</span><h3>🎲 戳一戳，来点小惊喜</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">不想认真聊天？和小浅子玩点有趣的！</p>
+          <div class="detail-header"><div><span class="section-label">FUN</span><h3>🎲 戳一戳、今日小猪和排行榜</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">想轻松玩一会儿？试试 QQ 戳一戳，或者每天抽一只小猪。</p>
           <div class="simple-list">
-            <div><strong>👆 戳一戳</strong>直接戳小浅子，看看有什么反应。</div>
-            <div><strong>🐷 今日小猪</strong>参与群聊里的今日小猪玩法。</div>
+            <div><strong>👆 戳一戳</strong>在 QQ 中戳小浅子，可能触发反戳、语音或其他反应。</div>
+            <div><strong>🐷 今日小猪</strong>每天抽一次今日小猪、查看自己的收藏图鉴和成长。</div>
           </div>
-          <div class="guide-caption">想看谁最爱戳她？</div>
+          <div class="guide-caption">这些命令都能直接复制</div>
           <div class="commands">
+            <div class="command-item"><span class="command-title">看看今天抽到哪只小猪</span><div class="cmd-row"><span class="cmd">/今日小猪</span><button class="copy" type="button" data-copy="/今日小猪">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看已收集的小猪</span><div class="cmd-row"><span class="cmd">/小猪图鉴</span><button class="copy" type="button" data-copy="/小猪图鉴">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看自己的小猪统计</span><div class="cmd-row"><span class="cmd">/我的猪圈</span><button class="copy" type="button" data-copy="/我的猪圈">复制</button></div></div>
             <div class="command-item"><span class="command-title">戳一戳排行榜</span><div class="cmd-row"><span class="cmd">/poke排行</span><button class="copy" type="button" data-copy="/poke排行">复制</button></div></div>
           </div>
-          <div class="tip"><span>💡</span><span>部分趣味功能有触发间隔或群聊权限限制，没反应时不必连续刷屏。</span></div>
+          <div class="howto"><details><summary>🐷 第一次玩小猪？从这里开始</summary><div class="howto-body">
+            <ol class="howto-steps"><li>发送 <span class="inline-command">/今日小猪</span>，查看当天抽到的小猪。</li><li>发送 <span class="inline-command">/小猪图鉴</span>，看已经收集了哪些。</li><li>想了解烤猪、猪圈等更多玩法，可以发送 <span class="inline-command">/小猪帮助</span>。</li></ol>
+            <div class="code-options"><span class="code-pill"><code>/小猪帮助</code><button class="copy" type="button" data-copy="/小猪帮助">复制</button></span></div>
+          </div></details></div>
+          <div class="tip"><span>💡</span><span>今日小猪在同一天内通常不会不断变化；戳一戳有触发间隔或群聊权限限制，不需要反复刷屏。</span></div>
         </section>
 
         <section id="detail-tools" class="guide" data-guide="tools" hidden aria-label="实用工具使用帮助">
-          <div class="detail-header"><div><span class="section-label">TOOLS</span><h3>🛠️ 日常小工具，随手就用</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">查天气、点歌、搜索 Pixiv 作品，也有图片来源查找和视频链接解析等功能。</p>
+          <div class="detail-header"><div><span class="section-label">TOOLS</span><h3>🛠️ 天气、点歌、Pixiv 与搜图</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">想查什么就发对应命令。下面都是完整示例，可直接复制；换城市、歌名或角色时替换文字即可。</p>
           <div class="commands">
-            <div class="command-item"><span class="command-title">查看天气</span><div class="cmd-row"><span class="cmd">/天气 青岛</span><button class="copy" type="button" data-copy="/天气 青岛">复制</button></div></div>
-            <div class="command-item"><span class="command-title">点歌示例：搜索「群青」</span><div class="cmd-row"><span class="cmd">/点歌 群青</span><button class="copy" type="button" data-copy="/点歌 群青">复制</button></div></div>
-            <div class="command-item"><span class="command-title">搜索 Pixiv 图片</span><div class="cmd-row"><span class="cmd">/pixiv 初音未来</span><button class="copy" type="button" data-copy="/pixiv 初音未来">复制</button></div></div>
-            <div class="command-item"><span class="command-title">查看所有帮助</span><div class="cmd-row"><span class="cmd">/help</span><button class="copy" type="button" data-copy="/help">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查青岛天气</span><div class="cmd-row"><span class="cmd">/天气 青岛</span><button class="copy" type="button" data-copy="/天气 青岛">复制</button></div></div>
+            <div class="command-item"><span class="command-title">搜索歌曲「群青」</span><div class="cmd-row"><span class="cmd">/点歌 群青</span><button class="copy" type="button" data-copy="/点歌 群青">复制</button></div></div>
+            <div class="command-item"><span class="command-title">找初音未来的 Pixiv 作品</span><div class="cmd-row"><span class="cmd">/pixiv 初音未来</span><button class="copy" type="button" data-copy="/pixiv 初音未来">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查找图片来源（附上图片使用）</span><div class="cmd-row"><span class="cmd">/搜图</span><button class="copy" type="button" data-copy="/搜图">复制</button></div></div>
           </div>
-          <div class="tip"><span>💡</span><span>想点其他歌曲，把示例里的「群青」改成歌曲名。Pixiv、视频解析、点歌依赖外部服务，可能暂时不可用。</span></div>
+          <div class="howto">
+            <details><summary>🔎 我想知道一张图出自哪里？</summary><div class="howto-body">
+              <ol class="howto-steps"><li>在 QQ 中找到想搜索来源的图片。</li><li><strong>回复图片消息</strong>并发送 <span class="inline-command">/搜图</span>；也可以先发送搜图指令，再按提示发送图片。</li><li>等待 Bot 返回可能的来源、作者或相似作品。</li></ol>
+              <p class="howto-note">搜图依赖第三方引擎，结果不一定准确。有些搜索引擎可能未启用或暂时不可用。</p>
+            </div></details>
+            <details><summary>🎵 想查询其他城市、歌曲或画师？</summary><div class="howto-body">
+              <p class="example-note">命令后面写你想搜索的内容：<span class="inline-command">/天气 青岛</span> 中的「青岛」可换成城市；<span class="inline-command">/点歌 群青</span> 中的「群青」可换成歌名；<span class="inline-command">/pixiv 初音未来</span> 中的「初音未来」可换成角色或搜索词。</p>
+            </div></details>
+          </div>
+          <div class="tip"><span>💡</span><span>Pixiv、音乐、天气、搜图依赖外部网络服务，偶尔可能返回错误。想查看更多命令，可以发送 <span class="inline-command">/help</span>。</span></div>
         </section>
       </div>
     </section>
