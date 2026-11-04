@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="zh-CN"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#fff7fb">
+<title>Airi 节点 · 功能手册 | 小浅子</title>
+<meta name="description" content="Super Airi 节点 24 项功能：游戏查询、娱乐、实用工具与棋类桌游。按分类查看命令、积分消耗和群聊限制。">
+<meta property="og:type" content="website"><meta property="og:title" content="🌸 Airi 节点功能手册">
+<meta property="og:description" content="24 项功能分成 4 类，命令、费用和限制清清楚楚，新手也能轻松找到玩法。">
+<link rel="canonical" href="https://lidure22.xyz/bot-help/airi/"><link rel="icon" href="/favicon-32.png">
+<style>
+:root {color-scheme: light;--bg:#fff9fb;--paper:#ffffff;--text:#3d3443;--muted:#81788b;--accent:#cb6397;--line:#f1e4ed;--surface:#fff2f7;--shadow:0 12px 42px #8d5a8110}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 37rem 34rem at 8% 0%,#ffe6f0,transparent),radial-gradient(ellipse 35rem 29rem at 95% 22%,#f3eaff,transparent),var(--bg);color:var(--text);font-family:"Noto Sans SC","Microsoft YaHei","PingFang SC",system-ui,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased}a{color:inherit;text-decoration:none}button,input{font:inherit}button{cursor:pointer}:focus-visible{outline:3px solid #c96d9d;outline-offset:3px}.wrap{width:min(1080px,calc(100% - 36px));margin:0 auto}
+.topbar{background:#fffafdde;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);position:sticky;top:0;z-index:15;border-bottom:1px solid var(--line)}.topbar-inner{display:flex;min-height:66px;align-items:center;justify-content:space-between;gap:14px}.brand{font-weight:900;letter-spacing:-.3px;display:flex;align-items:center;gap:10px}.brand-mark{display:grid;place-items:center;background:linear-gradient(145deg,#f9a2c6,#cc7fae);color:white;width:34px;height:34px;border-radius:13px}.back{font-size:13px;color:#b15c87;font-weight:800;background:#fff;border:1px solid #f0deea;border-radius:999px;padding:7px 13px}
+.hero{padding:56px 0 35px}.eyebrow{font-size:12px;letter-spacing:1.4px;color:#c16b94;font-weight:900}.hero h1{font-size:clamp(34px,5vw,58px);line-height:1.25;letter-spacing:-1.5px;margin:12px 0 13px}.hero h1 span{color:#d7699f}.hero p{color:#746c7e;font-size:15px;max-width:670px;margin:0;line-height:1.9}.summary-stats{display:flex;flex-wrap:wrap;gap:9px;margin-top:24px}.stat{display:inline-flex;align-items:center;gap:7px;border:1px solid #f0e0e9;background:#fffafc;border-radius:100px;color:#a66688;font-size:12px;font-weight:800;padding:7px 12px}.stat strong{font-size:16px;color:#ac5882}
+.notice{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;background:#fff;border:1px solid #efdfe8;border-radius:18px;font-size:13px;color:#7a7283;line-height:1.85;box-shadow:var(--shadow)}.notice strong{color:#514357}.notice span:first-child{font-size:21px;line-height:1.5}
+.control-bar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:34px 0 16px}.control-title h2{font-size:24px;margin:0 0 2px;letter-spacing:-.5px}.control-title p{font-size:12px;color:#978c99;margin:0}.search{display:flex;align-items:center;gap:10px;border:1px solid #ebd9e7;border-radius:14px;padding:10px 15px;background:white;width:310px;max-width:100%;color:#bb7a9a}.search input{border:0;outline:none;min-width:0;background:transparent;flex:1;color:#463849;font-size:13px}.search input::placeholder{color:#ad9bad}
+.category{background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:var(--shadow);margin:12px 0;overflow:clip;scroll-margin-top:86px}.category>summary{list-style:none;display:flex;align-items:center;gap:15px;min-height:105px;padding:19px 25px;cursor:pointer}.category>summary::-webkit-details-marker{display:none}.category>summary:hover{background:#fffafd}.cat-emoji{display:grid;place-items:center;flex-shrink:0;width:54px;height:54px;border-radius:18px;background:#fff0f6;font-size:26px}.cat-title{display:flex;flex-direction:column;flex:1;min-width:0}.cat-title strong{font-size:20px;font-weight:900;letter-spacing:-.3px}.cat-title small{font-size:12px;color:#8e8392}.cat-number{font-size:12px;font-weight:800;color:#b36e90;white-space:nowrap}.chevron{font-size:24px;color:#c875a5;display:inline-block;transition:transform .18s}.category[open] .chevron{transform:rotate(180deg)}.category[open]>summary{border-bottom:1px solid var(--line);background:#fffafc}
+.tool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px;padding:20px}.tool{background:#fff;border:1px solid #f1e5ed;border-radius:18px;padding:20px;min-width:0}.tool[hidden],.category[hidden]{display:none!important}.tool-top{display:flex;align-items:start;justify-content:space-between;gap:12px}.tool-top h3{font-size:17px;line-height:1.35;margin:0 0 2px;letter-spacing:-.2px}.plugin-name{font-size:11px;letter-spacing:.15px;color:#a99aac;margin:0;overflow-wrap:anywhere}.tool-cost{display:flex;flex-direction:column;align-items:end;gap:5px;max-width:45%;flex-shrink:0}.tool-price{font-size:11px;font-weight:800;color:#ad587d;text-align:right}.tool-price.muted{font-weight:500;color:#aaa0ac}.tool-limit{font-size:11px;color:#bd7b54;text-align:right}.tool-desc{font-size:13px;color:#716979;margin:12px 0 14px}.author{font-size:11px;color:#a399a8;margin:6px 0 -4px}.commands{display:grid;gap:8px}.command{border-radius:12px;background:#fff8fb;border:1px solid #f3e4ec;padding:10px 12px}.command-label{font-size:11px;color:#96899b;font-weight:650}.command-line{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px}.command-line code{font-family:Consolas,"Microsoft YaHei",monospace;font-size:13px;color:#b24e83;font-weight:800;overflow-wrap:anywhere}.copy{flex-shrink:0;border:1px solid #edcfe0;border-radius:9px;background:#fff;color:#bb6c94;padding:4px 10px;font-size:11px;font-weight:850}.copy:hover{background:#ffeaf3}.tool-note,.mention-note,.format-note{font-size:12px;color:#837889;background:#f8f5fa;border-radius:11px;padding:10px 12px;margin:12px 0 0;line-height:1.9}.mention-note{background:#fff3ef;color:#966a66}.format-note{margin:0}.empty{border:1px dashed #ead6e3;border-radius:14px;text-align:center;padding:22px;color:#998b9c;background:white;font-size:13px}.empty[hidden]{display:none}.bottom-note{margin:30px 0 65px;font-size:13px;color:#81768a;background:white;border:1px solid var(--line);padding:18px 22px;border-radius:17px}.bottom-note strong{color:#514459}.footer{border-top:1px solid #ecdce6;padding:26px 0 34px;font-size:12px;color:#978a98}.footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}.footer a{color:#b45b8a;font-weight:750}
+#toast{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom));left:50%;transform:translate(-50%,15px);opacity:0;pointer-events:none;z-index:100;border-radius:13px;padding:11px 18px;background:#433443;color:white;font-size:12px;transition:transform .2s,opacity .2s;white-space:nowrap;box-shadow:0 8px 20px #28172930}#toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:780px){.tool-grid{grid-template-columns:1fr}.hero{padding-top:42px}.control-bar{align-items:stretch;flex-direction:column}.search{width:100%}}
+@media(max-width:540px){.wrap{width:min(100% - 28px,1080px)}.topbar-inner{min-height:61px}.hero{padding:34px 0 25px}.hero h1{font-size:37px}.hero p{font-size:13px}.notice{font-size:12px;padding:13px}.control-title h2{font-size:22px}.category{border-radius:18px}.category>summary{min-height:88px;padding:16px;gap:11px}.cat-emoji{width:46px;height:46px;font-size:23px;border-radius:14px}.cat-title strong{font-size:17px}.cat-title small{font-size:11px}.cat-number{font-size:11px}.tool-grid{padding:12px;gap:10px}.tool{padding:15px;border-radius:14px}.tool-top h3{font-size:15px}.tool-cost{max-width:45%}.summary-stats{gap:7px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.chevron,#toast{transition:none}}
+</style></head><body>
+<header class="topbar"><div class="wrap topbar-inner"><a class="brand" href="/bot-help/"><span class="brand-mark" aria-hidden="true">✿</span><span>小浅子 <small style="display:block;color:#af9ba8;font-size:10px;letter-spacing:1.2px;line-height:1.1">SUPER AIRI!</small></span></a><a class="back" href="/bot-help/#nodes">← 返回帮助中心</a></div></header>
+<main class="wrap"><section class="hero"><span class="eyebrow">AIRICORE · 功能手册</span><h1>🌸 Airi 节点<br><span>都能玩些什么？</span></h1><p>游戏查询、每日签到、抽签占卜，还有棋类和表情制作。<br>不需要读一整篇长说明：先选择分类，再找到你想玩的功能。</p>
+<div class="summary-stats"><span class="stat"><strong>24</strong> 项功能</span><span class="stat"><strong>4</strong> 大分类</span><span class="stat">命令可复制</span><span class="stat">积分与限制清楚标注</span></div></section>
+<div class="notice"><span aria-hidden="true">💡</span><div><strong>使用前知道这几件事：</strong>这些功能由<strong>Airi 远程节点</strong>提供，并不全是小浅子本地的 AstrBot 插件。积分指 Airi 节点积分；<strong>未注明积分不等于保证免费</strong>。部分功能需要群白名单，节点掉线或权限不足时可能无法响应。需要 @Airi 的指令，请在 QQ 中从成员列表真正选择该账号。</div></div>
+<div class="control-bar"><div class="control-title"><h2>按兴趣慢慢找</h2><p>点击下面的分类展开，不会一次铺满 24 个功能。</p></div><label class="search" for="catalog-search"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="搜索：签到、wws、象棋、点歌…" autocomplete="off" aria-label="搜索 Airi 功能"></label></div>
+<div id="catalog"><details class="category" id="games" data-category="games">
+ <summary><span class="cat-emoji" aria-hidden="true">🎮</span><span class="cat-title"><strong>游戏综合查询</strong><small>查战绩、算 PT、制作游戏内容</small></span><span class="cat-number">5 项</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+ <div class="tool-grid"><article class="tool" data-tool="pjsk-pt" data-search="倍率 / pt 计算器 ena-pjsk-score 咖啡不甜 面向《世界计划》的烤倍率与 pt 计算。 计算倍率 倍率计算 单人pt 单人 pt 协力pt 协力 pt 挑战pt 挑战 pt 先发送所需的指令，再按照节点给出的提示填写计算参数。">
+  <div class="tool-top"><div><h3>倍率 / PT 计算器</h3><p class="plugin-name">ena-pjsk-score</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
+  <p class="author">By 咖啡不甜</p><p class="tool-desc">面向《世界计划》的烤倍率与 PT 计算。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">倍率计算</div><div class="command-line"><code>计算倍率</code><button type="button" class="copy" data-copy="计算倍率" aria-label="复制计算倍率">复制</button></div></div>
+<div class="command"><div class="command-label">单人 PT</div><div class="command-line"><code>单人pt</code><button type="button" class="copy" data-copy="单人pt" aria-label="复制单人pt">复制</button></div></div>
+<div class="command"><div class="command-label">协力 PT</div><div class="command-line"><code>协力pt</code><button type="button" class="copy" data-copy="协力pt" aria-label="复制协力pt">复制</button></div></div>
+<div class="command"><div class="command-label">挑战 PT</div><div class="command-line"><code>挑战pt</code><button type="button" class="copy" data-copy="挑战pt" aria-label="复制挑战pt">复制</button></div></div></div>
+  <p class="tool-note">先发送所需的指令，再按照节点给出的提示填写计算参数。</p>
+</article>
+<article class="tool" data-tool="wws" data-search="战舰世界 · 水表查询 airi-kokomi-wows maoyu、airicore dev. 查询《战舰世界》的玩家战绩和相关数据。 wws help 查看完整帮助 wws 功能入口 初次使用建议先发 wws help；具体玩家查询参数以节点帮助为准。">
+  <div class="tool-top"><div><h3>战舰世界 · 水表查询</h3><p class="plugin-name">Airi-Kokomi-WoWS</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By Maoyu、AiriCore Dev.</p><p class="tool-desc">查询《战舰世界》的玩家战绩和相关数据。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看完整帮助</div><div class="command-line"><code>wws help</code><button type="button" class="copy" data-copy="wws help" aria-label="复制wws help">复制</button></div></div>
+<div class="command"><div class="command-label">功能入口</div><div class="command-line"><code>wws</code><button type="button" class="copy" data-copy="wws" aria-label="复制wws">复制</button></div></div></div>
+  <p class="tool-note">初次使用建议先发 wws help；具体玩家查询参数以节点帮助为准。</p>
+</article>
+<article class="tool" data-tool="astral" data-search="吉星派对 · 综合查询 airi-astral-party airicore dev. 《吉星派对》相关的综合游戏查询。 astral help 图片帮助 如果节点提示无权限，需要该群获得白名单授权。">
+  <div class="tool-top"><div><h3>吉星派对 · 综合查询</h3><p class="plugin-name">Airi-Astral-Party</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span><span class="tool-limit">仅群白名单可用</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">《吉星派对》相关的综合游戏查询。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">图片帮助</div><div class="command-line"><code>astral help</code><button type="button" class="copy" data-copy="astral help" aria-label="复制astral help">复制</button></div></div></div>
+  <p class="tool-note">如果节点提示无权限，需要该群获得白名单授权。</p>
+</article>
+<article class="tool" data-tool="manosaba" data-search="魔裁 · diy 工具 airi-manosaba-memes airicore dev.、zhaomaoniu 魔裁主题图片与 diy 内容制作。 manohelp 查看帮助 查看帮助后，再按图示填写制作所需参数。">
+  <div class="tool-top"><div><h3>魔裁 · DIY 工具</h3><p class="plugin-name">Airi-Manosaba-Memes</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By AiriCore Dev.、zhaomaoniu</p><p class="tool-desc">魔裁主题图片与 DIY 内容制作。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看帮助</div><div class="command-line"><code>manohelp</code><button type="button" class="copy" data-copy="manohelp" aria-label="复制manohelp">复制</button></div></div></div>
+  <p class="tool-note">查看帮助后，再按图示填写制作所需参数。</p>
+</article>
+<article class="tool" data-tool="mcrcon" data-search="cobblemon 服务器管理 airi-mcrcon airicore dev. airi cobblemon 服务器相关的管理功能。 /help 在已开放群查看帮助 /help 也可能被其他 bot 模块响应；本功能请在已开放的群按管理员说明使用。">
+  <div class="tool-top"><div><h3>Cobblemon 服务器管理</h3><p class="plugin-name">Airi-MCRcon</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span><span class="tool-limit">仅部分群聊开放</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">Airi Cobblemon 服务器相关的管理功能。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">在已开放群查看帮助</div><div class="command-line"><code>/help</code><button type="button" class="copy" data-copy="/help" aria-label="复制/help">复制</button></div></div></div>
+  <p class="tool-note">/help 也可能被其他 Bot 模块响应；本功能请在已开放的群按管理员说明使用。</p>
+</article></div>
+ </details>
+<details class="category" id="entertainment" data-category="entertainment">
+ <summary><span class="cat-emoji" aria-hidden="true">🎀</span><span class="cat-title"><strong>娱乐与互动</strong><small>签到收藏、运势、漂流瓶和趣味小游戏</small></span><span class="cat-number">8 项</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+ <div class="tool-grid"><article class="tool" data-tool="collection" data-search="桃井爱莉 · 收藏小游戏 momoi airi collection airicore dev. 每日签到、积分与收藏玩法。 签到 日常签到 签到帮助 查看规则 先发送「签到帮助」了解积分、收藏和签到规则，再用「签到」参与。">
+  <div class="tool-top"><div><h3>桃井爱莉 · 收藏小游戏</h3><p class="plugin-name">Momoi Airi Collection</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">每日签到、积分与收藏玩法。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">日常签到</div><div class="command-line"><code>签到</code><button type="button" class="copy" data-copy="签到" aria-label="复制签到">复制</button></div></div>
+<div class="command"><div class="command-label">查看规则</div><div class="command-line"><code>签到帮助</code><button type="button" class="copy" data-copy="签到帮助" aria-label="复制签到帮助">复制</button></div></div></div>
+  <p class="tool-note">先发送「签到帮助」了解积分、收藏和签到规则，再用「签到」参与。</p>
+</article>
+<article class="tool" data-tool="wish" data-search="爱莉心愿瓶 momoi airi wish bottle airicore dev. 漂流瓶风格的心愿投递与互动。 心愿瓶帮助 查看玩法 按提示选择投递或捞取，不需要记住所有子命令。">
+  <div class="tool-top"><div><h3>爱莉心愿瓶</h3><p class="plugin-name">Momoi Airi Wish Bottle</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">漂流瓶风格的心愿投递与互动。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看玩法</div><div class="command-line"><code>心愿瓶帮助</code><button type="button" class="copy" data-copy="心愿瓶帮助" aria-label="复制心愿瓶帮助">复制</button></div></div></div>
+  <p class="tool-note">按提示选择投递或捞取，不需要记住所有子命令。</p>
+</article>
+<article class="tool" data-tool="turtle" data-search="海龟汤 momoi airi turtle soup airicore dev. 通过提问逐步推理故事真相。 海龟汤 查看帮助 / 开始入口 开始前先阅读节点返回的规则。300 积分是开局费用，不是每次提问费用。">
+  <div class="tool-top"><div><h3>海龟汤</h3><p class="plugin-name">Momoi Airi Turtle Soup</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 300 积分</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">通过提问逐步推理故事真相。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看帮助 / 开始入口</div><div class="command-line"><code>海龟汤</code><button type="button" class="copy" data-copy="海龟汤" aria-label="复制海龟汤">复制</button></div></div></div>
+  <p class="tool-note">开始前先阅读节点返回的规则。300 积分是开局费用，不是每次提问费用。</p>
+</article>
+<article class="tool" data-tool="jrys" data-search="今日运势 jrys  看看今天的随机运势。 jrys 测测今日运势 ">
+  <div class="tool-top"><div><h3>今日运势</h3><p class="plugin-name">jrys</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
+  <p class="tool-desc">看看今天的随机运势。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">测测今日运势</div><div class="command-line"><code>jrys</code><button type="button" class="copy" data-copy="jrys" aria-label="复制jrys">复制</button></div></div></div>
+  
+</article>
+<article class="tool" data-tool="tarot" data-search="塔罗牌占卜 tarot minatoaquacrews 试试有趣的塔罗占卜。 占卜 触发占卜 娱乐性质，不作为现实决策依据。">
+  <div class="tool-top"><div><h3>塔罗牌占卜</h3><p class="plugin-name">tarot</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By MinatoAquaCrews</p><p class="tool-desc">试试有趣的塔罗占卜。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">触发占卜</div><div class="command-line"><code>占卜</code><button type="button" class="copy" data-copy="占卜" aria-label="复制占卜">复制</button></div></div></div>
+  <p class="tool-note">娱乐性质，不作为现实决策依据。</p>
+</article>
+<article class="tool" data-tool="waifu" data-search="今日老婆 · 抽群友 today-waifu glamorgan9826 在群里随机抽取趣味互动对象。 jrlp 今日老婆 hlp 换老婆 强娶 强娶玩法 强娶等功能如需目标或额外操作，请按节点回复继续。">
+  <div class="tool-top"><div><h3>今日老婆 · 抽群友</h3><p class="plugin-name">today-waifu</p></div><div class="tool-cost"><span class="tool-price">🪙 jrlp / hlp：10 积分 / 次；强娶：100 积分 / 次</span></div></div>
+  <p class="author">By glamorgan9826</p><p class="tool-desc">在群里随机抽取趣味互动对象。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">今日老婆</div><div class="command-line"><code>jrlp</code><button type="button" class="copy" data-copy="jrlp" aria-label="复制jrlp">复制</button></div></div>
+<div class="command"><div class="command-label">换老婆</div><div class="command-line"><code>hlp</code><button type="button" class="copy" data-copy="hlp" aria-label="复制hlp">复制</button></div></div>
+<div class="command"><div class="command-label">强娶玩法</div><div class="command-line"><code>强娶</code><button type="button" class="copy" data-copy="强娶" aria-label="复制强娶">复制</button></div></div></div>
+  <p class="tool-note">强娶等功能如需目标或额外操作，请按节点回复继续。</p>
+</article>
+<article class="tool" data-tool="eat" data-search="今天吃什么？ whateat-pic cvandia 选择困难时随机推荐吃的或喝的。 今天吃什么 推荐食物 今天喝什么 推荐饮品 ">
+  <div class="tool-top"><div><h3>今天吃什么？</h3><p class="plugin-name">whateat-pic</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By Cvandia</p><p class="tool-desc">选择困难时随机推荐吃的或喝的。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">推荐食物</div><div class="command-line"><code>今天吃什么</code><button type="button" class="copy" data-copy="今天吃什么" aria-label="复制今天吃什么">复制</button></div></div>
+<div class="command"><div class="command-label">推荐饮品</div><div class="command-line"><code>今天喝什么</code><button type="button" class="copy" data-copy="今天喝什么" aria-label="复制今天喝什么">复制</button></div></div></div>
+  
+</article>
+<article class="tool" data-tool="mines" data-search="扫雷游戏 minesweeper meetwq 在群里玩一局扫雷。 扫雷帮助 查看开局与操作规则 先看帮助再开局，避免不知道如何翻格或标雷。">
+  <div class="tool-top"><div><h3>扫雷游戏</h3><p class="plugin-name">Minesweeper</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 100 积分</span></div></div>
+  <p class="author">By MeetWq</p><p class="tool-desc">在群里玩一局扫雷。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看开局与操作规则</div><div class="command-line"><code>扫雷帮助</code><button type="button" class="copy" data-copy="扫雷帮助" aria-label="复制扫雷帮助">复制</button></div></div></div>
+  <p class="tool-note">先看帮助再开局，避免不知道如何翻格或标雷。</p>
+</article></div>
+ </details>
+<details class="category" id="utilities" data-category="utilities">
+ <summary><span class="cat-emoji" aria-hidden="true">🧰</span><span class="cat-title"><strong>实用与创作</strong><small>点歌、随机挑选、图片处理和表情制作</small></span><span class="cat-number">8 项</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+ <div class="tool-grid"><article class="tool" data-tool="music" data-search="网易云点歌 airi-netease-music airicore dev. 搜索并分享网易云音乐的歌曲。 点歌 群青 点歌完整示例 「群青」只是歌名示例，想听别的歌时替换成歌曲名即可。">
+  <div class="tool-top"><div><h3>网易云点歌</h3><p class="plugin-name">Airi-Netease-Music</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">搜索并分享网易云音乐的歌曲。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">点歌完整示例</div><div class="command-line"><code>点歌 群青</code><button type="button" class="copy" data-copy="点歌 群青" aria-label="复制点歌 群青">复制</button></div></div></div>
+  <p class="tool-note">「群青」只是歌名示例，想听别的歌时替换成歌曲名即可。</p>
+</article>
+<article class="tool" data-tool="choice" data-search="随机挑选 airi-choice airicore dev. 纠结选哪个？让节点帮忙随机决定。 choicehelp 查看参数和示例 ">
+  <div class="tool-top"><div><h3>随机挑选</h3><p class="plugin-name">Airi-Choice</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">纠结选哪个？让节点帮忙随机决定。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看参数和示例</div><div class="command-line"><code>choicehelp</code><button type="button" class="copy" data-copy="choicehelp" aria-label="复制choicehelp">复制</button></div></div></div>
+  
+</article>
+<article class="tool" data-tool="roll" data-search="随机数 / 掷骰 airi-roll airicore dev. 生成随机数，适合简单抽签与随机决策。 roll help 查看使用方法 ">
+  <div class="tool-top"><div><h3>随机数 / 掷骰</h3><p class="plugin-name">Airi-Roll</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">生成随机数，适合简单抽签与随机决策。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看使用方法</div><div class="command-line"><code>roll help</code><button type="button" class="copy" data-copy="roll help" aria-label="复制roll help">复制</button></div></div></div>
+  
+</article>
+<article class="tool" data-tool="attr" data-search="英文缩写查询 airi-attrwhich airicore dev. 询问英文缩写是什么意思。 cpu是什么 复制问题文字（先真实 @airi） 先在 qq 群里从成员列表真正 @airi，再输入「cpu是什么」等问题；不能只复制纯文本 @airi。">
+  <div class="tool-top"><div><h3>英文缩写查询</h3><p class="plugin-name">Airi-Attrwhich</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">询问英文缩写是什么意思。</p>
+  <p class="mention-note">📌 需要在 QQ 中真正 @Airi；复制文字不等于完成 @。</p>
+  <div class="commands"><div class="command"><div class="command-label">复制问题文字（先真实 @Airi）</div><div class="command-line"><code>CPU是什么</code><button type="button" class="copy" data-copy="CPU是什么" aria-label="复制CPU是什么">复制</button></div></div></div>
+  <p class="tool-note">先在 QQ 群里从成员列表真正 @Airi，再输入「CPU是什么」等问题；不能只复制纯文本 @Airi。</p>
+</article>
+<article class="tool" data-tool="packpic" data-search="合并转发图片打包 airi-packpic airicore dev. 把合并转发消息里的图片压缩打包。 packpic 回复合并转发消息 必须引用 / 回复一条合并转发消息后再发送 packpic，单发命令无法定位图片来源。">
+  <div class="tool-top"><div><h3>合并转发图片打包</h3><p class="plugin-name">Airi-PackPic</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">把合并转发消息里的图片压缩打包。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">回复合并转发消息</div><div class="command-line"><code>packpic</code><button type="button" class="copy" data-copy="packpic" aria-label="复制packpic">复制</button></div></div></div>
+  <p class="tool-note">必须引用 / 回复一条合并转发消息后再发送 packpic，单发命令无法定位图片来源。</p>
+</article>
+<article class="tool" data-tool="memes" data-search="表情包制作 memes meetwq 用图片或文字生成表情包。 表情包制作 查看制作方法 ">
+  <div class="tool-top"><div><h3>表情包制作</h3><p class="plugin-name">Memes</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By MeetWq</p><p class="tool-desc">用图片或文字生成表情包。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看制作方法</div><div class="command-line"><code>表情包制作</code><button type="button" class="copy" data-copy="表情包制作" aria-label="复制表情包制作">复制</button></div></div></div>
+  
+</article>
+<article class="tool" data-tool="stickers" data-search="pjsk / arcaea 贴纸制作 meme-stickers lgc-nb2dev 用游戏风格模板制作贴纸。 pjskbq pjsk 贴纸说明 arcbq arcaea 贴纸说明 ">
+  <div class="tool-top"><div><h3>PJSK / Arcaea 贴纸制作</h3><p class="plugin-name">meme-stickers</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
+  <p class="author">By lgc-NB2Dev</p><p class="tool-desc">用游戏风格模板制作贴纸。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">PJSK 贴纸说明</div><div class="command-line"><code>pjskbq</code><button type="button" class="copy" data-copy="pjskbq" aria-label="复制pjskbq">复制</button></div></div>
+<div class="command"><div class="command-label">Arcaea 贴纸说明</div><div class="command-line"><code>arcbq</code><button type="button" class="copy" data-copy="arcbq" aria-label="复制arcbq">复制</button></div></div></div>
+  
+</article>
+<article class="tool" data-tool="emojimix" data-search="emoji 合成 emojimix  尝试把两个系统 emoji 混合成趣味图片。 输入形式：系统 emoji + 加号 + 系统 emoji，例如「😀+😎」仅用于说明格式；实际支持哪些组合以插件回复为准。qq 自带表情不是系统 emoji。">
+  <div class="tool-top"><div><h3>Emoji 合成</h3><p class="plugin-name">emojimix</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
+  <p class="tool-desc">尝试把两个系统 Emoji 混合成趣味图片。</p>
+  
+  <p class="format-note">按下方用法输入组合 Emoji；由于组合支持情况不确定，这里不提供误导性的“一键执行”。</p>
+  <p class="tool-note">输入形式：系统 Emoji + 加号 + 系统 Emoji，例如「😀+😎」仅用于说明格式；实际支持哪些组合以插件回复为准。QQ 自带表情不是系统 Emoji。</p>
+</article></div>
+ </details>
+<details class="category" id="board" data-category="board">
+ <summary><span class="cat-emoji" aria-hidden="true">♟️</span><span class="cat-title"><strong>棋类与桌游</strong><small>五子棋、象棋、围棋与得分沙拉</small></span><span class="cat-number">3 项</span><span class="chevron" aria-hidden="true">⌄</span></summary>
+ <div class="tool-grid"><article class="tool" data-tool="chess" data-search="五子棋 / 黑白棋 / 围棋 chess  群聊双人对战（pvp），支持对局管理。 五子棋 开五子棋 黑白棋 开黑白棋 围棋 开围棋 悔棋 申请悔棋 跳过回合 跳过当前回合 显示棋盘 查看棋盘 结束下棋 结束对局 落子命令为「落子」后接棋盘上显示的实际坐标。不同棋类的坐标写法以对局提示为准，不能复制字面上的“坐标”。">
+  <div class="tool-top"><div><h3>五子棋 / 黑白棋 / 围棋</h3><p class="plugin-name">chess</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 100 积分</span><span class="tool-limit">仅玩家对战</span></div></div>
+  <p class="tool-desc">群聊双人对战（PvP），支持对局管理。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">开五子棋</div><div class="command-line"><code>五子棋</code><button type="button" class="copy" data-copy="五子棋" aria-label="复制五子棋">复制</button></div></div>
+<div class="command"><div class="command-label">开黑白棋</div><div class="command-line"><code>黑白棋</code><button type="button" class="copy" data-copy="黑白棋" aria-label="复制黑白棋">复制</button></div></div>
+<div class="command"><div class="command-label">开围棋</div><div class="command-line"><code>围棋</code><button type="button" class="copy" data-copy="围棋" aria-label="复制围棋">复制</button></div></div>
+<div class="command"><div class="command-label">申请悔棋</div><div class="command-line"><code>悔棋</code><button type="button" class="copy" data-copy="悔棋" aria-label="复制悔棋">复制</button></div></div>
+<div class="command"><div class="command-label">跳过当前回合</div><div class="command-line"><code>跳过回合</code><button type="button" class="copy" data-copy="跳过回合" aria-label="复制跳过回合">复制</button></div></div>
+<div class="command"><div class="command-label">查看棋盘</div><div class="command-line"><code>显示棋盘</code><button type="button" class="copy" data-copy="显示棋盘" aria-label="复制显示棋盘">复制</button></div></div>
+<div class="command"><div class="command-label">结束对局</div><div class="command-line"><code>结束下棋</code><button type="button" class="copy" data-copy="结束下棋" aria-label="复制结束下棋">复制</button></div></div></div>
+  <p class="tool-note">落子命令为「落子」后接棋盘上显示的实际坐标。不同棋类的坐标写法以对局提示为准，不能复制字面上的“坐标”。</p>
+</article>
+<article class="tool" data-tool="cchess" data-search="中国象棋 cchess  可与其他群友对战，也可挑战人机。 象棋对战 群聊中真正 @airi 后发送 炮二平五 中文格式走棋示例 b2e2 坐标格式走棋示例 显示棋盘 查看棋盘 悔棋 申请悔棋 结束下棋 结束对局 对战：先真实 @airi，再发「象棋对战」。人机：真实 @airi 后输入「象棋人机lvx」，其中 x 必须替换成节点支持的实际等级，不要把字母 x 原样发送。">
+  <div class="tool-top"><div><h3>中国象棋</h3><p class="plugin-name">cchess</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 100 积分</span></div></div>
+  <p class="tool-desc">可与其他群友对战，也可挑战人机。</p>
+  <p class="mention-note">📌 需要在 QQ 中真正 @Airi；复制文字不等于完成 @。</p>
+  <div class="commands"><div class="command"><div class="command-label">群聊中真正 @Airi 后发送</div><div class="command-line"><code>象棋对战</code><button type="button" class="copy" data-copy="象棋对战" aria-label="复制象棋对战">复制</button></div></div>
+<div class="command"><div class="command-label">中文格式走棋示例</div><div class="command-line"><code>炮二平五</code><button type="button" class="copy" data-copy="炮二平五" aria-label="复制炮二平五">复制</button></div></div>
+<div class="command"><div class="command-label">坐标格式走棋示例</div><div class="command-line"><code>b2e2</code><button type="button" class="copy" data-copy="b2e2" aria-label="复制b2e2">复制</button></div></div>
+<div class="command"><div class="command-label">查看棋盘</div><div class="command-line"><code>显示棋盘</code><button type="button" class="copy" data-copy="显示棋盘" aria-label="复制显示棋盘">复制</button></div></div>
+<div class="command"><div class="command-label">申请悔棋</div><div class="command-line"><code>悔棋</code><button type="button" class="copy" data-copy="悔棋" aria-label="复制悔棋">复制</button></div></div>
+<div class="command"><div class="command-label">结束对局</div><div class="command-line"><code>结束下棋</code><button type="button" class="copy" data-copy="结束下棋" aria-label="复制结束下棋">复制</button></div></div></div>
+  <p class="tool-note">对战：先真实 @Airi，再发「象棋对战」。人机：真实 @Airi 后输入「象棋人机lvX」，其中 X 必须替换成节点支持的实际等级，不要把字母 X 原样发送。</p>
+</article>
+<article class="tool" data-tool="salad" data-search="more more jump! 得分沙拉 more more jump！point salad airicore dev. mmj 主题的 point salad 桌游。 ,sl rl 查看玩法和全部指令 命令开头是英文半角逗号「,」，请保留空格和字母大小写。">
+  <div class="tool-top"><div><h3>MORE MORE JUMP! 得分沙拉</h3><p class="plugin-name">MORE MORE JUMP！Point Salad</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 200 积分</span></div></div>
+  <p class="author">By AiriCore Dev.</p><p class="tool-desc">MMJ 主题的 Point Salad 桌游。</p>
+  
+  <div class="commands"><div class="command"><div class="command-label">查看玩法和全部指令</div><div class="command-line"><code>,sl rl</code><button type="button" class="copy" data-copy=",sl rl" aria-label="复制,sl rl">复制</button></div></div></div>
+  <p class="tool-note">命令开头是英文半角逗号「,」，请保留空格和字母大小写。</p>
+</article></div>
+ </details></div>
+<p class="empty" id="empty" hidden>没有找到匹配的功能～试试换个关键词，或直接展开分类查找。</p>
+<div class="bottom-note"><strong>关于积分：</strong>使用费用按你提供的 Airi 节点功能清单整理。<strong>“10 积分 / 次”和“开局 100 / 200 / 300 积分”是不同计费方式</strong>。实际积分与开放权限以节点当时回复为准；这里不会自动扣除积分。节点服务更新后，命令和费用可能调整。</div>
+</main><footer class="footer"><div class="wrap"><span>✿ Super Airi! · Airi 节点功能速查</span><span><a href="/bot-help/">返回帮助中心</a> · <a href="/messages/">反馈建议</a></span></div></footer>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+ const input=document.getElementById('catalog-search');
+ const categories=Array.from(document.querySelectorAll('[data-category]'));
+ const empty=document.getElementById('empty');
+ const toast=document.getElementById('toast');
+ let toastHandle;
+ function showToast(text){toast.textContent=text;toast.classList.add('show');clearTimeout(toastHandle);toastHandle=setTimeout(()=>toast.classList.remove('show'),2200);}
+ input.addEventListener('input',function(){
+  const q=input.value.trim().toLocaleLowerCase();let visible=0;
+  categories.forEach(cat=>{
+   let n=0;cat.querySelectorAll('[data-tool]').forEach(card=>{
+    const match=!q||card.dataset.search.includes(q);card.hidden=!match;if(match)n++;
+   });
+   cat.hidden=n===0;visible+=n;if(q&&n>0)cat.open=true;if(!q)cat.open=false;
+  });
+  empty.hidden=visible>0;
+ });
+ document.addEventListener('click',async function(event){
+  const b=event.target.closest('[data-copy]');if(!b)return;
+  const value=b.dataset.copy;try{
+    if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(value);
+    else {const el=document.createElement('textarea');el.value=value;el.style.position='fixed';el.style.opacity='0';document.body.appendChild(el);el.select();const ok=document.execCommand('copy');el.remove();if(!ok)throw new Error('clipboard');}
+    showToast('已复制，回到 QQ 粘贴发送吧 ♡');
+  }catch(_){window.prompt('请复制命令：',value);}
+ });
+ const hash=window.location.hash.slice(1);if(hash){const cat=document.getElementById(hash);if(cat&&cat.matches('[data-category]'))cat.open=true;}
+})();
+</script></body></html>
