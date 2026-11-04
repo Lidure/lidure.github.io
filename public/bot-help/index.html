@@ -304,25 +304,63 @@
         </section>
 
         <section id="detail-gallery" class="guide" data-guide="gallery" hidden aria-label="图片画廊使用帮助">
-          <div class="detail-header"><div><span class="section-label">GALLERY</span><h3>🖼️ 抽个表情，看看收藏</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">先查看有哪些分类，再照着下面的真实示例发送；每条命令都能直接复制。</p>
+          <div class="detail-header"><div><span class="section-label">GALLERY</span><h3>🖼️ 画廊：先找分类，再选图片</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">这里有不同角色、主题和表情包的图片。不用记住全部命令，按照下面的顺序来就行。</p>
+          <div class="guide-caption">第一次使用：推荐这 3 步</div>
+          <ol class="howto-steps">
+            <li><strong>查看分类。</strong>先发送 <span class="inline-command">/查看画廊</span>，看看现在收录了哪些角色和主题。</li>
+            <li><strong>挑喜欢的分类。</strong>比如列表里有 <span class="inline-command">airi</span>，发送 <span class="inline-command">看airi</span> 就会随机收到一张图片。</li>
+            <li><strong>想看更多？</strong>发送 <span class="inline-command">看airi 10</span> 随机看 10 张；或者 <span class="inline-command">看全部airi</span> 查看<strong>带编号的图片总览</strong>，再挑指定编号。</li>
+          </ol>
+          <div class="guide-caption">直接复制就能发送的示例</div>
           <div class="commands">
-            <div class="command-item"><span class="command-title">① 查看画廊里的全部分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
-            <div class="command-item"><span class="command-title">② 查看「airi」分类的图片</span><div class="cmd-row"><span class="cmd">/看airi</span><button class="copy" type="button" data-copy="/看airi">复制</button></div></div>
-            <div class="command-item"><span class="command-title">另一个示例：查看「miku」分类</span><div class="cmd-row"><span class="cmd">/看miku</span><button class="copy" type="button" data-copy="/看miku">复制</button></div></div>
-            <div class="command-item"><span class="command-title">随机抽一张表情</span><div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div></div>
+            <div class="command-item"><span class="command-title">看看现在有哪些分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
+            <div class="command-item"><span class="command-title">随机看一张「airi」图片</span><div class="cmd-row"><span class="cmd">看airi</span><button class="copy" type="button" data-copy="看airi">复制</button></div></div>
+            <div class="command-item"><span class="command-title">一次随机看 10 张 airi 图片</span><div class="cmd-row"><span class="cmd">看airi 10</span><button class="copy" type="button" data-copy="看airi 10">复制</button></div></div>
+            <div class="command-item"><span class="command-title">看 airi 分类的缩略图与编号总览</span><div class="cmd-row"><span class="cmd">看全部airi</span><button class="copy" type="button" data-copy="看全部airi">复制</button></div></div>
+            <div class="command-item"><span class="command-title">换个分类：miku</span><div class="cmd-row"><span class="cmd">看miku</span><button class="copy" type="button" data-copy="看miku">复制</button></div></div>
+            <div class="command-item"><span class="command-title">从所有分类随机抽表情</span><div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div></div>
           </div>
-          <p class="example-note">✏️ <strong>想换其他图片？</strong>只需把 <span class="inline-command">/看airi</span> 里的 <strong>airi</strong> 换成 <span class="inline-command">/查看画廊</span> 返回的真实分类名称。<strong>不要直接发送“分类名”三个字。</strong></p>
-          <div class="howto"><details><summary>📤 如何上传一张图片？</summary>
-            <div class="howto-body"><ol class="howto-steps">
-              <li>先通过 <span class="inline-command">/查看画廊</span> 找到你想上传的分类。</li>
-              <li>在 QQ 中发送图片，随后<strong>回复这张图片</strong>。</li>
-              <li>在回复内容中发送对应的上传指令。例如，要上传到 airi 分类：</li>
-            </ol>
-            <div class="code-options"><span class="code-pill"><code>/上传airi</code><button class="copy" type="button" data-copy="/上传airi">复制</button></span></div>
-            <p class="howto-note">只发送文字、不附图片时无法完成上传。想上传到其他分类，把 airi 换成该分类的真实名字；如有权限限制，按 Bot 提示操作。</p>
-            </div>
-          </details></div>
+          <p class="example-note">✨ <strong>看图命令可以不带 /：</strong><span class="inline-command">看airi</span>、<span class="inline-command">看看airi</span>、<span class="inline-command">/看airi</span> 都能用。<strong>但</strong><span class="inline-command">/查看画廊</span>、<span class="inline-command">/抽表情</span> 和上传等管理指令，需要保留 <strong>/</strong>。</p>
+          <div class="howto">
+            <details><summary>🔢 看完总览图，怎样按编号找原图？</summary>
+              <div class="howto-body">
+                <ol class="howto-steps">
+                  <li>先发送 <span class="inline-command">看全部airi</span>，得到该分类的<strong>缩略图拼图</strong>；它不是把全部原图一次发送。</li>
+                  <li>找到你喜欢的图片下面标注的实际编号（例如总览里有 <strong>123</strong>）。</li>
+                  <li>发送对应的看图命令。例如 <span class="inline-command">看123</span>，就会取出<strong>编号 123</strong> 的原图。</li>
+                </ol>
+                <p class="howto-note">这里的 123 只是举例，请根据你实际看到的总览编号来输入。也可以用 <span class="inline-command">看100-110</span> 查看连续编号范围，但要先确认这些编号存在。</p>
+              </div>
+            </details>
+            <details><summary>🎁 怎样抽多张表情？</summary>
+              <div class="howto-body">
+                <p class="example-note">想从<strong>所有分类</strong>随机抽 5 张（不是只从 airi 分类抽），发送：</p>
+                <div class="code-options"><span class="code-pill"><code>/抽表情 5</code><button class="copy" type="button" data-copy="/抽表情 5">复制</button></span></div>
+                <p class="howto-note">分类批量看图与全库抽表情是两种功能。单次张数受插件设置和图库实际图片数量限制。</p>
+              </div>
+            </details>
+            <details><summary>📤 我想往画廊上传图片</summary>
+              <div class="howto-body">
+                <ol class="howto-steps">
+                  <li>先用 <span class="inline-command">/查看画廊</span> 找到目标分类。</li>
+                  <li>把要上传的图片发到 QQ，<strong>回复那条图片消息</strong>。</li>
+                  <li>在回复里输入上传指令，例如上传到 <strong>airi</strong>：</li>
+                </ol>
+                <div class="code-options"><span class="code-pill"><code>/上传airi</code><button class="copy" type="button" data-copy="/上传airi">复制</button></span><span class="code-pill"><code>/上传 airi</code><button class="copy" type="button" data-copy="/上传 airi">复制</button></span></div>
+                <p class="howto-note">两种写法都支持；<strong>上传必须带 /</strong>。未附图片会无法上传，部分群可能对上传权限有限制。</p>
+              </div>
+            </details>
+            <details><summary>📚 想查看完整画廊命令？</summary>
+              <div class="howto-body"><p class="example-note">普通用户通常用上面的看图指令就够了。想了解最近上传、分类别名和更多用法，可以查看插件自带的完整帮助。</p>
+                <div class="code-options">
+                  <span class="code-pill"><code>/画廊帮助</code><button class="copy" type="button" data-copy="/画廊帮助">复制</button></span>
+                  <span class="code-pill"><code>/画廊帮助详细</code><button class="copy" type="button" data-copy="/画廊帮助详细">复制</button></span>
+                </div>
+              </div>
+            </details>
+          </div>
+          <div class="tip"><span>💡</span><span>关键区别：<strong>「看airi 10」随机抽 10 张，「看全部airi」生成全分类编号总览</strong>；要查看指定原图，再输入总览里真实的编号。想看别的分类，只替换 airi 为实际分类名，不要直接发送“分类名”三个字。</span></div>
         </section>
 
         <section id="detail-games" class="guide" data-guide="games" hidden aria-label="游戏查询和自动签到使用帮助">
