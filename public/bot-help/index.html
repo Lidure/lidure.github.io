@@ -160,6 +160,14 @@
     .simple-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
     .simple-list div { padding: 14px; border: 1px solid #f0e5eb; border-radius: 14px; color: #766e7d; font-size: 13px; background: #fffafc; }
     .simple-list strong { color: #413b4a; display: block; margin-bottom: 3px; }
+    .node-shortcut { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; margin: 18px 0 0; padding: 16px 20px; border: 1px solid #eedce7; border-radius: 18px; background: linear-gradient(110deg,#fffafd,#faf6ff); color: #ac5c87; font-size: 13px; font-weight: 800; }
+    .node-shortcut:hover { background: #fff1f8; }
+    .node-shortcut small { display: block; color: #888090; font-size: 12px; font-weight: 500; }
+    .node-shortcut > span:last-child { flex-shrink: 0; font-size: 21px; }
+    .node-info { color: #777080; font-size: 13px; line-height: 1.85; margin: 10px 0; }
+    .nodes .howto { margin-top: 0; }
+    .nodes .howto details { background: #fff; }
+    .nodes .howto-body .commands { margin-top: 14px; }
     .faq { scroll-margin-top: 90px; margin-top: 62px; margin-bottom: 68px; }
     .faq-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
     .faq details { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; }
@@ -286,11 +294,15 @@
         <button class="feature" type="button" data-open="fun" data-keywords="趣味 娱乐 戳一戳 排行 今日小猪 整活 表情 猪圈 图鉴 小猪" aria-controls="detail-fun" aria-expanded="false" style="--icon-bg:#fff2e5">
           <span class="feature-icon" aria-hidden="true">🎲</span><span class="feature-title">趣味娱乐</span><span class="feature-sub">戳一戳 · 今日小猪 · 排行</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
-        <button class="feature" type="button" data-open="tools" data-keywords="实用 工具 天气 点歌 音乐 pixiv 搜图 以图搜图 识图 来源 视频解析 绘图" aria-controls="detail-tools" aria-expanded="false" style="--icon-bg:#e8f7f4">
+        <button class="feature" type="button" data-open="tools" data-keywords="实用 工具 天气 点歌 音乐 pixiv 搜图 以图搜图 识图 来源 视频解析 绘图 日榜 周榜 月榜 画师 作品id 订阅 排行 热榜 插画 小说 热门 节点 Haruki SnowLuma Airi Moe Sakura #sl 个人信息" aria-controls="detail-tools" aria-expanded="false" style="--icon-bg:#e8f7f4">
           <span class="feature-icon" aria-hidden="true">🛠️</span><span class="feature-title">实用工具</span><span class="feature-sub">点歌 · 搜图 · 天气 · Pixiv</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
       </div>
       <p id="no-results" class="no-results" hidden>没找到这个关键词呢，试试搜索「画廊」「游戏」或「签到」吧 ♡</p>
+      <a class="node-shortcut" href="#nodes" aria-label="查看节点服务和独立扩展命令">
+        <span>🧩 想看节点里的其他功能？<small>SnowLuma · Haruki · GsCore · 外部服务节点</small></span>
+        <span aria-hidden="true">↗</span>
+      </a>
 
       <div class="detail-shell" id="detail-shell" hidden aria-live="polite">
         <section id="detail-chat" class="guide" data-guide="chat" hidden aria-label="AI 聊天使用帮助">
@@ -459,52 +471,181 @@
           <div class="tip"><span>💡</span><span>预设语音关键词因收录内容而变化，请以 <strong>/voice.list</strong> 的实际结果为准，不必自己猜。</span></div>
         </section>
 
-        <section id="detail-fun" class="guide" data-guide="fun" hidden aria-label="趣味娱乐使用帮助">
-          <div class="detail-header"><div><span class="section-label">FUN</span><h3>🎲 戳一戳、今日小猪和排行榜</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">想轻松玩一会儿？试试 QQ 戳一戳，或者每天抽一只小猪。</p>
-          <div class="simple-list">
-            <div><strong>👆 戳一戳</strong>在 QQ 中戳小浅子，可能触发反戳、语音或其他反应。</div>
-            <div><strong>🐷 今日小猪</strong>每天抽一次今日小猪、查看自己的收藏图鉴和成长。</div>
-          </div>
-          <div class="guide-caption">这些命令都能直接复制</div>
+        <section id="detail-fun" class="guide" data-guide="fun" hidden aria-label="趣味娱乐和戳一戳排行榜">
+          <div class="detail-header"><div><span class="section-label">FUN</span><h3>🎲 戳一戳、排行、今日小猪</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">戳一戳本身不用发送命令：在 QQ 中直接戳小浅子，就可能触发互动。想看谁戳得最多，才需要用排行榜指令。</p>
+          <div class="guide-caption">先试试这两个</div>
           <div class="commands">
-            <div class="command-item"><span class="command-title">看看今天抽到哪只小猪</span><div class="cmd-row"><span class="cmd">/今日小猪</span><button class="copy" type="button" data-copy="/今日小猪">复制</button></div></div>
-            <div class="command-item"><span class="command-title">查看已收集的小猪</span><div class="cmd-row"><span class="cmd">/小猪图鉴</span><button class="copy" type="button" data-copy="/小猪图鉴">复制</button></div></div>
-            <div class="command-item"><span class="command-title">查看自己的小猪统计</span><div class="cmd-row"><span class="cmd">/我的猪圈</span><button class="copy" type="button" data-copy="/我的猪圈">复制</button></div></div>
-            <div class="command-item"><span class="command-title">戳一戳排行榜</span><div class="cmd-row"><span class="cmd">/poke排行</span><button class="copy" type="button" data-copy="/poke排行">复制</button></div></div>
-          </div>
-          <div class="howto"><details><summary>🐷 第一次玩小猪？从这里开始</summary><div class="howto-body">
-            <ol class="howto-steps"><li>发送 <span class="inline-command">/今日小猪</span>，查看当天抽到的小猪。</li><li>发送 <span class="inline-command">/小猪图鉴</span>，看已经收集了哪些。</li><li>想了解烤猪、猪圈等更多玩法，可以发送 <span class="inline-command">/小猪帮助</span>。</li></ol>
-            <div class="code-options"><span class="code-pill"><code>/小猪帮助</code><button class="copy" type="button" data-copy="/小猪帮助">复制</button></span></div>
-          </div></details></div>
-          <div class="tip"><span>💡</span><span>今日小猪在同一天内通常不会不断变化；戳一戳有触发间隔或群聊权限限制，不需要反复刷屏。</span></div>
-        </section>
-
-        <section id="detail-tools" class="guide" data-guide="tools" hidden aria-label="实用工具使用帮助">
-          <div class="detail-header"><div><span class="section-label">TOOLS</span><h3>🛠️ 天气、点歌、Pixiv 与搜图</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">想查什么就发对应命令。下面都是完整示例，可直接复制；换城市、歌名或角色时替换文字即可。</p>
-          <div class="commands">
-            <div class="command-item"><span class="command-title">查青岛天气</span><div class="cmd-row"><span class="cmd">/天气 青岛</span><button class="copy" type="button" data-copy="/天气 青岛">复制</button></div></div>
-            <div class="command-item"><span class="command-title">搜索歌曲「群青」</span><div class="cmd-row"><span class="cmd">/点歌 群青</span><button class="copy" type="button" data-copy="/点歌 群青">复制</button></div></div>
-            <div class="command-item"><span class="command-title">找初音未来的 Pixiv 作品</span><div class="cmd-row"><span class="cmd">/pixiv 初音未来</span><button class="copy" type="button" data-copy="/pixiv 初音未来">复制</button></div></div>
-            <div class="command-item"><span class="command-title">查找图片来源（附上图片使用）</span><div class="cmd-row"><span class="cmd">/搜图</span><button class="copy" type="button" data-copy="/搜图">复制</button></div></div>
+            <div class="command-item"><span class="command-title">当前群今天的戳一戳排行</span><div class="cmd-row"><span class="cmd">/poke排行</span><button class="copy" type="button" data-copy="/poke排行">复制</button></div></div>
+            <div class="command-item"><span class="command-title">当前群的历史累计排行</span><div class="cmd-row"><span class="cmd">/poke历史排行</span><button class="copy" type="button" data-copy="/poke历史排行">复制</button></div></div>
           </div>
           <div class="howto">
-            <details><summary>🔎 我想知道一张图出自哪里？</summary><div class="howto-body">
-              <ol class="howto-steps"><li>在 QQ 中找到想搜索来源的图片。</li><li><strong>回复图片消息</strong>并发送 <span class="inline-command">/搜图</span>；也可以先发送搜图指令，再按提示发送图片。</li><li>等待 Bot 返回可能的来源、作者或相似作品。</li></ol>
-              <p class="howto-note">搜图依赖第三方引擎，结果不一定准确。有些搜索引擎可能未启用或暂时不可用。</p>
+            <details><summary>🏆 六种戳一戳排行榜，有什么区别？</summary><div class="howto-body">
+              <p class="example-note">小浅子会统计群友<strong>戳小浅子本人的次数</strong>，不是统计群友互相戳的次数。排行榜会以图片形式展示。</p>
+              <div class="commands">
+                <div class="command-item"><span class="command-title">当前群 · 今日个人排行</span><div class="cmd-row"><span class="cmd">/poke排行</span><button class="copy" type="button" data-copy="/poke排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">当前群 · 历史个人排行</span><div class="cmd-row"><span class="cmd">/poke历史排行</span><button class="copy" type="button" data-copy="/poke历史排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">所有群合计 · 今日个人排行</span><div class="cmd-row"><span class="cmd">/poke总排行</span><button class="copy" type="button" data-copy="/poke总排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">所有群合计 · 历史个人排行</span><div class="cmd-row"><span class="cmd">/poke历史总排行</span><button class="copy" type="button" data-copy="/poke历史总排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">哪个群今天戳得最多？</span><div class="cmd-row"><span class="cmd">/poke群排行</span><button class="copy" type="button" data-copy="/poke群排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">哪个群历史累计戳得最多？</span><div class="cmd-row"><span class="cmd">/poke历史群排行</span><button class="copy" type="button" data-copy="/poke历史群排行">复制</button></div></div>
+              </div>
+              <p class="howto-note">🕓 「今日」榜的统计日每天<strong>凌晨 4:00</strong>切换，不是半夜 0:00。历史榜保留插件已有记录，不会每天清零；「群排行」比较的是群聊，不是群成员。/poke排行、/poke历史排行需要在 QQ 群里使用。</p>
             </div></details>
-            <details><summary>🎵 想查询其他城市、歌曲或画师？</summary><div class="howto-body">
-              <p class="example-note">命令后面写你想搜索的内容：<span class="inline-command">/天气 青岛</span> 中的「青岛」可换成城市；<span class="inline-command">/点歌 群青</span> 中的「群青」可换成歌名；<span class="inline-command">/pixiv 初音未来</span> 中的「初音未来」可换成角色或搜索词。</p>
+            <details><summary>🔢 想看前 20 名，或查询自己在榜上的情况？</summary><div class="howto-body">
+              <p class="example-note">默认显示前 10 名；在指令后加一个人数，就可以请求更多排行条目，实际显示上限以机器人设置为准。</p>
+              <div class="code-options"><span class="code-pill"><code>/poke排行 20</code><button class="copy" type="button" data-copy="/poke排行 20">复制</button></span><span class="code-pill"><code>/poke群排行 20</code><button class="copy" type="button" data-copy="/poke群排行 20">复制</button></span></div>
+              <p class="example-note">也支持在个人排行榜命令后填写某人的<strong>真实 QQ 号码</strong>，查询其个人统计；还可以在人数后再跟 QQ 号码，例如“/poke排行 20 + QQ号”。这类号码需要你自己填写，网页不会复制假 QQ 号。</p>
+            </div></details>
+            <details><summary>🐷 今日小猪还能怎么玩？</summary><div class="howto-body">
+              <ol class="howto-steps">
+                <li>发送 <span class="inline-command">/今日小猪</span>，看看今天抽中哪只小猪。</li>
+                <li>发送 <span class="inline-command">/小猪图鉴</span>，查看已收集的图鉴；<span class="inline-command">/我的猪圈</span> 看自己的累计收藏。</li>
+                <li>发送 <span class="inline-command">/小猪帮助</span>，了解更多烤猪、随机小猪玩法。</li>
+              </ol>
+              <div class="code-options">
+                <span class="code-pill"><code>/今日小猪</code><button class="copy" type="button" data-copy="/今日小猪">复制</button></span>
+                <span class="code-pill"><code>/小猪图鉴</code><button class="copy" type="button" data-copy="/小猪图鉴">复制</button></span>
+                <span class="code-pill"><code>/我的猪圈</code><button class="copy" type="button" data-copy="/我的猪圈">复制</button></span>
+                <span class="code-pill"><code>/小猪帮助</code><button class="copy" type="button" data-copy="/小猪帮助">复制</button></span>
+              </div>
             </div></details>
           </div>
-          <div class="tip"><span>💡</span><span>Pixiv、音乐、天气、搜图依赖外部网络服务，偶尔可能返回错误。想查看更多命令，可以发送 <span class="inline-command">/help</span>。</span></div>
+          <div class="tip"><span>💡</span><span>「戳一戳的随机反应」与「Poke 排行统计」来自不同功能模块。被戳后不一定每次都有相同反应；排行只统计真实收到的戳 Bot 事件。</span></div>
+        </section>
+
+        <section id="detail-tools" class="guide" data-guide="tools" hidden aria-label="实用工具与 Pixiv 详细使用帮助">
+          <div class="detail-header"><div><span class="section-label">TOOLS</span><h3>🛠️ 天气、点歌、Pixiv 和搜图</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">不知道从哪开始？先试试下面的完整指令。想了解 Pixiv 排行榜、作品 ID、画师和订阅，可以继续展开详细教程。</p>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">查询青岛天气</span><div class="cmd-row"><span class="cmd">/天气 青岛</span><button class="copy" type="button" data-copy="/天气 青岛">复制</button></div></div>
+            <div class="command-item"><span class="command-title">点一首「群青」</span><div class="cmd-row"><span class="cmd">/点歌 群青</span><button class="copy" type="button" data-copy="/点歌 群青">复制</button></div></div>
+            <div class="command-item"><span class="command-title">搜索 Pixiv 上的初音未来</span><div class="cmd-row"><span class="cmd">/pixiv 初音未来</span><button class="copy" type="button" data-copy="/pixiv 初音未来">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看完整 Pixiv 命令帮助</span><div class="cmd-row"><span class="cmd">/pixiv_help</span><button class="copy" type="button" data-copy="/pixiv_help">复制</button></div></div>
+          </div>
+          <div class="howto">
+            <details><summary>🎨 Pixiv 新手：搜索、推荐与画师</summary><div class="howto-body">
+              <ol class="howto-steps">
+                <li><strong>找某个角色：</strong>发送 <span class="inline-command">/pixiv 初音未来</span>。想找其他内容，只替换“初音未来”。</li>
+                <li><strong>不确定找什么：</strong>发送 <span class="inline-command">/pixiv_recommended</span>，让 Pixiv 返回推荐插画。</li>
+                <li><strong>找画师：</strong>发送 <span class="inline-command">/pixiv_user_search 初音ミク</span> 是按用户名关键词搜索的格式示例；搜索到画师后可根据其用户 ID 查询详情或作品。</li>
+              </ol>
+              <div class="code-options">
+                <span class="code-pill"><code>/pixiv 初音未来</code><button class="copy" type="button" data-copy="/pixiv 初音未来">复制</button></span>
+                <span class="code-pill"><code>/pixiv_recommended</code><button class="copy" type="button" data-copy="/pixiv_recommended">复制</button></span>
+                <span class="code-pill"><code>/pixiv_user_search 初音ミク</code><button class="copy" type="button" data-copy="/pixiv_user_search 初音ミク">复制</button></span>
+              </div>
+              <p class="howto-note">Pixiv 搜图的“标签”是角色名或关键词；画师搜索查的是用户名称。两者不是同一种查询，关键词也不保证一定有结果。</p>
+            </div></details>
+            <details><summary>🏆 Pixiv 排行榜：日榜、周榜、月榜</summary><div class="howto-body">
+              <p class="example-note">排行榜命令需要写模式；<strong>直接发送 /pixiv_ranking 会先显示帮助，不是立即取榜单</strong>。常用模式为 <span class="inline-command">day</span>（日榜）、<span class="inline-command">week</span>（周榜）、<span class="inline-command">month</span>（月榜）。</p>
+              <div class="commands">
+                <div class="command-item"><span class="command-title">查看日榜</span><div class="cmd-row"><span class="cmd">/pixiv_ranking day</span><button class="copy" type="button" data-copy="/pixiv_ranking day">复制</button></div></div>
+                <div class="command-item"><span class="command-title">查看周榜</span><div class="cmd-row"><span class="cmd">/pixiv_ranking week</span><button class="copy" type="button" data-copy="/pixiv_ranking week">复制</button></div></div>
+                <div class="command-item"><span class="command-title">查看月榜</span><div class="cmd-row"><span class="cmd">/pixiv_ranking month</span><button class="copy" type="button" data-copy="/pixiv_ranking month">复制</button></div></div>
+                <div class="command-item"><span class="command-title">查看全部排行榜参数</span><div class="cmd-row"><span class="cmd">/pixiv_ranking help</span><button class="copy" type="button" data-copy="/pixiv_ranking help">复制</button></div></div>
+              </div>
+              <p class="howto-note">也可以在模式后加日期（格式 YYYY-MM-DD），但需要输入真实存在的榜单日期。网站内容过滤模式会限制部分排行榜。</p>
+            </div></details>
+            <details><summary>🖼️ 知道作品 ID，怎么查看作品或相似图？</summary><div class="howto-body">
+              <ol class="howto-steps">
+                <li>打开 Pixiv 的作品链接，找到其中的<strong>作品 ID（数字）</strong>，而不是画师的用户 ID。</li>
+                <li>在 QQ 中输入 <span class="inline-command">/pixiv_specific</span>，再输入一个空格和作品 ID，即可查询该作品详情。</li>
+                <li>如果想找相关作品，用 <span class="inline-command">/pixiv_related</span> 加同一个作品 ID。</li>
+              </ol>
+              <p class="howto-note">例如指令格式为“/pixiv_specific + 空格 + 作品 ID”。必须替换成真实作品 ID，因此这里不提供复制假号码的按钮；复制前先确认不是画师 ID。</p>
+            </div></details>
+            <details><summary>🔔 想关注喜欢的画师，自动接收更新？</summary><div class="howto-body">
+              <ol class="howto-steps">
+                <li>先用 <span class="inline-command">/pixiv_user_search</span> 加画师名搜索，找到<strong>画师用户 ID</strong>。</li>
+                <li>发送 <span class="inline-command">/pixiv_subscribe_add</span> 加一个空格及<strong>该画师用户 ID</strong>，按 Bot 提示订阅。这个指令会改变当前订阅状态。</li>
+                <li>发送 <span class="inline-command">/pixiv_subscribe_list</span> 查看已订阅画师；需要取消时用 <span class="inline-command">/pixiv_subscribe_remove</span> 加画师 ID。</li>
+              </ol>
+              <div class="code-options"><span class="code-pill"><code>/pixiv_subscribe_list</code><button class="copy" type="button" data-copy="/pixiv_subscribe_list">复制</button></span></div>
+              <p class="howto-note">订阅功能需要插件已启用定时检查且 Pixiv API 可访问；可能有群聊权限和消息频率限制。勿订阅过多导致刷屏。</p>
+            </div></details>
+            <details><summary>🌀 随机图片、小说等进阶功能</summary><div class="howto-body">
+              <p class="example-note">Pixiv Reborn 还有随机搜索标签、趋势标签、小说查询等扩展功能。可以先用下面的<strong>只读查询</strong>了解现状，再决定是否开启定时推送。</p>
+              <div class="code-options">
+                <span class="code-pill"><code>/pixiv_random_list</code><button class="copy" type="button" data-copy="/pixiv_random_list">复制</button></span>
+                <span class="code-pill"><code>/pixiv_random_status</code><button class="copy" type="button" data-copy="/pixiv_random_status">复制</button></span>
+                <span class="code-pill"><code>/pixiv_trending_tags</code><button class="copy" type="button" data-copy="/pixiv_trending_tags">复制</button></span>
+                <span class="code-pill"><code>/pixiv_novel_recommended</code><button class="copy" type="button" data-copy="/pixiv_novel_recommended">复制</button></span>
+                <span class="code-pill"><code>/pixiv_hot 初音未来 week 3</code><button class="copy" type="button" data-copy="/pixiv_hot 初音未来 week 3">复制</button></span>
+                <span class="code-pill"><code>/pixiv_fanbox_recommended</code><button class="copy" type="button" data-copy="/pixiv_fanbox_recommended">复制</button></span>
+              </div>
+              <p class="howto-note"><strong>热门搜索：</strong><span class="inline-command">/pixiv_hot 初音未来 week 3</span> 按热度搜索近一周的关键词作品；<strong>FANBOX：</strong>与 Pixiv 是不同的内容服务，部分内容需要独立登录授权，推荐指令也可能因数据源或权限限制失败。</p>
+              <p class="howto-note">定时随机推图和管理员配置指令可能修改群聊行为，不放在新手一键操作区；完整使用说明可发送 <span class="inline-command">/pixiv_help</span>。</p>
+            </div></details>
+            <details><summary>🔎 已有一张图片，如何查原作者或出处？</summary><div class="howto-body">
+              <ol class="howto-steps">
+                <li>在 QQ 中找到想查询来源的图片。</li>
+                <li><strong>回复那张图片</strong>并发送 <span class="inline-command">/搜图</span>；也可以先发命令，再按提示发送图片。</li>
+                <li>查看返回的可能来源、原作者和相似作品，不要把相似度当成百分百正确。</li>
+              </ol>
+              <div class="code-options"><span class="code-pill"><code>/搜图</code><button class="copy" type="button" data-copy="/搜图">复制</button></span></div>
+            </div></details>
+            <details><summary>🎵 怎么换城市、歌曲或搜索词？</summary><div class="howto-body">
+              <p class="example-note">命令由<strong>命令词 + 搜索内容</strong>组成。例如 <span class="inline-command">/天气 青岛</span> 可替换城市，<span class="inline-command">/点歌 群青</span> 可替换歌曲名；Pixiv 同理，修改角色或关键词即可。</p>
+            </div></details>
+          </div>
+          <div class="tip"><span>💡</span><span>当前 Pixiv 配置默认过滤 R18 内容，而且 Pixiv API 可能因代理网络波动暂时失败。<strong>“认证失败”有时实际是 SSL 连接异常</strong>，不代表用户使用了错误命令。账号和 API 授权由 Bot 管理员维护，普通用户不用提供自己的 Pixiv Token。</span></div>
         </section>
       </div>
     </section>
 
+    <section id="nodes" class="faq nodes" aria-labelledby="nodes-title">
+      <div class="section-top">
+        <div><span class="section-label">03 · CONNECTED SERVICES</span><h2 id="nodes-title">🧩 节点与独立服务</h2><p class="section-note">小浅子接入了不同服务。普通用户不用弄懂技术名称，找到对应命令即可。</p></div>
+      </div>
+      <div class="howto">
+        <details><summary>🎵 世界计划 · Haruki 节点（PJSK）</summary><div class="howto-body">
+          <p class="node-info">Haruki 是《世界计划》的独立游戏查询服务，支持日服、国服等区服。<strong>它的命令需要带 /</strong>，和上面的 GsCore 游戏帮助不一样。</p>
+          <ol class="howto-steps">
+            <li>先在 <a href="https://haruki.seiunx.com/" target="_blank" rel="noopener noreferrer" style="color:#b84f82;text-decoration:underline">Haruki 工具箱</a>绑定并按要求验证自己的游戏账号；没有完成账号验证时，部分功能可能提示无权访问。</li>
+            <li>发送 <span class="inline-command">/绑定列表</span> 查看当前 QQ 绑定了哪些游戏账号；需要绑定时，按 Haruki 的指引使用 <span class="inline-command">/绑定</span> 后跟<strong>自己的真实游戏 UID</strong>。</li>
+            <li>绑定成功后，发送 <span class="inline-command">/个人信息</span> 生成资料卡；查看其他详细功能可以使用指令后加 <span class="inline-command">-help</span>。</li>
+          </ol>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">查看绑定账号</span><div class="cmd-row"><span class="cmd">/绑定列表</span><button class="copy" type="button" data-copy="/绑定列表">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看个人信息卡</span><div class="cmd-row"><span class="cmd">/个人信息</span><button class="copy" type="button" data-copy="/个人信息">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看自己当前的隐私设置</span><div class="cmd-row"><span class="cmd">/隐私设置</span><button class="copy" type="button" data-copy="/隐私设置">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看查曲命令的详细用法</span><div class="cmd-row"><span class="cmd">/查曲 -help</span><button class="copy" type="button" data-copy="/查曲 -help">复制</button></div></div>
+            <div class="command-item"><span class="command-title">活动排名查询（需要相关数据）</span><div class="cmd-row"><span class="cmd">/sk</span><button class="copy" type="button" data-copy="/sk">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看组卡命令的具体参数</span><div class="cmd-row"><span class="cmd">/组卡 -h</span><button class="copy" type="button" data-copy="/组卡 -h">复制</button></div></div>
+          </div>
+          <p class="howto-note">⚠️ 此节点当前关闭了自动发送的内置总帮助，不代表具体功能不可用。国服查询可按 Haruki 规则在命令前加 <span class="inline-command">cn</span>，例如 <span class="inline-command">/cn个人信息</span>。<a href="https://neo.haruki.seiunx.com/bot-help/index.html" target="_blank" rel="noopener noreferrer" style="color:#b84f82;text-decoration:underline">查看 Haruki 官方完整指令文档</a>。</p>
+        </div></details>
+        <details><summary>🎮 GsCore 游戏服务（原神、鸣潮等）</summary><div class="howto-body">
+          <p class="node-info">GsCore 通过小浅子的游戏适配器提供面板、抽卡、签到等功能。它是<strong>游戏服务</strong>，并不是单独需要登录的 QQ Bot 账号。</p>
+          <p class="example-note">想看对应游戏的全部指令，发送：</p>
+          <div class="code-options">
+            <span class="code-pill"><code>gs帮助</code><button class="copy" type="button" data-copy="gs帮助">复制</button></span>
+            <span class="code-pill"><code>sr帮助</code><button class="copy" type="button" data-copy="sr帮助">复制</button></span>
+            <span class="code-pill"><code>zzz帮助</code><button class="copy" type="button" data-copy="zzz帮助">复制</button></span>
+            <span class="code-pill"><code>bbb帮助</code><button class="copy" type="button" data-copy="bbb帮助">复制</button></span>
+            <span class="code-pill"><code>ww帮助</code><button class="copy" type="button" data-copy="ww帮助">复制</button></span>
+            <span class="code-pill"><code>nte帮助</code><button class="copy" type="button" data-copy="nte帮助">复制</button></span>
+          </div>
+          <p class="howto-note">这些命令<strong>不需要 /</strong>。要学习 UID 绑定和米游社/库街区签到，可回到上方「游戏工具」分类查看分步教程。</p>
+        </div></details>
+        <details><summary>🌸 AstrBot 与 SnowLuma：帮助和状态</summary><div class="howto-body">
+          <p class="node-info">AstrBot 负责 AI 聊天、画廊、语音、Pixiv、互动等插件；SnowLuma 负责 QQ 消息与节点连接。一般使用不用管它们的名字。</p>
+          <div class="commands">
+            <div class="command-item"><span class="command-title">查看 Bot 插件帮助入口</span><div class="cmd-row"><span class="cmd">/help</span><button class="copy" type="button" data-copy="/help">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查看 SnowLuma 运行状态</span><div class="cmd-row"><span class="cmd">#sl</span><button class="copy" type="button" data-copy="#sl">复制</button></div></div>
+          </div>
+          <p class="howto-note"><span class="inline-command">#sl</span> 显示 SnowLuma 的自定义状态信息，不是所有插件的命令列表。两条指令的前缀不同，请按原样发送。</p>
+        </div></details>
+        <details><summary>🌐 Airi / Moe / Sakura 外部节点</summary><div class="howto-body">
+          <p class="node-info">SnowLuma 配置中还接入了 <strong>Airi、Moe、Sakura</strong> 三个远程扩展节点。它们可以接收 QQ 事件，但<strong>本地连接配置并不提供完整的用户命令清单</strong>。</p>
+          <p class="howto-note">因此这里暂不列未经证实的指令，以免你发送后没有回应或误触其他功能。想查某个节点的专属玩法，需要该节点自己的帮助文档或服务端命令列表；节点掉线、过滤设置也可能让某些命令无法响应。</p>
+        </div></details>
+      </div>
+    </section>
+
     <section id="faq" class="faq" aria-labelledby="faq-title">
-      <div class="section-top"><div><span class="section-label">03 · LITTLE TIPS</span><h2 id="faq-title">还有一点小提醒</h2><p class="section-note">遇到问题时，不用着急。</p></div></div>
+      <div class="section-top"><div><span class="section-label">04 · LITTLE TIPS</span><h2 id="faq-title">还有一点小提醒</h2><p class="section-note">遇到问题时，不用着急。</p></div></div>
       <div class="faq-grid">
         <details><summary>命令发了没反应？</summary><p>检查命令有没有写错，是否需要“/”前缀；群聊里聊天请正确 @小浅子。部分功能可能有冷却时间或权限限制。</p></details>
         <details><summary>游戏查询或自动签到提示未绑定？</summary><p>绑定游戏 UID 和登录游戏社区是两回事。进入「游戏工具」展开对应社区的自动签到教程，按步骤登录、开启。</p></details>

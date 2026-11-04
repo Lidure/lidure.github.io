@@ -102,3 +102,63 @@ test('mobile layout and help disclosure structure are preserved', () => {
     assert.equal(open, close, tag+' tags should be balanced');
   }
 });
+
+test('Poke leaderboard guide covers all six scopes, counts and day boundary', () => {
+  for (const command of [
+    '/poke排行', '/poke历史排行', '/poke总排行', '/poke历史总排行',
+    '/poke群排行', '/poke历史群排行', '/poke排行 20',
+  ]) {
+    assert.ok(has(command), 'Missing Poke guide command ' + command);
+  }
+  assert.match(html, /凌晨 4:00/);
+  assert.match(html, /戳小浅子本人的次数/);
+  assert.match(html, /「群排行」比较的是群聊/);
+  assert.match(html, /实际显示上限以机器人设置为准/);
+});
+
+test('Pixiv guide gives verified search, recommendations, rankings and help', () => {
+  for (const command of [
+    '/pixiv 初音未来', '/pixiv_help', '/pixiv_recommended',
+    '/pixiv_ranking day', '/pixiv_ranking week',
+    '/pixiv_ranking month', '/pixiv_ranking help',
+    '/pixiv_user_search 初音ミク', '/pixiv_trending_tags',
+  ]) {
+    assert.ok(has(command), 'Missing Pixiv guide command ' + command);
+  }
+  assert.match(html, /直接发送 \/pixiv_ranking 会先显示帮助/);
+  assert.match(html, /过滤 R18/);
+});
+
+test('Pixiv artist subscriptions and ID instructions avoid fictional IDs', () => {
+  assert.ok(has('/pixiv_subscribe_list'));
+  assert.ok(has('/pixiv_random_status'));
+  assert.match(html, /作品 ID（数字）/);
+  assert.match(html, /pixiv_specific/);
+  assert.match(html, /pixiv_related/);
+  assert.match(html, /pixiv_subscribe_add/);
+  assert.match(html, /需要你自己填写/);
+  assert.ok(!copied.some((x) => /pixiv_specific \d+|pixiv_subscribe_add \d+/.test(x)));
+});
+
+test('node reference keeps the six beginner cards and provides verified local services', () => {
+  assert.match(html, /href="#nodes"/);
+  assert.match(html, /id="nodes"/);
+  for (const command of ['#sl', '/help', '/个人信息', '/绑定列表', '/隐私设置', '/查曲 -help', '/sk', '/组卡 -h']) {
+    assert.ok(has(command), 'Missing verified node command ' + command);
+  }
+  assert.match(html, /Haruki 节点/);
+  assert.match(html, /GsCore 游戏服务/);
+  assert.match(html, /Airi \/ Moe \/ Sakura 外部节点/);
+  assert.match(html, /本地连接配置并不提供完整的用户命令清单/);
+  assert.match(html, /https:\/\/haruki\.seiunx\.com\//);
+  assert.ok(!html.includes('https://toolbox.haruki.seiunx.com/'));
+});
+
+test('node help differentiates Haruki slash commands and GsCore no-slash commands', () => {
+  assert.match(html, /Haruki.*命令需要带/);
+  assert.match(html, /不需要 \/<\/strong>/);
+  for (const command of ['gs帮助','sr帮助','zzz帮助','bbb帮助','ww帮助','nte帮助']) {
+    assert.ok(has(command));
+  }
+  assert.match(html, /#sl.*SnowLuma/);
+});
