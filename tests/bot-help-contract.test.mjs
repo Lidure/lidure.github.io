@@ -143,7 +143,7 @@ test('Pixiv artist subscriptions and ID instructions avoid fictional IDs', () =>
 test('node reference keeps the six beginner cards and provides verified local services', () => {
   assert.match(html, /href="#nodes"/);
   assert.match(html, /id="nodes"/);
-  for (const command of ['#sl', '/help', '/个人信息', '/绑定列表', '/隐私设置', '/查曲 -help', '/sk', '/组卡 -h']) {
+  for (const command of ['/个人信息', '/绑定列表', '/隐私设置', '/查曲 -help', '/sk', '/组卡 -h']) {
     assert.ok(has(command), 'Missing verified node command ' + command);
   }
   assert.match(html, /Haruki 节点/);
@@ -162,5 +162,6 @@ test('node help differentiates Haruki slash commands and GsCore no-slash command
   for (const command of ['gs帮助','sr帮助','zzz帮助','bbb帮助','ww帮助','nte帮助']) {
     assert.ok(has(command));
   }
-  assert.match(html, /#sl.*SnowLuma/);
+  assert.doesNotMatch(html, /AstrBot 与 SnowLuma：帮助和状态/);
+  assert.doesNotMatch(html, /SnowLuma · Haruki/);
 });
