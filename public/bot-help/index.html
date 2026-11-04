@@ -459,25 +459,47 @@
           <div class="tip"><span>💡</span><span>预设语音关键词因收录内容而变化，请以 <strong>/voice.list</strong> 的实际结果为准，不必自己猜。</span></div>
         </section>
 
-        <section id="detail-fun" class="guide" data-guide="fun" hidden aria-label="趣味娱乐使用帮助">
-          <div class="detail-header"><div><span class="section-label">FUN</span><h3>🎲 戳一戳、今日小猪和排行榜</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">想轻松玩一会儿？试试 QQ 戳一戳，或者每天抽一只小猪。</p>
-          <div class="simple-list">
-            <div><strong>👆 戳一戳</strong>在 QQ 中戳小浅子，可能触发反戳、语音或其他反应。</div>
-            <div><strong>🐷 今日小猪</strong>每天抽一次今日小猪、查看自己的收藏图鉴和成长。</div>
-          </div>
-          <div class="guide-caption">这些命令都能直接复制</div>
+        <section id="detail-fun" class="guide" data-guide="fun" hidden aria-label="趣味娱乐和戳一戳排行榜">
+          <div class="detail-header"><div><span class="section-label">FUN</span><h3>🎲 戳一戳、排行、今日小猪</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">戳一戳本身不用发送命令：在 QQ 中直接戳小浅子，就可能触发互动。想看谁戳得最多，才需要用排行榜指令。</p>
+          <div class="guide-caption">先试试这两个</div>
           <div class="commands">
-            <div class="command-item"><span class="command-title">看看今天抽到哪只小猪</span><div class="cmd-row"><span class="cmd">/今日小猪</span><button class="copy" type="button" data-copy="/今日小猪">复制</button></div></div>
-            <div class="command-item"><span class="command-title">查看已收集的小猪</span><div class="cmd-row"><span class="cmd">/小猪图鉴</span><button class="copy" type="button" data-copy="/小猪图鉴">复制</button></div></div>
-            <div class="command-item"><span class="command-title">查看自己的小猪统计</span><div class="cmd-row"><span class="cmd">/我的猪圈</span><button class="copy" type="button" data-copy="/我的猪圈">复制</button></div></div>
-            <div class="command-item"><span class="command-title">戳一戳排行榜</span><div class="cmd-row"><span class="cmd">/poke排行</span><button class="copy" type="button" data-copy="/poke排行">复制</button></div></div>
+            <div class="command-item"><span class="command-title">当前群今天的戳一戳排行</span><div class="cmd-row"><span class="cmd">/poke排行</span><button class="copy" type="button" data-copy="/poke排行">复制</button></div></div>
+            <div class="command-item"><span class="command-title">当前群的历史累计排行</span><div class="cmd-row"><span class="cmd">/poke历史排行</span><button class="copy" type="button" data-copy="/poke历史排行">复制</button></div></div>
           </div>
-          <div class="howto"><details><summary>🐷 第一次玩小猪？从这里开始</summary><div class="howto-body">
-            <ol class="howto-steps"><li>发送 <span class="inline-command">/今日小猪</span>，查看当天抽到的小猪。</li><li>发送 <span class="inline-command">/小猪图鉴</span>，看已经收集了哪些。</li><li>想了解烤猪、猪圈等更多玩法，可以发送 <span class="inline-command">/小猪帮助</span>。</li></ol>
-            <div class="code-options"><span class="code-pill"><code>/小猪帮助</code><button class="copy" type="button" data-copy="/小猪帮助">复制</button></span></div>
-          </div></details></div>
-          <div class="tip"><span>💡</span><span>今日小猪在同一天内通常不会不断变化；戳一戳有触发间隔或群聊权限限制，不需要反复刷屏。</span></div>
+          <div class="howto">
+            <details><summary>🏆 六种戳一戳排行榜，有什么区别？</summary><div class="howto-body">
+              <p class="example-note">小浅子会统计群友<strong>戳小浅子本人的次数</strong>，不是统计群友互相戳的次数。排行榜会以图片形式展示。</p>
+              <div class="commands">
+                <div class="command-item"><span class="command-title">当前群 · 今日个人排行</span><div class="cmd-row"><span class="cmd">/poke排行</span><button class="copy" type="button" data-copy="/poke排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">当前群 · 历史个人排行</span><div class="cmd-row"><span class="cmd">/poke历史排行</span><button class="copy" type="button" data-copy="/poke历史排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">所有群合计 · 今日个人排行</span><div class="cmd-row"><span class="cmd">/poke总排行</span><button class="copy" type="button" data-copy="/poke总排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">所有群合计 · 历史个人排行</span><div class="cmd-row"><span class="cmd">/poke历史总排行</span><button class="copy" type="button" data-copy="/poke历史总排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">哪个群今天戳得最多？</span><div class="cmd-row"><span class="cmd">/poke群排行</span><button class="copy" type="button" data-copy="/poke群排行">复制</button></div></div>
+                <div class="command-item"><span class="command-title">哪个群历史累计戳得最多？</span><div class="cmd-row"><span class="cmd">/poke历史群排行</span><button class="copy" type="button" data-copy="/poke历史群排行">复制</button></div></div>
+              </div>
+              <p class="howto-note">🕓 「今日」榜的统计日每天<strong>凌晨 4:00</strong>切换，不是半夜 0:00。历史榜保留插件已有记录，不会每天清零；「群排行」比较的是群聊，不是群成员。/poke排行、/poke历史排行需要在 QQ 群里使用。</p>
+            </div></details>
+            <details><summary>🔢 想看前 20 名，或查询自己在榜上的情况？</summary><div class="howto-body">
+              <p class="example-note">默认显示前 10 名；在指令后加一个人数，就可以请求更多排行条目，实际显示上限以机器人设置为准。</p>
+              <div class="code-options"><span class="code-pill"><code>/poke排行 20</code><button class="copy" type="button" data-copy="/poke排行 20">复制</button></span><span class="code-pill"><code>/poke群排行 20</code><button class="copy" type="button" data-copy="/poke群排行 20">复制</button></span></div>
+              <p class="example-note">也支持在个人排行榜命令后填写某人的<strong>真实 QQ 号码</strong>，查询其个人统计；还可以在人数后再跟 QQ 号码，例如“/poke排行 20 + QQ号”。这类号码需要你自己填写，网页不会复制假 QQ 号。</p>
+            </div></details>
+            <details><summary>🐷 今日小猪还能怎么玩？</summary><div class="howto-body">
+              <ol class="howto-steps">
+                <li>发送 <span class="inline-command">/今日小猪</span>，看看今天抽中哪只小猪。</li>
+                <li>发送 <span class="inline-command">/小猪图鉴</span>，查看已收集的图鉴；<span class="inline-command">/我的猪圈</span> 看自己的累计收藏。</li>
+                <li>发送 <span class="inline-command">/小猪帮助</span>，了解更多烤猪、随机小猪玩法。</li>
+              </ol>
+              <div class="code-options">
+                <span class="code-pill"><code>/今日小猪</code><button class="copy" type="button" data-copy="/今日小猪">复制</button></span>
+                <span class="code-pill"><code>/小猪图鉴</code><button class="copy" type="button" data-copy="/小猪图鉴">复制</button></span>
+                <span class="code-pill"><code>/我的猪圈</code><button class="copy" type="button" data-copy="/我的猪圈">复制</button></span>
+                <span class="code-pill"><code>/小猪帮助</code><button class="copy" type="button" data-copy="/小猪帮助">复制</button></span>
+              </div>
+            </div></details>
+          </div>
+          <div class="tip"><span>💡</span><span>「戳一戳的随机反应」与「Poke 排行统计」来自不同功能模块。被戳后不一定每次都有相同反应；排行只统计真实收到的戳 Bot 事件。</span></div>
         </section>
 
         <section id="detail-tools" class="guide" data-guide="tools" hidden aria-label="实用工具使用帮助">
