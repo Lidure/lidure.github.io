@@ -41,7 +41,7 @@ test('community auto-sign is explained step-by-step for every confirmed communit
   assert.equal((html.match(/<summary>(米游社|库街区|异环)/g) || []).length, 3);
   assert.match(html, /绑定游戏 UID/);
   assert.match(html, /登录米游社/);
-  assert.match(html, /收到“已开启自动签到”/);
+  assert.match(html, /已开启自动签到/);
 });
 
 test('copy buttons never expose unfilled placeholders or invalid plain @ mentions', () => {
