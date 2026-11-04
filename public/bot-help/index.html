@@ -363,67 +363,74 @@
           <div class="tip"><span>💡</span><span>关键区别：<strong>「看airi 10」随机抽 10 张，「看全部airi」生成全分类编号总览</strong>；要查看指定原图，再输入总览里真实的编号。想看别的分类，只替换 airi 为实际分类名，不要直接发送“分类名”三个字。</span></div>
         </section>
 
-        <section id="detail-games" class="guide" data-guide="games" hidden aria-label="游戏查询和自动签到使用帮助">
-          <div class="detail-header"><div><span class="section-label">GAMES</span><h3>🎮 游戏查询与自动签到</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">想看角色面板、抽卡或签到？先发送对应游戏的帮助命令，再按提示操作。下面的命令<strong>都可以直接复制</strong>。</p>
-          <div class="game-tags"><span class="game-tag">原神</span><span class="game-tag">星穹铁道</span><span class="game-tag">绝区零</span><span class="game-tag">鸣潮</span><span class="game-tag">异环</span><span class="game-tag">崩坏 3</span><span class="game-tag">世界计划</span><span class="game-tag">Steam</span></div>
-          <div class="guide-caption">选择你玩的游戏（这些指令不需要 / 前缀）</div>
+        <section id="detail-games" class="guide" data-guide="games" hidden aria-label="游戏查询和社区自动签到使用帮助">
+          <div class="detail-header"><div><span class="section-label">GAMES</span><h3>🎮 游戏助手：查询、绑定和签到</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">小浅子可以帮你查看角色资料、面板、抽卡、部分游戏的社区签到。<strong>先选择游戏，再按需要绑定自己的账号。</strong></p>
+          <div class="guide-caption">① 先查看对应游戏的帮助（这些指令不需要 /）</div>
           <div class="commands">
             <div class="command-item"><span class="command-title">原神</span><div class="cmd-row"><span class="cmd">gs帮助</span><button class="copy" type="button" data-copy="gs帮助">复制</button></div></div>
-            <div class="command-item"><span class="command-title">星穹铁道</span><div class="cmd-row"><span class="cmd">sr帮助</span><button class="copy" type="button" data-copy="sr帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">崩坏：星穹铁道</span><div class="cmd-row"><span class="cmd">sr帮助</span><button class="copy" type="button" data-copy="sr帮助">复制</button></div></div>
             <div class="command-item"><span class="command-title">绝区零</span><div class="cmd-row"><span class="cmd">zzz帮助</span><button class="copy" type="button" data-copy="zzz帮助">复制</button></div></div>
-            <div class="command-item"><span class="command-title">鸣潮（正确前缀是 ww）</span><div class="cmd-row"><span class="cmd">ww帮助</span><button class="copy" type="button" data-copy="ww帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">崩坏 3</span><div class="cmd-row"><span class="cmd">bbb帮助</span><button class="copy" type="button" data-copy="bbb帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">鸣潮（前缀是 ww，不是 waves）</span><div class="cmd-row"><span class="cmd">ww帮助</span><button class="copy" type="button" data-copy="ww帮助">复制</button></div></div>
             <div class="command-item"><span class="command-title">异环</span><div class="cmd-row"><span class="cmd">nte帮助</span><button class="copy" type="button" data-copy="nte帮助">复制</button></div></div>
           </div>
+          <p class="example-note">也支持《世界计划》玩家资料、Steam 等部分查询功能；不同游戏的登录和查询方式不同，以对应功能的帮助与 Bot 实际回复为准。</p>
+          <div class="guide-caption">② 什么是「绑定 UID」？</div>
+          <ol class="howto-steps">
+            <li>在游戏里打开角色资料页，找到<strong>你的 UID</strong>（一串数字）。</li>
+            <li>选择对应游戏的绑定命令，把自己的 UID 接在命令后面。<strong>例如原神：</strong><span class="inline-command">gs绑定uid123456789</span>。</li>
+            <li><strong>上面的 123456789 只是格式示例，不是你的 UID。</strong>请换成你游戏里的真实数字再发；不要直接照抄示例号码。</li>
+          </ol>
+          <p class="example-note">不同游戏的命令前缀不同：原神 <strong>gs</strong>、星铁 <strong>sr</strong>、绝区零 <strong>zzz</strong>、崩坏 3 <strong>bbb</strong>。例如崩坏 3 使用 <span class="inline-command">bbb绑定uid</span> 后接自己的 UID。各游戏的 UID 不能混用。</p>
           <div class="howto">
-            <div class="guide-caption">🎁 想每天自动签到？按你玩的社区展开教程</div>
             <details>
-              <summary>米游社 · 原神 / 星铁 / 绝区零</summary>
+              <summary>🎁 米游社：原神 / 星铁 / 绝区零 / 崩坏 3 自动签到</summary>
               <div class="howto-body">
+                <p class="example-note">这四款游戏都可以在米游社社区签到。<strong>绑定 UID、授权米游社、开启自动签到</strong>是三个不同步骤。</p>
                 <ol class="howto-steps">
-                  <li><strong>绑定游戏 UID：</strong>在 QQ 发送上方对应游戏的帮助（例如 <span class="inline-command">gs帮助</span>），按机器人提示绑定<strong>你自己的 UID</strong>。只绑定 UID 不等于开启签到。</li>
-                  <li><strong>登录米游社：</strong>推荐私聊小浅子发送 <span class="inline-command">扫码登录</span>，用你自己的米游社 App 按提示完成二维码授权。首次扫码前需先绑定至少一个米哈游游戏 UID。</li>
-                  <li><strong>开启自动签到：</strong>回到你想使用的群聊，选择下面与你玩的游戏对应的<strong>一条</strong>命令发送；不用三条都发。</li>
+                  <li><strong>绑定自己的 UID：</strong>先使用对应游戏的 <span class="inline-command">绑定uid</span> 命令。例如原神可以参照上面的 <span class="inline-command">gs绑定uid123456789</span> 格式，换成自己的 UID。</li>
+                  <li><strong>完成米游社授权：</strong>建议私聊小浅子发送 <span class="inline-command">扫码登录</span>，根据 Bot 返回的二维码提示，用自己的米游社账号完成授权。先绑定至少一个米哈游游戏 UID 才能开始扫码。</li>
+                  <li><strong>开启你要玩的游戏的自动签到：</strong>在 QQ 中发送下方与游戏相对应的命令。<strong>玩几款，就分别开启那几款</strong>，不是所有游戏自动共用一个开关。</li>
+                  <li><strong>看 Bot 的确认消息：</strong>收到已开启的回复后，后续由 Bot 定时尝试签到；需要验证可在对应游戏帮助里找到手动签到命令。</li>
                 </ol>
+                <div class="guide-caption">下面是能直接发送的开关指令</div>
                 <div class="code-options">
                   <span class="code-pill"><code>扫码登录</code><button class="copy" type="button" data-copy="扫码登录">复制</button></span>
                   <span class="code-pill"><code>gs开启自动签到</code><button class="copy" type="button" data-copy="gs开启自动签到">复制</button></span>
                   <span class="code-pill"><code>sr开启自动签到</code><button class="copy" type="button" data-copy="sr开启自动签到">复制</button></span>
                   <span class="code-pill"><code>zzz开启自动签到</code><button class="copy" type="button" data-copy="zzz开启自动签到">复制</button></span>
+                  <span class="code-pill"><code>bbb开启自动签到</code><button class="copy" type="button" data-copy="bbb开启自动签到">复制</button></span>
                 </div>
-                <p class="howto-note">✅ 看到 Bot 返回“已开启自动签到”一类的提示才算设置完成。若提示没有 Cookie，请重新走扫码登录；若米游社出现验证码风控，请去米游社官方 App 手动处理。定时签到也可能因网络、账号过期等原因失败。</p>
+                <p class="howto-note">如果提示<strong>未绑定 UID</strong>，先完成第 1 步；如果提示<strong>没有 Cookie / 授权失效</strong>，重新执行扫码登录。米游社的社区签到与游戏内每日任务不同；网络或风控验证码可能导致当天签到失败。</p>
               </div>
             </details>
             <details>
-              <summary>库街区 · 鸣潮</summary>
+              <summary>🌊 库街区：鸣潮自动签到</summary>
               <div class="howto-body">
                 <ol class="howto-steps">
-                  <li><strong>登录库街区：</strong>私聊小浅子发送 <span class="inline-command">ww登录</span>，根据 Bot 提供的网页或扫码流程完成账号授权。</li>
-                  <li><strong>开启/确认签到：</strong>发送 <span class="inline-command">ww开启自动签到</span>，以 Bot 返回的状态为准。部分版本登录后默认已加入自动签到，指令也可用于确认或设置推送。</li>
-                  <li><strong>查看帮助：</strong>需要调整签到提醒时，可以发送 <span class="inline-command">ww帮助</span> 查相关命令。</li>
+                  <li>建议私聊 Bot 发送 <span class="inline-command">ww登录</span>，打开返回的页面，按提示完成<strong>库街区账号登录</strong>。</li>
+                  <li>登录后，发送 <span class="inline-command">ww开启自动签到</span>，根据回复确认当前账号已加入自动签到。</li>
+                  <li>之后可以发送 <span class="inline-command">ww帮助</span> 查看签到日历、签到结果订阅等其他功能。</li>
                 </ol>
                 <div class="code-options"><span class="code-pill"><code>ww登录</code><button class="copy" type="button" data-copy="ww登录">复制</button></span><span class="code-pill"><code>ww开启自动签到</code><button class="copy" type="button" data-copy="ww开启自动签到">复制</button></span></div>
-                <p class="howto-note">⚠️ 库街区可能存在 Bot 与手机 App 登录互相挤下线的情况；遇到时请按提示处理，不要把账号密码发到群聊。</p>
+                <p class="howto-note">鸣潮的库街区账号与米游社不是同一套登录。若与手机 App 出现互相挤下线或登录失效，请按返回提示重新授权。</p>
               </div>
             </details>
             <details>
-              <summary>异环 · 塔吉多社区</summary>
+              <summary>🌐 异环：社区自动签到</summary>
               <div class="howto-body">
                 <ol class="howto-steps">
-                  <li><strong>绑定账号：</strong>私聊小浅子发送 <span class="inline-command">nte登录</span>，打开 Bot 返回的网页链接完成授权。</li>
-                  <li><strong>打开自动签到：</strong>登录成功后发送 <span class="inline-command">nte开启自动签到</span>，等待成功提示。</li>
-                  <li><strong>手动测试：</strong>发送 <span class="inline-command">nte签到</span>，检查当前账号是否能执行今日签到。</li>
+                  <li>私聊小浅子发送 <span class="inline-command">nte登录</span>，通过返回的网页链接完成异环账号绑定。</li>
+                  <li>发送 <span class="inline-command">nte开启自动签到</span>，以 Bot 返回的成功提示为准。</li>
+                  <li>想马上检查当日签到？可以发送 <span class="inline-command">nte签到</span> 手动执行一次。</li>
                 </ol>
-                <div class="code-options">
-                  <span class="code-pill"><code>nte登录</code><button class="copy" type="button" data-copy="nte登录">复制</button></span>
-                  <span class="code-pill"><code>nte开启自动签到</code><button class="copy" type="button" data-copy="nte开启自动签到">复制</button></span>
-                  <span class="code-pill"><code>nte签到</code><button class="copy" type="button" data-copy="nte签到">复制</button></span>
-                </div>
-                <p class="howto-note">若 Bot 提示未登录，请先完成网页登录；自动签到按服务器设置的时间执行，不是发送开启指令后立刻完成当天签到。</p>
+                <div class="code-options"><span class="code-pill"><code>nte登录</code><button class="copy" type="button" data-copy="nte登录">复制</button></span><span class="code-pill"><code>nte开启自动签到</code><button class="copy" type="button" data-copy="nte开启自动签到">复制</button></span><span class="code-pill"><code>nte签到</code><button class="copy" type="button" data-copy="nte签到">复制</button></span></div>
+                <p class="howto-note">发送“开启”并不代表立即领取当天奖励；自动任务会按照 Bot 的定时设置运行。账号失效时需重新登录。</p>
               </div>
             </details>
           </div>
-          <div class="tip"><span>🔐</span><span>账号安全：游戏 UID 可按帮助绑定，但密码、验证码、Cookie、Token 不要发送到群聊。只在可信的官方授权页面或 Bot 私聊流程中完成登录；自动签到也不保证每天 100% 成功。</span></div>
+          <div class="tip"><span>🔐</span><span>账号安全：UID 是角色识别号码；但<strong>密码、短信验证码、Cookie、Token</strong> 不要发到群里。只在可信的账号授权页面或 Bot 私聊登录流程中操作。自动签到属于尝试执行，不能保证每天一定成功。</span></div>
         </section>
 
         <section id="detail-voice" class="guide" data-guide="voice" hidden aria-label="语音互动使用帮助">
