@@ -135,6 +135,26 @@
     .command-item .cmd-row { padding-top: 4px; }
     .command-title { color: #777080; font-size: 12px; font-weight: 700; }
     .tip { display: flex; align-items: flex-start; gap: 10px; margin-top: 18px; background: #f9f5ff; color: #77708e; border: 1px solid #efebfa; border-radius: 14px; padding: 13px 16px; font-size: 12px; }
+    .howto { margin-top: 24px; }
+    .howto details { background: #fffafd; border: 1px solid #f0e1eb; border-radius: 15px; margin-top: 10px; overflow: hidden; }
+    .howto summary { padding: 15px 17px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 800; list-style: none; }
+    .howto summary::after { content: "＋"; color: #cc6997; font-size: 20px; line-height: 1; flex-shrink: 0; font-weight: 500; }
+    .howto details[open] summary::after { content: "－"; }
+    .howto summary::-webkit-details-marker { display: none; }
+    .howto-body { border-top: 1px solid #f3e6ee; padding: 0 17px 18px; }
+    .howto-steps { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 11px; counter-reset: tutorial-step; }
+    .howto-steps li { position: relative; padding: 1px 0 1px 36px; color: #777181; font-size: 13px; min-height: 27px; line-height: 1.8; counter-increment: tutorial-step; }
+    .howto-steps li::before { content: counter(tutorial-step); position: absolute; top: 2px; left: 0; display: grid; place-items: center; width: 25px; height: 25px; border-radius: 9px; background: #fff0f6; color: #bf6692; font-size: 12px; font-weight: 900; }
+    .howto-steps strong { color: #393544; }
+    .inline-command { font-family: "SFMono-Regular", Consolas, "Microsoft YaHei", monospace; color: #b7447f; font-weight: 800; background: #fff0f6; padding: 2px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+    .code-options { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
+    .code-pill { display: inline-flex; align-items: center; gap: 7px; background: #fff; border: 1px solid #eed9e7; border-radius: 10px; padding: 7px 9px; font-size: 12px; }
+    .code-pill code { color: #bb5288; font-size: 12px; font-weight: 800; }
+    .code-pill .copy { padding: 3px 7px; }
+    .howto-note { color: #837a88; margin: 13px 0 0; padding: 12px 13px; border-radius: 10px; background: #f8f4fb; font-size: 12px; line-height: 1.8; }
+    .example-note { color: #8f8190; font-size: 12px; margin: 13px 0 0; line-height: 1.9; }
+    .example-note strong { color: #a4537d; }
+
     .game-tags { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
     .game-tag { padding: 7px 12px; background: #faf8fd; border: 1px solid #eee9f5; border-radius: 999px; font-size: 12px; font-weight: 750; color: #746c84; }
     .simple-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
@@ -285,14 +305,24 @@
 
         <section id="detail-gallery" class="guide" data-guide="gallery" hidden aria-label="图片画廊使用帮助">
           <div class="detail-header"><div><span class="section-label">GALLERY</span><h3>🖼️ 抽个表情，看看收藏</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">不知道有哪些图？先查看画廊分类，再按分类看图就好。</p>
+          <p class="detail-desc">先查看有哪些分类，再照着下面的真实示例发送；每条命令都能直接复制。</p>
           <div class="commands">
-            <div class="command-item"><span class="command-title">查看有哪些分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
-            <div class="command-item"><span class="command-title">随机抽表情</span><div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div></div>
-            <div class="command-item"><span class="command-title">查看某类图片</span><div class="cmd-row"><span class="cmd">/看 分类名</span><button class="copy" type="button" data-copy="/看 分类名">复制</button></div></div>
-            <div class="command-item"><span class="command-title">向分类里上传</span><div class="cmd-row"><span class="cmd">/上传 分类名</span><button class="copy" type="button" data-copy="/上传 分类名">复制</button></div></div>
+            <div class="command-item"><span class="command-title">① 查看画廊里的全部分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
+            <div class="command-item"><span class="command-title">② 查看「airi」分类的图片</span><div class="cmd-row"><span class="cmd">/看airi</span><button class="copy" type="button" data-copy="/看airi">复制</button></div></div>
+            <div class="command-item"><span class="command-title">另一个示例：查看「miku」分类</span><div class="cmd-row"><span class="cmd">/看miku</span><button class="copy" type="button" data-copy="/看miku">复制</button></div></div>
+            <div class="command-item"><span class="command-title">随机抽一张表情</span><div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div></div>
           </div>
-          <div class="tip"><span>💡</span><span>「分类名」要换成画廊里真实存在的分类。上传时按 Bot 提示附上或回复图片即可。</span></div>
+          <p class="example-note">✏️ <strong>想换其他图片？</strong>只需把 <span class="inline-command">/看airi</span> 里的 <strong>airi</strong> 换成 <span class="inline-command">/查看画廊</span> 返回的真实分类名称。<strong>不要直接发送“分类名”三个字。</strong></p>
+          <div class="howto"><details><summary>📤 如何上传一张图片？</summary>
+            <div class="howto-body"><ol class="howto-steps">
+              <li>先通过 <span class="inline-command">/查看画廊</span> 找到你想上传的分类。</li>
+              <li>在 QQ 中发送图片，随后<strong>回复这张图片</strong>。</li>
+              <li>在回复内容中发送对应的上传指令。例如，要上传到 airi 分类：</li>
+            </ol>
+            <div class="code-options"><span class="code-pill"><code>/上传airi</code><button class="copy" type="button" data-copy="/上传airi">复制</button></span></div>
+            <p class="howto-note">只发送文字、不附图片时无法完成上传。想上传到其他分类，把 airi 换成该分类的真实名字；如有权限限制，按 Bot 提示操作。</p>
+            </div>
+          </details></div>
         </section>
 
         <section id="detail-games" class="guide" data-guide="games" hidden aria-label="游戏工具使用帮助">
