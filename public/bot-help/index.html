@@ -135,6 +135,26 @@
     .command-item .cmd-row { padding-top: 4px; }
     .command-title { color: #777080; font-size: 12px; font-weight: 700; }
     .tip { display: flex; align-items: flex-start; gap: 10px; margin-top: 18px; background: #f9f5ff; color: #77708e; border: 1px solid #efebfa; border-radius: 14px; padding: 13px 16px; font-size: 12px; }
+    .howto { margin-top: 24px; }
+    .howto details { background: #fffafd; border: 1px solid #f0e1eb; border-radius: 15px; margin-top: 10px; overflow: hidden; }
+    .howto summary { padding: 15px 17px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 14px; font-weight: 800; list-style: none; }
+    .howto summary::after { content: "＋"; color: #cc6997; font-size: 20px; line-height: 1; flex-shrink: 0; font-weight: 500; }
+    .howto details[open] summary::after { content: "－"; }
+    .howto summary::-webkit-details-marker { display: none; }
+    .howto-body { border-top: 1px solid #f3e6ee; padding: 0 17px 18px; }
+    .howto-steps { margin: 12px 0 0; padding: 0; list-style: none; display: grid; gap: 11px; counter-reset: tutorial-step; }
+    .howto-steps li { position: relative; padding: 1px 0 1px 36px; color: #777181; font-size: 13px; min-height: 27px; line-height: 1.8; counter-increment: tutorial-step; }
+    .howto-steps li::before { content: counter(tutorial-step); position: absolute; top: 2px; left: 0; display: grid; place-items: center; width: 25px; height: 25px; border-radius: 9px; background: #fff0f6; color: #bf6692; font-size: 12px; font-weight: 900; }
+    .howto-steps strong { color: #393544; }
+    .inline-command { font-family: "SFMono-Regular", Consolas, "Microsoft YaHei", monospace; color: #b7447f; font-weight: 800; background: #fff0f6; padding: 2px 6px; border-radius: 5px; overflow-wrap: anywhere; }
+    .code-options { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 10px; }
+    .code-pill { display: inline-flex; align-items: center; gap: 7px; background: #fff; border: 1px solid #eed9e7; border-radius: 10px; padding: 7px 9px; font-size: 12px; }
+    .code-pill code { color: #bb5288; font-size: 12px; font-weight: 800; }
+    .code-pill .copy { padding: 3px 7px; }
+    .howto-note { color: #837a88; margin: 13px 0 0; padding: 12px 13px; border-radius: 10px; background: #f8f4fb; font-size: 12px; line-height: 1.8; }
+    .example-note { color: #8f8190; font-size: 12px; margin: 13px 0 0; line-height: 1.9; }
+    .example-note strong { color: #a4537d; }
+
     .game-tags { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; }
     .game-tag { padding: 7px 12px; background: #faf8fd; border: 1px solid #eee9f5; border-radius: 999px; font-size: 12px; font-weight: 750; color: #746c84; }
     .simple-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
@@ -223,13 +243,13 @@
 
     <section class="intro" aria-labelledby="start-title">
       <div class="section-top">
-        <div><span class="section-label">01 · FIRST STEPS</span><h2 id="start-title">第一次来？试试这 3 个</h2><p class="section-note">点击“复制”，回到 QQ 粘贴发送就可以啦。</p></div>
+        <div><span class="section-label">01 · FIRST STEPS</span><h2 id="start-title">第一次来？试试这 3 个</h2><p class="section-note">指令可以复制；需要 @ 时，请在 QQ 里真正点选小浅子的账号。</p></div>
       </div>
       <div class="quick-grid">
         <div class="quick-card">
           <div class="quick-title"><span class="step">1</span><strong>和小浅子打个招呼</strong></div>
-          <div class="cmd-row"><span class="cmd">@小浅子 你好呀</span><button class="copy" type="button" data-copy="@小浅子 你好呀">复制</button></div>
-          <p>群聊里记得正确 @ 到 Bot 哦。</p>
+          <div class="cmd-row"><span class="cmd">QQ 里点选「@小浅子」后输入：你好呀</span></div>
+          <p>直接复制文字 @小浅子 不能代替真正的 QQ @ 哦。</p>
         </div>
         <div class="quick-card">
           <div class="quick-title"><span class="step">2</span><strong>看看收藏的图片</strong></div>
@@ -277,43 +297,102 @@
           <div class="detail-header"><div><span class="section-label">CHAT</span><h3>💬 想聊什么，都可以试试</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
           <p class="detail-desc">在群里 @小浅子，就能和她聊天、提问；也可以带上图片，让她帮你看看。</p>
           <div class="commands">
-            <div class="command-item"><span class="command-title">打个招呼</span><div class="cmd-row"><span class="cmd">@小浅子 你好呀</span><button class="copy" type="button" data-copy="@小浅子 你好呀">复制</button></div></div>
-            <div class="command-item"><span class="command-title">问个问题</span><div class="cmd-row"><span class="cmd">@小浅子 帮我解释一下</span><button class="copy" type="button" data-copy="@小浅子 帮我解释一下">复制</button></div></div>
+            <div class="command-item"><span class="command-title">先在 QQ 中选中「@小浅子」，再发：</span><div class="cmd-row"><span class="cmd">你好呀！</span><button class="copy" type="button" data-copy="你好呀！">复制文字</button></div></div>
+            <div class="command-item"><span class="command-title">提问前先在 QQ 中真实 @小浅子</span><div class="cmd-row"><span class="cmd">帮我解释一下这张图</span><button class="copy" type="button" data-copy="帮我解释一下这张图">复制文字</button></div></div>
           </div>
           <div class="tip"><span>💡</span><span>图片理解：发送图片并 @小浅子提问；如果是回复图片消息，也可以接着提问。AI 回复会受网络服务状态影响。</span></div>
         </section>
 
         <section id="detail-gallery" class="guide" data-guide="gallery" hidden aria-label="图片画廊使用帮助">
           <div class="detail-header"><div><span class="section-label">GALLERY</span><h3>🖼️ 抽个表情，看看收藏</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">不知道有哪些图？先查看画廊分类，再按分类看图就好。</p>
+          <p class="detail-desc">先查看有哪些分类，再照着下面的真实示例发送；每条命令都能直接复制。</p>
           <div class="commands">
-            <div class="command-item"><span class="command-title">查看有哪些分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
-            <div class="command-item"><span class="command-title">随机抽表情</span><div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div></div>
-            <div class="command-item"><span class="command-title">查看某类图片</span><div class="cmd-row"><span class="cmd">/看 分类名</span><button class="copy" type="button" data-copy="/看 分类名">复制</button></div></div>
-            <div class="command-item"><span class="command-title">向分类里上传</span><div class="cmd-row"><span class="cmd">/上传 分类名</span><button class="copy" type="button" data-copy="/上传 分类名">复制</button></div></div>
+            <div class="command-item"><span class="command-title">① 查看画廊里的全部分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
+            <div class="command-item"><span class="command-title">② 查看「airi」分类的图片</span><div class="cmd-row"><span class="cmd">/看airi</span><button class="copy" type="button" data-copy="/看airi">复制</button></div></div>
+            <div class="command-item"><span class="command-title">另一个示例：查看「miku」分类</span><div class="cmd-row"><span class="cmd">/看miku</span><button class="copy" type="button" data-copy="/看miku">复制</button></div></div>
+            <div class="command-item"><span class="command-title">随机抽一张表情</span><div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div></div>
           </div>
-          <div class="tip"><span>💡</span><span>「分类名」要换成画廊里真实存在的分类。上传时按 Bot 提示附上或回复图片即可。</span></div>
+          <p class="example-note">✏️ <strong>想换其他图片？</strong>只需把 <span class="inline-command">/看airi</span> 里的 <strong>airi</strong> 换成 <span class="inline-command">/查看画廊</span> 返回的真实分类名称。<strong>不要直接发送“分类名”三个字。</strong></p>
+          <div class="howto"><details><summary>📤 如何上传一张图片？</summary>
+            <div class="howto-body"><ol class="howto-steps">
+              <li>先通过 <span class="inline-command">/查看画廊</span> 找到你想上传的分类。</li>
+              <li>在 QQ 中发送图片，随后<strong>回复这张图片</strong>。</li>
+              <li>在回复内容中发送对应的上传指令。例如，要上传到 airi 分类：</li>
+            </ol>
+            <div class="code-options"><span class="code-pill"><code>/上传airi</code><button class="copy" type="button" data-copy="/上传airi">复制</button></span></div>
+            <p class="howto-note">只发送文字、不附图片时无法完成上传。想上传到其他分类，把 airi 换成该分类的真实名字；如有权限限制，按 Bot 提示操作。</p>
+            </div>
+          </details></div>
         </section>
 
-        <section id="detail-games" class="guide" data-guide="games" hidden aria-label="游戏工具使用帮助">
-          <div class="detail-header"><div><span class="section-label">GAMES</span><h3>🎮 游戏查询，一站搞定</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">查角色面板、抽卡记录、养成数据，还能设置部分游戏的每日签到。</p>
-          <div class="game-tags"><span class="game-tag">原神</span><span class="game-tag">崩坏：星穹铁道</span><span class="game-tag">绝区零</span><span class="game-tag">鸣潮</span><span class="game-tag">异环</span><span class="game-tag">崩坏 3</span><span class="game-tag">世界计划</span><span class="game-tag">Steam</span></div>
-          <div class="guide-caption">先看对应游戏的帮助</div>
+        <section id="detail-games" class="guide" data-guide="games" hidden aria-label="游戏查询和自动签到使用帮助">
+          <div class="detail-header"><div><span class="section-label">GAMES</span><h3>🎮 游戏查询与自动签到</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
+          <p class="detail-desc">想看角色面板、抽卡或签到？先发送对应游戏的帮助命令，再按提示操作。下面的命令<strong>都可以直接复制</strong>。</p>
+          <div class="game-tags"><span class="game-tag">原神</span><span class="game-tag">星穹铁道</span><span class="game-tag">绝区零</span><span class="game-tag">鸣潮</span><span class="game-tag">异环</span><span class="game-tag">崩坏 3</span><span class="game-tag">世界计划</span><span class="game-tag">Steam</span></div>
+          <div class="guide-caption">选择你玩的游戏（这些指令不需要 / 前缀）</div>
           <div class="commands">
             <div class="command-item"><span class="command-title">原神</span><div class="cmd-row"><span class="cmd">gs帮助</span><button class="copy" type="button" data-copy="gs帮助">复制</button></div></div>
             <div class="command-item"><span class="command-title">星穹铁道</span><div class="cmd-row"><span class="cmd">sr帮助</span><button class="copy" type="button" data-copy="sr帮助">复制</button></div></div>
-            <div class="command-item"><span class="command-title">鸣潮</span><div class="cmd-row"><span class="cmd">waves帮助</span><button class="copy" type="button" data-copy="waves帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">绝区零</span><div class="cmd-row"><span class="cmd">zzz帮助</span><button class="copy" type="button" data-copy="zzz帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">鸣潮（正确前缀是 ww）</span><div class="cmd-row"><span class="cmd">ww帮助</span><button class="copy" type="button" data-copy="ww帮助">复制</button></div></div>
             <div class="command-item"><span class="command-title">异环</span><div class="cmd-row"><span class="cmd">nte帮助</span><button class="copy" type="button" data-copy="nte帮助">复制</button></div></div>
           </div>
-          <div class="tip"><span>💡</span><span>首次查询可能需要绑定游戏 UID 或账号。自动签到需要完成对应游戏的授权；请勿在群聊公开密码、Cookie 或 Token。</span></div>
+          <div class="howto">
+            <div class="guide-caption">🎁 想每天自动签到？按你玩的社区展开教程</div>
+            <details>
+              <summary>米游社 · 原神 / 星铁 / 绝区零</summary>
+              <div class="howto-body">
+                <ol class="howto-steps">
+                  <li><strong>绑定游戏 UID：</strong>在 QQ 发送上方对应游戏的帮助（例如 <span class="inline-command">gs帮助</span>），按机器人提示绑定<strong>你自己的 UID</strong>。只绑定 UID 不等于开启签到。</li>
+                  <li><strong>登录米游社：</strong>推荐私聊小浅子发送 <span class="inline-command">扫码登录</span>，用你自己的米游社 App 按提示完成二维码授权。首次扫码前需先绑定至少一个米哈游游戏 UID。</li>
+                  <li><strong>开启自动签到：</strong>回到你想使用的群聊，选择下面与你玩的游戏对应的<strong>一条</strong>命令发送；不用三条都发。</li>
+                </ol>
+                <div class="code-options">
+                  <span class="code-pill"><code>扫码登录</code><button class="copy" type="button" data-copy="扫码登录">复制</button></span>
+                  <span class="code-pill"><code>gs开启自动签到</code><button class="copy" type="button" data-copy="gs开启自动签到">复制</button></span>
+                  <span class="code-pill"><code>sr开启自动签到</code><button class="copy" type="button" data-copy="sr开启自动签到">复制</button></span>
+                  <span class="code-pill"><code>zzz开启自动签到</code><button class="copy" type="button" data-copy="zzz开启自动签到">复制</button></span>
+                </div>
+                <p class="howto-note">✅ 看到 Bot 返回“已开启自动签到”一类的提示才算设置完成。若提示没有 Cookie，请重新走扫码登录；若米游社出现验证码风控，请去米游社官方 App 手动处理。定时签到也可能因网络、账号过期等原因失败。</p>
+              </div>
+            </details>
+            <details>
+              <summary>库街区 · 鸣潮</summary>
+              <div class="howto-body">
+                <ol class="howto-steps">
+                  <li><strong>登录库街区：</strong>私聊小浅子发送 <span class="inline-command">ww登录</span>，根据 Bot 提供的网页或扫码流程完成账号授权。</li>
+                  <li><strong>开启/确认签到：</strong>发送 <span class="inline-command">ww开启自动签到</span>，以 Bot 返回的状态为准。部分版本登录后默认已加入自动签到，指令也可用于确认或设置推送。</li>
+                  <li><strong>查看帮助：</strong>需要调整签到提醒时，可以发送 <span class="inline-command">ww帮助</span> 查相关命令。</li>
+                </ol>
+                <div class="code-options"><span class="code-pill"><code>ww登录</code><button class="copy" type="button" data-copy="ww登录">复制</button></span><span class="code-pill"><code>ww开启自动签到</code><button class="copy" type="button" data-copy="ww开启自动签到">复制</button></span></div>
+                <p class="howto-note">⚠️ 库街区可能存在 Bot 与手机 App 登录互相挤下线的情况；遇到时请按提示处理，不要把账号密码发到群聊。</p>
+              </div>
+            </details>
+            <details>
+              <summary>异环 · 塔吉多社区</summary>
+              <div class="howto-body">
+                <ol class="howto-steps">
+                  <li><strong>绑定账号：</strong>私聊小浅子发送 <span class="inline-command">nte登录</span>，打开 Bot 返回的网页链接完成授权。</li>
+                  <li><strong>打开自动签到：</strong>登录成功后发送 <span class="inline-command">nte开启自动签到</span>，等待成功提示。</li>
+                  <li><strong>手动测试：</strong>发送 <span class="inline-command">nte签到</span>，检查当前账号是否能执行今日签到。</li>
+                </ol>
+                <div class="code-options">
+                  <span class="code-pill"><code>nte登录</code><button class="copy" type="button" data-copy="nte登录">复制</button></span>
+                  <span class="code-pill"><code>nte开启自动签到</code><button class="copy" type="button" data-copy="nte开启自动签到">复制</button></span>
+                  <span class="code-pill"><code>nte签到</code><button class="copy" type="button" data-copy="nte签到">复制</button></span>
+                </div>
+                <p class="howto-note">若 Bot 提示未登录，请先完成网页登录；自动签到按服务器设置的时间执行，不是发送开启指令后立刻完成当天签到。</p>
+              </div>
+            </details>
+          </div>
+          <div class="tip"><span>🔐</span><span>账号安全：游戏 UID 可按帮助绑定，但密码、验证码、Cookie、Token 不要发送到群聊。只在可信的官方授权页面或 Bot 私聊流程中完成登录；自动签到也不保证每天 100% 成功。</span></div>
         </section>
 
         <section id="detail-voice" class="guide" data-guide="voice" hidden aria-label="语音互动使用帮助">
           <div class="detail-header"><div><span class="section-label">VOICE</span><h3>🎤 让小浅子说句话</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
           <p class="detail-desc">收听爱莉相关的语音素材，或尝试让 AI 用语音回复你。</p>
           <div class="commands">
-            <div class="command-item"><span class="command-title">试试语音互动</span><div class="cmd-row"><span class="cmd">@小浅子 说句晚安吧</span><button class="copy" type="button" data-copy="@小浅子 说句晚安吧">复制</button></div></div>
+            <div class="command-item"><span class="command-title">先真正 @小浅子，再发送</span><div class="cmd-row"><span class="cmd">说句晚安吧</span><button class="copy" type="button" data-copy="说句晚安吧">复制文字</button></div></div>
           </div>
           <div class="tip"><span>💡</span><span>部分语音需要指定的触发方式，且不是每次聊天都会发语音。以当前群聊开启的功能为准。</span></div>
         </section>
@@ -337,11 +416,11 @@
           <p class="detail-desc">查天气、点歌、搜索 Pixiv 作品，也有图片来源查找和视频链接解析等功能。</p>
           <div class="commands">
             <div class="command-item"><span class="command-title">查看天气</span><div class="cmd-row"><span class="cmd">/天气 青岛</span><button class="copy" type="button" data-copy="/天气 青岛">复制</button></div></div>
-            <div class="command-item"><span class="command-title">搜索歌曲</span><div class="cmd-row"><span class="cmd">/点歌 歌名</span><button class="copy" type="button" data-copy="/点歌 歌名">复制</button></div></div>
+            <div class="command-item"><span class="command-title">点歌示例：搜索「群青」</span><div class="cmd-row"><span class="cmd">/点歌 群青</span><button class="copy" type="button" data-copy="/点歌 群青">复制</button></div></div>
             <div class="command-item"><span class="command-title">搜索 Pixiv 图片</span><div class="cmd-row"><span class="cmd">/pixiv 初音未来</span><button class="copy" type="button" data-copy="/pixiv 初音未来">复制</button></div></div>
             <div class="command-item"><span class="command-title">查看所有帮助</span><div class="cmd-row"><span class="cmd">/help</span><button class="copy" type="button" data-copy="/help">复制</button></div></div>
           </div>
-          <div class="tip"><span>💡</span><span>Pixiv、视频解析和点歌依赖外部服务，偶尔可能暂时不可用。部分命令因群聊配置而有差异。</span></div>
+          <div class="tip"><span>💡</span><span>想点其他歌曲，把示例里的「群青」改成歌曲名。Pixiv、视频解析、点歌依赖外部服务，可能暂时不可用。</span></div>
         </section>
       </div>
     </section>
@@ -350,7 +429,7 @@
       <div class="section-top"><div><span class="section-label">03 · LITTLE TIPS</span><h2 id="faq-title">还有一点小提醒</h2><p class="section-note">遇到问题时，不用着急。</p></div></div>
       <div class="faq-grid">
         <details><summary>命令发了没反应？</summary><p>检查命令有没有写错，是否需要“/”前缀；群聊里聊天请正确 @小浅子。部分功能可能有冷却时间或权限限制。</p></details>
-        <details><summary>游戏查询提示未绑定？</summary><p>先打开对应游戏帮助，按指引绑定 UID 或账号；不同游戏通常需要分别绑定。</p></details>
+        <details><summary>游戏查询或自动签到提示未绑定？</summary><p>绑定游戏 UID 和登录游戏社区是两回事。进入「游戏工具」展开对应社区的自动签到教程，按步骤登录、开启。</p></details>
         <details><summary>为什么有时回复很慢？</summary><p>AI、语音、Pixiv 和游戏数据都依赖外部接口。服务繁忙或网络波动时可能变慢甚至暂时不可用。</p></details>
         <details><summary>找不到想要的功能？</summary><p>先在本页上方搜索关键词，或者在 QQ 发送 /help。还可以到博客留言板反馈建议。</p></details>
       </div>
