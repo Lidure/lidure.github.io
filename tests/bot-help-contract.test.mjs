@@ -148,8 +148,10 @@ test('node reference keeps the six beginner cards and provides verified local se
   }
   assert.match(html, /Haruki 节点/);
   assert.match(html, /GsCore 游戏服务/);
-  assert.match(html, /Airi \/ Moe \/ Sakura 外部节点/);
-  assert.match(html, /本地连接配置并不提供完整的用户命令清单/);
+  assert.match(html, /Airi 专属节点 · 24 项功能手册/);
+  assert.match(html, /Moe \/ Sakura 其他远程节点/);
+  assert.match(html, /href="\/bot-help\/airi\/"/);
+  assert.match(html, /当前没有拿到这些节点完整、可靠的用户命令清单/);
   assert.match(html, /https:\/\/haruki\.seiunx\.com\//);
   assert.ok(!html.includes('https://toolbox.haruki.seiunx.com/'));
 });
