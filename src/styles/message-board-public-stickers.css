@@ -281,3 +281,26 @@
 }
 html[data-reduce-motion="true"] .message-sticker-choice,
 html[data-reduce-motion="true"] .message-public-sticker { transition: none !important; }
+
+
+@media (max-width: 720px) {
+  .message-sticker-panel {
+    box-sizing: border-box;
+    max-height: 82dvh;
+    overscroll-behavior: contain;
+    padding-inline: max(.8rem, env(safe-area-inset-left)) max(.8rem, env(safe-area-inset-right));
+  }
+  .message-sticker-panel-close { width: 44px; height: 44px; }
+  .message-sticker-category { min-height: 44px; }
+  .message-sticker-choice { min-height: 110px; }
+  .message-sticker-placement-bar {
+    box-sizing: border-box;
+    width: calc(100vw - 1.25rem);
+    max-width: 420px;
+    justify-content: space-between;
+    border-radius: 15px;
+    padding: .7rem .8rem;
+  }
+  .message-sticker-placement-bar span { white-space: normal; line-height: 1.4; }
+  .message-sticker-placement-bar button { min-height: 44px; flex: 0 0 auto; }
+}
