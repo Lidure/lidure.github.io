@@ -116,3 +116,11 @@ test('Manosaba example, screenshot and MMJ official tutorial are included', () =
   assert.match(page,/https:\/\/www\.airi\.asia\/posts\/aps_help\//);
   assert.ok(copies.includes(',sl rl'));
 });
+
+test('user-provided Manosaba screenshot is actually shipped as a valid WebP asset', () => {
+  const image = readFileSync(path.join(dir, '..', 'dist', 'bot-help', 'airi', 'manosaba-example.webp'));
+  assert.ok(image.byteLength > 2000, 'Screenshot should not be empty');
+  assert.equal(image.subarray(0, 4).toString('ascii'), 'RIFF');
+  assert.equal(image.subarray(8, 12).toString('ascii'), 'WEBP');
+  assert.match(page, /src="\/bot-help\/airi\/manosaba-example\.webp"/);
+});
