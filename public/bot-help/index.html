@@ -96,7 +96,7 @@
     .section-label { font-size: 12px; font-weight: 800; color: #d18aab; letter-spacing: 1.1px; }
     h2 { font-size: clamp(23px,3vw,32px); line-height: 1.35; letter-spacing: -.8px; margin: 6px 0; font-weight: 900; }
     .section-note { margin: 0; color: #8e8998; font-size: 13px; }
-    .quick-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+    .quick-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
     .quick-card { border: 1px solid var(--line); background: var(--white); border-radius: 22px; padding: 20px; box-shadow: 0 6px 22px #d7a9bf13; display: flex; flex-direction: column; gap: 9px; }
     .quick-card strong { font-size: 14px; }
     .quick-title { display: flex; align-items: center; gap: 9px; }
@@ -255,7 +255,7 @@
 
     <section class="intro" aria-labelledby="start-title">
       <div class="section-top">
-        <div><span class="section-label">01 · FIRST STEPS</span><h2 id="start-title">第一次来？试试这 3 个</h2><p class="section-note">指令可以复制；需要 @ 时，请在 QQ 里真正点选小浅子的账号。</p></div>
+        <div><span class="section-label">01 · FIRST STEPS</span><h2 id="start-title">第一次来？试试这 4 个</h2><p class="section-note">指令可以复制；需要 @ 时，请在 QQ 里真正点选小浅子的账号。</p></div>
       </div>
       <div class="quick-grid">
         <div class="quick-card">
@@ -264,12 +264,17 @@
           <p>直接复制文字 @小浅子 不能代替真正的 QQ @ 哦。</p>
         </div>
         <div class="quick-card">
-          <div class="quick-title"><span class="step">2</span><strong>看看收藏的图片</strong></div>
+          <div class="quick-title"><span class="step">2</span><strong>🌸 每日签到，领取收藏</strong></div>
+          <div class="cmd-row"><span class="cmd">签到</span><button class="copy" type="button" data-copy="签到">复制</button></div>
+          <p>Airi 节点玩法：每天签到领积分、收藏品和资料卡赞。<a href="/bot-help/airi/#tool-collection">查看详细规则 ↗</a></p>
+        </div>
+        <div class="quick-card">
+          <div class="quick-title"><span class="step">3</span><strong>看看收藏的图片</strong></div>
           <div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div>
           <p>先选分类，再看你喜欢的图片。</p>
         </div>
         <div class="quick-card">
-          <div class="quick-title"><span class="step">3</span><strong>随机抽一张表情</strong></div>
+          <div class="quick-title"><span class="step">4</span><strong>随机抽一张表情</strong></div>
           <div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div>
           <p>不知道玩什么时，就从这里开始！</p>
         </div>
