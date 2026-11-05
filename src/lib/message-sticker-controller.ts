@@ -401,6 +401,10 @@ export function initMessageStickerBoard() {
       setBoardStatus('这台设备已经贴了 5 张公共贴纸，先删掉一张再来吧。', true);
       return;
     }
+    // Sticker coordinates belong to the original wall, not the mobile reading list.
+    window.dispatchEvent(new Event('message-board-request-wall-view'));
+    // Keep the spatial wall visible until the placement is finished or cancelled.
+    root.querySelector<HTMLButtonElement>('#message-board-view-toggle')?.setAttribute('disabled', '');
     placingStickerKey = stickerKey;
     selectedStickerId = '';
     previewLogical = null;
@@ -413,6 +417,7 @@ export function initMessageStickerBoard() {
 
   function cancelPlacement() {
     placingStickerKey = '';
+    root.querySelector<HTMLButtonElement>('#message-board-view-toggle')?.removeAttribute('disabled');
     previewLogical = null;
     stage.classList.remove('is-placing-sticker');
     placementBar.hidden = true;
