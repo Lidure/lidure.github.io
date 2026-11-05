@@ -7,6 +7,8 @@ import sharp from 'sharp';
 const ROOT = fileURLToPath(new URL('..', import.meta.url));
 const WALLPAPER_DIR = path.join(ROOT, 'public', 'assets', 'wallpapers');
 const OUTPUT_DIR = path.join(WALLPAPER_DIR, 'generated');
+const MOBILE_WALLPAPER_DIR = path.join(WALLPAPER_DIR, 'mobile');
+const MOBILE_OUTPUT_DIR = path.join(MOBILE_WALLPAPER_DIR, 'generated');
 const WIDTHS = [640, 960, 1280, 1920];
 const IMAGE_EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif']);
 const DEFAULT_WALLPAPER = 'blog-default-night-moon.avif';
@@ -57,13 +59,13 @@ function outputStem(filename) {
     .replace(/^-+|-+$/g, '') || 'wallpaper';
 }
 
-async function generateVariants(filename) {
-  const input = path.join(WALLPAPER_DIR, filename);
+async function generateVariants(filename, sourceDir = WALLPAPER_DIR, outputDir = OUTPUT_DIR) {
+  const input = path.join(sourceDir, filename);
   const stem = outputStem(filename);
 
   await Promise.all(
     WIDTHS.map(async (width) => {
-      const output = path.join(OUTPUT_DIR, `${stem}-${width}.webp`);
+      const output = path.join(outputDir, `${stem}-${width}.webp`);
       await sharp(input)
         .rotate()
         .resize({ width })
@@ -74,12 +76,22 @@ async function generateVariants(filename) {
 }
 
 await rm(OUTPUT_DIR, { recursive: true, force: true });
+await rm(MOBILE_OUTPUT_DIR, { recursive: true, force: true });
 await mkdir(OUTPUT_DIR, { recursive: true });
+await mkdir(MOBILE_OUTPUT_DIR, { recursive: true });
 
 const entries = await readdir(WALLPAPER_DIR, { withFileTypes: true });
 const images = entries
   .filter((entry) => entry.isFile() && IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
   .map((entry) => entry.name);
 
-await Promise.all(images.map(generateVariants));
-console.log(`Generated ${images.length * WIDTHS.length} responsive wallpaper variants from ${images.length} images.`);
+const mobileEntries = await readdir(MOBILE_WALLPAPER_DIR, { withFileTypes: true });
+const mobileImages = mobileEntries
+  .filter((entry) => entry.isFile() && IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase()))
+  .map((entry) => entry.name);
+
+await Promise.all([
+  ...images.map((filename) => generateVariants(filename)),
+  ...mobileImages.map((filename) => generateVariants(filename, MOBILE_WALLPAPER_DIR, MOBILE_OUTPUT_DIR)),
+]);
+console.log(`Generated ${(images.length + mobileImages.length) * WIDTHS.length} responsive wallpaper variants from ${images.length} desktop and ${mobileImages.length} mobile images.`);
