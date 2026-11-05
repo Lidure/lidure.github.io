@@ -11,6 +11,7 @@ export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
   wallpaperMode: 'fullscreen',
   bannerHeight: 65,
   backgroundBlur: 5,
+  mobileFullscreenBlur: 1,
   cardOpacity: 0.92,
   bannerGradient: true,
   bannerTitle: true,
@@ -56,6 +57,7 @@ export function normalizeVisualSettings(raw = {}) {
       : 'fullscreen',
     bannerHeight: clamp(finiteOr(merged.bannerHeight, 65), 45, 80),
     backgroundBlur: clamp(finiteOr(merged.backgroundBlur, 5), 0, 20),
+    mobileFullscreenBlur: clamp(finiteOr(merged.mobileFullscreenBlur, 1), 0, 20),
     cardOpacity: clamp(finiteOr(merged.cardOpacity, 0.92), 0.2, 1),
     bannerGradient: merged.bannerGradient !== false,
     bannerTitle: merged.bannerTitle !== false,
@@ -103,6 +105,7 @@ export function applyVisualSettingsToDocument(settings, doc) {
   root.classList.toggle('no-hero-bg', !normalized.enabled);
   root.style.setProperty('--wallpaper-overlay', String(normalized.opacity));
   root.style.setProperty('--wallpaper-blur', `${normalized.backgroundBlur}px`);
+  root.style.setProperty('--mobile-fullscreen-blur', `${normalized.mobileFullscreenBlur}px`);
   root.style.setProperty('--card-opacity', String(normalized.cardOpacity));
   root.style.setProperty(
     '--card-opacity-percent',
