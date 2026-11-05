@@ -22,7 +22,7 @@ test('Airi manual has exactly 24 unique functions across four expandable categor
   const cats=[...page.matchAll(/class="category" id="([^"]+)"/g)].map(x=>x[1]);
   assert.deepEqual(cats,['games','entertainment','utilities','board']);
   for(const [category,size] of [['games',5],['entertainment',8],['utilities',8],['board',3]]){
-    const section=page.split('data-category="'+category+'"')[1].split('</details>')[0];
+    const section=page.split('data-category="'+category+'"')[1].split('</div>\n </details>')[0];
     assert.equal((section.match(/data-tool="/g)||[]).length,size,category);
   }
 });
@@ -75,4 +75,52 @@ test('responsive layout and live search + accessible copy controls remain functi
   assert.match(page,/role="status"/);
   assert.equal((page.match(/<details\b/g)||[]).length,(page.match(/<\/details>/g)||[]).length);
   assert.equal((page.match(/<button\b/g)||[]).length,(page.match(/<\/button>/g)||[]).length);
+});
+
+test('Airi node highlights four popular experiences and deep links open real cards', () => {
+  for(const id of ['collection','memes','manosaba','salad']){
+    assert.match(page,new RegExp('href="#tool-'+id+'"'));
+    assert.match(page,new RegExp('id="tool-'+id+'"'));
+  }
+  assert.match(page,/function revealToolFromHash/);
+  assert.match(page,/scrollIntoView/);
+});
+
+test('Airi daily check-in collection tutorial includes all documented progression rules', () => {
+  for(const item of ['收藏信息','查看收藏','收藏抽卡','收藏抽卡10','收藏主题','今日运势','今日挑战','购买提示']){
+    assert.ok(page.includes(item), 'Collection feature missing '+item);
+  }
+  assert.match(page,/100 种收藏品/);
+  assert.match(page,/95 种/);
+  assert.match(page,/5 种隐藏收藏/);
+  assert.match(page,/重复收藏会返还/);
+  assert.match(page,/十连保底至少 1 个新收藏/);
+  assert.match(page,/转出.*200 积分/);
+  assert.match(page,/10%（向上取整）/);
+  assert.match(page,/重开存档/);
+});
+
+test('popular Airi memes describe real QQ mentions, not a fake at-string', () => {
+  assert.match(page,/玩@群友/);
+  assert.match(page,/抱抱@群友/);
+  assert.match(page,/QQ 的真实/);
+  assert.ok(copies.includes('玩'));
+  assert.ok(copies.includes('抱抱'));
+  assert.ok(!copies.some(x=>/@xx|@群友/.test(x)));
+});
+
+test('Manosaba example, screenshot and MMJ official tutorial are included', () => {
+  assert.match(page,/魔裁对话 @BG018 #JXL024 \*雪莉/);
+  assert.match(page,/data-copy-source="manosaba-input"/);
+  assert.match(page,/manosaba-example\.webp/);
+  assert.match(page,/https:\/\/www\.airi\.asia\/posts\/aps_help\//);
+  assert.ok(copies.includes(',sl rl'));
+});
+
+test('user-provided Manosaba screenshot is actually shipped as a valid WebP asset', () => {
+  const image = readFileSync(path.join(dir, '..', 'dist', 'bot-help', 'airi', 'manosaba-example.webp'));
+  assert.ok(image.byteLength > 2000, 'Screenshot should not be empty');
+  assert.equal(image.subarray(0, 4).toString('ascii'), 'RIFF');
+  assert.equal(image.subarray(8, 12).toString('ascii'), 'WEBP');
+  assert.match(page, /src="\/bot-help\/airi\/manosaba-example\.webp"/);
 });
