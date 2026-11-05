@@ -1,4 +1,7 @@
 ---
+import { readdirSync } from 'node:fs';
+import { join } from 'node:path';
+
 /**
  * HeroSlideshow — Homepage background slideshow with settings panel
  *
@@ -27,6 +30,13 @@ const defaultImages: string[] = [
   '/assets/wallpapers/output.mp4'
 ];
 
+// Source files committed here become shared phone wallpapers on the next deployment.
+const mobileWallpaperDir = join(process.cwd(), 'public', 'assets', 'wallpapers', 'mobile');
+const defaultMobileImages: string[] = readdirSync(mobileWallpaperDir, { withFileTypes: true })
+  .filter((entry) => entry.isFile() && /\.(?:jpe?g|png|webp|avif|mp4)$/i.test(entry.name))
+  .map((entry) => '/assets/wallpapers/mobile/' + encodeURIComponent(entry.name))
+  .sort();
+
 const WALLPAPER_WIDTHS = [640, 960, 1280, 1920];
 
 function wallpaperVariantStem(src: string) {
@@ -39,13 +49,15 @@ function wallpaperVariantStem(src: string) {
 }
 
 const defaultImageSrcsets = Object.fromEntries(
-  defaultImages
+  defaultImages.concat(defaultMobileImages)
     .filter((src) => /^\/assets\/wallpapers\/.+\.(?:jpe?g|png|webp|avif)$/i.test(src))
     .map((src) => [
       src,
       WALLPAPER_WIDTHS
         .map((width) =>
-          '/assets/wallpapers/generated/' +
+          (src.startsWith('/assets/wallpapers/mobile/')
+            ? '/assets/wallpapers/mobile/generated/'
+            : '/assets/wallpapers/generated/') +
           wallpaperVariantStem(src) +
           '-' + width + '.webp ' + width + 'w'
         )
@@ -62,6 +74,7 @@ const DEFAULT_OPACITY = 0.45;
   id="hero-slideshow"
   transition:persist
   data-defaults={JSON.stringify(defaultImages)}
+  data-mobile-defaults={JSON.stringify(defaultMobileImages)}
   data-srcset={JSON.stringify(defaultImageSrcsets)}
   data-sizes="100vw"
   data-default-interval={String(DEFAULT_INTERVAL)}
@@ -84,6 +97,11 @@ const DEFAULT_OPACITY = 0.45;
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
       </button>
     </div>
+    <div class="media-panel-device-switch" role="group" aria-label="选择背景库设备">
+      <button id="media-library-desktop" type="button" aria-pressed="true">电脑端背景</button>
+      <button id="media-library-mobile" type="button" aria-pressed="false">手机端背景</button>
+    </div>
+    <p id="media-library-hint" class="media-library-hint">电脑和手机的背景会分别保存。</p>
     <div class="media-panel-body" id="media-panel-body">
       <div class="media-panel-empty">暂无媒体，点击右上角 + 添加</div>
     </div>
@@ -318,6 +336,34 @@ const DEFAULT_OPACITY = 0.45;
     height: 18px;
   }
 
+  .media-panel-device-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    margin: 12px 18px 0;
+    padding: 4px;
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--text) 5%, transparent);
+  }
+  .media-panel-device-switch button {
+    min-height: 42px;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 9px;
+    color: var(--text);
+    background: transparent;
+    font: inherit;
+    font-size: .85rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .media-panel-device-switch button[aria-pressed="true"] {
+    background: color-mix(in srgb, var(--accent) 18%, var(--panel));
+    box-shadow: 0 3px 10px rgba(0,0,0,.1);
+  }
+  .media-library-hint { margin: 8px 18px 0; color: var(--muted); font-size: .75rem; line-height: 1.5; }
+  :global(.media-grid.mobile-wallpapers .media-card img),
+  :global(.media-grid.mobile-wallpapers .media-card video) { aspect-ratio: 9 / 16; }
   .media-panel-body {
     flex: 1;
     overflow-y: auto;
@@ -700,6 +746,10 @@ const DEFAULT_OPACITY = 0.45;
     var mediaPanelBack = document.getElementById('media-panel-back');
     var mediaPanelAdd = document.getElementById('media-panel-add');
     var mediaPanelBody = document.getElementById('media-panel-body');
+    var mediaLibraryDesktopButton = document.getElementById('media-library-desktop');
+    var mediaLibraryMobileButton = document.getElementById('media-library-mobile');
+    var mediaLibraryHint = document.getElementById('media-library-hint');
+    var mediaUploadTarget = document.getElementById('media-upload-target');
     var mediaPreview = document.getElementById('media-preview');
     var mediaPreviewClose = document.getElementById('media-preview-close');
     var mediaPreviewImg = document.getElementById('media-preview-img');
@@ -776,6 +826,11 @@ const DEFAULT_OPACITY = 0.45;
     _destroyed = false;
 
     var defaults = JSON.parse(container.dataset.defaults || '[]');
+    var mobileDefaults = JSON.parse(container.dataset.mobileDefaults || '[]');
+    function isMobileViewport() {
+      return Boolean(window.matchMedia && window.matchMedia('(max-width: 760px)').matches);
+    }
+    var mediaLibrary = isMobileViewport() ? 'mobile' : 'desktop';
     var defaultImageSrcsets = {};
     try { defaultImageSrcsets = JSON.parse(container.dataset.srcset || '{}'); } catch (e) {}
     var defaultImageSizes = container.dataset.sizes || '100vw';
@@ -1098,7 +1153,9 @@ const DEFAULT_OPACITY = 0.45;
       opacity: defOpacity,
       quality: 'high',
       selectedIndex: 0,
+      mobileSelectedIndex: 0,
       images: [],
+      mobileImages: [],
       posters: {}
     };
 
@@ -1120,17 +1177,37 @@ const DEFAULT_OPACITY = 0.45;
             : s.selectedIndex;
         }
         if (Array.isArray(s.images)) state.images = s.images;
+        if (Array.isArray(s.mobileImages)) state.mobileImages = s.mobileImages;
+        if (Number.isInteger(s.mobileSelectedIndex) && s.mobileSelectedIndex >= 0) state.mobileSelectedIndex = s.mobileSelectedIndex;
         if (s.posters && typeof s.posters === 'object') state.posters = s.posters;
       }
     } catch (e) {}
     videoPosterMap = state.posters || {};
 
     /* ===== Helpers ===== */
-    function allImages() {
-      var custom = state.images.filter(function(src) {
-        return defaults.indexOf(src) === -1;
+    function libraryDefaults(target) {
+      return target === 'mobile' ? mobileDefaults : defaults;
+    }
+    function libraryImages(target) {
+      var base = libraryDefaults(target);
+      var custom = (target === 'mobile' ? state.mobileImages : state.images).filter(function(src) {
+        return base.indexOf(src) === -1;
       });
-      return defaults.concat(custom);
+      return base.concat(custom);
+    }
+    function activeLibrary() {
+      // Until portrait wallpapers exist, existing PC wallpaper remains the fallback.
+      return isMobileViewport() && libraryImages('mobile').length > 0 ? 'mobile' : 'desktop';
+    }
+    function allImages() {
+      return libraryImages(activeLibrary());
+    }
+    function selectedIndexFor(target) {
+      return target === 'mobile' ? state.mobileSelectedIndex : state.selectedIndex;
+    }
+    function setSelectedIndexFor(target, value) {
+      if (target === 'mobile') state.mobileSelectedIndex = value;
+      else state.selectedIndex = value;
     }
 
     function prepareWallpaperImage(src, priority, sizesOverride) {
@@ -1179,6 +1256,10 @@ const DEFAULT_OPACITY = 0.45;
           opacity: state.opacity,
           quality: state.quality,
           selectedIndex: state.selectedIndex,
+          mobileSelectedIndex: state.mobileSelectedIndex,
+          mobileImages: state.mobileImages.filter(function(src) {
+            return mobileDefaults.indexOf(src) === -1;
+          }),
           images: state.images.filter(function(src) {
             return defaults.indexOf(src) === -1;
           }),
@@ -1200,15 +1281,24 @@ const DEFAULT_OPACITY = 0.45;
       }
     }
 
-    function addCustomSource(src) {
-      state.images.push(src);
+    function targetForUpload() {
+      return mediaPanel && mediaPanel.classList.contains('open')
+        ? mediaLibrary
+        : (isMobileViewport() ? 'mobile' : 'desktop');
+    }
+    function addCustomSource(src, target) {
+      var library = target || targetForUpload();
+      var previousActive = activeLibrary();
+      var collection = library === 'mobile' ? state.mobileImages : state.images;
+      if (libraryImages(library).indexOf(src) !== -1) return true;
+      collection.push(src);
       if (!save()) {
-        state.images.pop();
+        collection.pop();
         syncUI();
         return false;
       }
       syncUI();
-      restartSlideshow();
+      if (library === activeLibrary() || previousActive !== activeLibrary()) restartSlideshow();
       return true;
     }
 
@@ -1313,6 +1403,7 @@ const DEFAULT_OPACITY = 0.45;
       opacityVal.textContent = Math.round(state.opacity * 100) + '%';
       qualitySelect.value = state.quality;
       if (mediaCount) mediaCount.textContent = String(allImages().length);
+      if (mediaUploadTarget) mediaUploadTarget.textContent = isMobileViewport() ? '当前为手机端背景库' : '当前为电脑端背景库';
       if (mediaPanel && mediaPanel.classList.contains('open')) renderList();
       applyOverlay();
       document.dispatchEvent(new CustomEvent('lidure:sakura-setting', { detail: { enabled: state.sakura } }));
@@ -1353,26 +1444,32 @@ const DEFAULT_OPACITY = 0.45;
     });
 
     function renderList() {
-      var imgs = allImages();
+      var target = mediaLibrary;
+      var base = libraryDefaults(target);
+      var imgs = libraryImages(target);
       var total = imgs.length;
-      var customCount = total - defaults.length;
-      if (mediaCount) mediaCount.textContent = String(total);
+      if (mediaCount) mediaCount.textContent = String(allImages().length);
+      if (mediaLibraryDesktopButton) mediaLibraryDesktopButton.setAttribute('aria-pressed', String(target === 'desktop'));
+      if (mediaLibraryMobileButton) mediaLibraryMobileButton.setAttribute('aria-pressed', String(target === 'mobile'));
+      if (mediaLibraryHint) mediaLibraryHint.textContent = target === 'mobile'
+        ? (total ? '这套背景只在手机窄屏上显示；可以独立选择和添加。' : '手机背景库暂无图片，手机会继续使用电脑端壁纸。可点击右上角 + 添加。')
+        : '此处的背景只在电脑或未配置手机库时使用；手机库不会影响电脑。';
 
       if (!mediaPanelBody) return;
       if (!total) {
-        mediaPanelBody.innerHTML = '<div class="media-panel-empty">暂无媒体，点击右上角 + 添加</div>';
+        mediaPanelBody.innerHTML = '<div class="media-panel-empty">暂无手机端背景，点击右上角 + 添加竖屏图片。上传后手机端自动使用此库；电脑端不受影响。</div>';
         return;
       }
       mediaPanelBody.innerHTML = '';
       var grid = document.createElement('div');
-      grid.className = 'media-grid';
+      grid.className = 'media-grid' + (target === 'mobile' ? ' mobile-wallpapers' : '');
 
       imgs.forEach(function(src, i) {
-        var isDefault = i < defaults.length;
+        var isDefault = i < base.length;
         var video = isVideo(src);
         var card = document.createElement('div');
         card.className = 'media-card';
-        if (!state.autoplay && i === state.selectedIndex % imgs.length) {
+        if (!state.autoplay && i === selectedIndexFor(target) % imgs.length) {
           card.classList.add('active');
         }
 
@@ -1410,14 +1507,15 @@ const DEFAULT_OPACITY = 0.45;
           del.title = '删除';
           del.onclick = function(e) {
             e.stopPropagation();
-            var customIdx = i - defaults.length;
-            state.images.splice(customIdx, 1);
-            if (state.selectedIndex >= imgs.length - 1) {
-              state.selectedIndex = Math.max(0, state.selectedIndex - 1);
+            var customIdx = i - base.length;
+            var previousActive = activeLibrary();
+            (target === 'mobile' ? state.mobileImages : state.images).splice(customIdx, 1);
+            if (selectedIndexFor(target) >= imgs.length - 1) {
+              setSelectedIndexFor(target, Math.max(0, imgs.length - 2));
             }
             save();
             syncUI();
-            restartSlideshow();
+            if (target === activeLibrary() || previousActive !== activeLibrary()) restartSlideshow();
           };
           card.appendChild(del);
         }
@@ -1434,10 +1532,10 @@ const DEFAULT_OPACITY = 0.45;
         card.appendChild(previewBtn);
 
         card.onclick = function() {
-          state.selectedIndex = i;
+          setSelectedIndexFor(target, i);
           save();
           renderList();
-          restartSlideshow();
+          if (target === activeLibrary()) restartSlideshow();
         };
 
         grid.appendChild(card);
@@ -1679,7 +1777,7 @@ const DEFAULT_OPACITY = 0.45;
       var imgs = allImages();
       if (!imgs.length) return;
       if (!state.autoplay) {
-        var si = state.selectedIndex % imgs.length;
+        var si = selectedIndexFor(activeLibrary()) % imgs.length;
         loadAt(si);
         return;
       }
@@ -1776,6 +1874,7 @@ const DEFAULT_OPACITY = 0.45;
 
     function handleFiles(files) {
       var quality = state.quality;
+      var target = targetForUpload();
       Array.from(files).forEach(function(file) {
         if (file.type.startsWith('video/')) {
           alert('为避免手机浏览器原生播放覆盖页面，背景视频请用 URL 添加；移动端会自动使用静态封面。');
@@ -1783,7 +1882,7 @@ const DEFAULT_OPACITY = 0.45;
         } else if (file.type.startsWith('image/')) {
           // Image: compress based on quality setting
           compressImage(file, quality).then(function(dataUrl) {
-            addCustomSource(dataUrl);
+            addCustomSource(dataUrl, target);
           }).catch(function(err) {
             console.warn('Image processing failed:', err);
           });
@@ -1816,17 +1915,25 @@ const DEFAULT_OPACITY = 0.45;
     function addUrl() {
       var url = urlInput.value.trim();
       if (!url) return;
-      if (!addCustomSource(url)) return;
+      if (!addCustomSource(url, targetForUpload())) return;
       urlInput.value = '';
     }
 
     if (mediaManageBtn) {
       mediaManageBtn.addEventListener('click', function() {
         settingsPanel.classList.remove('open');
+        mediaLibrary = isMobileViewport() ? 'mobile' : 'desktop';
         mediaPanel.classList.add('open');
         renderList();
       });
     }
+
+    if (mediaLibraryDesktopButton) mediaLibraryDesktopButton.addEventListener('click', function() {
+      mediaLibrary = 'desktop'; renderList();
+    });
+    if (mediaLibraryMobileButton) mediaLibraryMobileButton.addEventListener('click', function() {
+      mediaLibrary = 'mobile'; renderList();
+    });
 
     if (mediaPanelBack) {
       mediaPanelBack.addEventListener('click', function() {
@@ -1859,6 +1966,15 @@ const DEFAULT_OPACITY = 0.45;
     }
     _heroLifecycleController = typeof AbortController === 'function' ? new AbortController() : null;
     var lifecycleOptions = _heroLifecycleController ? { signal: _heroLifecycleController.signal } : undefined;
+
+    var viewportMode = window.matchMedia && window.matchMedia('(max-width: 760px)');
+    if (viewportMode && viewportMode.addEventListener) {
+      viewportMode.addEventListener('change', function() {
+        idx = 0;
+        syncUI();
+        restartSlideshow();
+      }, lifecycleOptions);
+    }
 
     document.addEventListener('visibilitychange', function() {
       if (document.hidden) stop();
