@@ -320,3 +320,132 @@ html[data-reduce-motion="true"] .message-color-choice { transition: none !import
 html[data-reduce-motion="true"] .sticky-note:hover,
 html[data-reduce-motion="true"] .sticky-note:focus-visible,
 html[data-reduce-motion="true"] .sticky-note.dragging { --note-scale: 1; }
+
+
+/* Phone reading mode: full-size notes instead of forcing a 720px horizontal canvas.
+   The wall mode remains available for spatial notes and interactive public stickers. */
+.message-board-mobile-hint,
+.message-board-view-toggle { display: none; }
+
+@media (max-width: 720px) {
+  .message-board { min-width: 0; }
+  .message-board-toolbar { gap: .75rem; }
+  .message-board-toolbar h2 { font-size: clamp(1.25rem, 5.5vw, 1.6rem); }
+  .message-board-toolbar p { font-size: .88rem; line-height: 1.6; }
+  .message-board-toolbar-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+    gap: .55rem;
+  }
+  .message-board-count { grid-column: 1 / -1; }
+  .message-board-view-toggle {
+    display: block;
+    grid-column: 1 / -1;
+    border-color: color-mix(in srgb, var(--accent) 44%, var(--panel-border));
+  }
+  .message-board-toolbar-actions > button { min-height: 44px; padding: .65rem .55rem; font-size: .88rem; }
+  .message-board-mobile-hint {
+    display: block;
+    margin: -.15rem 0 .85rem;
+    font-size: .79rem;
+    line-height: 1.6;
+    color: var(--muted);
+  }
+  .message-board-viewport { margin-inline: 0; border-width: 6px; }
+  .message-board:not([data-mobile-view="wall"]) .message-board-viewport { overflow-x: hidden; }
+  .message-board:not([data-mobile-view="wall"]) .message-board-stage {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 260px;
+    height: auto !important;
+    padding: 1rem;
+    overflow: visible;
+  }
+  .message-board:not([data-mobile-view="wall"]) .sticky-note {
+    position: relative;
+    left: auto;
+    top: auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 150px;
+    height: auto;
+    padding: 1.45rem 1rem .85rem;
+    border-radius: 4px 5px 9px 4px;
+    transform: none !important;
+    touch-action: pan-y;
+    cursor: pointer;
+  }
+  .message-board:not([data-mobile-view="wall"]) .sticky-note-text { font-size: .95rem; line-height: 1.7; }
+  .message-board:not([data-mobile-view="wall"]) .sticky-note-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    flex-wrap: wrap;
+  }
+  .message-board:not([data-mobile-view="wall"]) .message-public-sticker-layer { display: none; }
+  .message-board:not([data-mobile-view="wall"]) .message-board-empty,
+  .message-board:not([data-mobile-view="wall"]) .message-board-loading,
+  .message-board:not([data-mobile-view="wall"]) .message-board-retry {
+    position: relative;
+    left: auto;
+    top: auto;
+    transform: none;
+    align-self: center;
+    max-width: 100%;
+    text-align: center;
+  }
+  .message-board[data-mobile-view="wall"] .message-board-viewport {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .message-composer-backdrop {
+    box-sizing: border-box;
+    padding: max(.75rem, env(safe-area-inset-top)) max(.75rem, env(safe-area-inset-right))
+      max(.75rem, env(safe-area-inset-bottom)) max(.75rem, env(safe-area-inset-left));
+    overflow-y: auto;
+  }
+  .message-composer {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 520px;
+    max-height: calc(100dvh - 1.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    padding: 1.15rem 1rem 1rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .message-composer input,
+  .message-composer textarea,
+  .message-admin-panel input,
+  .message-drawer .public-comment-form input { font-size: 16px; }
+  .message-composer-submit,
+  .message-composer form > .message-board-primary { min-height: 46px; width: 100%; }
+  .message-color-choice { width: 44px; height: 44px; }
+  .message-surface-close {
+    min-width: 44px;
+    min-height: 44px;
+    top: .35rem;
+    right: .35rem;
+  }
+  .message-drawer {
+    box-sizing: border-box;
+    max-height: 86dvh;
+    padding: 1.1rem 1rem calc(1rem + env(safe-area-inset-bottom));
+    overscroll-behavior: contain;
+    scroll-padding-bottom: 1rem;
+  }
+  .message-drawer-actions button,
+  .message-drawer-reactions button { min-height: 44px; }
+  .message-admin-content input { flex: 1 1 180px; min-width: 0; width: auto; }
+  .message-admin-content button { min-height: 44px; }
+}
+
+@media (max-width: 370px) {
+  .message-board:not([data-mobile-view="wall"]) .message-board-stage { padding: .75rem; gap: .8rem; }
+  .message-board:not([data-mobile-view="wall"]) .sticky-note { padding-inline: .8rem; }
+}
