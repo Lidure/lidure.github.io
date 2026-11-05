@@ -130,8 +130,13 @@
       indicator?.style.removeProperty('bottom');
     }
 
+    function isMobileFullscreen() {
+      return isFullscreen() && window.matchMedia?.('(max-width: 760px)').matches === true;
+    }
+
     function readMaxBlur() {
-      const blurRaw = getComputedStyle(root).getPropertyValue('--wallpaper-blur');
+      const property = isMobileFullscreen() ? '--mobile-fullscreen-blur' : '--wallpaper-blur';
+      const blurRaw = getComputedStyle(root).getPropertyValue(property);
       return Math.max(0, Math.min(20, Number.parseFloat(blurRaw) || 0));
     }
 
@@ -160,9 +165,13 @@
       else indicator?.classList.remove('hide');
 
       const blurRatio = Math.min(scrollY / 300, 1);
-      const quantized = blurRatio >= 1
+      // Keep phone wallpapers at their selected blur (1px by default) while
+      // preserving the original desktop-only scroll blur ramp.
+      const quantized = isMobileFullscreen()
         ? maxBlur
-        : Math.floor((maxBlur * blurRatio) / 2) * 2;
+        : blurRatio >= 1
+          ? maxBlur
+          : Math.floor((maxBlur * blurRatio) / 2) * 2;
       hero?.style.setProperty('--fullscreen-scroll-blur', `${quantized}px`);
     }
 
