@@ -373,7 +373,7 @@
       setChecked('toggle-card-border', settings.cardBorder !== false);
       setChecked('toggle-card-follow-theme', settings.cardFollowTheme === true);
       var blur = isMobileFullscreenMode(settings)
-        ? (settings.mobileFullscreenBlur ?? 1)
+        ? (settings.mobileFullscreenBlur ?? 0)
         : (settings.backgroundBlur ?? 5);
       setValue('background-blur-range', blur);
       setText('background-blur-val', Math.round(blur) + 'px');
@@ -456,7 +456,7 @@
       var opacity = document.getElementById('opacity-range'); if (opacity) { opacity.value = '45'; opacity.dispatchEvent(new Event('input', { bubbles: true })); }
       var quality = document.getElementById('quality-select'); if (quality) { quality.value = 'high'; quality.dispatchEvent(new Event('change', { bubbles: true })); }
       sync(writeSettings({
-        wallpaperMode: 'fullscreen', backgroundBlur: 5, mobileFullscreenBlur: 1, cardOpacity: 0.92,
+        wallpaperMode: 'fullscreen', backgroundBlur: 5, mobileFullscreenBlur: 0, cardOpacity: 0.92,
         bannerGradient: true, bannerTitle: true,
         waveEnabled: true, waveStrength: 'standard', waveSpeed: 'normal', waveMobile: true
       }));
