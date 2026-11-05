@@ -401,6 +401,8 @@ export function initMessageStickerBoard() {
       setBoardStatus('这台设备已经贴了 5 张公共贴纸，先删掉一张再来吧。', true);
       return;
     }
+    // Sticker coordinates belong to the original wall, not the mobile reading list.
+    window.dispatchEvent(new Event('message-board-request-wall-view'));
     placingStickerKey = stickerKey;
     selectedStickerId = '';
     previewLogical = null;
