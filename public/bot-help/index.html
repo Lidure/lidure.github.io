@@ -168,6 +168,10 @@
     .nodes .howto { margin-top: 0; }
     .nodes .howto details { background: #fff; }
     .nodes .howto-body .commands { margin-top: 14px; }
+    .gallery-online{display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px solid #ebdbe8;background:linear-gradient(110deg,#fff3f9,#f9f5ff);padding:15px 17px;border-radius:16px;margin:17px 0 21px}
+    .gallery-online strong{font-size:13px;color:#59455d}.gallery-online p{font-size:12px;color:#7c7184;line-height:1.8;margin:5px 0 0}.gallery-online .btn{white-space:nowrap;font-size:12px;flex-shrink:0}
+    .passive{scroll-margin-top:82px;margin:58px 0 0}.passive details{background:white;border:1px solid var(--line);border-radius:17px;padding:16px 19px;margin:10px 0;box-shadow:0 5px 24px #cca4b218}.passive summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:850}.passive summary::-webkit-details-marker{display:none}.passive summary::after{content:"＋";font-weight:500;color:#ce759f;font-size:20px;flex-shrink:0}.passive details[open] summary::after{content:"－"}.passive-body{border-top:1px solid var(--line);padding-top:15px;margin-top:11px;font-size:13px;color:#796e81;line-height:1.85}.passive-body p{margin:0 0 13px}.passive-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.passive-stat{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid #f0e4ed;background:#fff9fc;border-radius:11px;padding:10px 12px;font-size:12px}.passive-stat strong{font-variant-numeric:tabular-nums;white-space:nowrap;color:#b85386}.passive-note{background:#f9f6ff;border:1px solid #eee5f6;border-radius:12px;padding:12px;color:#766b80;font-size:12px;line-height:1.9}.passive-chips{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 15px}.passive-chips span{padding:5px 9px;border-radius:8px;background:#f9f1f7;font-size:12px;color:#9c6790}
+    @media(max-width:580px){.gallery-online{flex-direction:column;align-items:stretch}.gallery-online .btn{width:100%}.passive{margin-top:47px}.passive details{padding:14px}.passive-grid{grid-template-columns:1fr}}
     .faq { scroll-margin-top: 90px; margin-top: 62px; margin-bottom: 68px; }
     .faq-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
     .faq details { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; }
@@ -330,6 +334,7 @@
             <li><strong>挑喜欢的分类。</strong>比如列表里有 <span class="inline-command">airi</span>，发送 <span class="inline-command">看airi</span> 就会随机收到一张图片。</li>
             <li><strong>想看更多？</strong>发送 <span class="inline-command">看airi 10</span> 随机看 10 张；或者 <span class="inline-command">看全部airi</span> 查看<strong>带编号的图片总览</strong>，再挑指定编号。</li>
           </ol>
+          <div class="gallery-online"><div><strong>🌐 画廊也能直接在网页里预览</strong><p>手机或电脑打开在线画廊，就能浏览分类和图片，不需要先在 QQ 发送看图命令。管理、上传等操作可能需要额外权限。</p></div><a class="btn btn-secondary" href="https://lidure22.xyz/gallery/" target="_blank" rel="noopener noreferrer">打开在线画廊 ↗</a></div>
           <div class="guide-caption">直接复制就能发送的示例</div>
           <div class="commands">
             <div class="command-item"><span class="command-title">看看现在有哪些分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
@@ -594,9 +599,44 @@
       </div>
     </section>
 
-    <section id="nodes" class="faq nodes" aria-labelledby="nodes-title">
+<section id="passive" class="passive" aria-labelledby="passive-title">
+      <div class="section-top"><div><span class="section-label">03 · AUTO INTERACTIONS</span><h2 id="passive-title">✨ 不用指令，也会发生的互动</h2><p class="section-note">戳一戳、QQ 空间点赞与资料卡回赞，都是被动触发的功能。</p></div></div>
+      <details><summary>👆 戳一戳小浅子，会随机得到什么？</summary><div class="passive-body">
+        <p>在 QQ 中使用「戳一戳」戳<strong>小浅子本人</strong>后，会随机选一种回复。以下是按当前配置权重计算的<strong>理论概率</strong>：</p>
+        <div class="passive-grid">
+          <div class="passive-stat"><span>🖼️ 随机发送爱莉画廊图片</span><strong>53.57%</strong></div>
+          <div class="passive-stat"><span>🎲 随机执行看图、抽表情命令</span><strong>43.45%</strong></div>
+          <div class="passive-stat"><span>👆 反戳你</span><strong>1.79%</strong></div>
+          <div class="passive-stat"><span>🎤 发送语音</span><strong>0.60%</strong></div>
+          <div class="passive-stat"><span>🤫 尝试禁言互动（需要群权限）</span><strong>0.60%</strong></div>
+          <div class="passive-stat"><span>💬 直接 AI 回复 / 系统 QQ 表情</span><strong>当前 0%</strong></div>
+        </div>
+        <p style="margin-top:17px"><strong>抽到“执行命令”后，还会随机挑选：</strong></p>
+        <div class="passive-grid">
+          <div class="passive-stat"><span><code>抽表情</code></span><strong>40%</strong></div>
+          <div class="passive-stat"><span><code>看图片</code></span><strong>20%</strong></div>
+          <div class="passive-stat"><span><code>看szk</code>、<code>看mnr</code></span><strong>各 10%</strong></div>
+          <div class="passive-stat"><span><code>看hrk</code>、<code>看miku图片</code></span><strong>各 10%</strong></div>
+        </div>
+        <p class="passive-note" style="margin-top:13px">这里的 40%、20% 等是<strong>已经选中“命令回复”之后的二次随机比例</strong>，不是全部戳一戳的概率。实际是否成功发送还取决于插件、图库和 QQ 网络。</p>
+        <p class="passive-note">⏱️ 同一人在同群约 <strong>10 秒冷却</strong>，同一群整体约 <strong>2 秒冷却</strong>。当群友戳的是其他成员时，Bot 也有约 <strong>9%</strong> 的概率跟着戳一次（同样受冷却限制）。</p>
+      </div></details>
+      <details><summary>❤️ 小浅子会给 QQ 好友的空间动态自动点赞吗？</summary><div class="passive-body">
+        <p><strong>会尝试。</strong>目前自动点赞已开启，会定期扫描部分 QQ 好友的新说说，并尝试点赞，不需要好友发送命令。</p>
+        <p>当前设置约每 <strong>5 分钟</strong>巡检一次，按批次处理而非实时遍历全部好友。<strong>有时会漏赞，无法保证每条动态都被覆盖。</strong></p>
+        <div class="passive-chips"><span>好友可见范围与隐私权限</span><span>QQ 空间接口波动</span><span>扫描批次与队列</span><span>点赞上限、风控</span></div>
+        <p class="passive-note">这是<strong>QQ 空间说说点赞</strong>，和下面的<strong>资料卡点赞</strong>不是同一件事。</p>
+      </div></details>
+      <details><summary>👍 点赞小浅子的 QQ 资料卡，会自动回赞吗？</summary><div class="passive-body">
+        <p><strong>会尝试回赞。</strong>当你给小浅子资料卡点赞、Bot 正常收到 QQ 的点赞通知后，就会尝试给你的资料卡回赞，<strong>无需发送命令</strong>。</p>
+        <p>当前按每位用户<strong>每天最多尝试一轮</strong>处理，单轮最多尝试 <strong>50 个赞</strong>。实际成功数量受 QQ 每日限额、双方关系与接口权限限制，重复点赞不会无限触发。</p>
+        <p class="passive-note">另外，发送 <span class="inline-command">赞我</span> 可以主动请求名片赞，<span class="inline-command">/订阅点赞</span> 可尝试订阅每日点赞。这需要用户主动操作，和收到赞后的自动回赞不同。</p>
+      </div></details>
+    </section>
+
+        <section id="nodes" class="faq nodes" aria-labelledby="nodes-title">
       <div class="section-top">
-        <div><span class="section-label">03 · CONNECTED SERVICES</span><h2 id="nodes-title">🧩 节点与独立服务</h2><p class="section-note">小浅子接入了不同服务。普通用户不用弄懂技术名称，找到对应命令即可。</p></div>
+        <div><span class="section-label">04 · CONNECTED SERVICES</span><h2 id="nodes-title">🧩 节点与独立服务</h2><p class="section-note">小浅子接入了不同服务。普通用户不用弄懂技术名称，找到对应命令即可。</p></div>
       </div>
       <div class="howto">
         <details><summary>🎵 世界计划 · Haruki 节点（PJSK）</summary><div class="howto-body">
@@ -642,7 +682,7 @@
     </section>
 
     <section id="faq" class="faq" aria-labelledby="faq-title">
-      <div class="section-top"><div><span class="section-label">04 · LITTLE TIPS</span><h2 id="faq-title">还有一点小提醒</h2><p class="section-note">遇到问题时，不用着急。</p></div></div>
+      <div class="section-top"><div><span class="section-label">05 · LITTLE TIPS</span><h2 id="faq-title">还有一点小提醒</h2><p class="section-note">遇到问题时，不用着急。</p></div></div>
       <div class="faq-grid">
         <details><summary>命令发了没反应？</summary><p>检查命令有没有写错，是否需要“/”前缀；群聊里聊天请正确 @小浅子。部分功能可能有冷却时间或权限限制。</p></details>
         <details><summary>游戏查询或自动签到提示未绑定？</summary><p>绑定游戏 UID 和登录游戏社区是两回事。进入「游戏工具」展开对应社区的自动签到教程，按步骤登录、开启。</p></details>
