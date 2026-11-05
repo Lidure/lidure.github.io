@@ -22,7 +22,7 @@ test('Airi manual has exactly 24 unique functions across four expandable categor
   const cats=[...page.matchAll(/class="category" id="([^"]+)"/g)].map(x=>x[1]);
   assert.deepEqual(cats,['games','entertainment','utilities','board']);
   for(const [category,size] of [['games',5],['entertainment',8],['utilities',8],['board',3]]){
-    const section=page.split('data-category="'+category+'"')[1].split('</details>')[0];
+    const section=page.split('data-category="'+category+'"')[1].split('</div>\n </details>')[0];
     assert.equal((section.match(/data-tool="/g)||[]).length,size,category);
   }
 });
