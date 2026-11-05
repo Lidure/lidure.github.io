@@ -125,15 +125,20 @@ test('mobile fullscreen blur defaults to 1px and remains independent from deskto
   assert.equal(applied['--mobile-fullscreen-blur'], '3px');
 });
 
-test('fullscreen phone blur stays constant while desktop scroll ramp remains intact', () => {
+test('fullscreen phone blur ramps from 0px to its 1px default while desktop behavior stays intact', () => {
   const controller = readFileSync(new URL('../src/components/FullscreenWallpaperController.astro', import.meta.url), 'utf8');
   const panel = readFileSync(new URL('../src/components/VisualSettingsPanel.astro', import.meta.url), 'utf8');
   const layout = readFileSync(new URL('../src/layouts/BaseLayout.astro', import.meta.url), 'utf8');
 
   assert.match(controller, /function isMobileFullscreen\(\)/);
   assert.match(controller, /isMobileFullscreen\(\) \? '--mobile-fullscreen-blur' : '--wallpaper-blur'/);
-  assert.match(controller, /const quantized = isMobileFullscreen\(\)\s*\? maxBlur/);
+  assert.match(controller, /const scrollBlur = isMobileFullscreen\(\)\s*\? Math\.round\(maxBlur \* blurRatio \* 100\) \/ 100/);
   assert.match(controller, /Math\.floor\(\(maxBlur \* blurRatio\) \/ 2\) \* 2/);
+  const mobileBlur = (max, scrollY) => Math.round(max * Math.min(scrollY / 300, 1) * 100) / 100;
+  assert.equal(mobileBlur(1, 0), 0, 'unscrolled mobile home hero must stay sharp');
+  assert.equal(mobileBlur(1, 150), 0.5, 'mobile scroll blur should grow gradually');
+  assert.equal(mobileBlur(1, 300), 1, 'mobile blur tops out at 1px by default');
+  assert.equal(mobileBlur(1, 600), 1, 'mobile blur must not exceed configured maximum');
   assert.match(panel, /isMobileFullscreenMode\(readSettings\(\)\) \? 'mobileFullscreenBlur' : 'backgroundBlur'/);
   assert.match(panel, /mobileFullscreenBlur: 1/);
   assert.match(layout, /root\.style\.setProperty\('--mobile-fullscreen-blur', mobileFullscreenBlur \+ 'px'\)/);
