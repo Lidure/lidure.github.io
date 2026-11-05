@@ -173,6 +173,8 @@ export function initMessageBoard() {
   const drawerContent = byId<HTMLElement>('message-drawer-content');
   const composer = byId<HTMLElement>('message-composer');
   const composeOpen = byId<HTMLButtonElement>('message-compose-open');
+  const viewToggle = byId<HTMLButtonElement>('message-board-view-toggle');
+  const mobileHint = byId<HTMLElement>('message-board-mobile-hint');
   const composerForm = byId<HTMLFormElement>('message-composer-form');
   const composerUser = byId<HTMLInputElement>('message-composer-user');
   const composerText = byId<HTMLTextAreaElement>('message-composer-text');
@@ -204,6 +206,28 @@ export function initMessageBoard() {
   let lastFocus: HTMLElement | null = null;
   let selectedColor: MessageNoteMeta['color'] = NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)];
   let editingMessageId = '';
+  let lastMobileListMode = false;
+
+  function isMobileListMode() {
+    return window.matchMedia('(max-width: 720px)').matches && boardRoot.dataset.mobileView !== 'wall';
+  }
+
+  function setMobileView(view: 'list' | 'wall') {
+    boardRoot.dataset.mobileView = view;
+    const showingWall = view === 'wall';
+    if (viewToggle) {
+      viewToggle.textContent = showingWall ? '切换便签列表' : '查看留言墙';
+      viewToggle.setAttribute('aria-pressed', String(showingWall));
+    }
+    if (mobileHint) {
+      mobileHint.textContent = showingWall
+        ? '左右滑动浏览完整留言墙；点按便签查看详情，长按后可拖动。'
+        : '按时间浏览便签，点按查看详情与评论；切换到留言墙可拖动便签、摆放贴纸。';
+    }
+    if (!showingWall) boardViewport.scrollLeft = 0;
+    lastMobileListMode = isMobileListMode();
+    renderAll();
+  }
 
   if (composerUser) composerUser.value = getStoredUserId();
 
@@ -495,6 +519,8 @@ export function initMessageBoard() {
     }, { signal: controller.signal });
 
     note.addEventListener('pointerdown', (event) => {
+      // Mobile list cards are for reading; their logical corkboard coordinates must not change.
+      if (isMobileListMode()) return;
       if ((event.target as HTMLElement).closest('button')) return;
       if (event.button !== 0) return;
       const current = state.messages.get(message.id);
@@ -557,7 +583,9 @@ export function initMessageBoard() {
 
   function renderAll() {
     boardStage.innerHTML = '';
-    const messages = [...state.messages.values()].sort((a, b) => a.createdAt - b.createdAt || a.id.localeCompare(b.id));
+    const messages = [...state.messages.values()].sort((a, b) => isMobileListMode()
+      ? b.createdAt - a.createdAt || b.id.localeCompare(a.id)
+      : a.createdAt - b.createdAt || a.id.localeCompare(b.id));
     if (!messages.length) {
       const empty = document.createElement('p');
       empty.className = 'message-board-empty';
@@ -595,7 +623,9 @@ export function initMessageBoard() {
       state.nextBefore = page.nextBefore;
       state.syncCursor = Math.max(state.syncCursor, page.nextCursor);
       renderAll();
-      setStatus(state.messages.size ? '拖一拖便签试试看，点一下可以展开详情。手机端长按后再拖动。' : '还没有人贴便签。');
+      setStatus(state.messages.size
+        ? (isMobileListMode() ? '按时间浏览留言，点一下便签可查看详情和评论。' : '拖一拖便签试试看，点一下可以展开详情。手机端长按后再拖动。')
+        : '还没有人贴便签。');
     } catch (error) {
       setStatus(friendlyError(error), true);
       boardStage.innerHTML = '<button type="button" class="message-board-retry">重新加载</button>';
@@ -655,6 +685,14 @@ export function initMessageBoard() {
   }
 
   buildColorOptions();
+  viewToggle?.addEventListener('click', () => {
+    setMobileView(boardRoot.dataset.mobileView === 'wall' ? 'list' : 'wall');
+  }, { signal: controller.signal });
+  window.addEventListener('message-board-request-wall-view', () => {
+    if (!window.matchMedia('(max-width: 720px)').matches) return;
+    setMobileView('wall');
+    boardViewport.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, { signal: controller.signal });
   composeOpen?.addEventListener('click', () => openComposer(), { signal: controller.signal });
 
   composerForm?.addEventListener('submit', async (event) => {
@@ -693,12 +731,15 @@ export function initMessageBoard() {
     }
   }, { signal: controller.signal });
 
-  boardRoot.querySelectorAll<HTMLElement>('[data-message-close]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const target = button.dataset.messageClose;
-      if (target === 'drawer') closeDrawer();
-      if (target === 'composer') closeComposer();
-    }, { signal: controller.signal });
+  // Both dialogs are portaled to <body>, so querying only the board root misses their close buttons.
+  [composer, drawer].forEach((surface) => {
+    surface?.querySelectorAll<HTMLElement>('[data-message-close]').forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.messageClose;
+        if (target === 'drawer') closeDrawer();
+        if (target === 'composer') closeComposer();
+      }, { signal: controller.signal });
+    });
   });
 
   adminLogin?.addEventListener('click', async () => {
@@ -750,7 +791,16 @@ export function initMessageBoard() {
     loadPage(state.nextBefore).finally(() => { loadOlder.disabled = false; });
   }, { signal: controller.signal });
 
-  const resizeObserver = new ResizeObserver(() => updateStageHeight());
+  lastMobileListMode = isMobileListMode();
+  const resizeObserver = new ResizeObserver(() => {
+    const nowMobileList = isMobileListMode();
+    if (nowMobileList !== lastMobileListMode) {
+      lastMobileListMode = nowMobileList;
+      renderAll();
+    } else {
+      updateStageHeight();
+    }
+  });
   resizeObserver.observe(boardViewport);
   void loadPage().then(startPolling);
   void refreshAdminSession();
