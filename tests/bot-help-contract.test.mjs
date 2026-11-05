@@ -165,3 +165,33 @@ test('node help differentiates Haruki slash commands and GsCore no-slash command
   assert.doesNotMatch(html, /AstrBot 与 SnowLuma：帮助和状态/);
   assert.doesNotMatch(html, /SnowLuma · Haruki/);
 });
+
+test('passive interaction guide accurately documents current Poke weighted responses', () => {
+  assert.match(html, /id="passive"/);
+  for (const value of ['53.57%', '43.45%', '1.79%', '0.60%', '40%', '20%', '10%']) {
+    assert.ok(html.includes(value), 'Expected current Poke probability '+value);
+  }
+  for (const command of ['抽表情','看图片','看szk','看mnr','看hrk','看miku图片']) {
+    assert.ok(html.includes(command), 'Expected Poke action '+command);
+  }
+  assert.match(html, /二次随机比例/);
+  assert.match(html, /10 秒冷却/);
+  assert.match(html, /2 秒冷却/);
+});
+
+test('passive guide distinguishes Qzone auto-like and profile-like reciprocation', () => {
+  assert.match(html, /QQ 好友的空间动态自动点赞/);
+  assert.match(html, /5 分钟/);
+  assert.match(html, /无法保证每条动态都被覆盖/);
+  assert.match(html, /点赞通知/);
+  assert.match(html, /每天最多尝试一轮/);
+  assert.match(html, /50 个赞/);
+  assert.match(html, /\/订阅点赞/);
+});
+
+test('gallery includes a public, verified browser preview without losing QQ examples', () => {
+  assert.match(html, /href="https:\/\/lidure22\.xyz\/gallery\/"/);
+  assert.match(html, /在线画廊/);
+  assert.ok(copied.includes('看airi 10'));
+  assert.ok(copied.includes('看全部airi'));
+});
