@@ -51,7 +51,7 @@ test('invalid values are clamped or replaced', () => {
 
 test('v4 wallpaper defaults migrate the previous banner default but preserve explicit v4 choices', () => {
   const upgraded = normalizeVisualSettings({ version: 3, wallpaperMode: 'banner' });
-  assert.equal(upgraded.version, 4);
+  assert.equal(upgraded.version, 5);
   assert.equal(upgraded.wallpaperMode, 'fullscreen');
   assert.equal(normalizeVisualSettings({ version: 4, wallpaperMode: 'banner' }).wallpaperMode, 'banner');
   assert.equal(normalizeVisualSettings({ version: 3, wallpaperMode: 'overlay' }).wallpaperMode, 'overlay');
@@ -65,11 +65,11 @@ test('v4 visual defaults add waves while preserving unknown legacy keys', () => 
     waveSpeed: 'invalid',
   });
 
-  assert.equal(DEFAULT_VISUAL_SETTINGS.version, 4);
+  assert.equal(DEFAULT_VISUAL_SETTINGS.version, 5);
   assert.equal(DEFAULT_VISUAL_SETTINGS.wallpaperMode, 'fullscreen');
   assert.equal(DEFAULT_VISUAL_SETTINGS.backgroundBlur, 5);
   assert.equal(DEFAULT_VISUAL_SETTINGS.themeHue, 255);
-  assert.equal(value.version, 4);
+  assert.equal(value.version, 5);
   assert.equal(value.waveEnabled, true);
   assert.equal(value.waveStrength, 'standard');
   assert.equal(value.waveSpeed, 'normal');
@@ -99,10 +99,10 @@ test('v3 applies wave datasets to the root element', () => {
 });
 
 
-test('mobile fullscreen blur defaults to 1px and remains independent from desktop settings', () => {
+test('mobile fullscreen blur defaults to 0px and remains independent from desktop settings', () => {
   const defaults = normalizeVisualSettings({});
   assert.equal(defaults.backgroundBlur, 5);
-  assert.equal(defaults.mobileFullscreenBlur, 1);
+  assert.equal(defaults.mobileFullscreenBlur, 0);
 
   const customized = normalizeVisualSettings({
     backgroundBlur: 9,
@@ -125,7 +125,7 @@ test('mobile fullscreen blur defaults to 1px and remains independent from deskto
   assert.equal(applied['--mobile-fullscreen-blur'], '3px');
 });
 
-test('fullscreen phone blur ramps from 0px to its 1px default while desktop behavior stays intact', () => {
+test('fullscreen phone blur stays at 0px by default while desktop behavior stays intact', () => {
   const controller = readFileSync(new URL('../src/components/FullscreenWallpaperController.astro', import.meta.url), 'utf8');
   const panel = readFileSync(new URL('../src/components/VisualSettingsPanel.astro', import.meta.url), 'utf8');
   const layout = readFileSync(new URL('../src/layouts/BaseLayout.astro', import.meta.url), 'utf8');
@@ -135,11 +135,25 @@ test('fullscreen phone blur ramps from 0px to its 1px default while desktop beha
   assert.match(controller, /const scrollBlur = isMobileFullscreen\(\)\s*\? Math\.round\(maxBlur \* blurRatio \* 100\) \/ 100/);
   assert.match(controller, /Math\.floor\(\(maxBlur \* blurRatio\) \/ 2\) \* 2/);
   const mobileBlur = (max, scrollY) => Math.round(max * Math.min(scrollY / 300, 1) * 100) / 100;
-  assert.equal(mobileBlur(1, 0), 0, 'unscrolled mobile home hero must stay sharp');
+  assert.equal(mobileBlur(0, 0), 0, 'unscrolled mobile hero must stay sharp');
+  assert.equal(mobileBlur(0, 150), 0, 'default mobile hero stays sharp mid-scroll');
+  assert.equal(mobileBlur(0, 300), 0, 'default mobile hero stays sharp after 300px');
+  assert.equal(mobileBlur(0, 800), 0, 'default mobile hero stays sharp after long scroll');
+  assert.equal(mobileBlur(1, 0), 0, 'a manually chosen 1px blur starts sharp');
   assert.equal(mobileBlur(1, 150), 0.5, 'mobile scroll blur should grow gradually');
   assert.equal(mobileBlur(1, 300), 1, 'mobile blur tops out at 1px by default');
   assert.equal(mobileBlur(1, 600), 1, 'mobile blur must not exceed configured maximum');
   assert.match(panel, /isMobileFullscreenMode\(readSettings\(\)\) \? 'mobileFullscreenBlur' : 'backgroundBlur'/);
-  assert.match(panel, /mobileFullscreenBlur: 1/);
+  assert.match(panel, /mobileFullscreenBlur: 0/);
   assert.match(layout, /root\.style\.setProperty\('--mobile-fullscreen-blur', mobileFullscreenBlur \+ 'px'\)/);
+});
+
+test('v5 migration resets former 1px mobile default without altering PC blur', () => {
+  const old = normalizeVisualSettings({ version: 4, backgroundBlur: 9, mobileFullscreenBlur: 1 });
+  assert.equal(old.version, 5);
+  assert.equal(old.backgroundBlur, 9);
+  assert.equal(old.mobileFullscreenBlur, 0);
+  assert.equal(normalizeVisualSettings({ version: 4, mobileFullscreenBlur: 3 }).mobileFullscreenBlur, 3);
+  assert.equal(normalizeVisualSettings({ version: 5, mobileFullscreenBlur: 1 }).mobileFullscreenBlur, 1);
+  assert.equal(normalizeVisualSettings({ version: 4 }).mobileFullscreenBlur, 0);
 });
