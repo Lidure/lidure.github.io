@@ -13,12 +13,14 @@ import '../styles/message-board-public-stickers.css';
     </div>
     <div class="message-board-toolbar-actions">
       <span class="message-board-count"><strong id="message-board-count">—</strong> 张便签</span>
+      <button id="message-board-view-toggle" type="button" class="message-board-secondary message-board-view-toggle" aria-pressed="false" aria-controls="message-board-stage">查看留言墙</button>
       <button id="message-sticker-open" type="button" class="message-board-secondary message-sticker-trigger" aria-expanded="false" aria-controls="message-sticker-panel">贴纸屋</button>
       <button id="message-compose-open" type="button" class="message-board-primary">贴一张便签</button>
     </div>
   </header>
 
   <p id="message-board-status" class="message-board-status" aria-live="polite">正在看看墙上都贴了些什么…</p>
+  <p id="message-board-mobile-hint" class="message-board-mobile-hint">手机端优先展示便签列表；点按便签查看详情，切换到留言墙可以拖动便签和贴贴纸。</p>
 
   <div class="message-board-scene">
     <div id="message-board-viewport" class="message-board-viewport">
