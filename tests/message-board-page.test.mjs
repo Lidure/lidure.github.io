@@ -159,3 +159,25 @@ test('homepage keeps the array message API contract', () => {
   assert.match(recent, /item\.text/);
   assert.match(recent, /item\.createdAt/);
 });
+
+
+test('mobile message board offers readable list view and wall mode without breaking sticker placement', () => {
+  const board = read('src/components/MessageBoard.astro');
+  const controller = read('src/lib/message-board-controller.ts');
+  const stickerController = read('src/lib/message-sticker-controller.ts');
+  const css = read('src/styles/message-board.css');
+  const stickerCss = read('src/styles/message-board-public-stickers.css');
+
+  assert.match(board, /id="message-board-view-toggle"/);
+  assert.match(board, /id="message-board-mobile-hint"/);
+  assert.match(controller, /function isMobileListMode\(\)/);
+  assert.match(controller, /function setMobileView\(view:/);
+  assert.match(controller, /if \(isMobileListMode\(\)\) return;/);
+  assert.match(controller, /isMobileListMode\(\)[\s\S]*?b\.createdAt - a\.createdAt/);
+  assert.match(stickerController, /message-board-request-wall-view/);
+  assert.match(css, /@media \(max-width: 720px\)[\s\S]*?message-board:not\(\[data-mobile-view="wall"\]\) \.message-board-stage/);
+  assert.match(css, /message-board:not\(\[data-mobile-view="wall"\]\) \.sticky-note[\s\S]*?transform: none !important/);
+  assert.match(css, /message-composer textarea,[\s\S]*?message-admin-panel input,[\s\S]*?font-size: 16px/);
+  assert.match(stickerCss, /message-sticker-placement-bar span \{ white-space: normal/);
+  assert.match(controller, /\[composer, drawer\]\.forEach/);
+});
