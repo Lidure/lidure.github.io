@@ -15,9 +15,9 @@ test('bot help starts concise: quick-start and exactly six discoverable categori
   assert.match(html, /第一次来？试试这 4 个/);
   const quickStart = html.split('<div class="quick-grid">')[1].split('</section>')[0];
   assert.equal((quickStart.match(/class="quick-card"/g) || []).length, 4);
-  assert.deepEqual([...quickStart.matchAll(/<span class="step">(\\d)<\\/span>/g)].map((m) => Number(m[1])), [1, 2, 3, 4]);
+  assert.deepEqual([...quickStart.matchAll(/class="step">([0-9])</g)].map((m) => Number(m[1])), [1, 2, 3, 4]);
   assert.match(quickStart, /data-copy="签到"/);
-  assert.match(quickStart, /href="\\/bot-help\\/airi\\/#tool-collection"/);
+  assert.ok(quickStart.includes('href="/bot-help/airi/#tool-collection"'));
   assert.match(html, /data-open="games"/);
 });
 
