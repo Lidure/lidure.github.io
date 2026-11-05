@@ -344,6 +344,7 @@ html[data-reduce-motion="true"] .sticky-note.dragging { --note-scale: 1; }
     grid-column: 1 / -1;
     border-color: color-mix(in srgb, var(--accent) 44%, var(--panel-border));
   }
+  .message-board-view-toggle:disabled { opacity: .55; cursor: not-allowed; }
   .message-board-toolbar-actions > button { min-height: 44px; padding: .65rem .55rem; font-size: .88rem; }
   .message-board-mobile-hint {
     display: block;
