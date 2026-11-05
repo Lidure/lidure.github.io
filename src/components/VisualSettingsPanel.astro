@@ -69,8 +69,8 @@
           <input type="range" id="opacity-range" min="0" max="80" step="5" value="45" aria-label="遮罩强度" />
         </div>
         <div class="setting-group mode-fullscreen-only">
-          <div class="setting-heading"><span class="setting-label">背景模糊</span><span class="range-value" id="background-blur-val">6px</span></div>
-          <input type="range" id="background-blur-range" min="0" max="20" step="1" value="6" aria-label="透明壁纸背景模糊" />
+          <div class="setting-heading"><span class="setting-label">背景模糊</span><span class="range-value" id="background-blur-val">5px</span></div>
+          <input type="range" id="background-blur-range" min="0" max="20" step="1" value="5" aria-label="背景模糊" />
         </div>
         <div class="setting-group mode-fullscreen-only">
           <div class="setting-heading"><span class="setting-label">卡片透明度</span><span class="range-value" id="fullscreen-card-opacity-val">92%</span></div>
@@ -320,6 +320,10 @@
     function bridge() { return visualWindow.__lidureVisualSettings; }
     function readSettings() { return bridge() ? bridge().read() : {}; }
     function writeSettings(patch) { return bridge() ? bridge().write(patch) : null; }
+    function isMobileFullscreenMode(settings) {
+      return settings?.wallpaperMode === 'fullscreen'
+        && window.matchMedia?.('(max-width: 760px)').matches === true;
+    }
     function setText(id, value) { var el = document.getElementById(id); if (el) el.textContent = value; }
     function setChecked(id, value) { var el = document.getElementById(id); if (el) el.checked = !!value; }
     function setValue(id, value) { var el = document.getElementById(id); if (el) el.value = String(value); }
@@ -368,7 +372,11 @@
       setText('card-opacity-val', cardOpacity + '%'); setText('fullscreen-card-opacity-val', cardOpacity + '%');
       setChecked('toggle-card-border', settings.cardBorder !== false);
       setChecked('toggle-card-follow-theme', settings.cardFollowTheme === true);
-      setValue('background-blur-range', settings.backgroundBlur ?? 6); setText('background-blur-val', Math.round(settings.backgroundBlur ?? 6) + 'px');
+      var blur = isMobileFullscreenMode(settings)
+        ? (settings.mobileFullscreenBlur ?? 1)
+        : (settings.backgroundBlur ?? 5);
+      setValue('background-blur-range', blur);
+      setText('background-blur-val', Math.round(blur) + 'px');
       setChecked('toggle-banner-gradient', settings.bannerGradient !== false);
       setChecked('toggle-banner-title', settings.bannerTitle !== false);
       setChecked('toggle-wave-enabled', settings.waveEnabled !== false);
@@ -406,7 +414,13 @@
     }
     document.getElementById('card-opacity-range')?.addEventListener('input', function () { updateCardOpacity(this.value); }, options);
     document.getElementById('fullscreen-card-opacity-range')?.addEventListener('input', function () { updateCardOpacity(this.value); }, options);
-    document.getElementById('background-blur-range')?.addEventListener('input', function () { var value = Number(this.value); setText('background-blur-val', value + 'px'); writeSettings({ backgroundBlur: value }); }, options);
+    document.getElementById('background-blur-range')?.addEventListener('input', function () {
+      var value = Number(this.value);
+      setText('background-blur-val', value + 'px');
+      var key = isMobileFullscreenMode(readSettings()) ? 'mobileFullscreenBlur' : 'backgroundBlur';
+      var patch = {}; patch[key] = value;
+      writeSettings(patch);
+    }, options);
     document.getElementById('toggle-card-border')?.addEventListener('change', function () { writeSettings({ cardBorder: this.checked }); }, options);
     document.getElementById('toggle-card-follow-theme')?.addEventListener('change', function () { writeSettings({ cardFollowTheme: this.checked }); }, options);
     document.getElementById('toggle-banner-gradient')?.addEventListener('change', function () { writeSettings({ bannerGradient: this.checked }); }, options);
@@ -442,13 +456,15 @@
       var opacity = document.getElementById('opacity-range'); if (opacity) { opacity.value = '45'; opacity.dispatchEvent(new Event('input', { bubbles: true })); }
       var quality = document.getElementById('quality-select'); if (quality) { quality.value = 'high'; quality.dispatchEvent(new Event('change', { bubbles: true })); }
       sync(writeSettings({
-        wallpaperMode: 'fullscreen', backgroundBlur: 5, cardOpacity: 0.92,
+        wallpaperMode: 'fullscreen', backgroundBlur: 5, mobileFullscreenBlur: 1, cardOpacity: 0.92,
         bannerGradient: true, bannerTitle: true,
         waveEnabled: true, waveStrength: 'standard', waveSpeed: 'normal', waveMobile: true
       }));
     }, options);
 
     document.addEventListener('lidure:visual-settings-change', function (event) { sync(event.detail && event.detail.settings); }, options);
+    var mobileBlurQuery = window.matchMedia?.('(max-width: 760px)');
+    mobileBlurQuery?.addEventListener?.('change', function () { sync(readSettings()); }, options);
     activateTab(activeTab, false);
     sync();
   }

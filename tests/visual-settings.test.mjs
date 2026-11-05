@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   DEFAULT_VISUAL_SETTINGS,
@@ -95,4 +96,45 @@ test('v3 applies wave datasets to the root element', () => {
   assert.equal(dataset.waveStrength, 'strong');
   assert.equal(dataset.waveSpeed, 'fast');
   assert.equal(dataset.waveMobile, 'false');
+});
+
+
+test('mobile fullscreen blur defaults to 1px and remains independent from desktop settings', () => {
+  const defaults = normalizeVisualSettings({});
+  assert.equal(defaults.backgroundBlur, 5);
+  assert.equal(defaults.mobileFullscreenBlur, 1);
+
+  const customized = normalizeVisualSettings({
+    backgroundBlur: 9,
+    mobileFullscreenBlur: 3,
+  });
+  assert.equal(customized.backgroundBlur, 9);
+  assert.equal(customized.mobileFullscreenBlur, 3);
+  assert.equal(normalizeVisualSettings({ mobileFullscreenBlur: -9 }).mobileFullscreenBlur, 0);
+  assert.equal(normalizeVisualSettings({ mobileFullscreenBlur: 90 }).mobileFullscreenBlur, 20);
+
+  const applied = {};
+  applyVisualSettingsToDocument(customized, {
+    documentElement: {
+      dataset: {},
+      classList: { toggle() {} },
+      style: { setProperty(name, value) { applied[name] = value; } },
+    },
+  });
+  assert.equal(applied['--wallpaper-blur'], '9px');
+  assert.equal(applied['--mobile-fullscreen-blur'], '3px');
+});
+
+test('fullscreen phone blur stays constant while desktop scroll ramp remains intact', () => {
+  const controller = readFileSync(new URL('../src/components/FullscreenWallpaperController.astro', import.meta.url), 'utf8');
+  const panel = readFileSync(new URL('../src/components/VisualSettingsPanel.astro', import.meta.url), 'utf8');
+  const layout = readFileSync(new URL('../src/layouts/BaseLayout.astro', import.meta.url), 'utf8');
+
+  assert.match(controller, /function isMobileFullscreen\(\)/);
+  assert.match(controller, /isMobileFullscreen\(\) \? '--mobile-fullscreen-blur' : '--wallpaper-blur'/);
+  assert.match(controller, /const quantized = isMobileFullscreen\(\)\s*\? maxBlur/);
+  assert.match(controller, /Math\.floor\(\(maxBlur \* blurRatio\) \/ 2\) \* 2/);
+  assert.match(panel, /isMobileFullscreenMode\(readSettings\(\)\) \? 'mobileFullscreenBlur' : 'backgroundBlur'/);
+  assert.match(panel, /mobileFullscreenBlur: 1/);
+  assert.match(layout, /root\.style\.setProperty\('--mobile-fullscreen-blur', mobileFullscreenBlur \+ 'px'\)/);
 });
