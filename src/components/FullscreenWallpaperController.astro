@@ -165,14 +165,15 @@
       else indicator?.classList.remove('hide');
 
       const blurRatio = Math.min(scrollY / 300, 1);
-      // Keep phone wallpapers at their selected blur (1px by default) while
-      // preserving the original desktop-only scroll blur ramp.
-      const quantized = isMobileFullscreen()
-        ? maxBlur
+      // The phone's 1px setting is the *maximum after scrolling*, not a
+      // constant blur at the top of the home hero. Keep its ramp smooth
+      // because the desktop 2px quantization would suppress a 1px setting.
+      const scrollBlur = isMobileFullscreen()
+        ? Math.round(maxBlur * blurRatio * 100) / 100
         : blurRatio >= 1
           ? maxBlur
           : Math.floor((maxBlur * blurRatio) / 2) * 2;
-      hero?.style.setProperty('--fullscreen-scroll-blur', `${quantized}px`);
+      hero?.style.setProperty('--fullscreen-scroll-blur', `${scrollBlur}px`);
     }
 
     function requestSync() {
