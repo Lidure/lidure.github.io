@@ -1,7 +1,7 @@
 export const VISUAL_SETTINGS_KEY = 'hero_settings';
 
 export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
-  version: 4,
+  version: 5,
   enabled: true,
   autoplay: true,
   interval: 15000,
@@ -11,7 +11,7 @@ export const DEFAULT_VISUAL_SETTINGS = Object.freeze({
   wallpaperMode: 'fullscreen',
   bannerHeight: 65,
   backgroundBlur: 5,
-  mobileFullscreenBlur: 1,
+  mobileFullscreenBlur: 0,
   cardOpacity: 0.92,
   bannerGradient: true,
   bannerTitle: true,
@@ -37,13 +37,16 @@ export function normalizeVisualSettings(raw = {}) {
   const safeRaw = raw && typeof raw === 'object' ? raw : {};
   const merged = { ...DEFAULT_VISUAL_SETTINGS, ...safeRaw };
   const previousVersion = Number(safeRaw.version || 0);
+  // v4 used 1px as the default. Move existing visitors to 0px while
+  // retaining non-default manual selections and future custom values.
+  const migrateOldMobileDefault = previousVersion < 5 && Number(safeRaw.mobileFullscreenBlur) === 1;
   const wallpaperMode = previousVersion < 4 && safeRaw.wallpaperMode === 'banner'
     ? 'fullscreen'
     : merged.wallpaperMode;
 
   return {
     ...merged,
-    version: 4,
+    version: 5,
     enabled: merged.enabled !== false,
     autoplay: merged.autoplay !== false,
     interval: clamp(finiteOr(merged.interval, 15000), 2000, 20000),
@@ -57,7 +60,9 @@ export function normalizeVisualSettings(raw = {}) {
       : 'fullscreen',
     bannerHeight: clamp(finiteOr(merged.bannerHeight, 65), 45, 80),
     backgroundBlur: clamp(finiteOr(merged.backgroundBlur, 5), 0, 20),
-    mobileFullscreenBlur: clamp(finiteOr(merged.mobileFullscreenBlur, 1), 0, 20),
+    mobileFullscreenBlur: migrateOldMobileDefault
+      ? 0
+      : clamp(finiteOr(merged.mobileFullscreenBlur, 0), 0, 20),
     cardOpacity: clamp(finiteOr(merged.cardOpacity, 0.92), 0.2, 1),
     bannerGradient: merged.bannerGradient !== false,
     bannerTitle: merged.bannerTitle !== false,
