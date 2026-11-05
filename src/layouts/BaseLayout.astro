@@ -100,6 +100,8 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
           (['fullscreen', 'overlay', 'banner'].includes(raw.wallpaperMode) ? raw.wallpaperMode : 'fullscreen');
         var opacity = Number.isFinite(Number(raw.opacity)) ? Math.max(0, Math.min(1, Number(raw.opacity))) : 0.45;
         var blur = Number.isFinite(Number(raw.backgroundBlur)) ? Math.max(0, Math.min(20, Number(raw.backgroundBlur))) : 5;
+        var mobileFullscreenBlur = Number.isFinite(Number(raw.mobileFullscreenBlur)) && raw.mobileFullscreenBlur != null
+          ? Math.max(0, Math.min(20, Number(raw.mobileFullscreenBlur))) : 1;
         var cardOpacity = Number.isFinite(Number(raw.cardOpacity)) ? Math.max(0.2, Math.min(1, Number(raw.cardOpacity))) : 0.92;
         var hue = Number.isFinite(Number(raw.themeHue)) ? Math.max(0, Math.min(360, Number(raw.themeHue))) : 255;
 
@@ -116,6 +118,7 @@ const socialImageUrl = new URL('/site-icon-512.png', siteBase);
         root.classList.toggle('no-hero-bg', raw.enabled === false);
         root.style.setProperty('--wallpaper-overlay', String(opacity));
         root.style.setProperty('--wallpaper-blur', blur + 'px');
+        root.style.setProperty('--mobile-fullscreen-blur', mobileFullscreenBlur + 'px');
         root.style.setProperty('--card-opacity', String(cardOpacity));
         root.style.setProperty('--card-opacity-percent', Math.round(cardOpacity * 100) + '%');
         root.style.setProperty('--theme-hue', String(hue));
