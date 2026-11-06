@@ -231,7 +231,7 @@ test('gallery help matches v2.12.1 read, upload, and QQ contribution workflows',
   assert.match(guide, /未投稿显示 0 张/);
   assert.match(guide, /网页端上传不计入个人贡献/);
   assert.match(guide, /完全重复的图片不能强制上传/);
-  assert.match(guide, /仅用于确认最近一次被判定为“相似”/);
+  assert.match(guide, /只用于确认最近一次被判定为“相似”/);
   assert.match(guide, /取决于机器人设置/);
   assert.ok(guide.indexOf('id="gallery-contribute-title"') < guide.indexOf('直接复制就能发送的示例'));
   assert.ok(guide.indexOf('id="gallery-contribute-title"') < guide.indexOf('<div class="howto">'));
