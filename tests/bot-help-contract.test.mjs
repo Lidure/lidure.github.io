@@ -200,3 +200,48 @@ test('gallery includes a public, verified browser preview without losing QQ exam
   assert.ok(copied.includes('看airi 10'));
   assert.ok(copied.includes('看全部airi'));
 });
+
+test('gallery is prominently discoverable without adding a seventh category', () => {
+  assert.match(html, /id="gallery-spotlight"/);
+  assert.match(html, /href="#gallery-spotlight"/);
+  assert.match(html, /data-featured="gallery" data-open="gallery"/);
+  assert.match(html, /画廊与投稿指南/);
+  assert.match(html, /三步就能上传/);
+  assert.match(html, /发送图片，并回复它/);
+  assert.match(html, /查看详细投稿步骤/);
+  assert.equal((html.match(/class="feature" type="button"/g) || []).length, 6);
+  assert.equal((html.match(/class="guide" data-guide=/g) || []).length, 6);
+  assert.match(html, /\.gallery-spotlight\s*\{/);
+  assert.match(html, /\.gallery-contribute-feedback\s*\{/);
+});
+
+test('gallery help matches v2.12.1 read, upload, and QQ contribution workflows', () => {
+  const guide = html.split('id="detail-gallery"')[1].split('id="detail-games"')[0];
+  assert.match(guide, /Airi Gallery v2\.12\.1/);
+  assert.match(guide, /id="gallery-contribute-title"/);
+  assert.match(guide, /先发图片，再回复图片消息输入上传命令/);
+  assert.match(guide, /回复那条图片消息/);
+  assert.match(guide, /上传必须带 \/</);
+  for (const command of [
+    '/查看画廊', '/上传airi', '/上传 airi', '/查看贡献',
+    '看随机图片 3', '/看最近上传 5', '/强制上传',
+  ]) {
+    assert.ok(guide.includes('data-copy="' + command + '"'), 'Missing gallery command ' + command);
+  }
+  assert.match(guide, /未投稿显示 0 张/);
+  assert.match(guide, /网页端上传不计入个人贡献/);
+  assert.match(guide, /完全重复的图片不能强制上传/);
+  assert.match(guide, /仅用于确认最近一次被判定为“相似”/);
+  assert.match(guide, /取决于机器人设置/);
+  assert.ok(guide.indexOf('id="gallery-contribute-title"') < guide.indexOf('直接复制就能发送的示例'));
+  assert.ok(guide.indexOf('id="gallery-contribute-title"') < guide.indexOf('<div class="howto">'));
+});
+
+test('homepage gallery calls to action open the existing guide and retain copy behavior', () => {
+  assert.match(html, /data-open="gallery" aria-controls="detail-gallery">查看详细投稿步骤/);
+  assert.match(html, /data-open="gallery" aria-controls="detail-gallery">🖼️ 画廊与投稿指南/);
+  assert.match(html, /data-copy="\/上传airi"/);
+  assert.match(html, /data-copy="\/查看贡献"/);
+  assert.match(html, /gallery-spotlight-actions/);
+  assert.match(html, /@media \(max-width: 580px\)/);
+});
