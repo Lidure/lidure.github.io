@@ -122,6 +122,29 @@
     .feature-title { font-size: 19px; margin: 12px 0 3px; font-weight: 900; }
     .feature-sub { color: var(--secondary); font-size: 12px; }
     .feature-foot { margin-top: auto; padding-top: 9px; font-size: 11px; font-weight: 800; color: #cd77a3; }
+    /* 首屏画廊推荐：保留原来的粉色系和卡片层级，不增加额外的功能分类。 */
+    .nav-gallery { color: #b84e83 !important; font-weight: 850 !important; }
+    .btn-gallery { color: #aa4d7c; background: #fff; border: 1px solid #edc2d8; box-shadow: 0 4px 13px #edb6d028; }
+    .gallery-spotlight { scroll-margin-top: 90px; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr); gap: 24px; margin-top: 42px; padding: 30px 34px; border-radius: 27px; border: 1px solid #ebcfdf; background: linear-gradient(125deg,#fff8fb,#fff2f8 55%,#f8f3ff); box-shadow: 0 10px 32px #d9b4c327; }
+    .gallery-spotlight-copy { align-self: center; min-width: 0; }
+    .gallery-spotlight-kicker { color: #b75588; font-weight: 850; letter-spacing: .8px; font-size: 11px; }
+    .gallery-spotlight-copy h2 { margin: 10px 0 12px; font-size: clamp(23px, 2.8vw, 30px); line-height: 1.55; }
+    .gallery-spotlight-copy h2 em { font-style: normal; color: #b64d85; }
+    .gallery-spotlight-copy p { color: #766978; line-height: 1.9; font-size: 13px; margin-bottom: 0; }
+    .gallery-spotlight-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 17px; }
+    .gallery-spotlight-howto { min-width: 0; padding: 19px; background: #ffffffde; border: 1px solid #f0dfe8; border-radius: 20px; }
+    .gallery-spotlight-step { display: flex; align-items: flex-start; gap: 12px; padding: 9px 0; }
+    .gallery-spotlight-step > span { flex: 0 0 31px; display: grid; place-items: center; height: 30px; border-radius: 10px; background: #fff0f7; color: #bf578b; font-size: 11px; font-weight: 900; }
+    .gallery-spotlight-step strong, .gallery-spotlight-step small { display: block; }
+    .gallery-spotlight-step strong { color: #4a4050; font-size: 13px; }
+    .gallery-spotlight-step small { color: #8c8190; font-size: 11px; margin-top: 3px; }
+    .gallery-spotlight-command { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 12px; padding: 10px 13px; border-radius: 12px; background: #fff4f9; border: 1px dashed #ebbad1; }
+    .gallery-spotlight-command code { color: #ad427a; font-weight: 850; font-size: 14px; }
+    .gallery-spotlight-howto > p { color: #978595; font-size: 11px; line-height: 1.75; margin: 10px 0 0; }
+    .feature[data-featured="gallery"] { grid-column: span 2; position: relative; min-height: 178px; background: linear-gradient(120deg,#fff8fc 0%,#fff1f8 65%,#f5f0ff); border-color: #ebbad3; box-shadow: 0 13px 33px #d9adc336; }
+    .feature[data-featured="gallery"]:hover { border-color: #db8fb4; }
+    .feature[data-featured="gallery"] .feature-sub { font-size: 13px; }
+    .feature-kicker { position: absolute; top: 19px; right: 19px; color: #b35e8a; font-size: 11px; font-weight: 800; border: 1px solid #edcede; background: #ffffffd6; border-radius: 999px; padding: 5px 10px; }
     .no-results { text-align: center; margin-top: 13px; padding: 24px; background: white; border: 1px dashed #e9c6d8; border-radius: 18px; color: #8a8192; }
     .detail-shell { margin-top: 22px; scroll-margin-top: 95px; border-radius: 26px; padding: 28px; border: 1px solid #efdee9; background: #fff; box-shadow: var(--shadow); }
     .detail-shell[hidden], .guide[hidden], .feature[hidden], .no-results[hidden] { display: none !important; }
@@ -186,6 +209,7 @@
     .toast { position: fixed; bottom: calc(22px + env(safe-area-inset-bottom)); left: 50%; transform: translate(-50%,14px); padding: 10px 18px; border-radius: 13px; background: #393142; color: white; box-shadow: 0 12px 30px #3c273a3b; z-index: 50; font-size: 13px; font-weight: 750; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; white-space: nowrap; }
     .toast.show { opacity: 1; transform: translate(-50%,0); }
     @media (max-width: 780px) {
+      .gallery-spotlight { grid-template-columns: 1fr; padding: 25px; gap: 18px; }
       .hero { grid-template-columns: 1fr; padding: 40px 30px 30px; gap: 0; min-height: 0; }
       .hero-illustration { display: none; }
       .quick-grid { grid-template-columns: 1fr; gap: 10px; }
@@ -195,6 +219,11 @@
       .commands { grid-template-columns: 1fr; }
     }
     @media (max-width: 580px) {
+      .gallery-spotlight { margin-top: 29px; border-radius: 20px; padding: 18px; }
+      .gallery-spotlight-howto { padding: 15px; }
+      .gallery-spotlight-actions .btn { width: 100%; }
+      .feature-kicker { top: 15px; right: 13px; font-size: 10px; }
+      .feature[data-featured="gallery"] { min-height: 161px; }
       .wrap { width: min(100% - 28px,1080px); }
       .nav-inner { min-height: 62px; }
       .nav-links { gap: 12px; font-size: 12px; }
@@ -227,6 +256,7 @@
       <a class="brand" href="#top" aria-label="返回帮助首页"><span class="brand-mark" aria-hidden="true">✿</span><span>小浅子 <span>SUPER AIRI!</span></span></a>
       <nav class="nav-links" aria-label="页面导航">
         <a href="#features">功能一览</a>
+        <a href="#gallery-spotlight" class="nav-gallery">画廊投稿</a>
         <a href="#faq">常见问题</a>
         <a class="nav-blog" href="/" title="返回博客">返回小窝 ↗</a>
       </nav>
@@ -241,6 +271,7 @@
         <p class="hero-desc">会聊天、会找图、会查游戏，还能陪你一起整活。<br>不用背一大堆命令，选你感兴趣的功能就好～</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#features">看看能玩什么 <span aria-hidden="true">↗</span></a>
+          <button class="btn btn-gallery" type="button" data-open="gallery" aria-controls="detail-gallery">🖼️ 画廊与投稿指南 ↗</button>
           <button class="btn btn-secondary" type="button" data-copy="/help">复制 /help</button>
         </div>
       </div>
@@ -271,13 +302,32 @@
         <div class="quick-card">
           <div class="quick-title"><span class="step">3</span><strong>看看收藏的图片</strong></div>
           <div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div>
-          <p>先选分类，再看你喜欢的图片。</p>
+          <p>先选分类、再看图；喜欢的话也可以上传新图。<a href="#gallery-spotlight">查看投稿方法 ↗</a></p>
         </div>
         <div class="quick-card">
           <div class="quick-title"><span class="step">4</span><strong>随机抽一张表情</strong></div>
           <div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div>
           <p>不知道玩什么时，就从这里开始！</p>
         </div>
+      </div>
+    </section>
+
+    <section id="gallery-spotlight" class="gallery-spotlight" aria-labelledby="gallery-spotlight-title">
+      <div class="gallery-spotlight-copy">
+        <span class="gallery-spotlight-kicker">🖼️ AIRI GALLERY · 一起丰富收藏</span>
+        <h2 id="gallery-spotlight-title">画廊里有喜欢的图？<br><em>也欢迎你来投喂新图片。</em></h2>
+        <p>看图的人很多，收藏也可以由大家一起补充。只需<strong>发图片 → 回复图片 → 输入上传命令</strong>，不需要事先了解复杂的管理功能。</p>
+        <div class="gallery-spotlight-actions">
+          <button class="btn btn-primary" type="button" data-open="gallery" aria-controls="detail-gallery">查看详细投稿步骤 ↗</button>
+          <a class="btn btn-secondary" href="https://lidure22.xyz/gallery/" target="_blank" rel="noopener noreferrer">在线预览画廊 ↗</a>
+        </div>
+      </div>
+      <div class="gallery-spotlight-howto" aria-label="QQ 画廊投稿三步">
+        <div class="gallery-spotlight-step"><span>01</span><div><strong>先看有什么分类</strong><small>在 QQ 发送 /查看画廊</small></div></div>
+        <div class="gallery-spotlight-step"><span>02</span><div><strong>发送图片，并回复它</strong><small>单张、多张及合并转发均可</small></div></div>
+        <div class="gallery-spotlight-step"><span>03</span><div><strong>在回复里输入上传命令</strong><small>例如上传至已有的 airi 分类</small></div></div>
+        <div class="gallery-spotlight-command"><code>/上传airi</code><button class="copy" type="button" data-copy="/上传airi">复制指令</button></div>
+        <p>这里的 airi 是分类示例，请替换成画廊里实际的分类名。群聊投稿是否可用以管理员设置为准。</p>
       </div>
     </section>
 
@@ -288,11 +338,12 @@
       </div>
 
       <div class="feature-grid" id="feature-grid">
+        <button class="feature" type="button" data-featured="gallery" data-open="gallery" data-keywords="画廊 图片 表情包 投稿 贡献 感谢 上传 分类 抽表情 看随机图片 看最近上传 查看贡献 看图 收藏 图库 看全部 多图 批量 编号 airi miku" aria-controls="detail-gallery" aria-expanded="false" style="--icon-bg:#ffe4ef">
+          <span class="feature-kicker">常用功能 · 欢迎投稿</span>
+          <span class="feature-icon" aria-hidden="true">🖼️</span><span class="feature-title">图片画廊</span><span class="feature-sub">看图、随机抽表情、上传自己的收藏</span><span class="feature-foot">看图命令 + 投稿教程 ↗</span>
+        </button>
         <button class="feature" type="button" data-open="chat" data-keywords="ai 聊天 对话 问答 看图 识图 回复 消息 @ 聊天" aria-controls="detail-chat" aria-expanded="false" style="--icon-bg:#ffeaf2">
           <span class="feature-icon" aria-hidden="true">💬</span><span class="feature-title">AI 聊天</span><span class="feature-sub">陪你聊天 · 回答问题 · 看图</span><span class="feature-foot">查看玩法 ↗</span>
-        </button>
-        <button class="feature" type="button" data-open="gallery" data-keywords="画廊 图片 表情包 上传 分类 抽表情 看图 收藏 图库 看全部 多图 批量 编号 airi miku" aria-controls="detail-gallery" aria-expanded="false" style="--icon-bg:#e8f5ff">
-          <span class="feature-icon" aria-hidden="true">🖼️</span><span class="feature-title">图片画廊</span><span class="feature-sub">抽表情 · 看图库 · 上传图片</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
         <button class="feature" type="button" data-open="games" data-keywords="游戏 原神 星穹铁道 星铁 绝区零 鸣潮 异环 崩坏3 崩坏三 米游社 库街区 社区 自动签到 扫码登录 绑定 uid 世界计划 pjsk steam 抽卡 签到 面板 体力" aria-controls="detail-games" aria-expanded="false" style="--icon-bg:#fff1df">
           <span class="feature-icon" aria-hidden="true">🎮</span><span class="feature-title">游戏工具</span><span class="feature-sub">角色面板 · 抽卡记录 · 签到</span><span class="feature-foot">查看玩法 ↗</span>
