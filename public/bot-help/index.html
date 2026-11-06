@@ -84,7 +84,22 @@
     .hero-illustration { position: relative; height: 264px; display: grid; place-items: center; isolation: isolate; }
     .orb { position: absolute; width: 228px; height: 228px; background: radial-gradient(circle at 33% 30%, #fff, #f7bfda 68%, #e6b8e7); border-radius: 50%; box-shadow: 0 22px 55px #d89fc261; }
     .orb::before { content: ""; position: absolute; inset: 16px; border: 2px dashed #ffffffb6; border-radius: inherit; }
-    .mascot { position: relative; z-index: 1; font-size: 98px; filter: drop-shadow(0 12px 12px #cb93a47d); transform: rotate(-7deg); }
+    /* QQ 官方头像替换原猫咪 emoji；圆形裁切与原有光环、浮动标签保持一致。 */
+    .mascot {
+      position: relative; z-index: 1; width: 182px; height: 182px;
+      display: grid; place-items: center; border-radius: 50%;
+      isolation: isolate; background: radial-gradient(circle at 32% 24%, #fff7fc, #d991b8);
+      box-shadow: 0 12px 35px #8b4f8052;
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .hero-illustration:hover .mascot { transform: translateY(-3px) scale(1.025); box-shadow: 0 18px 43px #8b4f8073; }
+    .mascot-fallback { font-size: 82px; line-height: 1; }
+    .mascot-avatar {
+      position: absolute; inset: 0; display: block; width: 100%; height: 100%;
+      border-radius: 50%; object-fit: cover; object-position: center;
+      border: 4px solid #fff4fc; background: #f2c5da;
+    }
+    .mascot-avatar[hidden] { display: none; }
     .float-tag { position: absolute; z-index: 2; background: #fffffff0; border: 1px solid white; padding: 9px 14px; border-radius: 16px; box-shadow: 0 12px 24px #b48fad25; color: #8d6185; font-size: 12px; font-weight: 800; }
     .float-a { top: 10px; left: 1%; transform: rotate(-9deg); }
     .float-b { right: -2%; top: 48px; transform: rotate(8deg); }
@@ -258,7 +273,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
-      .feature, .btn, .toast { transition: none; }
+      .feature, .btn, .toast, .mascot { transition: none; }
     }
   </style>
   <link rel="stylesheet" href="/bot-help/theme.css">
@@ -297,7 +312,11 @@
         </div>
       </div>
       <div class="hero-illustration" aria-hidden="true">
-        <div class="orb"></div><span class="mascot">🐱</span>
+        <div class="orb"></div>
+        <div class="mascot">
+          <span class="mascot-fallback">🐱</span>
+          <img class="mascot-avatar" src="https://q1.qlogo.cn/g?b=qq&amp;nk=3855327198&amp;s=640" width="182" height="182" alt="" loading="eager" decoding="async" fetchpriority="high" referrerpolicy="no-referrer" onerror="this.hidden=true">
+        </div>
         <span class="float-tag float-a">💬 随时聊聊</span>
         <span class="float-tag float-b">🎀 图片收藏</span>
         <span class="float-tag float-c">🎮 游戏助手</span>
