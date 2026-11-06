@@ -1,0 +1,268 @@
+/* Shared theme control for /bot-help/ and /bot-help/airi/. */
+.theme-control {
+  display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+  color: #876c82; font-size: 12px; font-weight: 750;
+}
+.theme-control label { white-space: nowrap; }
+.theme-control select {
+  appearance: auto; min-width: 106px; min-height: 36px; padding: 6px 9px;
+  border: 1px solid #eacede; border-radius: 11px;
+  background: #fff; color: #724763; font: inherit;
+  cursor: pointer;
+}
+.theme-control select:focus-visible { outline: 2px solid #c96d9d; outline-offset: 2px; }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #17141e;
+  --ink: #f2eaf4;
+  --secondary: #c7b9cb;
+  --pink: #f09bc1;
+  --pink-strong: #ffadd1;
+  --pink-light: #352637;
+  --white: #26212f;
+  --line: #4b3b50;
+  --shadow: 0 14px 42px #0a081260;
+  /* Shared Airi submanual variables. */
+  --paper: #26212f;
+  --text: #f2eaf4;
+  --muted: #c7b9cb;
+  --accent: #ffadd1;
+  --surface: #322636;
+}
+:root[data-theme="dark"] body {
+  background: radial-gradient(circle at 8% 7%,#75426335,transparent 26rem),
+              radial-gradient(circle at 95% 20%,#50436838,transparent 27rem),
+              var(--bg);
+}
+:root[data-theme="dark"] .theme-control { color: #d4c5d6; }
+:root[data-theme="dark"] .theme-control select {
+  background: #2b2333; color: #f5e8f3; border-color: #6c4b69;
+}
+/* Main Bot Help shell and action cards. */
+:root[data-theme="dark"] .nav,
+:root[data-theme="dark"] .topbar {
+  background: #201b29ed; border-bottom-color: #4a384c;
+}
+:root[data-theme="dark"] .brand span + span,
+:root[data-theme="dark"] .nav-links,
+:root[data-theme="dark"] .section-note,
+:root[data-theme="dark"] .hero-desc,
+:root[data-theme="dark"] .detail-desc,
+:root[data-theme="dark"] .command-title,
+:root[data-theme="dark"] .quick-card p,
+:root[data-theme="dark"] .feature-sub,
+:root[data-theme="dark"] .tip,
+:root[data-theme="dark"] .example-note,
+:root[data-theme="dark"] .howto-note,
+:root[data-theme="dark"] .howto-steps li,
+:root[data-theme="dark"] .node-info,
+:root[data-theme="dark"] .node-shortcut small,
+:root[data-theme="dark"] .footer,
+:root[data-theme="dark"] .faq details p {
+  color: #cbbdcf;
+}
+:root[data-theme="dark"] .eyebrow,
+:root[data-theme="dark"] .section-label,
+:root[data-theme="dark"] .guide-caption,
+:root[data-theme="dark"] .feature-foot,
+:root[data-theme="dark"] .nav-gallery,
+:root[data-theme="dark"] .gallery-spotlight-kicker,
+:root[data-theme="dark"] .gallery-spotlight-copy h2 em {
+  color: #f2a2cb !important;
+}
+:root[data-theme="dark"] .nav-blog,
+:root[data-theme="dark"] .btn-secondary,
+:root[data-theme="dark"] .btn-gallery,
+:root[data-theme="dark"] .quick-card,
+:root[data-theme="dark"] .feature,
+:root[data-theme="dark"] .detail-shell,
+:root[data-theme="dark"] .command-item,
+:root[data-theme="dark"] .howto details,
+:root[data-theme="dark"] .code-pill,
+:root[data-theme="dark"] .simple-list div,
+:root[data-theme="dark"] .faq details,
+:root[data-theme="dark"] .passive details {
+  background: #28212f; border-color: #4c3b50; color: #eee5ef;
+}
+:root[data-theme="dark"] .btn-secondary,
+:root[data-theme="dark"] .btn-gallery,
+:root[data-theme="dark"] .nav-blog { color: #ffc0dd; }
+:root[data-theme="dark"] .btn-primary {
+  background: linear-gradient(112deg,#b44580,#942d68); color: #fff;
+  box-shadow: 0 7px 22px #08070c66;
+}
+:root[data-theme="dark"] .nav + main .hero {
+  background: linear-gradient(118deg,#342537,#292234 58%,#302741);
+  border-color: #5e415a;
+}
+:root[data-theme="dark"] .orb {
+  background: radial-gradient(circle at 30% 30%,#71506e,#4d314f 70%,#392642);
+  box-shadow: 0 18px 44px #08050c70;
+}
+:root[data-theme="dark"] .float-tag { background: #372b41; border-color: #5d4563; color: #f1c7df; }
+:root[data-theme="dark"] .search-wrap,
+:root[data-theme="dark"] .search {
+  background: #2b2433; border-color: #59415b; color: #f2b2d1;
+}
+:root[data-theme="dark"] .search-wrap input,
+:root[data-theme="dark"] .search input { color: #f5eaf4; }
+:root[data-theme="dark"] .search-wrap input::placeholder,
+:root[data-theme="dark"] .search input::placeholder { color: #b29eaf; }
+:root[data-theme="dark"] .feature[data-featured="gallery"],
+:root[data-theme="dark"] .feature[aria-expanded="true"] {
+  background: linear-gradient(140deg,#463047,#332638 76%,#372a46);
+  border-color: #895a7b;
+}
+:root[data-theme="dark"] .feature-icon { background: #45324b; }
+:root[data-theme="dark"] .feature-kicker,
+:root[data-theme="dark"] .gallery-contribute-tag {
+  background: #493149; border-color: #755170; color: #ffbee1;
+}
+:root[data-theme="dark"] .gallery-spotlight,
+:root[data-theme="dark"] .gallery-contribute {
+  background: linear-gradient(125deg,#342535,#2a2131 65%,#322641);
+  border-color: #704c65;
+}
+:root[data-theme="dark"] .gallery-spotlight-copy p,
+:root[data-theme="dark"] .gallery-contribute > p { color: #d8c5d6; }
+:root[data-theme="dark"] .gallery-spotlight-howto,
+:root[data-theme="dark"] .gallery-contribute-feedback {
+  background: #271f2f; border-color: #564156;
+}
+:root[data-theme="dark"] .gallery-spotlight-step > span,
+:root[data-theme="dark"] .step,
+:root[data-theme="dark"] .howto-steps li::before,
+:root[data-theme="dark"] .inline-command {
+  background: #472c45; color: #ffc1dd;
+}
+:root[data-theme="dark"] .gallery-spotlight-step strong,
+:root[data-theme="dark"] .gallery-contribute h4,
+:root[data-theme="dark"] .howto-steps strong,
+:root[data-theme="dark"] .simple-list strong {
+  color: #f7eaf4;
+}
+:root[data-theme="dark"] .gallery-spotlight-step small,
+:root[data-theme="dark"] .gallery-spotlight-howto > p,
+:root[data-theme="dark"] .gallery-contribute-feedback p,
+:root[data-theme="dark"] .gallery-contribute-query > span { color: #cbb9c9; }
+:root[data-theme="dark"] .gallery-spotlight-command,
+:root[data-theme="dark"] .gallery-contribute-query,
+:root[data-theme="dark"] .howto-note,
+:root[data-theme="dark"] .tip,
+:root[data-theme="dark"] .passive-note,
+:root[data-theme="dark"] .node-shortcut {
+  background: #352739; border-color: #694c69; color: #e8d9e7;
+}
+:root[data-theme="dark"] .gallery-spotlight-command code,
+:root[data-theme="dark"] .gallery-contribute-query code,
+:root[data-theme="dark"] .cmd,
+:root[data-theme="dark"] .code-pill code,
+:root[data-theme="dark"] .inline-command,
+:root[data-theme="dark"] .example-note strong,
+:root[data-theme="dark"] .footer a { color: #ffc2df; }
+:root[data-theme="dark"] .copy,
+:root[data-theme="dark"] .close-detail {
+  background: #453047; border-color: #72506d; color: #ffd0e6;
+}
+:root[data-theme="dark"] .copy:hover,
+:root[data-theme="dark"] .node-shortcut:hover { background: #563552; }
+:root[data-theme="dark"] .howto-body,
+:root[data-theme="dark"] .passive-body { border-color: #493a4e; }
+:root[data-theme="dark"] .game-tag,
+:root[data-theme="dark"] .passive-chips span,
+:root[data-theme="dark"] .passive-stat,
+:root[data-theme="dark"] .gallery-online,
+:root[data-theme="dark"] .no-results {
+  background: #302537; border-color: #58435e; color: #e4d5e2;
+}
+:root[data-theme="dark"] .gallery-online strong,
+:root[data-theme="dark"] .gallery-contribute-feedback strong,
+:root[data-theme="dark"] .passive-stat strong { color: #ffc2df; }
+:root[data-theme="dark"] .gallery-online p,
+:root[data-theme="dark"] .passive-note,
+:root[data-theme="dark"] .passive-body,
+:root[data-theme="dark"] .passive-stat { color: #d3c4d2; }
+:root[data-theme="dark"] .nodes .howto details { background: #28212f; }
+:root[data-theme="dark"] .footer { border-top-color: #49384e; }
+/* Airi node manual: independent layout, same preference and palette. */
+:root[data-theme="dark"] .topbar .brand small { color: #d2bcd0 !important; }
+:root[data-theme="dark"] .back,
+:root[data-theme="dark"] .stat,
+:root[data-theme="dark"] .notice,
+:root[data-theme="dark"] .category,
+:root[data-theme="dark"] .tool,
+:root[data-theme="dark"] .command,
+:root[data-theme="dark"] .mini-command,
+:root[data-theme="dark"] .bottom-note,
+:root[data-theme="dark"] .official-link,
+:root[data-theme="dark"] .manosaba-sample {
+  background: #28212f; color: #ebe0ed; border-color: #4c3b50;
+}
+:root[data-theme="dark"] .back,
+:root[data-theme="dark"] .official-link,
+:root[data-theme="dark"] .stat strong,
+:root[data-theme="dark"] .popular-link strong,
+:root[data-theme="dark"] .tool-price,
+:root[data-theme="dark"] .command-line code,
+:root[data-theme="dark"] .mini-command code {
+  color: #ffc0dd;
+}
+:root[data-theme="dark"] .hero p,
+:root[data-theme="dark"] .notice,
+:root[data-theme="dark"] .cat-title small,
+:root[data-theme="dark"] .tool-desc,
+:root[data-theme="dark"] .tool-note,
+:root[data-theme="dark"] .plugin-name,
+:root[data-theme="dark"] .command-label,
+:root[data-theme="dark"] .author,
+:root[data-theme="dark"] .popular-sub,
+:root[data-theme="dark"] .popular-link small,
+:root[data-theme="dark"] .tool-expand-body p,
+:root[data-theme="dark"] .tool-expand-body ol,
+:root[data-theme="dark"] .tool-expand-body ul,
+:root[data-theme="dark"] .manosaba-sample figcaption { color: #cdbed0; }
+:root[data-theme="dark"] .notice strong,
+:root[data-theme="dark"] .bottom-note strong,
+:root[data-theme="dark"] .tool-expand-body h4,
+:root[data-theme="dark"] .tool-expand-body strong { color: #f4e7f3; }
+:root[data-theme="dark"] .category > summary:hover,
+:root[data-theme="dark"] .category[open] > summary,
+:root[data-theme="dark"] .tool-expand {
+  background: #33283a; border-color: #534058;
+}
+:root[data-theme="dark"] .cat-emoji,
+:root[data-theme="dark"] .popular-stamp { background: #4a3149; color: #f9c1dc; }
+:root[data-theme="dark"] .popular-link {
+  background: linear-gradient(120deg,#302534,#3b2a3a);
+  border-color: #5c4259;
+}
+:root[data-theme="dark"] .tool.highlight-popular {
+  background: linear-gradient(155deg,#38283b,#29222f);
+  border-color: #7c5476;
+}
+:root[data-theme="dark"] .tool-note,
+:root[data-theme="dark"] .format-note,
+:root[data-theme="dark"] .mention-note,
+:root[data-theme="dark"] .important-note,
+:root[data-theme="dark"] .demo-code {
+  background: #352939; color: #e0cfe0 !important; border-color: #5b465c;
+}
+:root[data-theme="dark"] .mini-command,
+:root[data-theme="dark"] .tool-expand-body { border-color: #59445d; }
+:root[data-theme="dark"] .tool-expand summary { color: #ffb6d6; }
+:root[data-theme="dark"] .demo-copy { background: #aa4078; color: #fff; }
+:root[data-theme="dark"] .demo-copy:hover { background: #bd4f89; }
+:root[data-theme="dark"] #toast { background: #4a3451; color: #fff; }
+@media (max-width: 580px) {
+  .theme-control label { display: none; }
+  .theme-control select { min-width: 94px; min-height: 34px; font-size: 12px; padding: 5px; }
+  .nav-inner { gap: 8px; }
+  .nav-inner .nav-links { margin-left: auto; gap: 8px; }
+  .nav-inner .nav-links a:not(.nav-blog) { display: none; }
+  .nav-inner .brand { font-size: 14px; gap: 6px; }
+  .nav-inner .brand-mark { width: 30px; height: 30px; }
+  .nav-inner .nav-blog { padding: 7px 8px; }
+  .topbar-inner { gap: 8px; }
+  .topbar-inner .brand > span:not(.brand-mark) { display: none; }
+  .topbar-inner .back { margin-left: auto; padding: 7px 9px; font-size: 11px; }
+}

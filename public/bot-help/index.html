@@ -12,6 +12,7 @@
   <link rel="canonical" href="https://lidure22.xyz/bot-help/">
   <link rel="icon" href="/favicon-32.png">
   <title>小浅子 · 使用指南 | Super Airi!</title>
+  <script src="/bot-help/theme.js"></script>
   <style>
     :root {
       color-scheme: light;
@@ -260,6 +261,7 @@
       .feature, .btn, .toast { transition: none; }
     }
   </style>
+  <link rel="stylesheet" href="/bot-help/theme.css">
 </head>
 <body>
   <header class="nav">
@@ -271,6 +273,14 @@
         <a href="#faq">常见问题</a>
         <a class="nav-blog" href="/" title="返回博客">返回小窝 ↗</a>
       </nav>
+      <div class="theme-control">
+        <label for="bot-help-theme">主题</label>
+        <select id="bot-help-theme" aria-label="外观主题">
+          <option value="auto">跟随系统</option>
+          <option value="light">亮色</option>
+          <option value="dark">暗色</option>
+        </select>
+      </div>
     </div>
   </header>
 
