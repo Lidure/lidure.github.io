@@ -245,3 +245,20 @@ test('homepage gallery calls to action open the existing guide and retain copy b
   assert.match(html, /gallery-spotlight-actions/);
   assert.match(html, /@media \(max-width: 580px\)/);
 });
+
+test('hero displays the real bot QQ avatar in the circular ornament with a safe fallback', () => {
+  assert.match(html, /class="hero-illustration" aria-hidden="true"/);
+  assert.match(html, /<div class="orb"><\/div>/);
+  assert.match(html, /class="mascot-fallback">🐱<\/span>/);
+  assert.match(html, /class="mascot-avatar"/);
+  assert.match(html, /https:\/\/q1\.qlogo\.cn\/g\?b=qq&amp;nk=3855327198&amp;s=640/);
+  assert.match(html, /object-fit:\s*cover/);
+  assert.match(html, /border-radius:\s*50%/);
+  assert.match(html, /onerror="this\.hidden=true"/);
+  assert.match(html, /\.mascot-avatar\[hidden\]\s*\{\s*display:\s*none/);
+  assert.match(html, /prefers-reduced-motion:\s*reduce/);
+  assert.match(html, /\.mascot\s*\{\s*transition:\s*none/);
+  for (const label of ['💬 随时聊聊', '🎀 图片收藏', '🎮 游戏助手']) {
+    assert.ok(html.includes(label), 'Missing hero floating label: '+label);
+  }
+});
