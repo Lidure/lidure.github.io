@@ -91,7 +91,7 @@
   background: linear-gradient(112deg,#b44580,#942d68); color: #fff;
   box-shadow: 0 7px 22px #08070c66;
 }
-:root[data-theme="dark"] .hero {
+:root[data-theme="dark"] .nav + main .hero {
   background: linear-gradient(118deg,#342537,#292234 58%,#302741);
   border-color: #5e415a;
 }
