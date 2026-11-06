@@ -99,6 +99,14 @@
   background: radial-gradient(circle at 30% 30%,#71506e,#4d314f 70%,#392642);
   box-shadow: 0 18px 44px #08050c70;
 }
+:root[data-theme="dark"] .mascot {
+  background: radial-gradient(circle at 30% 20%,#7d5576,#4a314b);
+  box-shadow: 0 12px 35px #0c081080;
+}
+:root[data-theme="dark"] .mascot-avatar {
+  border-color: #ae80a8;
+  background: #3c2a3c;
+}
 :root[data-theme="dark"] .float-tag { background: #372b41; border-color: #5d4563; color: #f1c7df; }
 :root[data-theme="dark"] .search-wrap,
 :root[data-theme="dark"] .search {
