@@ -191,10 +191,21 @@
     .nodes .howto { margin-top: 0; }
     .nodes .howto details { background: #fff; }
     .nodes .howto-body .commands { margin-top: 14px; }
+    .gallery-contribute { margin: 22px 0 23px; padding: 21px 22px; border-radius: 19px; border: 1px solid #ecc5d9; background: linear-gradient(125deg,#fffafd,#fff2f8); }
+    .gallery-contribute-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+    .gallery-contribute h4 { margin: 6px 0 0; font-size: 19px; color: #493749; }
+    .gallery-contribute > p { color: #7f7281; font-size: 13px; line-height: 1.85; margin: 13px 0; }
+    .gallery-contribute-tag { border-radius: 999px; background: #fff; border: 1px solid #eed4e0; padding: 6px 10px; color: #b45b87; font-size: 11px; font-weight: 800; white-space: nowrap; }
+    .gallery-contribute-feedback { display: grid; grid-template-columns: minmax(0,1.3fr) minmax(0,.8fr); gap: 12px; align-items: center; margin-top: 19px; padding: 14px; border: 1px solid #eddce9; border-radius: 13px; background: #fff; }
+    .gallery-contribute-feedback strong { font-size: 13px; color: #a4487e; }
+    .gallery-contribute-feedback p { font-size: 12px; line-height: 1.85; color: #847887; margin: 6px 0 0; }
+    .gallery-contribute-query { min-width: 0; padding: 12px 13px; border-radius: 11px; background: #fff2f8; }
+    .gallery-contribute-query > span { display: block; color: #887282; font-size: 11px; margin-bottom: 7px; }
+    .gallery-contribute-query code { font-size: 13px; color: #b1457d; font-weight: 850; }
     .gallery-online{display:flex;align-items:center;justify-content:space-between;gap:18px;border:1px solid #ebdbe8;background:linear-gradient(110deg,#fff3f9,#f9f5ff);padding:15px 17px;border-radius:16px;margin:17px 0 21px}
     .gallery-online strong{font-size:13px;color:#59455d}.gallery-online p{font-size:12px;color:#7c7184;line-height:1.8;margin:5px 0 0}.gallery-online .btn{white-space:nowrap;font-size:12px;flex-shrink:0}
     .passive{scroll-margin-top:82px;margin:58px 0 0}.passive details{background:white;border:1px solid var(--line);border-radius:17px;padding:16px 19px;margin:10px 0;box-shadow:0 5px 24px #cca4b218}.passive summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:14px;font-weight:850}.passive summary::-webkit-details-marker{display:none}.passive summary::after{content:"＋";font-weight:500;color:#ce759f;font-size:20px;flex-shrink:0}.passive details[open] summary::after{content:"－"}.passive-body{border-top:1px solid var(--line);padding-top:15px;margin-top:11px;font-size:13px;color:#796e81;line-height:1.85}.passive-body p{margin:0 0 13px}.passive-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.passive-stat{display:flex;gap:12px;align-items:center;justify-content:space-between;border:1px solid #f0e4ed;background:#fff9fc;border-radius:11px;padding:10px 12px;font-size:12px}.passive-stat strong{font-variant-numeric:tabular-nums;white-space:nowrap;color:#b85386}.passive-note{background:#f9f6ff;border:1px solid #eee5f6;border-radius:12px;padding:12px;color:#766b80;font-size:12px;line-height:1.9}.passive-chips{display:flex;gap:7px;flex-wrap:wrap;margin:9px 0 15px}.passive-chips span{padding:5px 9px;border-radius:8px;background:#f9f1f7;font-size:12px;color:#9c6790}
-    @media(max-width:580px){.gallery-online{flex-direction:column;align-items:stretch}.gallery-online .btn{width:100%}.passive{margin-top:47px}.passive details{padding:14px}.passive-grid{grid-template-columns:1fr}}
+    @media(max-width:580px){.gallery-contribute { padding: 16px 14px; } .gallery-contribute-feedback { grid-template-columns: 1fr; } .gallery-contribute-head { align-items: flex-start; } .gallery-contribute-tag { font-size: 10px; } .gallery-online{flex-direction:column;align-items:stretch}.gallery-online .btn{width:100%}.passive{margin-top:47px}.passive details{padding:14px}.passive-grid{grid-template-columns:1fr}}
     .faq { scroll-margin-top: 90px; margin-top: 62px; margin-bottom: 68px; }
     .faq-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; }
     .faq details { background: white; border: 1px solid var(--line); border-radius: 16px; padding: 16px 20px; }
@@ -383,7 +394,7 @@
 
         <section id="detail-gallery" class="guide" data-guide="gallery" hidden aria-label="图片画廊使用帮助">
           <div class="detail-header"><div><span class="section-label">GALLERY</span><h3>🖼️ 画廊：先找分类，再选图片</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
-          <p class="detail-desc">这里有不同角色、主题和表情包的图片。不用记住全部命令，按照下面的顺序来就行。</p>
+          <p class="detail-desc">可以按角色分类找图、抽表情，也欢迎你把新的收藏补进来。这里的命令已同步至 Airi Gallery v2.12.1，优先教你最常用的看图与上传方法。</p>
           <div class="guide-caption">第一次使用：推荐这 3 步</div>
           <ol class="howto-steps">
             <li><strong>查看分类。</strong>先发送 <span class="inline-command">/查看画廊</span>，看看现在收录了哪些角色和主题。</li>
@@ -391,6 +402,28 @@
             <li><strong>想看更多？</strong>发送 <span class="inline-command">看airi 10</span> 随机看 10 张；或者 <span class="inline-command">看全部airi</span> 查看<strong>带编号的图片总览</strong>，再挑指定编号。</li>
           </ol>
           <div class="gallery-online"><div><strong>🌐 画廊也能直接在网页里预览</strong><p>手机或电脑打开在线画廊，就能浏览分类和图片，不需要先在 QQ 发送看图命令。管理、上传等操作可能需要额外权限。</p></div><a class="btn btn-secondary" href="https://lidure22.xyz/gallery/" target="_blank" rel="noopener noreferrer">打开在线画廊 ↗</a></div>
+          <section class="gallery-contribute" aria-labelledby="gallery-contribute-title">
+            <div class="gallery-contribute-head">
+              <div><span class="gallery-spotlight-kicker">SHARE YOUR FAVORITES</span><h4 id="gallery-contribute-title">📤 喜欢的图片，也欢迎你投稿！</h4></div>
+              <span class="gallery-contribute-tag">三步就能上传</span>
+            </div>
+            <p>不要只收藏自己喜欢的表情包，也可以分享给大家。<strong>先发图片，再回复图片消息输入上传命令</strong>，画廊就会在成功后收录新图。</p>
+            <ol class="howto-steps">
+              <li>先发送 <span class="inline-command">/查看画廊</span>，找到想放进去的<strong>真实分类名</strong>。</li>
+              <li>把要上传的图片发到 QQ，<strong>回复那条图片消息</strong>；也支持回复多图消息或合并转发聊天记录。</li>
+              <li>在<strong>回复框</strong>输入 <span class="inline-command">/上传airi</span> 或 <span class="inline-command">/上传 airi</span>（这里用已有的 airi 分类举例）。</li>
+            </ol>
+            <div class="code-options">
+              <span class="code-pill"><code>/上传airi</code><button class="copy" type="button" data-copy="/上传airi">复制</button></span>
+              <span class="code-pill"><code>/上传 airi</code><button class="copy" type="button" data-copy="/上传 airi">复制</button></span>
+            </div>
+            <p class="howto-note">两种写法都支持；<strong>上传必须带 /</strong>。不要把命令单独发成一条新消息，记得先在 QQ 中回复图片。分类不存在时，可请管理员创建；是否允许上传取决于机器人的权限配置。</p>
+            <div class="gallery-contribute-feedback">
+              <div><strong>💗 上传成功，会收到一份感谢</strong><p>QQ 群里机器人会 @ 投稿人，并反馈这次成功上传的张数与累计贡献；私聊也会显示感谢。无效、重复、上传失败不计入统计。</p></div>
+              <div class="gallery-contribute-query"><span>想知道自己贡献了几张？</span><div class="cmd-row"><code>/查看贡献</code><button class="copy" type="button" data-copy="/查看贡献">复制</button></div></div>
+            </div>
+            <p class="example-note">贡献从该统计功能首次启用后开始累计，不追溯旧图；仅 QQ 聊天命令成功上传计数，网页端上传不计入个人贡献。<strong>/查看贡献</strong> 只查自己，未投稿显示 0 张。</p>
+          </section>
           <div class="guide-caption">直接复制就能发送的示例</div>
           <div class="commands">
             <div class="command-item"><span class="command-title">看看现在有哪些分类</span><div class="cmd-row"><span class="cmd">/查看画廊</span><button class="copy" type="button" data-copy="/查看画廊">复制</button></div></div>
@@ -399,8 +432,11 @@
             <div class="command-item"><span class="command-title">看 airi 分类的缩略图与编号总览</span><div class="cmd-row"><span class="cmd">看全部airi</span><button class="copy" type="button" data-copy="看全部airi">复制</button></div></div>
             <div class="command-item"><span class="command-title">换个分类：miku</span><div class="cmd-row"><span class="cmd">看miku</span><button class="copy" type="button" data-copy="看miku">复制</button></div></div>
             <div class="command-item"><span class="command-title">从所有分类随机抽表情</span><div class="cmd-row"><span class="cmd">/抽表情</span><button class="copy" type="button" data-copy="/抽表情">复制</button></div></div>
+            <div class="command-item"><span class="command-title">从名称含「图片」的分类里随机看 3 张</span><div class="cmd-row"><span class="cmd">看随机图片 3</span><button class="copy" type="button" data-copy="看随机图片 3">复制</button></div></div>
+            <div class="command-item"><span class="command-title">看看最近上传的 5 张图片</span><div class="cmd-row"><span class="cmd">/看最近上传 5</span><button class="copy" type="button" data-copy="/看最近上传 5">复制</button></div></div>
+            <div class="command-item"><span class="command-title">查询自己累计投稿了多少张</span><div class="cmd-row"><span class="cmd">/查看贡献</span><button class="copy" type="button" data-copy="/查看贡献">复制</button></div></div>
           </div>
-          <p class="example-note">✨ <strong>看图命令可以不带 /：</strong><span class="inline-command">看airi</span>、<span class="inline-command">看看airi</span>、<span class="inline-command">/看airi</span> 都能用。<strong>但</strong><span class="inline-command">/查看画廊</span>、<span class="inline-command">/抽表情</span> 和上传等管理指令，需要保留 <strong>/</strong>。</p>
+          <p class="example-note">✨ <strong>看图命令可以不带 /：</strong><span class="inline-command">看airi</span>、<span class="inline-command">看看airi</span>、<span class="inline-command">/看airi</span> 都能用。<span class="inline-command">看随机图片 3</span> 也是看图命令，是否必须带 / 取决于机器人设置；其他如 <span class="inline-command">/查看画廊</span>、<span class="inline-command">/抽表情</span>、<span class="inline-command">/上传airi</span>、<span class="inline-command">/查看贡献</span> 需保留 <strong>/</strong>。</p>
           <div class="howto">
             <details><summary>🔢 看完总览图，怎样按编号找原图？</summary>
               <div class="howto-body">
@@ -419,15 +455,17 @@
                 <p class="howto-note">分类批量看图与全库抽表情是两种功能。单次张数受插件设置和图库实际图片数量限制。</p>
               </div>
             </details>
-            <details><summary>📤 我想往画廊上传图片</summary>
+            <details><summary>🔍 为什么提示相似或重复图片？</summary>
               <div class="howto-body">
-                <ol class="howto-steps">
-                  <li>先用 <span class="inline-command">/查看画廊</span> 找到目标分类。</li>
-                  <li>把要上传的图片发到 QQ，<strong>回复那条图片消息</strong>。</li>
-                  <li>在回复里输入上传指令，例如上传到 <strong>airi</strong>：</li>
-                </ol>
-                <div class="code-options"><span class="code-pill"><code>/上传airi</code><button class="copy" type="button" data-copy="/上传airi">复制</button></span><span class="code-pill"><code>/上传 airi</code><button class="copy" type="button" data-copy="/上传 airi">复制</button></span></div>
-                <p class="howto-note">两种写法都支持；<strong>上传必须带 /</strong>。未附图片会无法上传，部分群可能对上传权限有限制。</p>
+                <p class="example-note">为避免重复收录，画廊会检查同分类的完全重复图和感知相似图。<strong>完全重复的图片不能强制上传</strong>；如果只是“相似”但内容确实不同，可以在出现确认提示后使用：</p>
+                <div class="code-options"><span class="code-pill"><code>/强制上传</code><button class="copy" type="button" data-copy="/强制上传">复制</button></span></div>
+                <p class="howto-note">只用于确认最近一次被判定为“相似”的图片，通常需在 5 分钟内执行；确认上传成功后才会计入个人贡献。失败或无效图片不会增加数量。</p>
+              </div>
+            </details>
+            <details><summary>🗂️ 图库整理、跨分类迁移（管理功能）</summary>
+              <div class="howto-body">
+                <p class="example-note">想整理已有图片，可以请有权限的管理员使用 <span class="inline-command">/迁移图片</span>，按编号预览后再用 <span class="inline-command">/确认迁移图片 N</span> 确认，或打开 AstrBot WebUI 的图库管理页面按缩略图移动。移动前会再次校验图片及远程同步状态，避免覆盖原图。</p>
+                <p class="howto-note">这里的 N 是迁移预览给出的实际数量。普通看图和个人贡献查询不需要管理权限；管理操作是否对群成员开放取决于插件的 use_permission 设置。</p>
               </div>
             </details>
             <details><summary>📚 想查看完整画廊命令？</summary>
