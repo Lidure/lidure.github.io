@@ -161,6 +161,24 @@
     .feature[data-featured="gallery"]:hover { border-color: #db8fb4; }
     .feature[data-featured="gallery"] .feature-sub { font-size: 13px; }
     .feature-kicker { position: absolute; top: 19px; right: 19px; color: #b35e8a; font-size: 11px; font-weight: 800; border: 1px solid #edcede; background: #ffffffd6; border-radius: 999px; padding: 5px 10px; }
+    /* Command results are actual click-through help links, not static keyword tags. */
+    .command-search-results { margin: 0 0 17px; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: var(--white); box-shadow: var(--shadow); }
+    .command-search-results[hidden] { display: none !important; }
+    .command-search-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 12px; }
+    .command-search-heading strong { color: var(--ink); font-size: 14px; }
+    .command-search-heading span { color: var(--secondary); font-size: 12px; }
+    .command-search-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .command-search-result { text-align: left; display: flex; flex-direction: column; gap: 4px; min-width: 0; min-height: 59px; padding: 11px 14px; border: 1px solid #eed8e7; border-radius: 12px; background: #fff8fb; color: var(--ink); }
+    .command-search-result:hover, .command-search-result:focus-visible { border-color: #d780ac; background: #fff0f6; }
+    .command-search-code { font: 800 13px/1.5 Consolas, "Microsoft YaHei", monospace; color: #b7467e; overflow-wrap: anywhere; }
+    .command-search-context { color: #807484; font-size: 12px; overflow-wrap: anywhere; }
+    .search-hit { outline: 2px solid #df78ad; outline-offset: 3px; border-radius: 10px; }
+    .no-results a { color: #b64d85; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
+    #command-troubleshooting { scroll-margin-top: 100px; }
+    .troubleshoot-steps { margin: 14px 0 12px; padding-left: 22px; color: #6e6878; font-size: 13px; line-height: 1.9; }
+    .troubleshoot-steps li { padding-left: 3px; margin-bottom: 9px; }
+    .troubleshoot-steps strong { color: var(--ink); }
+    .troubleshoot-steps code, #command-troubleshooting p code { background: #fff0f6; color: #ab457c; border-radius: 5px; padding: 2px 5px; overflow-wrap: anywhere; }
     .no-results { text-align: center; margin-top: 13px; padding: 24px; background: white; border: 1px dashed #e9c6d8; border-radius: 18px; color: #8a8192; }
     .detail-shell { margin-top: 22px; scroll-margin-top: 95px; border-radius: 26px; padding: 28px; border: 1px solid #efdee9; background: #fff; box-shadow: var(--shadow); }
     .detail-shell[hidden], .guide[hidden], .feature[hidden], .no-results[hidden] { display: none !important; }
@@ -253,7 +271,7 @@
       .quick-card { padding: 15px 18px; }
       .feature-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
       .feature { min-height: 150px; padding: 19px 17px; }
-      .commands { grid-template-columns: 1fr; }
+      .commands, .command-search-list { grid-template-columns: 1fr; }
     }
     @media (max-width: 580px) {
       .gallery-spotlight { margin-top: 29px; border-radius: 20px; padding: 18px; }
@@ -286,6 +304,18 @@
       .feature-title { font-size: 16px; margin-top: 11px; }
       .feature-sub { font-size: 11px; line-height: 1.5; }
       .detail-shell { padding: 20px 17px; border-radius: 20px; }
+      /* Phone-first readability: body instructions and copy targets should not shrink to 11px. */
+      .quick-card p, .howto-steps li, .detail-desc, .example-note,
+      .howto-note, .gallery-spotlight-copy p, .gallery-spotlight-howto > p,
+      .gallery-spotlight-step small, .gallery-contribute-feedback p,
+      .gallery-online p, .faq details p, .troubleshoot-steps,
+      .node-info, .passive-body { font-size: 14px; line-height: 1.8; }
+      .command-title, .command-search-context, .feature-sub, .feature-foot { font-size: 13px; }
+      .cmd, .command-search-code { font-size: 14px; }
+      .copy { min-height: 42px; min-width: 50px; padding: 8px 12px; font-size: 13px; }
+      .code-pill .copy { min-height: 40px; }
+      .command-search-result { min-height: 61px; padding: 12px; }
+      .faq summary, .howto summary { min-height: 46px; }
       .faq-grid, .simple-list { grid-template-columns: 1fr; }
       .faq { margin: 48px 0; }
     }
