@@ -261,19 +261,48 @@
 :root[data-theme="dark"] .demo-copy { background: #aa4078; color: #fff; }
 :root[data-theme="dark"] .demo-copy:hover { background: #bd4f89; }
 :root[data-theme="dark"] #toast { background: #4a3451; color: #fff; }
-/* Mobile navigation stays hidden on desktop, preserving the original header. */
-.mobile-nav { display: none; position: relative; flex: 0 0 auto; }
-.mobile-nav summary { list-style: none; cursor: pointer; border: 1px solid #e9cfde; background: #fff; color: #9b4e77; border-radius: 11px; padding: 9px 10px; min-height: 36px; font-size: 12px; font-weight: 850; white-space: nowrap; }
-.mobile-nav summary::-webkit-details-marker { display: none; }
-.mobile-nav summary span { font-size: 15px; margin-left: 2px; }
-.mobile-nav-panel { position: absolute; z-index: 35; top: calc(100% + 10px); right: 0; min-width: 198px; padding: 8px; border-radius: 15px; border: 1px solid #eacddd; background: #fffafd; box-shadow: 0 14px 42px #3d293438; }
-.mobile-nav-panel a { display: block; padding: 10px 12px; border-radius: 9px; color: #684f69; font-size: 14px; font-weight: 700; }
-.mobile-nav-panel a:hover, .mobile-nav-panel a:focus-visible { background: #fff0f7; color: #ad477b; }
-:root[data-theme="dark"] .mobile-nav summary,
-:root[data-theme="dark"] .mobile-nav-panel { background: #302638; border-color: #654967; color: #ffcae4; }
-:root[data-theme="dark"] .mobile-nav-panel a { color: #f0dce8; }
-:root[data-theme="dark"] .mobile-nav-panel a:hover,
-:root[data-theme="dark"] .mobile-nav-panel a:focus-visible { background: #49344d; color: #ffd4e9; }
+/* Bot Help: deliberately simple sticky top bar. Search is the primary navigation. */
+.nav-inner { gap: 13px; }
+.nav-inner .brand { flex: 0 0 auto; white-space: nowrap; }
+.nav-search-shell { position: relative; flex: 1 1 310px; min-width: 180px; max-width: 420px; }
+.search-wrap.nav-search {
+  display: flex; width: 100%; height: 43px; padding-inline: 13px;
+  background: #fffdfedb; border: 1px solid #ead2e1;
+  border-radius: 14px; box-shadow: 0 2px 12px #a26d920f;
+  transition: border-color .18s, box-shadow .18s;
+}
+.nav-search:focus-within { border-color: #d77eae; box-shadow: 0 0 0 3px #d77eae22; }
+.nav-search-icon { font-size: 20px; line-height: 1; color: #b66b96; flex: 0 0 auto; }
+.nav-search input { min-width: 0; font-size: 14px; }
+.nav-inner .nav-links { flex: 0 0 auto; gap: 11px; white-space: nowrap; }
+.nav-inner .nav-links .nav-gallery { color: #b35284 !important; font-weight: 800; }
+.nav-inner .nav-links .nav-blog { padding: 8px 12px; background: #fff9fd; }
+.nav-inner .theme-control { flex: 0 0 auto; }
+.nav-search-shell .command-search-results {
+  position: absolute; top: calc(100% + 9px); left: 0; z-index: 35;
+  width: min(460px, calc(100vw - 28px));
+  max-height: min(68vh, 550px); overflow-y: auto; overscroll-behavior: contain;
+  margin: 0; padding: 14px; border-radius: 17px;
+  background: #fffbfe; border: 1px solid #edd8e6; box-shadow: 0 20px 55px #70506933;
+}
+.nav-search-shell .command-search-list { grid-template-columns: minmax(0,1fr); gap: 7px; }
+.nav-search-shell .command-search-result {
+  min-height: 54px; padding: 9px 12px; border-radius: 11px; gap: 2px;
+}
+.nav-search-shell .command-search-heading { margin-bottom: 10px; }
+.nav-search-shell .command-search-heading strong { font-size: 12px; }
+.nav-search-shell .command-search-heading span { font-size: 11px; }
+.command-search-empty { margin: 0; font-size: 13px; line-height: 1.75; color: #806d7e; }
+.command-search-empty a { color: #aa4a7e; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
+:root[data-theme="dark"] .search-wrap.nav-search {
+  background: #2c2335; border-color: #66506c; box-shadow: 0 2px 12px #0b081524;
+}
+:root[data-theme="dark"] .nav-search:focus-within { border-color: #d18ab8; box-shadow: 0 0 0 3px #d18ab820; }
+:root[data-theme="dark"] .nav-search-icon { color: #ffafd2; }
+:root[data-theme="dark"] .nav-inner .nav-links .nav-blog { background: #35273b; border-color: #66506c; }
+:root[data-theme="dark"] .nav-search-shell .command-search-results { background: #292131; border-color: #624a63; box-shadow: 0 20px 55px #07050b9c; }
+:root[data-theme="dark"] .command-search-empty { color: #d0bcce; }
+:root[data-theme="dark"] .command-search-empty a { color: #ffc3df; }
 :root[data-theme="dark"] .command-search-results { background: #271f2f; border-color: #614963; }
 :root[data-theme="dark"] .command-search-result { background: #35283b; border-color: #624965; color: #eee3ee; }
 :root[data-theme="dark"] .command-search-result:hover,
@@ -309,26 +338,44 @@
 /* Highlight focused tool cards linked from the homepage unified search. */
 :root .tool:target { outline: 2px solid #d676a8; outline-offset: 3px; }
 :root[data-theme="dark"] .tool:target { outline-color: #f0a3c9; }
-/* Keep navigation and theme selection comfortable on tablets and narrow laptops. */
-@media (min-width: 581px) and (max-width: 840px) {
-  .nav-inner { gap: 10px; }
-  .nav-inner .brand { font-size: 14px; }
-  .nav-inner .nav-links { gap: 10px; }
-  .nav-inner .nav-links a[href="#features"],
-  .nav-inner .nav-links a[href="#faq"] { display: none; }
+/* Fit on narrow laptops without squeezing the command field. */
+@media (min-width: 761px) and (max-width: 940px) {
+  .nav-inner { gap: 9px; }
+  .nav-inner .nav-links { gap: 9px; font-size: 12px; }
+  .nav-inner .nav-links .nav-blog { padding-inline: 9px; }
+  .nav-inner .theme-control label { display: none; }
+  .nav-inner .theme-control select { min-width: 100px; }
+}
+/* Phone/tablet: no hamburger. Brand + theme on row one; full search on row two. */
+@media (max-width: 760px) {
+  .nav-inner {
+    display: grid; grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px 12px; padding-block: 10px; min-height: 0;
+  }
+  .nav-inner .brand { grid-column: 1; grid-row: 1; justify-self: start; }
+  .nav-inner .theme-control { grid-column: 2; grid-row: 1; justify-self: end; }
+  .nav-inner .theme-control label { display: none; }
+  .nav-inner .nav-links { display: none; }
+  .nav-inner .nav-search-shell {
+    grid-column: 1 / -1; grid-row: 2; width: 100%; max-width: none; min-width: 0;
+  }
+  .nav-search-shell .command-search-results {
+    top: calc(100% + 7px); width: 100%;
+    max-height: min(57vh, 440px); padding: 12px;
+  }
+  html { scroll-padding-top: 127px; }
+  .features, .gallery-spotlight, .gallery-contribute, .detail-shell,
+  .faq, .passive, .nodes { scroll-margin-top: 127px; }
 }
 @media (max-width: 580px) {
-  .nav-inner .nav-links { display: none; }
-  .mobile-nav { display: block; }
-  .nav-inner .theme-control { margin-left: auto; }
-  .theme-control label { display: none; }
-  .theme-control select { min-width: 94px; min-height: 34px; font-size: 12px; padding: 5px; }
-  .nav-inner { gap: 8px; }
-  .nav-inner .nav-links { margin-left: auto; gap: 8px; }
-  .nav-inner .nav-links a:not(.nav-blog) { display: none; }
-  .nav-inner .brand { font-size: 14px; gap: 6px; }
-  .nav-inner .brand-mark { width: 30px; height: 30px; }
-  .nav-inner .nav-blog { padding: 7px 8px; }
+  .nav-inner { gap: 7px 9px; }
+  .nav-inner .brand { font-size: 14px; gap: 7px; }
+  .nav-inner .brand-mark { width: 31px; height: 31px; }
+  .nav-inner .theme-control select {
+    min-width: 94px; min-height: 35px; font-size: 12px; padding: 5px 7px;
+  }
+  .nav-search { height: 42px; }
+  .nav-search input { font-size: 14px; }
   .topbar-inner { gap: 8px; }
   .topbar-inner .brand > span:not(.brand-mark) { display: none; }
   .topbar-inner .back { margin-left: auto; padding: 7px 9px; font-size: 11px; }

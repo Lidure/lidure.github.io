@@ -87,6 +87,7 @@ function launch() {
   const panel = { hidden: true };
   const status = { textContent: '' };
   const noResults = { hidden: true };
+  const commandEmpty = { hidden: true };
   const document = {
     createElement: makeElement,
     querySelectorAll(selector) {
@@ -100,6 +101,7 @@ function launch() {
       if (id === 'command-search-results') return panel;
       if (id === 'command-search-list') return list;
       if (id === 'command-search-status') return status;
+      if (id === 'command-search-empty') return commandEmpty;
       if (id === 'detail-shell') return shell;
       if (id === 'toast') return { classList: { add() {}, remove() {} } };
       return null;
@@ -116,7 +118,7 @@ function launch() {
   };
   vm.runInNewContext(inlineScript, { document, window });
   return {
-    input, list, panel, status, noResults, shell,
+    input, list, panel, status, noResults, commandEmpty, shell,
     async search(value) {
       input.value = value;
       events.input();
@@ -148,7 +150,8 @@ test('local commands still work when Airi index exists', async () => {
   assert.equal(page.noResults.hidden, true);
 
   await page.search('unknown-no-match-query');
-  assert.equal(page.panel.hidden, true);
+  assert.equal(page.panel.hidden, false);
+  assert.equal(page.commandEmpty.hidden, false);
   assert.equal(page.noResults.hidden, false);
 });
 
@@ -157,10 +160,13 @@ test('small-screen layout keeps controls legible and dark Airi results covered',
   assert.match(home, /@media \(max-width: 580px\)/);
   assert.match(home, /min-height:\s*42px;\s*min-width:\s*50px/);
   assert.match(home, /\.command-search-list/);
-  assert.match(home, /id="mobile-help-nav"/);
+  assert.match(home, /class="nav-search-shell" role="search"/);
+  assert.doesNotMatch(home, /id="mobile-help-nav"/);
   assert.match(css, /@media \(max-width: 580px\)/);
   assert.match(css, /:root\[data-theme="dark"\] \.command-search-result/);
-  assert.match(css, /:root\[data-theme="dark"\] \.mobile-nav summary/);
+  assert.match(css, /:root\[data-theme="dark"\] \.nav-search-shell \.command-search-results/);
+  assert.match(css, /@media \(max-width: 760px\)/);
+  assert.match(css, /\.nav-inner \.nav-search-shell/);
   assert.match(css, /\.topbar ~ main \.copy \{ min-height: 42px; min-width: 52px/);
   assert.match(css, /\.topbar ~ main \.tool-desc/);
   assert.match(css, /\.tool:target \{ outline: 2px solid/);
