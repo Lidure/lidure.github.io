@@ -483,3 +483,78 @@ test('deep link and reduced-motion preference reach the upload guide', () => {
   assert.equal(ui.scrolls.at(-1).target, 'upload');
   assert.equal(ui.scrolls.at(-1).options.behavior, 'auto');
 });
+
+test('command finder locates exact prefixed QQ commands and jumps into their guides', () => {
+  const ui = helpBrowserHarness();
+  ui.search('/查看贡献');
+  assert.equal(ui.commandPanel.hidden, false);
+  assert.equal(ui.commandList.children.length, 1);
+  const first = ui.commandList.children[0];
+  assert.equal(first.children[0].textContent, '/查看贡献');
+  assert.equal(first.children[1].textContent, 'gallery分类 · /查看贡献说明');
+  assert.match(ui.commandStatus.textContent, /找到 1 条/);
+  ui.click(first);
+  assert.equal(ui.shell.hidden, false);
+  assert.equal(ui.guides[0].hidden, false);
+  assert.equal(ui.scrolls.at(-1).target, '/查看贡献');
+  assert.equal(ui.scrolls.at(-1).options.block, 'center');
+  assert.ok(ui.guides[0].commandTargets['/查看贡献'].target.classList.values.has('search-hit'));
+});
+
+test('unprefixed aliases and inline help copy examples are searchable too', () => {
+  const ui = helpBrowserHarness();
+  ui.search('查看贡献');
+  assert.equal(ui.commandList.children[0].children[0].textContent, '/查看贡献');
+  ui.search('上传airi');
+  assert.equal(ui.commandList.children[0].children[0].textContent, '/上传airi');
+  ui.search('ww登录');
+  assert.equal(ui.commandList.children[0].children[0].textContent, 'ww登录');
+  ui.click(ui.commandList.children[0]);
+  assert.equal(ui.scrolls.at(-1).target, 'ww登录');
+  assert.equal(ui.guides[2].hidden, false);
+});
+
+test('search jump expands nested disclosures, honors reduced motion and clears highlights', () => {
+  const ui = helpBrowserHarness('', true);
+  ui.search('/画廊帮助详细');
+  ui.click(ui.commandList.children[0]);
+  assert.equal(ui.guides[0].commandTargets['/画廊帮助详细'].disclosure.open, true);
+  assert.equal(ui.scrolls.at(-1).options.behavior, 'auto');
+  assert.ok(ui.guides[0].commandTargets['/画廊帮助详细'].target.classList.values.has('search-hit'));
+  ui.search('');
+  assert.equal(ui.commandPanel.hidden, true);
+  assert.equal(ui.commandList.children.length, 0);
+  assert.equal(ui.guides[0].commandTargets['/画廊帮助详细'].target.classList.values.has('search-hit'), false);
+});
+
+test('search empty state leaves navigation and hero shortcuts unaffected', () => {
+  const ui = helpBrowserHarness();
+  ui.search('无此命令');
+  assert.equal(ui.commandPanel.hidden, true);
+  assert.equal(ui.noResults.hidden, false);
+  assert.ok(ui.shortcuts.every((shortcut) => shortcut.hidden === false));
+  ui.search('/画廊');
+  assert.equal(ui.commandPanel.hidden, false);
+  ui.search('');
+  assert.equal(ui.noResults.hidden, true);
+  assert.ok(ui.cards.every((card) => !card.hidden));
+});
+
+test('mobile navigation, touch sizes and no-reply diagnostic FAQ are present', () => {
+  assert.match(html, /class="mobile-nav" id="mobile-help-nav"/);
+  assert.match(html, /class="mobile-nav-panel" aria-label="手机导航"/);
+  for (const href of ['#features', '#gallery-spotlight', '#nodes', '#faq']) {
+    assert.ok(html.includes('href="' + href + '"'), 'Navigation missing ' + href);
+  }
+  assert.match(html, /\.copy\s*\{\s*min-height:\s*42px/);
+  assert.match(html, /\.quick-card p, \.howto-steps li, \.detail-desc/);
+  assert.match(html, /id="command-troubleshooting"/);
+  assert.match(html, /QQ 投稿记录/);
+  assert.match(html, /不要发送密码、Cookie 或验证码/);
+  assert.match(html, /aria-controls="command-search-results"/);
+  assert.match(html, /id="command-search-list"/);
+  assert.match(html, /\.command-search-results\[hidden\]/);
+  const ui = helpBrowserHarness();
+  ui.click({ mobileLink: true, dataset: {} });
+  assert.equal(ui.mobileNav.open, false);
+});
