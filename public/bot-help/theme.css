@@ -287,6 +287,28 @@
 :root[data-theme="dark"] .troubleshoot-steps code,
 :root[data-theme="dark"] #command-troubleshooting p code { background: #49304b; }
 :root[data-theme="dark"] .search-hit { outline-color: #ffaad2; }
+/* Consistent tap targets and legible text when moving from Bot Help to Airi. */
+@media (max-width: 580px) {
+  .topbar ~ main .tool-desc,
+  .topbar ~ main .tool-note,
+  .topbar ~ main .mention-note,
+  .topbar ~ main .format-note,
+  .topbar ~ main .tool-expand-body p,
+  .topbar ~ main .tool-expand-body ul,
+  .topbar ~ main .tool-expand-body ol,
+  .topbar ~ main .notice,
+  .topbar ~ main .command-label { font-size: 14px; line-height: 1.75; }
+  .topbar ~ main .command-line code,
+  .topbar ~ main .mini-command code { font-size: 14px; overflow-wrap: anywhere; }
+  .topbar ~ main .copy { min-height: 42px; min-width: 52px; padding: 8px 11px; font-size: 13px; }
+  .topbar ~ main .search input { font-size: 15px; }
+  .topbar ~ main .tool-top { flex-wrap: wrap; }
+  .topbar ~ main .tool-cost { max-width: 100%; align-items: start; }
+  .topbar ~ main .command-line, .topbar ~ main .mini-command { min-width: 0; }
+}
+/* Highlight focused tool cards linked from the homepage unified search. */
+:root .tool:target { outline: 2px solid #d676a8; outline-offset: 3px; }
+:root[data-theme="dark"] .tool:target { outline-color: #f0a3c9; }
 /* Keep navigation and theme selection comfortable on tablets and narrow laptops. */
 @media (min-width: 581px) and (max-width: 840px) {
   .nav-inner { gap: 10px; }
