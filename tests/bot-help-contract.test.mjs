@@ -382,15 +382,15 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
   ];
   const toast = { classList: { add() {}, remove() {} }, textContent: '' };
   const input = {
-    value: '',
-    handlers: {},
+    value: '', attrs: {}, handlers: {},
+    setAttribute(name, value) { this.attrs[name] = value; },
     addEventListener(name, fn) { this.handlers[name] = fn; }
   };
   const noResults = { hidden: true };
   const commandPanel = { hidden: true };
   const commandList = makeElement('div');
   const commandStatus = { textContent: '' };
-  const mobileNav = { open: true };
+  const commandEmpty = { hidden: true };
   const handlerMap = {};
   const document = {
     createElement: makeElement,
@@ -407,7 +407,7 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
       if (id === 'command-search-results') return commandPanel;
       if (id === 'command-search-list') return commandList;
       if (id === 'command-search-status') return commandStatus;
-      if (id === 'mobile-help-nav') return mobileNav;
+      if (id === 'command-search-empty') return commandEmpty;
       if (id === 'feature-title') return { scrollIntoView() {} };
       return null;
     },
@@ -422,7 +422,7 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
   vm.runInNewContext(inlineScript, { document, window });
   return {
     cards, guides, shortcuts, shell, scrolls, input, noResults,
-    commandPanel, commandList, commandStatus, mobileNav,
+    commandPanel, commandList, commandStatus, commandEmpty,
     search(value) { input.value = value; input.handlers.input(); },
     click(target) {
       handlerMap.click({
@@ -430,7 +430,7 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
           closest(selector) {
             if (selector === '[data-command-result]' && target.dataset.commandResult !== undefined) return target;
             if (selector === '[data-open]' && target.dataset.open !== undefined) return target;
-            if (selector === '.mobile-nav-panel a' && target.mobileLink) return target;
+            if (selector === '.nav-search-shell' && target.inSearch) return target;
             return null;
           }
         }
@@ -530,7 +530,8 @@ test('search jump expands nested disclosures, honors reduced motion and clears h
 test('search empty state leaves navigation and hero shortcuts unaffected', () => {
   const ui = helpBrowserHarness();
   ui.search('无此命令');
-  assert.equal(ui.commandPanel.hidden, true);
+  assert.equal(ui.commandPanel.hidden, false);
+  assert.equal(ui.commandEmpty.hidden, false);
   assert.equal(ui.noResults.hidden, false);
   assert.ok(ui.shortcuts.every((shortcut) => shortcut.hidden === false));
   ui.search('/画廊');
@@ -540,21 +541,47 @@ test('search empty state leaves navigation and hero shortcuts unaffected', () =>
   assert.ok(ui.cards.every((card) => !card.hidden));
 });
 
-test('mobile navigation, touch sizes and no-reply diagnostic FAQ are present', () => {
-  assert.match(html, /class="mobile-nav" id="mobile-help-nav"/);
-  assert.match(html, /class="mobile-nav-panel" aria-label="手机导航"/);
-  for (const href of ['#features', '#gallery-spotlight', '#nodes', '#faq']) {
-    assert.ok(html.includes('href="' + href + '"'), 'Navigation missing ' + href);
-  }
+test('compact navbar puts the only command search in the sticky header', () => {
+  const nav = html.split('<header class="nav">')[1].split('</header>')[0];
+  const features = html.split('<section id="features"')[1].split('<div class="feature-grid"')[0];
+  assert.match(nav, /class="nav-search-shell" role="search"/);
+  assert.match(nav, /id="help-search"/);
+  assert.match(nav, /id="command-search-results"/);
+  assert.match(nav, /id="command-search-empty"/);
+  assert.match(nav, /href="#gallery-spotlight"/);
+  assert.match(nav, /href="\/" title="返回博客"/);
+  assert.match(nav, /id="bot-help-theme"/);
+  assert.doesNotMatch(nav, /mobile-help-nav|mobile-nav-panel|菜单/);
+  assert.doesNotMatch(features, /id="help-search"|id="command-search-results"/);
+  assert.equal((html.match(/id="help-search"/g) || []).length, 1);
+  assert.equal((html.match(/id="command-search-results"/g) || []).length, 1);
   assert.match(html, /\.copy\s*\{\s*min-height:\s*42px/);
-  assert.match(html, /\.quick-card p, \.howto-steps li, \.detail-desc/);
   assert.match(html, /id="command-troubleshooting"/);
-  assert.match(html, /QQ 投稿记录/);
   assert.match(html, /不要发送密码、Cookie 或验证码/);
   assert.match(html, /aria-controls="command-search-results"/);
-  assert.match(html, /id="command-search-list"/);
-  assert.match(html, /\.command-search-results\[hidden\]/);
+});
+
+test('search dropdown opens under navbar, has useful no-result state and closes with Escape or outside click', () => {
   const ui = helpBrowserHarness();
-  ui.click({ mobileLink: true, dataset: {} });
-  assert.equal(ui.mobileNav.open, false);
+  ui.search('/查看贡献');
+  assert.equal(ui.commandPanel.hidden, false);
+  assert.equal(ui.input.attrs['aria-expanded'], 'true');
+  assert.equal(ui.commandEmpty.hidden, true);
+
+  ui.input.handlers.keydown({ key: 'Escape' });
+  assert.equal(ui.commandPanel.hidden, true);
+  assert.equal(ui.input.attrs['aria-expanded'], 'false');
+
+  ui.input.handlers.focus();
+  assert.equal(ui.commandPanel.hidden, false);
+
+  ui.click({ dataset: {} });
+  assert.equal(ui.commandPanel.hidden, true);
+
+  ui.search('not-a-valid-command');
+  assert.equal(ui.commandPanel.hidden, false);
+  assert.equal(ui.commandEmpty.hidden, false);
+  ui.search('');
+  assert.equal(ui.commandPanel.hidden, true);
+  assert.ok(ui.cards.every((card) => !card.hidden));
 });
