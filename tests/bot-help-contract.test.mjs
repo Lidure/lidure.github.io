@@ -10,19 +10,26 @@ const html = readFileSync(path.join(root, '..', 'dist', 'bot-help', 'index.html'
 const copied = [...html.matchAll(/data-copy="([^"]+)"/g)].map((m) => m[1]);
 const has = (command) => copied.includes(command);
 
-test('footer displays standalone Bot Help homepage page-view count, not blog-wide traffic', () => {
+test('Bot Help footer separates cumulative page visitors and provider-wide daily stats', () => {
   const footer = html.split('<footer class="footer">')[1]?.split('</footer>')[0] ?? '';
   assert.match(footer, /class="bot-help-visit"/);
-  assert.match(footer, /id="busuanzi_value_page_pv"/);
-  assert.match(footer, /Bot Help 累计浏览/);
-  assert.match(footer, /本页 PV，非独立访客/);
-  assert.doesNotMatch(footer, /busuanzi_value_site_pv|busuanzi_value_site_uv/);
-  assert.equal((html.match(/id="busuanzi_value_page_pv"/g) || []).length, 1);
-  assert.match(html, /<script defer src="https:\/\/busuanzi\.ibruce\.info\/busuanzi\/2\.3\/busuanzi\.pure\.mini\.js"><\/script>/);
-  assert.ok(html.indexOf('busuanzi.pure.mini.js') < html.indexOf('function announce'), 'The counter does not replace the existing help controller');
+  for (const field of ['page_pv','page_uv','today_pv','today_uv']) {
+    assert.match(footer, new RegExp('id="busuanzi_' + field + '"'));
+    assert.equal((html.match(new RegExp('id="busuanzi_' + field + '"','g')) || []).length, 1);
+  }
+  assert.match(footer, /本页累计/);
+  assert.match(footer, /今日统计/);
+  assert.match(footer, /今日数据按统计服务的站点口径计算/);
+  assert.match(footer, /访客为近似去重值/);
+  assert.doesNotMatch(footer, /busuanzi_(value_)?site_(pv|uv)/);
+  assert.doesNotMatch(footer, /busuanzi_value_page_pv/);
+  assert.match(html, /<script defer src="https:\/\/cdn\.busuanzi\.cc\/busuanzi\/3\.6\.9\/busuanzi\.min\.js"><\/script>/);
+  assert.doesNotMatch(html, /busuanzi\.ibruce\.info/);
+  assert.ok(html.indexOf('busuanzi.min.js') < html.indexOf('function announce'));
   const css = readFileSync(path.join(root, '..', 'dist', 'bot-help', 'theme.css'), 'utf8');
-  assert.match(css, /\.bot-help-visit/);
+  assert.match(css, /\.bot-help-visit-row/);
   assert.match(css, /:root\[data-theme="dark"\] \.bot-help-visit/);
+  assert.match(css, /@media \(max-width: 580px\)[\s\S]*?\.bot-help-visit/);
 });
 
 test('bot help starts concise: quick-start and exactly six discoverable categories', () => {
