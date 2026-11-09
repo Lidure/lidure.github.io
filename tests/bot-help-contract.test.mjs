@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
+import vm from 'node:vm';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
 const html = readFileSync(path.join(root, '..', 'dist', 'bot-help', 'index.html'), 'utf8');
@@ -261,4 +262,153 @@ test('hero displays the real bot QQ avatar in the circular ornament with a safe 
   for (const label of ['💬 随时聊聊', '🎀 图片收藏', '🎮 游戏助手']) {
     assert.ok(html.includes(label), 'Missing hero floating label: '+label);
   }
+});
+
+test('QQ avatar remains visible and properly sized on tablets and phones', () => {
+  const tablet = html.split('@media (max-width: 780px) {')[1]?.split('@media (max-width: 580px) {')[0];
+  const phone = html.split('@media (max-width: 580px) {')[1]?.split('@media (prefers-reduced-motion: reduce)')[0];
+  assert.ok(tablet && phone);
+  assert.match(tablet, /\.hero-illustration\s*\{\s*display:\s*grid/);
+  assert.doesNotMatch(tablet, /\.hero-illustration\s*\{\s*display:\s*none/);
+  assert.match(tablet, /\.hero-illustration \.float-tag, \.hero-illustration \.sparkle\s*\{\s*display:\s*none/);
+  assert.match(phone, /\.hero-illustration\s*\{\s*top:\s*68px;\s*right:\s*18px;\s*width:\s*90px/);
+  assert.match(phone, /\.hero-illustration \.mascot\s*\{\s*width:\s*72px;\s*height:\s*72px/);
+  assert.match(phone, /\.hero h1\s*\{\s*padding-right:\s*82px/);
+  assert.match(phone, /font-size:\s*clamp\(30px, 9vw, 38px\)/);
+  assert.match(html, /class="mascot-avatar"/);
+});
+
+test('gallery upload shortcuts are distinguishable from feature cards', () => {
+  assert.match(html, /data-guide-target="gallery-contribute" data-open="gallery" aria-controls="detail-gallery">查看详细投稿步骤/);
+  assert.match(html, /data-guide-target="gallery-contribute" data-open="gallery" aria-controls="detail-gallery">🖼️ 画廊与投稿指南/);
+  assert.match(html, /id="gallery-contribute" class="gallery-contribute"/);
+  assert.match(html, /\.gallery-contribute\s*\{\s*scroll-margin-top:\s*104px/);
+  assert.match(html, /querySelectorAll\('\.feature\[data-open\]'\)/);
+  assert.doesNotMatch(html, /querySelectorAll\('\[data-open\]'\)/);
+  assert.match(html, /hash === 'guide-gallery-upload'/);
+});
+
+function helpBrowserHarness(hash = '', reducedMotion = false) {
+  const scripts = [...html.matchAll(/<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g)];
+  const inlineScript = scripts.at(-1)?.[1];
+  assert.ok(inlineScript, 'Inline Bot Help controller missing');
+
+  const scrolls = [];
+  const galleryUpload = {
+    scrollIntoView(options) { scrolls.push({ target: 'upload', options }); }
+  };
+  const shell = {
+    hidden: true,
+    scrollIntoView(options) { scrolls.push({ target: 'shell', options }); }
+  };
+  const names = ['gallery', 'chat', 'games', 'voice', 'fun', 'tools'];
+  const cards = names.map((name) => ({
+    dataset: { open: name, keywords: name },
+    textContent: name,
+    hidden: false,
+    attrs: { 'aria-expanded': 'false' },
+    getAttribute(key) { return this.attrs[key] ?? null; },
+    setAttribute(key, value) { this.attrs[key] = value; }
+  }));
+  const guides = names.map((name) => ({
+    dataset: { guide: name },
+    hidden: true,
+    querySelector(selector) {
+      return name === 'gallery' && selector === '#gallery-contribute' ? galleryUpload : null;
+    }
+  }));
+  const shortcuts = [
+    { dataset: { open: 'gallery', guideTarget: 'gallery-contribute' }, hidden: false,
+      getAttribute() { return null; } },
+    { dataset: { open: 'gallery', guideTarget: 'gallery-contribute' }, hidden: false,
+      getAttribute() { return null; } }
+  ];
+  const toast = { classList: { add() {}, remove() {} }, textContent: '' };
+  const input = {
+    value: '',
+    handlers: {},
+    addEventListener(name, fn) { this.handlers[name] = fn; }
+  };
+  const noResults = { hidden: true };
+  const handlerMap = {};
+  const document = {
+    querySelectorAll(selector) {
+      if (selector === '.feature[data-open]') return cards;
+      if (selector === '[data-guide]') return guides;
+      throw new Error('Unexpected selector: ' + selector);
+    },
+    getElementById(id) {
+      if (id === 'detail-shell') return shell;
+      if (id === 'toast') return toast;
+      if (id === 'help-search') return input;
+      if (id === 'no-results') return noResults;
+      if (id === 'feature-title') return { scrollIntoView() {} };
+      return null;
+    },
+    addEventListener(name, fn) { handlerMap[name] = fn; }
+  };
+  const window = {
+    location: { hash },
+    matchMedia() { return { matches: reducedMotion }; },
+    clearTimeout() {},
+    setTimeout() {}
+  };
+  vm.runInNewContext(inlineScript, { document, window });
+  return {
+    cards, guides, shortcuts, shell, scrolls, input, noResults,
+    click(target) {
+      handlerMap.click({
+        target: {
+          closest(selector) {
+            return selector === '[data-open]' ? target : null;
+          }
+        }
+      });
+    }
+  };
+}
+
+test('homepage gallery CTA scrolls directly to upload guide, not the top of the help panel', () => {
+  const ui = helpBrowserHarness();
+  ui.click(ui.shortcuts[0]);
+  assert.equal(ui.shell.hidden, false);
+  assert.equal(ui.guides[0].hidden, false);
+  assert.equal(ui.scrolls.at(-1).target, 'upload');
+  assert.equal(ui.scrolls.at(-1).options.block, 'start');
+  assert.equal(ui.cards[0].attrs['aria-expanded'], 'true');
+
+  // Repeated clicks on the same shortcut must not close the guide.
+  ui.click(ui.shortcuts[0]);
+  assert.equal(ui.shell.hidden, false);
+  assert.equal(ui.scrolls.at(-1).target, 'upload');
+
+  // Normal feature card still opens from the top.
+  ui.click(ui.cards[1]);
+  assert.equal(ui.scrolls.at(-1).target, 'shell');
+  assert.equal(ui.guides[1].hidden, false);
+});
+
+test('feature search never hides hero or gallery spotlight action buttons', () => {
+  const ui = helpBrowserHarness();
+  ui.input.value = 'nonsense-nonmatching-keyword';
+  ui.input.handlers.input();
+  assert.equal(ui.noResults.hidden, false);
+  assert.ok(ui.cards.every((card) => card.hidden));
+  assert.ok(ui.shortcuts.every((shortcut) => shortcut.hidden === false));
+
+  ui.input.value = 'gallery';
+  ui.input.handlers.input();
+  assert.equal(ui.noResults.hidden, true);
+  assert.equal(ui.cards.filter((card) => !card.hidden).length, 1);
+
+  ui.input.value = '';
+  ui.input.handlers.input();
+  assert.ok(ui.cards.every((card) => !card.hidden));
+});
+
+test('deep link and reduced-motion preference reach the upload guide', () => {
+  const ui = helpBrowserHarness('#guide-gallery-upload', true);
+  assert.equal(ui.shell.hidden, false);
+  assert.equal(ui.scrolls.at(-1).target, 'upload');
+  assert.equal(ui.scrolls.at(-1).options.behavior, 'auto');
 });
