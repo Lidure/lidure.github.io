@@ -314,6 +314,16 @@
           <option value="dark">暗色</option>
         </select>
       </div>
+      <details class="mobile-nav" id="mobile-help-nav">
+        <summary aria-label="打开帮助导航菜单">菜单 <span aria-hidden="true">☰</span></summary>
+        <nav class="mobile-nav-panel" aria-label="手机导航">
+          <a href="#features">功能与命令搜索</a>
+          <a href="#gallery-spotlight">画廊投稿</a>
+          <a href="#nodes">节点服务</a>
+          <a href="#faq">常见问题</a>
+          <a href="/">返回小窝</a>
+        </nav>
+      </details>
     </div>
   </header>
 
@@ -392,9 +402,13 @@
     <section id="features" class="features" aria-labelledby="feature-title">
       <div class="section-top">
         <div><span class="section-label">02 · EXPLORE</span><h2 id="feature-title">你想玩哪个？</h2><p class="section-note">点开分类，只看你需要的用法。</p></div>
-        <label class="search-wrap" for="help-search"><span aria-hidden="true">⌕</span><input id="help-search" type="search" placeholder="搜功能，例如：签到、表情、点歌" autocomplete="off" aria-label="搜索功能"></label>
+        <label class="search-wrap" for="help-search"><span aria-hidden="true">⌕</span><input id="help-search" type="search" placeholder="搜命令，例如：/查看贡献、签到" autocomplete="off" aria-label="搜索命令和功能" aria-controls="command-search-results"></label>
       </div>
 
+      <section id="command-search-results" class="command-search-results" aria-label="相关命令结果" hidden>
+        <div class="command-search-heading"><strong>🔎 匹配的命令</strong><span id="command-search-status" aria-live="polite"></span></div>
+        <div id="command-search-list" class="command-search-list"></div>
+      </section>
       <div class="feature-grid" id="feature-grid">
         <button class="feature" type="button" data-featured="gallery" data-open="gallery" data-keywords="画廊 图片 表情包 投稿 贡献 感谢 上传 分类 抽表情 看随机图片 看最近上传 查看贡献 看图 收藏 图库 看全部 多图 批量 编号 airi miku" aria-controls="detail-gallery" aria-expanded="false" style="--icon-bg:#ffe4ef">
           <span class="feature-kicker">常用功能 · 欢迎投稿</span>
@@ -416,7 +430,7 @@
           <span class="feature-icon" aria-hidden="true">🛠️</span><span class="feature-title">实用工具</span><span class="feature-sub">点歌 · 搜图 · 天气 · Pixiv</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
       </div>
-      <p id="no-results" class="no-results" hidden>没找到这个关键词呢，试试搜索「画廊」「游戏」或「签到」吧 ♡</p>
+      <p id="no-results" class="no-results" hidden>没有找到对应命令。试试去掉 /、换个关键词，或查看<a href="#command-troubleshooting">命令排查指南</a>。</p>
       <a class="node-shortcut" href="#nodes" aria-label="查看节点服务和独立扩展命令">
         <span>🧩 想看节点里的其他功能？<small>Haruki · GsCore · Airi · 其他节点</small></span>
         <span aria-hidden="true">↗</span>
@@ -825,10 +839,19 @@
     <section id="faq" class="faq" aria-labelledby="faq-title">
       <div class="section-top"><div><span class="section-label">05 · LITTLE TIPS</span><h2 id="faq-title">还有一点小提醒</h2><p class="section-note">遇到问题时，不用着急。</p></div></div>
       <div class="faq-grid">
-        <details><summary>命令发了没反应？</summary><p>检查命令有没有写错，是否需要“/”前缀；群聊里聊天请正确 @小浅子。部分功能可能有冷却时间或权限限制。</p></details>
+        <details id="command-troubleshooting"><summary>命令发送后没有回复？按这几步检查</summary>
+          <ol class="troubleshoot-steps">
+            <li><strong>核对前缀：</strong>例如 <code>/查看贡献</code>、<code>/查看画廊</code>、<code>/上传airi</code> 要带斜杠；<code>看airi</code> 通常不用。注意空格与命令写法。</li>
+            <li><strong>确认使用场景：</strong>群聊中与 AI 聊天要真正 @机器人；上传图片需要<strong>回复那条图片消息</strong>，不能单独发送上传命令。</li>
+            <li><strong>检查服务状态：</strong>确认机器人仍在 QQ 群内、没有离线；部分游戏和远程节点服务可能暂时不可用。</li>
+            <li><strong>检查权限与限制：</strong>部分群不允许上传，或存在调用频率限制。<code>/查看贡献</code> 只查询自己的 QQ 投稿记录，新功能启用前的旧图不会计入。</li>
+            <li><strong>仍无回复：</strong>可以向管理员提供发送时间、群聊或私聊场景、命令原文与报错截图，方便查日志；<strong>不要发送密码、Cookie 或验证码</strong>。</li>
+          </ol>
+          <p>找不到具体指令时，先在上方搜索框输入完整命令；也可以在 QQ 尝试 <code>/画廊帮助</code> 或 <code>/help</code> 查看相应帮助。</p>
+        </details>
         <details><summary>游戏查询或自动签到提示未绑定？</summary><p>绑定游戏 UID 和登录游戏社区是两回事。进入「游戏工具」展开对应社区的自动签到教程，按步骤登录、开启。</p></details>
         <details><summary>为什么有时回复很慢？</summary><p>AI、语音、Pixiv 和游戏数据都依赖外部接口。服务繁忙或网络波动时可能变慢甚至暂时不可用。</p></details>
-        <details><summary>找不到想要的功能？</summary><p>先在本页上方搜索关键词，或者在 QQ 发送 /help。还可以到博客留言板反馈建议。</p></details>
+        <details><summary>找不到想要的功能？</summary><p>使用上方的命令搜索输入完整命令（例如 /上传airi）或功能词（例如 签到），可直接跳到对应说明；也可在 QQ 发送 /help，或去博客留言板反馈建议。</p></details>
       </div>
     </section>
   </main>
