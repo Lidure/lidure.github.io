@@ -294,6 +294,20 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
   assert.ok(inlineScript, 'Inline Bot Help controller missing');
 
   const scrolls = [];
+  function makeElement(tagName) {
+    return {
+      tagName: tagName.toUpperCase(),
+      dataset: {},
+      children: [],
+      className: '',
+      _text: '',
+      get textContent() { return this._text; },
+      set textContent(value) { this._text = value; this.children = []; },
+      appendChild(node) { this.children.push(node); },
+      classList: { values: new Set(), add(value) { this.values.add(value); },
+        remove(value) { this.values.delete(value); } },
+    };
+  }
   const galleryUpload = {
     scrollIntoView(options) { scrolls.push({ target: 'upload', options }); }
   };
@@ -302,21 +316,64 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
     scrollIntoView(options) { scrolls.push({ target: 'shell', options }); }
   };
   const names = ['gallery', 'chat', 'games', 'voice', 'fun', 'tools'];
+  const commands = {
+    gallery: ['/查看贡献', '/上传airi', '/画廊帮助详细', '看airi 10', '看随机图片 3'],
+    chat: ['你好呀'],
+    games: ['ww登录', 'gs帮助', 'nte开启自动签到'],
+    voice: ['/voice.help'],
+    fun: ['/今日小猪'],
+    tools: ['/天气 青岛', '/pixiv 初音未来']
+  };
   const cards = names.map((name) => ({
     dataset: { open: name, keywords: name },
     textContent: name,
     hidden: false,
     attrs: { 'aria-expanded': 'false' },
+    querySelector(selector) {
+      return selector === '.feature-title' ? { textContent: name + '分类' } : null;
+    },
     getAttribute(key) { return this.attrs[key] ?? null; },
     setAttribute(key, value) { this.attrs[key] = value; }
   }));
-  const guides = names.map((name) => ({
-    dataset: { guide: name },
-    hidden: true,
-    querySelector(selector) {
-      return name === 'gallery' && selector === '#gallery-contribute' ? galleryUpload : null;
-    }
-  }));
+  const guides = names.map((name) => {
+    const guide = {
+      dataset: { guide: name }, hidden: true,
+      textContent: (commands[name] || []).join(' '),
+      commandTargets: {},
+      querySelector(selector) {
+        return name === 'gallery' && selector === '#gallery-contribute' ? galleryUpload : null;
+      },
+      querySelectorAll(selector) {
+        assert.equal(selector, '[data-copy]');
+        return this.copyButtons;
+      }
+    };
+    guide.copyButtons = commands[name].map((command) => {
+      const disclosure = command === '/画廊帮助详细'
+        ? { tagName: 'DETAILS', open: false, parentElement: guide,
+          querySelector(selector) { return selector === 'summary' ? { textContent: '更多画廊帮助' } : null; } }
+        : null;
+      const target = {
+        parentElement: disclosure || guide,
+        querySelector(selector) {
+          return selector === '.command-title' ? { textContent: command + '说明' } : null;
+        },
+        classList: { values: new Set(), add(v) { this.values.add(v); },
+          remove(v) { this.values.delete(v); } },
+        scrollIntoView(options) { scrolls.push({ target: command, options }); }
+      };
+      guide.commandTargets[command] = { target, disclosure };
+      return {
+        dataset: { copy: command },
+        closest(selector) {
+          if (selector === 'details') return disclosure;
+          if (selector.includes('.command-item')) return target;
+          return null;
+        }
+      };
+    });
+    return guide;
+  });
   const shortcuts = [
     { dataset: { open: 'gallery', guideTarget: 'gallery-contribute' }, hidden: false,
       getAttribute() { return null; } },
@@ -330,8 +387,13 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
     addEventListener(name, fn) { this.handlers[name] = fn; }
   };
   const noResults = { hidden: true };
+  const commandPanel = { hidden: true };
+  const commandList = makeElement('div');
+  const commandStatus = { textContent: '' };
+  const mobileNav = { open: true };
   const handlerMap = {};
   const document = {
+    createElement: makeElement,
     querySelectorAll(selector) {
       if (selector === '.feature[data-open]') return cards;
       if (selector === '[data-guide]') return guides;
@@ -342,6 +404,10 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
       if (id === 'toast') return toast;
       if (id === 'help-search') return input;
       if (id === 'no-results') return noResults;
+      if (id === 'command-search-results') return commandPanel;
+      if (id === 'command-search-list') return commandList;
+      if (id === 'command-search-status') return commandStatus;
+      if (id === 'mobile-help-nav') return mobileNav;
       if (id === 'feature-title') return { scrollIntoView() {} };
       return null;
     },
@@ -356,11 +422,16 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
   vm.runInNewContext(inlineScript, { document, window });
   return {
     cards, guides, shortcuts, shell, scrolls, input, noResults,
+    commandPanel, commandList, commandStatus, mobileNav,
+    search(value) { input.value = value; input.handlers.input(); },
     click(target) {
       handlerMap.click({
         target: {
           closest(selector) {
-            return selector === '[data-open]' ? target : null;
+            if (selector === '[data-command-result]' && target.dataset.commandResult !== undefined) return target;
+            if (selector === '[data-open]' && target.dataset.open !== undefined) return target;
+            if (selector === '.mobile-nav-panel a' && target.mobileLink) return target;
+            return null;
           }
         }
       });
