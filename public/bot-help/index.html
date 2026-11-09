@@ -911,8 +911,15 @@
   <footer class="footer"><div class="wrap footer-content">
     <span>✿ Super Airi! 小浅子 · 让每一次聊天多一点开心</span>
     <span><a href="/messages/">反馈建议</a>　·　<a href="/">返回搁浅的小窝</a></span>
+    <span class="bot-help-visit" aria-label="Bot Help 首页浏览次数" title="仅统计当前 Bot Help 首页的浏览量；重新打开或刷新可能增加次数">
+      <span aria-hidden="true">👀</span>
+      <span>Bot Help 累计浏览 <strong id="busuanzi_value_page_pv" aria-live="polite">—</strong> 次</span>
+      <small>· 本页 PV，非独立访客</small>
+    </span>
   </div></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <!-- Reuse the legacy Busuanzi provider already used by the main blog; only page_pv is displayed. -->
+  <script defer src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
   <script>
     (function () {
       // Only actual six feature cards take part in search and expanded state.

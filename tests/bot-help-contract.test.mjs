@@ -10,6 +10,21 @@ const html = readFileSync(path.join(root, '..', 'dist', 'bot-help', 'index.html'
 const copied = [...html.matchAll(/data-copy="([^"]+)"/g)].map((m) => m[1]);
 const has = (command) => copied.includes(command);
 
+test('footer displays standalone Bot Help homepage page-view count, not blog-wide traffic', () => {
+  const footer = html.split('<footer class="footer">')[1]?.split('</footer>')[0] ?? '';
+  assert.match(footer, /class="bot-help-visit"/);
+  assert.match(footer, /id="busuanzi_value_page_pv"/);
+  assert.match(footer, /Bot Help 累计浏览/);
+  assert.match(footer, /本页 PV，非独立访客/);
+  assert.doesNotMatch(footer, /busuanzi_value_site_pv|busuanzi_value_site_uv/);
+  assert.equal((html.match(/id="busuanzi_value_page_pv"/g) || []).length, 1);
+  assert.match(html, /<script defer src="https:\/\/busuanzi\.ibruce\.info\/busuanzi\/2\.3\/busuanzi\.pure\.mini\.js"><\/script>/);
+  assert.ok(html.indexOf('busuanzi.pure.mini.js') < html.indexOf('function announce'), 'The counter does not replace the existing help controller');
+  const css = readFileSync(path.join(root, '..', 'dist', 'bot-help', 'theme.css'), 'utf8');
+  assert.match(css, /\.bot-help-visit/);
+  assert.match(css, /:root\[data-theme="dark"\] \.bot-help-visit/);
+});
+
 test('bot help starts concise: quick-start and exactly six discoverable categories', () => {
   assert.equal((html.match(/class="feature" type="button"/g) || []).length, 6);
   assert.equal((html.match(/class="guide" data-guide=/g) || []).length, 6);

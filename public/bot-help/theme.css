@@ -423,3 +423,20 @@
   .game-update p { font-size: 13px; }
   .game-update-link { width: 100%; }
 }
+
+/* Dedicated Bot Help homepage page-view count, independent from the blog's site totals. */
+.bot-help-visit {
+  display: flex; flex: 1 0 100%; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 5px 7px; margin-top: 3px; padding-top: 14px;
+  border-top: 1px solid #ecdae6; color: #8b8190;
+  font-size: 12px; text-align: center;
+}
+.bot-help-visit strong { font-weight: 850; color: #bc5d92; font-variant-numeric: tabular-nums; }
+.bot-help-visit small { font-size: 11px; color: #aaa0ab; }
+:root[data-theme="dark"] .bot-help-visit { border-color: #574056; color: #d2bed1; }
+:root[data-theme="dark"] .bot-help-visit strong { color: #ffbedf; }
+:root[data-theme="dark"] .bot-help-visit small { color: #b8a6ba; }
+@media (max-width: 580px) {
+  .bot-help-visit { gap: 4px 6px; line-height: 1.7; padding-top: 12px; }
+  .bot-help-visit small { flex: 1 0 100%; }
+}
