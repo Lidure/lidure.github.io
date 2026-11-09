@@ -261,6 +261,32 @@
 :root[data-theme="dark"] .demo-copy { background: #aa4078; color: #fff; }
 :root[data-theme="dark"] .demo-copy:hover { background: #bd4f89; }
 :root[data-theme="dark"] #toast { background: #4a3451; color: #fff; }
+/* Mobile navigation stays hidden on desktop, preserving the original header. */
+.mobile-nav { display: none; position: relative; flex: 0 0 auto; }
+.mobile-nav summary { list-style: none; cursor: pointer; border: 1px solid #e9cfde; background: #fff; color: #9b4e77; border-radius: 11px; padding: 9px 10px; min-height: 36px; font-size: 12px; font-weight: 850; white-space: nowrap; }
+.mobile-nav summary::-webkit-details-marker { display: none; }
+.mobile-nav summary span { font-size: 15px; margin-left: 2px; }
+.mobile-nav-panel { position: absolute; z-index: 35; top: calc(100% + 10px); right: 0; min-width: 198px; padding: 8px; border-radius: 15px; border: 1px solid #eacddd; background: #fffafd; box-shadow: 0 14px 42px #3d293438; }
+.mobile-nav-panel a { display: block; padding: 10px 12px; border-radius: 9px; color: #684f69; font-size: 14px; font-weight: 700; }
+.mobile-nav-panel a:hover, .mobile-nav-panel a:focus-visible { background: #fff0f7; color: #ad477b; }
+:root[data-theme="dark"] .mobile-nav summary,
+:root[data-theme="dark"] .mobile-nav-panel { background: #302638; border-color: #654967; color: #ffcae4; }
+:root[data-theme="dark"] .mobile-nav-panel a { color: #f0dce8; }
+:root[data-theme="dark"] .mobile-nav-panel a:hover,
+:root[data-theme="dark"] .mobile-nav-panel a:focus-visible { background: #49344d; color: #ffd4e9; }
+:root[data-theme="dark"] .command-search-results { background: #271f2f; border-color: #614963; }
+:root[data-theme="dark"] .command-search-result { background: #35283b; border-color: #624965; color: #eee3ee; }
+:root[data-theme="dark"] .command-search-result:hover,
+:root[data-theme="dark"] .command-search-result:focus-visible { background: #4a3150; border-color: #a8729c; }
+:root[data-theme="dark"] .command-search-code,
+:root[data-theme="dark"] .no-results a,
+:root[data-theme="dark"] .troubleshoot-steps code,
+:root[data-theme="dark"] #command-troubleshooting p code { color: #ffc3df; }
+:root[data-theme="dark"] .command-search-context,
+:root[data-theme="dark"] .troubleshoot-steps { color: #cfbed1; }
+:root[data-theme="dark"] .troubleshoot-steps code,
+:root[data-theme="dark"] #command-troubleshooting p code { background: #49304b; }
+:root[data-theme="dark"] .search-hit { outline-color: #ffaad2; }
 /* Keep navigation and theme selection comfortable on tablets and narrow laptops. */
 @media (min-width: 581px) and (max-width: 840px) {
   .nav-inner { gap: 10px; }
@@ -270,6 +296,9 @@
   .nav-inner .nav-links a[href="#faq"] { display: none; }
 }
 @media (max-width: 580px) {
+  .nav-inner .nav-links { display: none; }
+  .mobile-nav { display: block; }
+  .nav-inner .theme-control { margin-left: auto; }
   .theme-control label { display: none; }
   .theme-control select { min-width: 94px; min-height: 34px; font-size: 12px; padding: 5px; }
   .nav-inner { gap: 8px; }
