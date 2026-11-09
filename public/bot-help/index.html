@@ -161,6 +161,24 @@
     .feature[data-featured="gallery"]:hover { border-color: #db8fb4; }
     .feature[data-featured="gallery"] .feature-sub { font-size: 13px; }
     .feature-kicker { position: absolute; top: 19px; right: 19px; color: #b35e8a; font-size: 11px; font-weight: 800; border: 1px solid #edcede; background: #ffffffd6; border-radius: 999px; padding: 5px 10px; }
+    /* Command results are actual click-through help links, not static keyword tags. */
+    .command-search-results { margin: 0 0 17px; padding: 18px; border: 1px solid var(--line); border-radius: 20px; background: var(--white); box-shadow: var(--shadow); }
+    .command-search-results[hidden] { display: none !important; }
+    .command-search-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 12px; }
+    .command-search-heading strong { color: var(--ink); font-size: 14px; }
+    .command-search-heading span { color: var(--secondary); font-size: 12px; }
+    .command-search-list { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+    .command-search-result { text-align: left; display: flex; flex-direction: column; gap: 4px; min-width: 0; min-height: 59px; padding: 11px 14px; border: 1px solid #eed8e7; border-radius: 12px; background: #fff8fb; color: var(--ink); }
+    .command-search-result:hover, .command-search-result:focus-visible { border-color: #d780ac; background: #fff0f6; }
+    .command-search-code { font: 800 13px/1.5 Consolas, "Microsoft YaHei", monospace; color: #b7467e; overflow-wrap: anywhere; }
+    .command-search-context { color: #807484; font-size: 12px; overflow-wrap: anywhere; }
+    .search-hit { outline: 2px solid #df78ad; outline-offset: 3px; border-radius: 10px; }
+    .no-results a { color: #b64d85; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
+    #command-troubleshooting { scroll-margin-top: 100px; }
+    .troubleshoot-steps { margin: 14px 0 12px; padding-left: 22px; color: #6e6878; font-size: 13px; line-height: 1.9; }
+    .troubleshoot-steps li { padding-left: 3px; margin-bottom: 9px; }
+    .troubleshoot-steps strong { color: var(--ink); }
+    .troubleshoot-steps code, #command-troubleshooting p code { background: #fff0f6; color: #ab457c; border-radius: 5px; padding: 2px 5px; overflow-wrap: anywhere; }
     .no-results { text-align: center; margin-top: 13px; padding: 24px; background: white; border: 1px dashed #e9c6d8; border-radius: 18px; color: #8a8192; }
     .detail-shell { margin-top: 22px; scroll-margin-top: 95px; border-radius: 26px; padding: 28px; border: 1px solid #efdee9; background: #fff; box-shadow: var(--shadow); }
     .detail-shell[hidden], .guide[hidden], .feature[hidden], .no-results[hidden] { display: none !important; }
@@ -253,7 +271,7 @@
       .quick-card { padding: 15px 18px; }
       .feature-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
       .feature { min-height: 150px; padding: 19px 17px; }
-      .commands { grid-template-columns: 1fr; }
+      .commands, .command-search-list { grid-template-columns: 1fr; }
     }
     @media (max-width: 580px) {
       .gallery-spotlight { margin-top: 29px; border-radius: 20px; padding: 18px; }
@@ -286,6 +304,18 @@
       .feature-title { font-size: 16px; margin-top: 11px; }
       .feature-sub { font-size: 11px; line-height: 1.5; }
       .detail-shell { padding: 20px 17px; border-radius: 20px; }
+      /* Phone-first readability: body instructions and copy targets should not shrink to 11px. */
+      .quick-card p, .howto-steps li, .detail-desc, .example-note,
+      .howto-note, .gallery-spotlight-copy p, .gallery-spotlight-howto > p,
+      .gallery-spotlight-step small, .gallery-contribute-feedback p,
+      .gallery-online p, .faq details p, .troubleshoot-steps,
+      .node-info, .passive-body { font-size: 14px; line-height: 1.8; }
+      .command-title, .command-search-context, .feature-sub, .feature-foot { font-size: 13px; }
+      .cmd, .command-search-code { font-size: 14px; }
+      .copy { min-height: 42px; min-width: 50px; padding: 8px 12px; font-size: 13px; }
+      .code-pill .copy { min-height: 40px; }
+      .command-search-result { min-height: 61px; padding: 12px; }
+      .faq summary, .howto summary { min-height: 46px; }
       .faq-grid, .simple-list { grid-template-columns: 1fr; }
       .faq { margin: 48px 0; }
     }
@@ -314,6 +344,16 @@
           <option value="dark">暗色</option>
         </select>
       </div>
+      <details class="mobile-nav" id="mobile-help-nav">
+        <summary aria-label="打开帮助导航菜单">菜单 <span aria-hidden="true">☰</span></summary>
+        <nav class="mobile-nav-panel" aria-label="手机导航">
+          <a href="#features">功能与命令搜索</a>
+          <a href="#gallery-spotlight">画廊投稿</a>
+          <a href="#nodes">节点服务</a>
+          <a href="#faq">常见问题</a>
+          <a href="/">返回小窝</a>
+        </nav>
+      </details>
     </div>
   </header>
 
@@ -392,9 +432,13 @@
     <section id="features" class="features" aria-labelledby="feature-title">
       <div class="section-top">
         <div><span class="section-label">02 · EXPLORE</span><h2 id="feature-title">你想玩哪个？</h2><p class="section-note">点开分类，只看你需要的用法。</p></div>
-        <label class="search-wrap" for="help-search"><span aria-hidden="true">⌕</span><input id="help-search" type="search" placeholder="搜功能，例如：签到、表情、点歌" autocomplete="off" aria-label="搜索功能"></label>
+        <label class="search-wrap" for="help-search"><span aria-hidden="true">⌕</span><input id="help-search" type="search" placeholder="搜命令，例如：/查看贡献、签到" autocomplete="off" aria-label="搜索命令和功能" aria-controls="command-search-results"></label>
       </div>
 
+      <section id="command-search-results" class="command-search-results" aria-label="相关命令结果" hidden>
+        <div class="command-search-heading"><strong>🔎 匹配的命令</strong><span id="command-search-status" aria-live="polite"></span></div>
+        <div id="command-search-list" class="command-search-list"></div>
+      </section>
       <div class="feature-grid" id="feature-grid">
         <button class="feature" type="button" data-featured="gallery" data-open="gallery" data-keywords="画廊 图片 表情包 投稿 贡献 感谢 上传 分类 抽表情 看随机图片 看最近上传 查看贡献 看图 收藏 图库 看全部 多图 批量 编号 airi miku" aria-controls="detail-gallery" aria-expanded="false" style="--icon-bg:#ffe4ef">
           <span class="feature-kicker">常用功能 · 欢迎投稿</span>
@@ -416,7 +460,7 @@
           <span class="feature-icon" aria-hidden="true">🛠️</span><span class="feature-title">实用工具</span><span class="feature-sub">点歌 · 搜图 · 天气 · Pixiv</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
       </div>
-      <p id="no-results" class="no-results" hidden>没找到这个关键词呢，试试搜索「画廊」「游戏」或「签到」吧 ♡</p>
+      <p id="no-results" class="no-results" hidden>没有找到对应命令。试试去掉 /、换个关键词，或查看<a href="#command-troubleshooting">命令排查指南</a>。</p>
       <a class="node-shortcut" href="#nodes" aria-label="查看节点服务和独立扩展命令">
         <span>🧩 想看节点里的其他功能？<small>Haruki · GsCore · Airi · 其他节点</small></span>
         <span aria-hidden="true">↗</span>
@@ -825,10 +869,19 @@
     <section id="faq" class="faq" aria-labelledby="faq-title">
       <div class="section-top"><div><span class="section-label">05 · LITTLE TIPS</span><h2 id="faq-title">还有一点小提醒</h2><p class="section-note">遇到问题时，不用着急。</p></div></div>
       <div class="faq-grid">
-        <details><summary>命令发了没反应？</summary><p>检查命令有没有写错，是否需要“/”前缀；群聊里聊天请正确 @小浅子。部分功能可能有冷却时间或权限限制。</p></details>
+        <details id="command-troubleshooting"><summary>命令发送后没有回复？按这几步检查</summary>
+          <ol class="troubleshoot-steps">
+            <li><strong>核对前缀：</strong>例如 <code>/查看贡献</code>、<code>/查看画廊</code>、<code>/上传airi</code> 要带斜杠；<code>看airi</code> 通常不用。注意空格与命令写法。</li>
+            <li><strong>确认使用场景：</strong>群聊中与 AI 聊天要真正 @机器人；上传图片需要<strong>回复那条图片消息</strong>，不能单独发送上传命令。</li>
+            <li><strong>检查服务状态：</strong>确认机器人仍在 QQ 群内、没有离线；部分游戏和远程节点服务可能暂时不可用。</li>
+            <li><strong>检查权限与限制：</strong>部分群不允许上传，或存在调用频率限制。<code>/查看贡献</code> 只查询自己的 QQ 投稿记录，新功能启用前的旧图不会计入。</li>
+            <li><strong>仍无回复：</strong>可以向管理员提供发送时间、群聊或私聊场景、命令原文与报错截图，方便查日志；<strong>不要发送密码、Cookie 或验证码</strong>。</li>
+          </ol>
+          <p>找不到具体指令时，先在上方搜索框输入完整命令；也可以在 QQ 尝试 <code>/画廊帮助</code> 或 <code>/help</code> 查看相应帮助。</p>
+        </details>
         <details><summary>游戏查询或自动签到提示未绑定？</summary><p>绑定游戏 UID 和登录游戏社区是两回事。进入「游戏工具」展开对应社区的自动签到教程，按步骤登录、开启。</p></details>
         <details><summary>为什么有时回复很慢？</summary><p>AI、语音、Pixiv 和游戏数据都依赖外部接口。服务繁忙或网络波动时可能变慢甚至暂时不可用。</p></details>
-        <details><summary>找不到想要的功能？</summary><p>先在本页上方搜索关键词，或者在 QQ 发送 /help。还可以到博客留言板反馈建议。</p></details>
+        <details><summary>找不到想要的功能？</summary><p>使用上方的命令搜索输入完整命令（例如 /上传airi）或功能词（例如 签到），可直接跳到对应说明；也可在 QQ 发送 /help，或去博客留言板反馈建议。</p></details>
       </div>
     </section>
   </main>
@@ -848,6 +901,13 @@
       var toast = document.getElementById('toast');
       var search = document.getElementById('help-search');
       var noResults = document.getElementById('no-results');
+      var commandSearchPanel = document.getElementById('command-search-results');
+      var commandSearchList = document.getElementById('command-search-list');
+      var commandSearchStatus = document.getElementById('command-search-status');
+      var mobileNav = document.getElementById('mobile-help-nav');
+      var commandIndex = [];
+      var visibleCommandResults = [];
+      var highlightedCommand = null;
       var toastTimer;
 
       function announce(message) {
@@ -878,6 +938,95 @@
         }
       }
 
+      // Build the search index from actual copyable instructions already on the page.
+      // Avoid duplicating or guessing command spellings in a second configuration.
+      guides.forEach(function (guide) {
+        var guideName = guide.dataset.guide;
+        var categoryCard = cards.find(function (card) { return card.dataset.open === guideName; });
+        var category = categoryCard ? categoryCard.querySelector('.feature-title').textContent.trim() : guideName;
+        var seen = {};
+        guide.querySelectorAll('[data-copy]').forEach(function (copyButton) {
+          var command = (copyButton.dataset.copy || '').trim();
+          if (!command || seen[command]) return;
+          seen[command] = true;
+          var target = copyButton.closest('.command-item, .code-pill, .gallery-contribute-query, .cmd-row') || copyButton;
+          var heading = target.querySelector('.command-title');
+          var disclosure = copyButton.closest('details');
+          var summary = disclosure ? disclosure.querySelector('summary') : null;
+          var label = heading ? heading.textContent.trim() : (summary ? summary.textContent.trim() : category);
+          commandIndex.push({
+            guide: guideName,
+            guideNode: guide,
+            category: category,
+            command: command,
+            label: label,
+            target: target
+          });
+        });
+      });
+
+      function commandScore(entry, query) {
+        var command = entry.command.toLowerCase();
+        var withoutSlash = command.replace(/^\//, '');
+        var q = query.replace(/^\//, '');
+        if (command === query || withoutSlash === q) return 0;
+        if (command.startsWith(query) || withoutSlash.startsWith(q)) return 1;
+        if (command.includes(query) || withoutSlash.includes(q)) return 2;
+        if (entry.label.toLowerCase().includes(query)) return 3;
+        return 99;
+      }
+
+      function updateCommandResults(query) {
+        visibleCommandResults = [];
+        commandSearchList.textContent = '';
+        if (query.length < 2) {
+          commandSearchPanel.hidden = true;
+          return;
+        }
+        var matches = commandIndex
+          .map(function (entry) { return { entry: entry, score: commandScore(entry, query) }; })
+          .filter(function (result) { return result.score < 99; })
+          .sort(function (a, b) { return a.score - b.score || a.entry.command.length - b.entry.command.length; });
+        visibleCommandResults = matches.slice(0, 8).map(function (result) { return result.entry; });
+        commandSearchPanel.hidden = visibleCommandResults.length === 0;
+        commandSearchStatus.textContent = matches.length > 8
+          ? '找到 ' + matches.length + ' 条，显示最相关的 8 条'
+          : '找到 ' + matches.length + ' 条 · 点击跳转到对应说明';
+        visibleCommandResults.forEach(function (entry, index) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'command-search-result';
+          button.dataset.commandResult = String(index);
+          var command = document.createElement('span');
+          command.className = 'command-search-code';
+          command.textContent = entry.command;
+          var context = document.createElement('span');
+          context.className = 'command-search-context';
+          context.textContent = entry.category + ' · ' + entry.label;
+          button.appendChild(command);
+          button.appendChild(context);
+          commandSearchList.appendChild(button);
+        });
+      }
+
+      function jumpToCommand(index) {
+        var entry = visibleCommandResults[index];
+        if (!entry) return;
+        openGuide(entry.guide, false);
+        var parent = entry.target.parentElement;
+        while (parent && parent !== entry.guideNode) {
+          if (parent.tagName === 'DETAILS') parent.open = true;
+          parent = parent.parentElement;
+        }
+        if (highlightedCommand) highlightedCommand.classList.remove('search-hit');
+        highlightedCommand = entry.target;
+        highlightedCommand.classList.add('search-hit');
+        entry.target.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'center'
+        });
+      }
+
       async function copyText(value) {
         try {
           if (navigator.clipboard && window.isSecureContext) {
@@ -901,6 +1050,13 @@
       document.addEventListener('click', function (event) {
         var copyButton = event.target.closest('[data-copy]');
         if (copyButton) { copyText(copyButton.dataset.copy); return; }
+        var searchResult = event.target.closest('[data-command-result]');
+        if (searchResult) {
+          jumpToCommand(Number(searchResult.dataset.commandResult));
+          return;
+        }
+        var mobileLink = event.target.closest('.mobile-nav-panel a');
+        if (mobileLink && mobileNav) mobileNav.open = false;
         var card = event.target.closest('[data-open]');
         if (card) {
           if (card.getAttribute('aria-expanded') === 'true') { closeGuide(); }
@@ -917,14 +1073,23 @@
         var q = search.value.trim().toLowerCase();
         var count = 0;
         cards.forEach(function (card) {
-          var match = !q || (card.dataset.keywords + ' ' + card.textContent).toLowerCase().includes(q);
+          var guide = guides.find(function (item) { return item.dataset.guide === card.dataset.open; });
+          var haystack = (card.dataset.keywords + ' ' + card.textContent +
+            (guide ? ' ' + guide.textContent : '')).toLowerCase();
+          var match = !q || haystack.includes(q) ||
+            (q.startsWith('/') && haystack.includes(q.slice(1)));
           card.hidden = !match;
           if (match) count++;
         });
-        noResults.hidden = count !== 0;
-        if (q && count === 1) {
+        updateCommandResults(q);
+        noResults.hidden = count !== 0 || visibleCommandResults.length !== 0;
+        if (q && count === 1 && shell.hidden === false) {
           var one = cards.find(function (card) { return !card.hidden; });
-          if (one && shell.hidden === false) openGuide(one.dataset.open, false);
+          if (one) openGuide(one.dataset.open, false);
+        }
+        if (!q && highlightedCommand) {
+          highlightedCommand.classList.remove('search-hit');
+          highlightedCommand = null;
         }
       });
 

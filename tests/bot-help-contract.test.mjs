@@ -294,6 +294,20 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
   assert.ok(inlineScript, 'Inline Bot Help controller missing');
 
   const scrolls = [];
+  function makeElement(tagName) {
+    return {
+      tagName: tagName.toUpperCase(),
+      dataset: {},
+      children: [],
+      className: '',
+      _text: '',
+      get textContent() { return this._text; },
+      set textContent(value) { this._text = value; this.children = []; },
+      appendChild(node) { this.children.push(node); },
+      classList: { values: new Set(), add(value) { this.values.add(value); },
+        remove(value) { this.values.delete(value); } },
+    };
+  }
   const galleryUpload = {
     scrollIntoView(options) { scrolls.push({ target: 'upload', options }); }
   };
@@ -302,21 +316,64 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
     scrollIntoView(options) { scrolls.push({ target: 'shell', options }); }
   };
   const names = ['gallery', 'chat', 'games', 'voice', 'fun', 'tools'];
+  const commands = {
+    gallery: ['/查看贡献', '/上传airi', '/画廊帮助详细', '看airi 10', '看随机图片 3'],
+    chat: ['你好呀'],
+    games: ['ww登录', 'gs帮助', 'nte开启自动签到'],
+    voice: ['/voice.help'],
+    fun: ['/今日小猪'],
+    tools: ['/天气 青岛', '/pixiv 初音未来']
+  };
   const cards = names.map((name) => ({
     dataset: { open: name, keywords: name },
     textContent: name,
     hidden: false,
     attrs: { 'aria-expanded': 'false' },
+    querySelector(selector) {
+      return selector === '.feature-title' ? { textContent: name + '分类' } : null;
+    },
     getAttribute(key) { return this.attrs[key] ?? null; },
     setAttribute(key, value) { this.attrs[key] = value; }
   }));
-  const guides = names.map((name) => ({
-    dataset: { guide: name },
-    hidden: true,
-    querySelector(selector) {
-      return name === 'gallery' && selector === '#gallery-contribute' ? galleryUpload : null;
-    }
-  }));
+  const guides = names.map((name) => {
+    const guide = {
+      dataset: { guide: name }, hidden: true,
+      textContent: (commands[name] || []).join(' '),
+      commandTargets: {},
+      querySelector(selector) {
+        return name === 'gallery' && selector === '#gallery-contribute' ? galleryUpload : null;
+      },
+      querySelectorAll(selector) {
+        assert.equal(selector, '[data-copy]');
+        return this.copyButtons;
+      }
+    };
+    guide.copyButtons = commands[name].map((command) => {
+      const disclosure = command === '/画廊帮助详细'
+        ? { tagName: 'DETAILS', open: false, parentElement: guide,
+          querySelector(selector) { return selector === 'summary' ? { textContent: '更多画廊帮助' } : null; } }
+        : null;
+      const target = {
+        parentElement: disclosure || guide,
+        querySelector(selector) {
+          return selector === '.command-title' ? { textContent: command + '说明' } : null;
+        },
+        classList: { values: new Set(), add(v) { this.values.add(v); },
+          remove(v) { this.values.delete(v); } },
+        scrollIntoView(options) { scrolls.push({ target: command, options }); }
+      };
+      guide.commandTargets[command] = { target, disclosure };
+      return {
+        dataset: { copy: command },
+        closest(selector) {
+          if (selector === 'details') return disclosure;
+          if (selector.includes('.command-item')) return target;
+          return null;
+        }
+      };
+    });
+    return guide;
+  });
   const shortcuts = [
     { dataset: { open: 'gallery', guideTarget: 'gallery-contribute' }, hidden: false,
       getAttribute() { return null; } },
@@ -330,8 +387,13 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
     addEventListener(name, fn) { this.handlers[name] = fn; }
   };
   const noResults = { hidden: true };
+  const commandPanel = { hidden: true };
+  const commandList = makeElement('div');
+  const commandStatus = { textContent: '' };
+  const mobileNav = { open: true };
   const handlerMap = {};
   const document = {
+    createElement: makeElement,
     querySelectorAll(selector) {
       if (selector === '.feature[data-open]') return cards;
       if (selector === '[data-guide]') return guides;
@@ -342,6 +404,10 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
       if (id === 'toast') return toast;
       if (id === 'help-search') return input;
       if (id === 'no-results') return noResults;
+      if (id === 'command-search-results') return commandPanel;
+      if (id === 'command-search-list') return commandList;
+      if (id === 'command-search-status') return commandStatus;
+      if (id === 'mobile-help-nav') return mobileNav;
       if (id === 'feature-title') return { scrollIntoView() {} };
       return null;
     },
@@ -356,11 +422,16 @@ function helpBrowserHarness(hash = '', reducedMotion = false) {
   vm.runInNewContext(inlineScript, { document, window });
   return {
     cards, guides, shortcuts, shell, scrolls, input, noResults,
+    commandPanel, commandList, commandStatus, mobileNav,
+    search(value) { input.value = value; input.handlers.input(); },
     click(target) {
       handlerMap.click({
         target: {
           closest(selector) {
-            return selector === '[data-open]' ? target : null;
+            if (selector === '[data-command-result]' && target.dataset.commandResult !== undefined) return target;
+            if (selector === '[data-open]' && target.dataset.open !== undefined) return target;
+            if (selector === '.mobile-nav-panel a' && target.mobileLink) return target;
+            return null;
           }
         }
       });
@@ -411,4 +482,79 @@ test('deep link and reduced-motion preference reach the upload guide', () => {
   assert.equal(ui.shell.hidden, false);
   assert.equal(ui.scrolls.at(-1).target, 'upload');
   assert.equal(ui.scrolls.at(-1).options.behavior, 'auto');
+});
+
+test('command finder locates exact prefixed QQ commands and jumps into their guides', () => {
+  const ui = helpBrowserHarness();
+  ui.search('/查看贡献');
+  assert.equal(ui.commandPanel.hidden, false);
+  assert.equal(ui.commandList.children.length, 1);
+  const first = ui.commandList.children[0];
+  assert.equal(first.children[0].textContent, '/查看贡献');
+  assert.equal(first.children[1].textContent, 'gallery分类 · /查看贡献说明');
+  assert.match(ui.commandStatus.textContent, /找到 1 条/);
+  ui.click(first);
+  assert.equal(ui.shell.hidden, false);
+  assert.equal(ui.guides[0].hidden, false);
+  assert.equal(ui.scrolls.at(-1).target, '/查看贡献');
+  assert.equal(ui.scrolls.at(-1).options.block, 'center');
+  assert.ok(ui.guides[0].commandTargets['/查看贡献'].target.classList.values.has('search-hit'));
+});
+
+test('unprefixed aliases and inline help copy examples are searchable too', () => {
+  const ui = helpBrowserHarness();
+  ui.search('查看贡献');
+  assert.equal(ui.commandList.children[0].children[0].textContent, '/查看贡献');
+  ui.search('上传airi');
+  assert.equal(ui.commandList.children[0].children[0].textContent, '/上传airi');
+  ui.search('ww登录');
+  assert.equal(ui.commandList.children[0].children[0].textContent, 'ww登录');
+  ui.click(ui.commandList.children[0]);
+  assert.equal(ui.scrolls.at(-1).target, 'ww登录');
+  assert.equal(ui.guides[2].hidden, false);
+});
+
+test('search jump expands nested disclosures, honors reduced motion and clears highlights', () => {
+  const ui = helpBrowserHarness('', true);
+  ui.search('/画廊帮助详细');
+  ui.click(ui.commandList.children[0]);
+  assert.equal(ui.guides[0].commandTargets['/画廊帮助详细'].disclosure.open, true);
+  assert.equal(ui.scrolls.at(-1).options.behavior, 'auto');
+  assert.ok(ui.guides[0].commandTargets['/画廊帮助详细'].target.classList.values.has('search-hit'));
+  ui.search('');
+  assert.equal(ui.commandPanel.hidden, true);
+  assert.equal(ui.commandList.children.length, 0);
+  assert.equal(ui.guides[0].commandTargets['/画廊帮助详细'].target.classList.values.has('search-hit'), false);
+});
+
+test('search empty state leaves navigation and hero shortcuts unaffected', () => {
+  const ui = helpBrowserHarness();
+  ui.search('无此命令');
+  assert.equal(ui.commandPanel.hidden, true);
+  assert.equal(ui.noResults.hidden, false);
+  assert.ok(ui.shortcuts.every((shortcut) => shortcut.hidden === false));
+  ui.search('/画廊');
+  assert.equal(ui.commandPanel.hidden, false);
+  ui.search('');
+  assert.equal(ui.noResults.hidden, true);
+  assert.ok(ui.cards.every((card) => !card.hidden));
+});
+
+test('mobile navigation, touch sizes and no-reply diagnostic FAQ are present', () => {
+  assert.match(html, /class="mobile-nav" id="mobile-help-nav"/);
+  assert.match(html, /class="mobile-nav-panel" aria-label="手机导航"/);
+  for (const href of ['#features', '#gallery-spotlight', '#nodes', '#faq']) {
+    assert.ok(html.includes('href="' + href + '"'), 'Navigation missing ' + href);
+  }
+  assert.match(html, /\.copy\s*\{\s*min-height:\s*42px/);
+  assert.match(html, /\.quick-card p, \.howto-steps li, \.detail-desc/);
+  assert.match(html, /id="command-troubleshooting"/);
+  assert.match(html, /QQ 投稿记录/);
+  assert.match(html, /不要发送密码、Cookie 或验证码/);
+  assert.match(html, /aria-controls="command-search-results"/);
+  assert.match(html, /id="command-search-list"/);
+  assert.match(html, /\.command-search-results\[hidden\]/);
+  const ui = helpBrowserHarness();
+  ui.click({ mobileLink: true, dataset: {} });
+  assert.equal(ui.mobileNav.open, false);
 });
