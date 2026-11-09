@@ -207,7 +207,7 @@
     .nodes .howto { margin-top: 0; }
     .nodes .howto details { background: #fff; }
     .nodes .howto-body .commands { margin-top: 14px; }
-    .gallery-contribute { margin: 22px 0 23px; padding: 21px 22px; border-radius: 19px; border: 1px solid #ecc5d9; background: linear-gradient(125deg,#fffafd,#fff2f8); }
+    .gallery-contribute { scroll-margin-top: 104px; margin: 22px 0 23px; padding: 21px 22px; border-radius: 19px; border: 1px solid #ecc5d9; background: linear-gradient(125deg,#fffafd,#fff2f8); }
     .gallery-contribute-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
     .gallery-contribute h4 { margin: 6px 0 0; font-size: 19px; color: #493749; }
     .gallery-contribute > p { color: #7f7281; font-size: 13px; line-height: 1.85; margin: 13px 0; }
@@ -238,7 +238,17 @@
     @media (max-width: 780px) {
       .gallery-spotlight { grid-template-columns: 1fr; padding: 25px; gap: 18px; }
       .hero { grid-template-columns: 1fr; padding: 40px 30px 30px; gap: 0; min-height: 0; }
-      .hero-illustration { display: none; }
+      /* Keep the real QQ avatar beside the headline on tablets and phones. */
+      .hero-illustration {
+        display: grid; position: absolute; top: 65px; right: 34px;
+        width: 128px; height: 128px; pointer-events: none;
+      }
+      .hero-illustration .orb { width: 122px; height: 122px; }
+      .hero-illustration .orb::before { inset: 10px; }
+      .hero-illustration .mascot { width: 100px; height: 100px; }
+      .hero-illustration .mascot-fallback { font-size: 52px; }
+      .hero-illustration .float-tag, .hero-illustration .sparkle { display: none; }
+      .hero h1 { padding-right: 142px; }
       .quick-grid { grid-template-columns: 1fr; gap: 10px; }
       .quick-card { padding: 15px 18px; }
       .feature-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
@@ -257,7 +267,15 @@
       .nav-links a:nth-child(1) { display: none; }
       .nav-blog { padding: 8px 10px; }
       .hero { margin-top: 15px; padding: 34px 24px 30px; border-radius: 23px; }
-      h1 { letter-spacing: -1px; font-size: 38px; }
+      .hero-illustration { top: 68px; right: 18px; width: 90px; height: 90px; }
+      .hero-illustration .orb { width: 88px; height: 88px; }
+      .hero-illustration .orb::before { inset: 7px; border-width: 1px; }
+      .hero-illustration .mascot { width: 72px; height: 72px; }
+      .hero-illustration .mascot-avatar { border-width: 2px; }
+      .hero-illustration .mascot-fallback { font-size: 40px; }
+      .hero h1 { padding-right: 82px; }
+      .hero h1 span[aria-hidden="true"] { display: none; }
+      h1 { letter-spacing: -1px; font-size: clamp(30px, 9vw, 38px); }
       .hero-desc { font-size: 14px; line-height: 1.9; }
       .intro { padding-top: 36px; }
       .features { padding-top: 47px; }
@@ -307,7 +325,7 @@
         <p class="hero-desc">会聊天、会找图、会查游戏，还能陪你一起整活。<br>不用背一大堆命令，选你感兴趣的功能就好～</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#features">看看能玩什么 <span aria-hidden="true">↗</span></a>
-          <button class="btn btn-gallery" type="button" data-open="gallery" aria-controls="detail-gallery">🖼️ 画廊与投稿指南 ↗</button>
+          <button class="btn btn-gallery" type="button" data-guide-target="gallery-contribute" data-open="gallery" aria-controls="detail-gallery">🖼️ 画廊与投稿指南 ↗</button>
           <button class="btn btn-secondary" type="button" data-copy="/help">复制 /help</button>
         </div>
       </div>
@@ -358,7 +376,7 @@
         <h2 id="gallery-spotlight-title">画廊里有喜欢的图？<br><em>也欢迎你来投喂新图片。</em></h2>
         <p>看图的人很多，收藏也可以由大家一起补充。只需<strong>发图片 → 回复图片 → 输入上传命令</strong>，不需要事先了解复杂的管理功能。</p>
         <div class="gallery-spotlight-actions">
-          <button class="btn btn-primary" type="button" data-open="gallery" aria-controls="detail-gallery">查看详细投稿步骤 ↗</button>
+          <button class="btn btn-primary" type="button" data-guide-target="gallery-contribute" data-open="gallery" aria-controls="detail-gallery">查看详细投稿步骤 ↗</button>
           <a class="btn btn-secondary" href="https://lidure22.xyz/gallery/" target="_blank" rel="noopener noreferrer">在线预览画廊 ↗</a>
         </div>
       </div>
@@ -431,7 +449,7 @@
             <li><strong>想看更多？</strong>发送 <span class="inline-command">看airi 10</span> 随机看 10 张；或者 <span class="inline-command">看全部airi</span> 查看<strong>带编号的图片总览</strong>，再挑指定编号。</li>
           </ol>
           <div class="gallery-online"><div><strong>🌐 画廊也能直接在网页里预览</strong><p>手机或电脑打开在线画廊，就能浏览分类和图片，不需要先在 QQ 发送看图命令。管理、上传等操作可能需要额外权限。</p></div><a class="btn btn-secondary" href="https://lidure22.xyz/gallery/" target="_blank" rel="noopener noreferrer">打开在线画廊 ↗</a></div>
-          <section class="gallery-contribute" aria-labelledby="gallery-contribute-title">
+          <section id="gallery-contribute" class="gallery-contribute" aria-labelledby="gallery-contribute-title">
             <div class="gallery-contribute-head">
               <div><span class="gallery-spotlight-kicker">SHARE YOUR FAVORITES</span><h4 id="gallery-contribute-title">📤 喜欢的图片，也欢迎你投稿！</h4></div>
               <span class="gallery-contribute-tag">三步就能上传</span>
@@ -822,7 +840,9 @@
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script>
     (function () {
-      var cards = Array.prototype.slice.call(document.querySelectorAll('[data-open]'));
+      // Only actual six feature cards take part in search and expanded state.
+      // Hero/spotlight shortcuts also use data-open, but must never be hidden by a search.
+      var cards = Array.prototype.slice.call(document.querySelectorAll('.feature[data-open]'));
       var guides = Array.prototype.slice.call(document.querySelectorAll('[data-guide]'));
       var shell = document.getElementById('detail-shell');
       var toast = document.getElementById('toast');
@@ -843,13 +863,19 @@
         guides.forEach(function (guide) { guide.hidden = true; });
       }
 
-      function openGuide(name, scroll) {
+      function openGuide(name, scroll, targetId) {
         var selected = guides.find(function (guide) { return guide.dataset.guide === name; });
         if (!selected) return;
         cards.forEach(function (card) { card.setAttribute('aria-expanded', String(card.dataset.open === name)); });
         guides.forEach(function (guide) { guide.hidden = guide !== selected; });
         shell.hidden = false;
-        if (scroll) shell.scrollIntoView({ behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+        if (scroll) {
+          var target = targetId ? selected.querySelector('#' + targetId) : null;
+          (target || shell).scrollIntoView({
+            behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+            block: 'start'
+          });
+        }
       }
 
       async function copyText(value) {
@@ -878,7 +904,7 @@
         var card = event.target.closest('[data-open]');
         if (card) {
           if (card.getAttribute('aria-expanded') === 'true') { closeGuide(); }
-          else { openGuide(card.dataset.open, true); }
+          else { openGuide(card.dataset.open, true, card.dataset.guideTarget); }
           return;
         }
         if (event.target.closest('[data-close]')) {
@@ -903,7 +929,8 @@
       });
 
       var hash = window.location.hash.replace(/^#/, '');
-      if (hash.indexOf('guide-') === 0) openGuide(hash.slice(6), false);
+      if (hash === 'guide-gallery-upload') openGuide('gallery', true, 'gallery-contribute');
+      else if (hash.indexOf('guide-') === 0) openGuide(hash.slice(6), false);
     })();
   </script>
 </body>
