@@ -424,7 +424,7 @@
   .game-update-link { width: 100%; }
 }
 
-/* Bot Help analytics: page-specific cumulative stats and provider-wide daily stats. */
+/* Bot Help analytics: page-specific cumulative views and approximate unique visitors. */
 .bot-help-visit {
   display: grid; flex: 1 0 100%; gap: 8px; justify-items: center;
   margin-top: 3px; padding-top: 16px; min-width: 0;

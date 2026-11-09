@@ -911,23 +911,18 @@
   <footer class="footer"><div class="wrap footer-content">
     <span>✿ Super Airi! 小浅子 · 让每一次聊天多一点开心</span>
     <span><a href="/messages/">反馈建议</a>　·　<a href="/">返回搁浅的小窝</a></span>
-    <section class="bot-help-visit" aria-label="Bot Help 访问统计">
+    <section class="bot-help-visit" aria-label="Bot Help 首页访问统计">
       <div class="bot-help-visit-row">
-        <span class="bot-help-visit-label">📖 本页累计</span>
-        <span>浏览 <strong id="busuanzi_page_pv" aria-live="polite">—</strong> 次</span>
-        <span>访客 <strong id="busuanzi_page_uv" aria-live="polite">—</strong> 人</span>
+        <span class="bot-help-visit-label">👀 Bot Help 首页</span>
+        <span>累计浏览 <strong id="busuanzi_page_pv" aria-live="polite">—</strong> 次</span>
+        <span>独立访客 <strong id="busuanzi_page_uv" aria-live="polite">—</strong> 人</span>
       </div>
-      <div class="bot-help-visit-row">
-        <span class="bot-help-visit-label">☀️ 今日统计</span>
-        <span>浏览 <strong id="busuanzi_today_pv" aria-live="polite">—</strong> 次</span>
-        <span>访客 <strong id="busuanzi_today_uv" aria-live="polite">—</strong> 人</span>
-      </div>
-      <p class="bot-help-visit-note">访客为近似去重值，非实际人数。今日数据按统计服务的站点口径计算；目前仅本页启用这套统计服务。</p>
+      <p class="bot-help-visit-note">访客为近似去重值，非实际人数；数据自本计数服务接入后累计，暂不包含单独的今日统计。</p>
     </section>
   </div></footer>
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <!-- New Busuanzi supports page-level UV and site-level daily totals; the blog uses a different legacy service. -->
-  <script defer src="https://cdn.busuanzi.cc/busuanzi/3.6.9/busuanzi.min.js"></script>
+  <!-- Page-specific PV and approximate UV, via the separately hosted Busuanzi-compatible counter. -->
+  <script defer src="https://busuanzi.9420.ltd/js"></script>
   <script>
     (function () {
       // Only actual six feature cards take part in search and expanded state.

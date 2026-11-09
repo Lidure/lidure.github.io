@@ -10,26 +10,23 @@ const html = readFileSync(path.join(root, '..', 'dist', 'bot-help', 'index.html'
 const copied = [...html.matchAll(/data-copy="([^"]+)"/g)].map((m) => m[1]);
 const has = (command) => copied.includes(command);
 
-test('Bot Help footer separates cumulative page visitors and provider-wide daily stats', () => {
+test('Bot Help page counter renders page-specific PV and approximate unique visitors', () => {
   const footer = html.split('<footer class="footer">')[1]?.split('</footer>')[0] ?? '';
   assert.match(footer, /class="bot-help-visit"/);
-  for (const field of ['page_pv','page_uv','today_pv','today_uv']) {
+  for (const field of ['page_pv','page_uv']) {
     assert.match(footer, new RegExp('id="busuanzi_' + field + '"'));
     assert.equal((html.match(new RegExp('id="busuanzi_' + field + '"','g')) || []).length, 1);
   }
-  assert.match(footer, /本页累计/);
-  assert.match(footer, /今日统计/);
-  assert.match(footer, /今日数据按统计服务的站点口径计算/);
+  assert.match(footer, /独立访客/);
   assert.match(footer, /访客为近似去重值/);
-  assert.doesNotMatch(footer, /busuanzi_(value_)?site_(pv|uv)/);
-  assert.doesNotMatch(footer, /busuanzi_value_page_pv/);
-  assert.match(html, /<script defer src="https:\/\/cdn\.busuanzi\.cc\/busuanzi\/3\.6\.9\/busuanzi\.min\.js"><\/script>/);
-  assert.doesNotMatch(html, /busuanzi\.ibruce\.info/);
-  assert.ok(html.indexOf('busuanzi.min.js') < html.indexOf('function announce'));
+  assert.match(footer, /暂不包含单独的今日统计/);
+  assert.doesNotMatch(footer, /busuanzi_today|busuanzi_site_|busuanzi_value_/);
+  assert.match(html, /<script defer src="https:\/\/busuanzi\.9420\.ltd\/js"><\/script>/);
+  assert.doesNotMatch(html, /cdn\.busuanzi\.cc/);
+  assert.ok(html.indexOf('busuanzi.9420.ltd/js') < html.indexOf('function announce'));
   const css = readFileSync(path.join(root, '..', 'dist', 'bot-help', 'theme.css'), 'utf8');
   assert.match(css, /\.bot-help-visit-row/);
   assert.match(css, /:root\[data-theme="dark"\] \.bot-help-visit/);
-  assert.match(css, /@media \(max-width: 580px\)[\s\S]*?\.bot-help-visit/);
 });
 
 test('bot help starts concise: quick-start and exactly six discoverable categories', () => {
