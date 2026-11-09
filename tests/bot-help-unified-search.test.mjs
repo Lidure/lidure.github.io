@@ -161,4 +161,7 @@ test('small-screen layout keeps controls legible and dark Airi results covered',
   assert.match(css, /@media \(max-width: 580px\)/);
   assert.match(css, /:root\[data-theme="dark"\] \.command-search-result/);
   assert.match(css, /:root\[data-theme="dark"\] \.mobile-nav summary/);
+  assert.match(css, /\.topbar ~ main \.copy \{ min-height: 42px; min-width: 52px/);
+  assert.match(css, /\.topbar ~ main \.tool-desc/);
+  assert.match(css, /\.tool:target \{ outline: 2px solid/);
 });
