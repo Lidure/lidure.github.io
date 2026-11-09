@@ -899,7 +899,7 @@
       var commandSearchPanel = document.getElementById('command-search-results');
       var commandSearchList = document.getElementById('command-search-list');
       var commandSearchStatus = document.getElementById('command-search-status');
-      var mobileNav = document.getElementById('mobile-help-nav');
+      var commandSearchEmpty = document.getElementById('command-search-empty');
       var commandIndex = [];
       var airiTools = [];
       var airiSearchReady = false;
@@ -992,6 +992,7 @@
         commandSearchList.textContent = '';
         if (query.length < 2) {
           commandSearchPanel.hidden = true;
+          if (search.setAttribute) search.setAttribute('aria-expanded', 'false');
           return;
         }
         var localResults = commandIndex
@@ -1005,7 +1006,9 @@
               ((a.entry.command || a.entry.title).length - (b.entry.command || b.entry.title).length);
           });
         visibleCommandResults = matches.slice(0, 8);
-        commandSearchPanel.hidden = visibleCommandResults.length === 0;
+        commandSearchPanel.hidden = false;
+        commandSearchEmpty.hidden = visibleCommandResults.length !== 0;
+        if (search.setAttribute) search.setAttribute('aria-expanded', 'true');
         var countLabel = matches.length > 8
           ? '找到 ' + matches.length + ' 条，显示最相关的 8 条'
           : '找到 ' + matches.length + ' 条 · 点击跳转到对应说明';
@@ -1087,10 +1090,14 @@
         var searchResult = event.target.closest('[data-command-result]');
         if (searchResult) {
           jumpToCommand(Number(searchResult.dataset.commandResult));
+          commandSearchPanel.hidden = true;
+          if (search.setAttribute) search.setAttribute('aria-expanded', 'false');
           return;
         }
-        var mobileLink = event.target.closest('.mobile-nav-panel a');
-        if (mobileLink && mobileNav) mobileNav.open = false;
+        if (!event.target.closest('.nav-search-shell')) {
+          commandSearchPanel.hidden = true;
+          if (search.setAttribute) search.setAttribute('aria-expanded', 'false');
+        }
         var card = event.target.closest('[data-open]');
         if (card) {
           if (card.getAttribute('aria-expanded') === 'true') { closeGuide(); }
@@ -1127,6 +1134,23 @@
         }
       }
       search.addEventListener('input', refreshSearch);
+      search.addEventListener('focus', function () {
+        if (search.value.trim()) refreshSearch();
+      });
+      search.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          commandSearchPanel.hidden = true;
+          if (search.setAttribute) search.setAttribute('aria-expanded', 'false');
+          if (search.blur) search.blur();
+        }
+        if (event.key === 'ArrowDown' && !commandSearchPanel.hidden) {
+          var first = commandSearchList.firstElementChild;
+          if (first && first.focus) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+      });
 
       // Fetch the tiny generated index once; keep all local commands working offline.
       // The index is built from the 24 Airi manual cards during the Astro build.
