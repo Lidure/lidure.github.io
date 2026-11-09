@@ -41,7 +41,7 @@
 <div class="control-bar"><div class="control-title"><h2>按兴趣慢慢找</h2><p>点击下面的分类展开，不会一次铺满 24 个功能。</p></div><label class="search" for="catalog-search"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="搜索：签到、wws、象棋、点歌…" autocomplete="off" aria-label="搜索 Airi 功能"></label></div>
 <div id="catalog"><details class="category" id="games" data-category="games">
  <summary><span class="cat-emoji" aria-hidden="true">🎮</span><span class="cat-title"><strong>游戏综合查询</strong><small>查战绩、算 PT、制作游戏内容</small></span><span class="cat-number">5 项</span><span class="chevron" aria-hidden="true">⌄</span></summary>
- <div class="tool-grid"><article class="tool" data-tool="pjsk-pt" data-search="倍率 / pt 计算器 ena-pjsk-score 咖啡不甜 面向《世界计划》的烤倍率与 pt 计算。 计算倍率 倍率计算 单人pt 单人 pt 协力pt 协力 pt 挑战pt 挑战 pt 先发送所需的指令，再按照节点给出的提示填写计算参数。">
+ <div class="tool-grid"><article id="tool-pjsk-pt" class="tool" data-tool="pjsk-pt" data-search="倍率 / pt 计算器 ena-pjsk-score 咖啡不甜 面向《世界计划》的烤倍率与 pt 计算。 计算倍率 倍率计算 单人pt 单人 pt 协力pt 协力 pt 挑战pt 挑战 pt 先发送所需的指令，再按照节点给出的提示填写计算参数。">
   <div class="tool-top"><div><h3>倍率 / PT 计算器</h3><p class="plugin-name">ena-pjsk-score</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
   <p class="author">By 咖啡不甜</p><p class="tool-desc">面向《世界计划》的烤倍率与 PT 计算。</p>
   
@@ -51,7 +51,7 @@
 <div class="command"><div class="command-label">挑战 PT</div><div class="command-line"><code>挑战pt</code><button type="button" class="copy" data-copy="挑战pt" aria-label="复制挑战pt">复制</button></div></div></div>
   <p class="tool-note">先发送所需的指令，再按照节点给出的提示填写计算参数。</p>
 </article>
-<article class="tool" data-tool="wws" data-search="战舰世界 · 水表查询 airi-kokomi-wows maoyu、airicore dev. 查询《战舰世界》的玩家战绩和相关数据。 wws help 查看完整帮助 wws 功能入口 初次使用建议先发 wws help；具体玩家查询参数以节点帮助为准。">
+<article id="tool-wws" class="tool" data-tool="wws" data-search="战舰世界 · 水表查询 airi-kokomi-wows maoyu、airicore dev. 查询《战舰世界》的玩家战绩和相关数据。 wws help 查看完整帮助 wws 功能入口 初次使用建议先发 wws help；具体玩家查询参数以节点帮助为准。">
   <div class="tool-top"><div><h3>战舰世界 · 水表查询</h3><p class="plugin-name">Airi-Kokomi-WoWS</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <p class="author">By Maoyu、AiriCore Dev.</p><p class="tool-desc">查询《战舰世界》的玩家战绩和相关数据。</p>
   
@@ -59,7 +59,7 @@
 <div class="command"><div class="command-label">功能入口</div><div class="command-line"><code>wws</code><button type="button" class="copy" data-copy="wws" aria-label="复制wws">复制</button></div></div></div>
   <p class="tool-note">初次使用建议先发 wws help；具体玩家查询参数以节点帮助为准。</p>
 </article>
-<article class="tool" data-tool="astral" data-search="吉星派对 · 综合查询 airi-astral-party airicore dev. 《吉星派对》相关的综合游戏查询。 astral help 图片帮助 如果节点提示无权限，需要该群获得白名单授权。">
+<article id="tool-astral" class="tool" data-tool="astral" data-search="吉星派对 · 综合查询 airi-astral-party airicore dev. 《吉星派对》相关的综合游戏查询。 astral help 图片帮助 如果节点提示无权限，需要该群获得白名单授权。">
   <div class="tool-top"><div><h3>吉星派对 · 综合查询</h3><p class="plugin-name">Airi-Astral-Party</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span><span class="tool-limit">仅群白名单可用</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">《吉星派对》相关的综合游戏查询。</p>
   
@@ -82,7 +82,7 @@
 <p style="margin-top:12px">发送后可生成带<strong>人物、背景和台词</strong>的魔裁风格对话图，角色素材、具体效果与实际权限以 Airi 节点返回为准。</p>
 <figure class="manosaba-sample"><img src="/bot-help/airi/manosaba-example.webp" alt="魔裁 DIY 对话效果示例：蓝发人物站在哥特风场景前，下方显示自定义台词" loading="lazy" width="384" height="216"><figcaption>效果示例 · 使用多行「魔裁对话」命令生成的人物对白图</figcaption></figure>
 </div></details></article>
-<article class="tool" data-tool="mcrcon" data-search="cobblemon 服务器管理 airi-mcrcon airicore dev. airi cobblemon 服务器相关的管理功能。 /help 在已开放群查看帮助 /help 也可能被其他 bot 模块响应；本功能请在已开放的群按管理员说明使用。">
+<article id="tool-mcrcon" class="tool" data-tool="mcrcon" data-search="cobblemon 服务器管理 airi-mcrcon airicore dev. airi cobblemon 服务器相关的管理功能。 /help 在已开放群查看帮助 /help 也可能被其他 bot 模块响应；本功能请在已开放的群按管理员说明使用。">
   <div class="tool-top"><div><h3>Cobblemon 服务器管理</h3><p class="plugin-name">Airi-MCRcon</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span><span class="tool-limit">仅部分群聊开放</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">Airi Cobblemon 服务器相关的管理功能。</p>
   
@@ -120,35 +120,35 @@
 <p>集齐编号 1～100 后，可以获得一份<strong>创世收藏品</strong>。创世收藏品共有 <strong>5 种</strong>；重生后再次完成全收藏，才能继续收集下一种。</p>
 <p class="important-note"><strong>需要真正 @Airi 的操作：</strong>转账格式是先 @Airi，再输入「转给」、QQ 中真实 @收款人 和积分数量；收款人需已注册，每天最多转出 <strong>200 积分</strong>，手续费为转账额的 <strong>10%（向上取整）</strong>。<strong>「@Airi 重生」会重开存档</strong>，请在确认理解后操作；这些不提供误触式一键复制。</p>
 </div></details></article>
-<article class="tool" data-tool="wish" data-search="爱莉心愿瓶 momoi airi wish bottle airicore dev. 漂流瓶风格的心愿投递与互动。 心愿瓶帮助 查看玩法 按提示选择投递或捞取，不需要记住所有子命令。">
+<article id="tool-wish" class="tool" data-tool="wish" data-search="爱莉心愿瓶 momoi airi wish bottle airicore dev. 漂流瓶风格的心愿投递与互动。 心愿瓶帮助 查看玩法 按提示选择投递或捞取，不需要记住所有子命令。">
   <div class="tool-top"><div><h3>爱莉心愿瓶</h3><p class="plugin-name">Momoi Airi Wish Bottle</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">漂流瓶风格的心愿投递与互动。</p>
   
   <div class="commands"><div class="command"><div class="command-label">查看玩法</div><div class="command-line"><code>心愿瓶帮助</code><button type="button" class="copy" data-copy="心愿瓶帮助" aria-label="复制心愿瓶帮助">复制</button></div></div></div>
   <p class="tool-note">按提示选择投递或捞取，不需要记住所有子命令。</p>
 </article>
-<article class="tool" data-tool="turtle" data-search="海龟汤 momoi airi turtle soup airicore dev. 通过提问逐步推理故事真相。 海龟汤 查看帮助 / 开始入口 开始前先阅读节点返回的规则。300 积分是开局费用，不是每次提问费用。">
+<article id="tool-turtle" class="tool" data-tool="turtle" data-search="海龟汤 momoi airi turtle soup airicore dev. 通过提问逐步推理故事真相。 海龟汤 查看帮助 / 开始入口 开始前先阅读节点返回的规则。300 积分是开局费用，不是每次提问费用。">
   <div class="tool-top"><div><h3>海龟汤</h3><p class="plugin-name">Momoi Airi Turtle Soup</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 300 积分</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">通过提问逐步推理故事真相。</p>
   
   <div class="commands"><div class="command"><div class="command-label">查看帮助 / 开始入口</div><div class="command-line"><code>海龟汤</code><button type="button" class="copy" data-copy="海龟汤" aria-label="复制海龟汤">复制</button></div></div></div>
   <p class="tool-note">开始前先阅读节点返回的规则。300 积分是开局费用，不是每次提问费用。</p>
 </article>
-<article class="tool" data-tool="jrys" data-search="今日运势 jrys  看看今天的随机运势。 jrys 测测今日运势 ">
+<article id="tool-jrys" class="tool" data-tool="jrys" data-search="今日运势 jrys  看看今天的随机运势。 jrys 测测今日运势 ">
   <div class="tool-top"><div><h3>今日运势</h3><p class="plugin-name">jrys</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
   <p class="tool-desc">看看今天的随机运势。</p>
   
   <div class="commands"><div class="command"><div class="command-label">测测今日运势</div><div class="command-line"><code>jrys</code><button type="button" class="copy" data-copy="jrys" aria-label="复制jrys">复制</button></div></div></div>
   
 </article>
-<article class="tool" data-tool="tarot" data-search="塔罗牌占卜 tarot minatoaquacrews 试试有趣的塔罗占卜。 占卜 触发占卜 娱乐性质，不作为现实决策依据。">
+<article id="tool-tarot" class="tool" data-tool="tarot" data-search="塔罗牌占卜 tarot minatoaquacrews 试试有趣的塔罗占卜。 占卜 触发占卜 娱乐性质，不作为现实决策依据。">
   <div class="tool-top"><div><h3>塔罗牌占卜</h3><p class="plugin-name">tarot</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <p class="author">By MinatoAquaCrews</p><p class="tool-desc">试试有趣的塔罗占卜。</p>
   
   <div class="commands"><div class="command"><div class="command-label">触发占卜</div><div class="command-line"><code>占卜</code><button type="button" class="copy" data-copy="占卜" aria-label="复制占卜">复制</button></div></div></div>
   <p class="tool-note">娱乐性质，不作为现实决策依据。</p>
 </article>
-<article class="tool" data-tool="waifu" data-search="今日老婆 · 抽群友 today-waifu glamorgan9826 在群里随机抽取趣味互动对象。 jrlp 今日老婆 hlp 换老婆 强娶 强娶玩法 强娶等功能如需目标或额外操作，请按节点回复继续。">
+<article id="tool-waifu" class="tool" data-tool="waifu" data-search="今日老婆 · 抽群友 today-waifu glamorgan9826 在群里随机抽取趣味互动对象。 jrlp 今日老婆 hlp 换老婆 强娶 强娶玩法 强娶等功能如需目标或额外操作，请按节点回复继续。">
   <div class="tool-top"><div><h3>今日老婆 · 抽群友</h3><p class="plugin-name">today-waifu</p></div><div class="tool-cost"><span class="tool-price">🪙 jrlp / hlp：10 积分 / 次；强娶：100 积分 / 次</span></div></div>
   <p class="author">By glamorgan9826</p><p class="tool-desc">在群里随机抽取趣味互动对象。</p>
   
@@ -157,7 +157,7 @@
 <div class="command"><div class="command-label">强娶玩法</div><div class="command-line"><code>强娶</code><button type="button" class="copy" data-copy="强娶" aria-label="复制强娶">复制</button></div></div></div>
   <p class="tool-note">强娶等功能如需目标或额外操作，请按节点回复继续。</p>
 </article>
-<article class="tool" data-tool="eat" data-search="今天吃什么？ whateat-pic cvandia 选择困难时随机推荐吃的或喝的。 今天吃什么 推荐食物 今天喝什么 推荐饮品 ">
+<article id="tool-eat" class="tool" data-tool="eat" data-search="今天吃什么？ whateat-pic cvandia 选择困难时随机推荐吃的或喝的。 今天吃什么 推荐食物 今天喝什么 推荐饮品 ">
   <div class="tool-top"><div><h3>今天吃什么？</h3><p class="plugin-name">whateat-pic</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <p class="author">By Cvandia</p><p class="tool-desc">选择困难时随机推荐吃的或喝的。</p>
   
@@ -165,7 +165,7 @@
 <div class="command"><div class="command-label">推荐饮品</div><div class="command-line"><code>今天喝什么</code><button type="button" class="copy" data-copy="今天喝什么" aria-label="复制今天喝什么">复制</button></div></div></div>
   
 </article>
-<article class="tool" data-tool="mines" data-search="扫雷游戏 minesweeper meetwq 在群里玩一局扫雷。 扫雷帮助 查看开局与操作规则 先看帮助再开局，避免不知道如何翻格或标雷。">
+<article id="tool-mines" class="tool" data-tool="mines" data-search="扫雷游戏 minesweeper meetwq 在群里玩一局扫雷。 扫雷帮助 查看开局与操作规则 先看帮助再开局，避免不知道如何翻格或标雷。">
   <div class="tool-top"><div><h3>扫雷游戏</h3><p class="plugin-name">Minesweeper</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 100 积分</span></div></div>
   <p class="author">By MeetWq</p><p class="tool-desc">在群里玩一局扫雷。</p>
   
@@ -175,42 +175,42 @@
  </details>
 <details class="category" id="utilities" data-category="utilities">
  <summary><span class="cat-emoji" aria-hidden="true">🧰</span><span class="cat-title"><strong>实用与创作</strong><small>点歌、随机挑选、图片处理和表情制作</small></span><span class="cat-number">8 项</span><span class="chevron" aria-hidden="true">⌄</span></summary>
- <div class="tool-grid"><article class="tool" data-tool="music" data-search="网易云点歌 airi-netease-music airicore dev. 搜索并分享网易云音乐的歌曲。 点歌 群青 点歌完整示例 「群青」只是歌名示例，想听别的歌时替换成歌曲名即可。">
+ <div class="tool-grid"><article id="tool-music" class="tool" data-tool="music" data-search="网易云点歌 airi-netease-music airicore dev. 搜索并分享网易云音乐的歌曲。 点歌 群青 点歌完整示例 「群青」只是歌名示例，想听别的歌时替换成歌曲名即可。">
   <div class="tool-top"><div><h3>网易云点歌</h3><p class="plugin-name">Airi-Netease-Music</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">搜索并分享网易云音乐的歌曲。</p>
   
   <div class="commands"><div class="command"><div class="command-label">点歌完整示例</div><div class="command-line"><code>点歌 群青</code><button type="button" class="copy" data-copy="点歌 群青" aria-label="复制点歌 群青">复制</button></div></div></div>
   <p class="tool-note">「群青」只是歌名示例，想听别的歌时替换成歌曲名即可。</p>
 </article>
-<article class="tool" data-tool="choice" data-search="随机挑选 airi-choice airicore dev. 纠结选哪个？让节点帮忙随机决定。 choicehelp 查看参数和示例 ">
+<article id="tool-choice" class="tool" data-tool="choice" data-search="随机挑选 airi-choice airicore dev. 纠结选哪个？让节点帮忙随机决定。 choicehelp 查看参数和示例 ">
   <div class="tool-top"><div><h3>随机挑选</h3><p class="plugin-name">Airi-Choice</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">纠结选哪个？让节点帮忙随机决定。</p>
   
   <div class="commands"><div class="command"><div class="command-label">查看参数和示例</div><div class="command-line"><code>choicehelp</code><button type="button" class="copy" data-copy="choicehelp" aria-label="复制choicehelp">复制</button></div></div></div>
   
 </article>
-<article class="tool" data-tool="roll" data-search="随机数 / 掷骰 airi-roll airicore dev. 生成随机数，适合简单抽签与随机决策。 roll help 查看使用方法 ">
+<article id="tool-roll" class="tool" data-tool="roll" data-search="随机数 / 掷骰 airi-roll airicore dev. 生成随机数，适合简单抽签与随机决策。 roll help 查看使用方法 ">
   <div class="tool-top"><div><h3>随机数 / 掷骰</h3><p class="plugin-name">Airi-Roll</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">生成随机数，适合简单抽签与随机决策。</p>
   
   <div class="commands"><div class="command"><div class="command-label">查看使用方法</div><div class="command-line"><code>roll help</code><button type="button" class="copy" data-copy="roll help" aria-label="复制roll help">复制</button></div></div></div>
   
 </article>
-<article class="tool" data-tool="attr" data-search="英文缩写查询 airi-attrwhich airicore dev. 询问英文缩写是什么意思。 cpu是什么 复制问题文字（先真实 @airi） 先在 qq 群里从成员列表真正 @airi，再输入「cpu是什么」等问题；不能只复制纯文本 @airi。">
+<article id="tool-attr" class="tool" data-tool="attr" data-search="英文缩写查询 airi-attrwhich airicore dev. 询问英文缩写是什么意思。 cpu是什么 复制问题文字（先真实 @airi） 先在 qq 群里从成员列表真正 @airi，再输入「cpu是什么」等问题；不能只复制纯文本 @airi。">
   <div class="tool-top"><div><h3>英文缩写查询</h3><p class="plugin-name">Airi-Attrwhich</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">询问英文缩写是什么意思。</p>
   <p class="mention-note">📌 需要在 QQ 中真正 @Airi；复制文字不等于完成 @。</p>
   <div class="commands"><div class="command"><div class="command-label">复制问题文字（先真实 @Airi）</div><div class="command-line"><code>CPU是什么</code><button type="button" class="copy" data-copy="CPU是什么" aria-label="复制CPU是什么">复制</button></div></div></div>
   <p class="tool-note">先在 QQ 群里从成员列表真正 @Airi，再输入「CPU是什么」等问题；不能只复制纯文本 @Airi。</p>
 </article>
-<article class="tool" data-tool="packpic" data-search="合并转发图片打包 airi-packpic airicore dev. 把合并转发消息里的图片压缩打包。 packpic 回复合并转发消息 必须引用 / 回复一条合并转发消息后再发送 packpic，单发命令无法定位图片来源。">
+<article id="tool-packpic" class="tool" data-tool="packpic" data-search="合并转发图片打包 airi-packpic airicore dev. 把合并转发消息里的图片压缩打包。 packpic 回复合并转发消息 必须引用 / 回复一条合并转发消息后再发送 packpic，单发命令无法定位图片来源。">
   <div class="tool-top"><div><h3>合并转发图片打包</h3><p class="plugin-name">Airi-PackPic</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <p class="author">By AiriCore Dev.</p><p class="tool-desc">把合并转发消息里的图片压缩打包。</p>
   
   <div class="commands"><div class="command"><div class="command-label">回复合并转发消息</div><div class="command-line"><code>packpic</code><button type="button" class="copy" data-copy="packpic" aria-label="复制packpic">复制</button></div></div></div>
   <p class="tool-note">必须引用 / 回复一条合并转发消息后再发送 packpic，单发命令无法定位图片来源。</p>
 </article>
-<article class="tool highlight-popular" id="tool-memes" data-tool="memes" data-search="表情包制作 memes meetwq 用图片或文字生成表情包。 表情包制作 查看制作方法 ">
+<article class="tool highlight-popular" id="tool-memes" data-tool="memes" data-search="表情包制作 memes meetwq 玩@xx 抱抱@xx 玩 抱抱 玩@群友 抱抱@群友 用图片或文字生成表情包。 表情包制作 查看制作方法 ">
   <div class="tool-top"><div><h3>表情包制作</h3><p class="plugin-name">Memes</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <span class="popular-stamp">😆 热门 · 群友互动表情</span><p class="author">By MeetWq</p><p class="tool-desc">群里常见的「玩@群友」「抱抱@群友」这类玩法，都可以通过表情包制作插件尝试。</p>
   
@@ -221,7 +221,7 @@
 <div class="mini-command-grid"><div class="mini-command"><div><code>玩</code><div style="font-size:11px;color:#8b7d8e;margin-top:2px">先复制「玩」，再真实 @群友</div></div><button class="copy" type="button" data-copy="玩" aria-label="复制玩">复制</button></div><div class="mini-command"><div><code>抱抱</code><div style="font-size:11px;color:#8b7d8e;margin-top:2px">先复制「抱抱」，再真实 @群友</div></div><button class="copy" type="button" data-copy="抱抱" aria-label="复制抱抱">复制</button></div></div>
 <p class="important-note">📌 <strong>不要只复制“玩@xx”</strong>。那是写法示意，不是真实 QQ @；请在聊天输入框里点选正确的群友。更多模板可发送 <strong>表情包制作</strong> 查看帮助。消耗按已公布的每次 <strong>10 积分</strong>计算。</p>
 </div></details></article>
-<article class="tool" data-tool="stickers" data-search="pjsk / arcaea 贴纸制作 meme-stickers lgc-nb2dev 用游戏风格模板制作贴纸。 pjskbq pjsk 贴纸说明 arcbq arcaea 贴纸说明 ">
+<article id="tool-stickers" class="tool" data-tool="stickers" data-search="pjsk / arcaea 贴纸制作 meme-stickers lgc-nb2dev 用游戏风格模板制作贴纸。 pjskbq pjsk 贴纸说明 arcbq arcaea 贴纸说明 ">
   <div class="tool-top"><div><h3>PJSK / Arcaea 贴纸制作</h3><p class="plugin-name">meme-stickers</p></div><div class="tool-cost"><span class="tool-price">🪙 10 积分 / 次</span></div></div>
   <p class="author">By lgc-NB2Dev</p><p class="tool-desc">用游戏风格模板制作贴纸。</p>
   
@@ -229,7 +229,7 @@
 <div class="command"><div class="command-label">Arcaea 贴纸说明</div><div class="command-line"><code>arcbq</code><button type="button" class="copy" data-copy="arcbq" aria-label="复制arcbq">复制</button></div></div></div>
   
 </article>
-<article class="tool" data-tool="emojimix" data-search="emoji 合成 emojimix  尝试把两个系统 emoji 混合成趣味图片。 输入形式：系统 emoji + 加号 + 系统 emoji，例如「😀+😎」仅用于说明格式；实际支持哪些组合以插件回复为准。qq 自带表情不是系统 emoji。">
+<article id="tool-emojimix" class="tool" data-tool="emojimix" data-search="emoji 合成 emojimix  尝试把两个系统 emoji 混合成趣味图片。 输入形式：系统 emoji + 加号 + 系统 emoji，例如「😀+😎」仅用于说明格式；实际支持哪些组合以插件回复为准。qq 自带表情不是系统 emoji。">
   <div class="tool-top"><div><h3>Emoji 合成</h3><p class="plugin-name">emojimix</p></div><div class="tool-cost"><span class="tool-price muted">积分消耗未注明</span></div></div>
   <p class="tool-desc">尝试把两个系统 Emoji 混合成趣味图片。</p>
   
@@ -239,7 +239,7 @@
  </details>
 <details class="category" id="board" data-category="board">
  <summary><span class="cat-emoji" aria-hidden="true">♟️</span><span class="cat-title"><strong>棋类与桌游</strong><small>五子棋、象棋、围棋与得分沙拉</small></span><span class="cat-number">3 项</span><span class="chevron" aria-hidden="true">⌄</span></summary>
- <div class="tool-grid"><article class="tool" data-tool="chess" data-search="五子棋 / 黑白棋 / 围棋 chess  群聊双人对战（pvp），支持对局管理。 五子棋 开五子棋 黑白棋 开黑白棋 围棋 开围棋 悔棋 申请悔棋 跳过回合 跳过当前回合 显示棋盘 查看棋盘 结束下棋 结束对局 落子命令为「落子」后接棋盘上显示的实际坐标。不同棋类的坐标写法以对局提示为准，不能复制字面上的“坐标”。">
+ <div class="tool-grid"><article id="tool-chess" class="tool" data-tool="chess" data-search="五子棋 / 黑白棋 / 围棋 chess  群聊双人对战（pvp），支持对局管理。 五子棋 开五子棋 黑白棋 开黑白棋 围棋 开围棋 悔棋 申请悔棋 跳过回合 跳过当前回合 显示棋盘 查看棋盘 结束下棋 结束对局 落子命令为「落子」后接棋盘上显示的实际坐标。不同棋类的坐标写法以对局提示为准，不能复制字面上的“坐标”。">
   <div class="tool-top"><div><h3>五子棋 / 黑白棋 / 围棋</h3><p class="plugin-name">chess</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 100 积分</span><span class="tool-limit">仅玩家对战</span></div></div>
   <p class="tool-desc">群聊双人对战（PvP），支持对局管理。</p>
   
@@ -252,7 +252,7 @@
 <div class="command"><div class="command-label">结束对局</div><div class="command-line"><code>结束下棋</code><button type="button" class="copy" data-copy="结束下棋" aria-label="复制结束下棋">复制</button></div></div></div>
   <p class="tool-note">落子命令为「落子」后接棋盘上显示的实际坐标。不同棋类的坐标写法以对局提示为准，不能复制字面上的“坐标”。</p>
 </article>
-<article class="tool" data-tool="cchess" data-search="中国象棋 cchess  可与其他群友对战，也可挑战人机。 象棋对战 群聊中真正 @airi 后发送 炮二平五 中文格式走棋示例 b2e2 坐标格式走棋示例 显示棋盘 查看棋盘 悔棋 申请悔棋 结束下棋 结束对局 对战：先真实 @airi，再发「象棋对战」。人机：真实 @airi 后输入「象棋人机lvx」，其中 x 必须替换成节点支持的实际等级，不要把字母 x 原样发送。">
+<article id="tool-cchess" class="tool" data-tool="cchess" data-search="中国象棋 cchess  可与其他群友对战，也可挑战人机。 象棋对战 群聊中真正 @airi 后发送 炮二平五 中文格式走棋示例 b2e2 坐标格式走棋示例 显示棋盘 查看棋盘 悔棋 申请悔棋 结束下棋 结束对局 对战：先真实 @airi，再发「象棋对战」。人机：真实 @airi 后输入「象棋人机lvx」，其中 x 必须替换成节点支持的实际等级，不要把字母 x 原样发送。">
   <div class="tool-top"><div><h3>中国象棋</h3><p class="plugin-name">cchess</p></div><div class="tool-cost"><span class="tool-price">🪙 开局 100 积分</span></div></div>
   <p class="tool-desc">可与其他群友对战，也可挑战人机。</p>
   <p class="mention-note">📌 需要在 QQ 中真正 @Airi；复制文字不等于完成 @。</p>
