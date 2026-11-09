@@ -24,9 +24,10 @@ test('build prepares responsive WebP variants from the existing local wallpapers
   const pkg = JSON.parse(readSource('package.json'));
   const generator = readSource('scripts/generate-wallpaper-variants.mjs');
 
-  assert.equal(pkg.scripts.prebuild, 'node scripts/generate-wallpaper-variants.mjs');
-  assert.equal(pkg.scripts.predev, 'node scripts/generate-wallpaper-variants.mjs');
-  assert.equal(pkg.scripts.prestart, 'node scripts/generate-wallpaper-variants.mjs');
+  for (const stage of ['prebuild', 'predev', 'prestart']) {
+    assert.match(pkg.scripts[stage], /^node scripts\/generate-wallpaper-variants\.mjs(?: && |$)/);
+    assert.match(pkg.scripts[stage], /node scripts\/generate-bot-help-airi-index\.mjs/);
+  }
   assert.match(pkg.dependencies.sharp, /^\^0\.34\./);
   assert.match(pkg.scripts['test:site'], /firefly-wallpaper-loading\.test\.mjs/);
   assert.match(generator, /from ['"]sharp['"]/);
