@@ -871,6 +871,13 @@
       var toast = document.getElementById('toast');
       var search = document.getElementById('help-search');
       var noResults = document.getElementById('no-results');
+      var commandSearchPanel = document.getElementById('command-search-results');
+      var commandSearchList = document.getElementById('command-search-list');
+      var commandSearchStatus = document.getElementById('command-search-status');
+      var mobileNav = document.getElementById('mobile-help-nav');
+      var commandIndex = [];
+      var visibleCommandResults = [];
+      var highlightedCommand = null;
       var toastTimer;
 
       function announce(message) {
@@ -901,6 +908,95 @@
         }
       }
 
+      // Build the search index from actual copyable instructions already on the page.
+      // Avoid duplicating or guessing command spellings in a second configuration.
+      guides.forEach(function (guide) {
+        var guideName = guide.dataset.guide;
+        var categoryCard = cards.find(function (card) { return card.dataset.open === guideName; });
+        var category = categoryCard ? categoryCard.querySelector('.feature-title').textContent.trim() : guideName;
+        var seen = {};
+        guide.querySelectorAll('[data-copy]').forEach(function (copyButton) {
+          var command = (copyButton.dataset.copy || '').trim();
+          if (!command || seen[command]) return;
+          seen[command] = true;
+          var target = copyButton.closest('.command-item, .code-pill, .gallery-contribute-query, .cmd-row') || copyButton;
+          var heading = target.querySelector('.command-title');
+          var disclosure = copyButton.closest('details');
+          var summary = disclosure ? disclosure.querySelector('summary') : null;
+          var label = heading ? heading.textContent.trim() : (summary ? summary.textContent.trim() : category);
+          commandIndex.push({
+            guide: guideName,
+            guideNode: guide,
+            category: category,
+            command: command,
+            label: label,
+            target: target
+          });
+        });
+      });
+
+      function commandScore(entry, query) {
+        var command = entry.command.toLowerCase();
+        var withoutSlash = command.replace(/^\//, '');
+        var q = query.replace(/^\//, '');
+        if (command === query || withoutSlash === q) return 0;
+        if (command.startsWith(query) || withoutSlash.startsWith(q)) return 1;
+        if (command.includes(query) || withoutSlash.includes(q)) return 2;
+        if (entry.label.toLowerCase().includes(query)) return 3;
+        return 99;
+      }
+
+      function updateCommandResults(query) {
+        visibleCommandResults = [];
+        commandSearchList.textContent = '';
+        if (query.length < 2) {
+          commandSearchPanel.hidden = true;
+          return;
+        }
+        var matches = commandIndex
+          .map(function (entry) { return { entry: entry, score: commandScore(entry, query) }; })
+          .filter(function (result) { return result.score < 99; })
+          .sort(function (a, b) { return a.score - b.score || a.entry.command.length - b.entry.command.length; });
+        visibleCommandResults = matches.slice(0, 8).map(function (result) { return result.entry; });
+        commandSearchPanel.hidden = visibleCommandResults.length === 0;
+        commandSearchStatus.textContent = matches.length > 8
+          ? '找到 ' + matches.length + ' 条，显示最相关的 8 条'
+          : '找到 ' + matches.length + ' 条 · 点击跳转到对应说明';
+        visibleCommandResults.forEach(function (entry, index) {
+          var button = document.createElement('button');
+          button.type = 'button';
+          button.className = 'command-search-result';
+          button.dataset.commandResult = String(index);
+          var command = document.createElement('span');
+          command.className = 'command-search-code';
+          command.textContent = entry.command;
+          var context = document.createElement('span');
+          context.className = 'command-search-context';
+          context.textContent = entry.category + ' · ' + entry.label;
+          button.appendChild(command);
+          button.appendChild(context);
+          commandSearchList.appendChild(button);
+        });
+      }
+
+      function jumpToCommand(index) {
+        var entry = visibleCommandResults[index];
+        if (!entry) return;
+        openGuide(entry.guide, false);
+        var parent = entry.target.parentElement;
+        while (parent && parent !== entry.guideNode) {
+          if (parent.tagName === 'DETAILS') parent.open = true;
+          parent = parent.parentElement;
+        }
+        if (highlightedCommand) highlightedCommand.classList.remove('search-hit');
+        highlightedCommand = entry.target;
+        highlightedCommand.classList.add('search-hit');
+        entry.target.scrollIntoView({
+          behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+          block: 'center'
+        });
+      }
+
       async function copyText(value) {
         try {
           if (navigator.clipboard && window.isSecureContext) {
@@ -924,6 +1020,13 @@
       document.addEventListener('click', function (event) {
         var copyButton = event.target.closest('[data-copy]');
         if (copyButton) { copyText(copyButton.dataset.copy); return; }
+        var searchResult = event.target.closest('[data-command-result]');
+        if (searchResult) {
+          jumpToCommand(Number(searchResult.dataset.commandResult));
+          return;
+        }
+        var mobileLink = event.target.closest('.mobile-nav-panel a');
+        if (mobileLink && mobileNav) mobileNav.open = false;
         var card = event.target.closest('[data-open]');
         if (card) {
           if (card.getAttribute('aria-expanded') === 'true') { closeGuide(); }
@@ -940,14 +1043,23 @@
         var q = search.value.trim().toLowerCase();
         var count = 0;
         cards.forEach(function (card) {
-          var match = !q || (card.dataset.keywords + ' ' + card.textContent).toLowerCase().includes(q);
+          var guide = guides.find(function (item) { return item.dataset.guide === card.dataset.open; });
+          var haystack = (card.dataset.keywords + ' ' + card.textContent +
+            (guide ? ' ' + guide.textContent : '')).toLowerCase();
+          var match = !q || haystack.includes(q) ||
+            (q.startsWith('/') && haystack.includes(q.slice(1)));
           card.hidden = !match;
           if (match) count++;
         });
-        noResults.hidden = count !== 0;
-        if (q && count === 1) {
+        updateCommandResults(q);
+        noResults.hidden = count !== 0 || visibleCommandResults.length !== 0;
+        if (q && count === 1 && shell.hidden === false) {
           var one = cards.find(function (card) { return !card.hidden; });
-          if (one && shell.hidden === false) openGuide(one.dataset.open, false);
+          if (one) openGuide(one.dataset.open, false);
+        }
+        if (!q && highlightedCommand) {
+          highlightedCommand.classList.remove('search-hit');
+          highlightedCommand = null;
         }
       });
 
