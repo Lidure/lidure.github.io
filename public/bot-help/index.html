@@ -432,11 +432,11 @@
     <section id="features" class="features" aria-labelledby="feature-title">
       <div class="section-top">
         <div><span class="section-label">02 · EXPLORE</span><h2 id="feature-title">你想玩哪个？</h2><p class="section-note">点开分类，只看你需要的用法。</p></div>
-        <label class="search-wrap" for="help-search"><span aria-hidden="true">⌕</span><input id="help-search" type="search" placeholder="搜命令，例如：/查看贡献、签到" autocomplete="off" aria-label="搜索命令和功能" aria-controls="command-search-results"></label>
+        <label class="search-wrap" for="help-search"><span aria-hidden="true">⌕</span><input id="help-search" type="search" placeholder="搜命令：/查看贡献、manohelp、玩@xx" autocomplete="off" aria-label="搜索命令和功能" aria-controls="command-search-results"></label>
       </div>
 
       <section id="command-search-results" class="command-search-results" aria-label="相关命令结果" hidden>
-        <div class="command-search-heading"><strong>🔎 匹配的命令</strong><span id="command-search-status" aria-live="polite"></span></div>
+        <div class="command-search-heading"><strong>🔎 全站命令 · 含 Airi 节点</strong><span id="command-search-status" aria-live="polite"></span></div>
         <div id="command-search-list" class="command-search-list"></div>
       </section>
       <div class="feature-grid" id="feature-grid">
@@ -906,6 +906,8 @@
       var commandSearchStatus = document.getElementById('command-search-status');
       var mobileNav = document.getElementById('mobile-help-nav');
       var commandIndex = [];
+      var airiTools = [];
+      var airiSearchReady = false;
       var visibleCommandResults = [];
       var highlightedCommand = null;
       var toastTimer;
@@ -976,6 +978,20 @@
         return 99;
       }
 
+      function airiToolScore(tool, query) {
+        var commands = tool.commands || [];
+        var best = 99;
+        commands.forEach(function (command) {
+          best = Math.min(best, commandScore({ command: command, label: tool.title }, query));
+        });
+        if (best < 99) return best;
+        var name = (tool.title || '').toLowerCase();
+        if (name === query) return 1;
+        if (name.includes(query)) return 3;
+        if ((tool.keywords || '').toLowerCase().includes(query)) return 4;
+        return 99;
+      }
+
       function updateCommandResults(query) {
         visibleCommandResults = [];
         commandSearchList.textContent = '';
@@ -983,26 +999,44 @@
           commandSearchPanel.hidden = true;
           return;
         }
-        var matches = commandIndex
-          .map(function (entry) { return { entry: entry, score: commandScore(entry, query) }; })
+        var localResults = commandIndex
+          .map(function (entry) { return { source: 'local', entry: entry, score: commandScore(entry, query) }; });
+        var airiResults = airiTools
+          .map(function (entry) { return { source: 'airi', entry: entry, score: airiToolScore(entry, query) }; });
+        var matches = localResults.concat(airiResults)
           .filter(function (result) { return result.score < 99; })
-          .sort(function (a, b) { return a.score - b.score || a.entry.command.length - b.entry.command.length; });
-        visibleCommandResults = matches.slice(0, 8).map(function (result) { return result.entry; });
+          .sort(function (a, b) {
+            return a.score - b.score ||
+              ((a.entry.command || a.entry.title).length - (b.entry.command || b.entry.title).length);
+          });
+        visibleCommandResults = matches.slice(0, 8);
         commandSearchPanel.hidden = visibleCommandResults.length === 0;
-        commandSearchStatus.textContent = matches.length > 8
+        var countLabel = matches.length > 8
           ? '找到 ' + matches.length + ' 条，显示最相关的 8 条'
           : '找到 ' + matches.length + ' 条 · 点击跳转到对应说明';
-        visibleCommandResults.forEach(function (entry, index) {
-          var button = document.createElement('button');
-          button.type = 'button';
+        commandSearchStatus.textContent = countLabel +
+          (airiSearchReady ? '' : ' · Airi 节点索引加载中');
+        visibleCommandResults.forEach(function (result, index) {
+          var isAiri = result.source === 'airi';
+          var entry = result.entry;
+          var button = document.createElement(isAiri ? 'a' : 'button');
+          if (isAiri) {
+            button.href = '/bot-help/airi/#' + entry.id;
+          } else {
+            button.type = 'button';
+            button.dataset.commandResult = String(index);
+          }
           button.className = 'command-search-result';
-          button.dataset.commandResult = String(index);
           var command = document.createElement('span');
           command.className = 'command-search-code';
-          command.textContent = entry.command;
+          command.textContent = isAiri
+            ? ((entry.commands || []).find(function (value) {
+                return commandScore({ command: value, label: '' }, query) < 99;
+              }) || (entry.commands || [])[0] || entry.title)
+            : entry.command;
           var context = document.createElement('span');
           context.className = 'command-search-context';
-          context.textContent = entry.category + ' · ' + entry.label;
+          context.textContent = isAiri ? 'Airi 节点 · ' + entry.title : entry.category + ' · ' + entry.label;
           button.appendChild(command);
           button.appendChild(context);
           commandSearchList.appendChild(button);
@@ -1010,8 +1044,13 @@
       }
 
       function jumpToCommand(index) {
-        var entry = visibleCommandResults[index];
-        if (!entry) return;
+        var result = visibleCommandResults[index];
+        if (!result) return;
+        if (result.source === 'airi') {
+          window.location.href = '/bot-help/airi/#' + result.entry.id;
+          return;
+        }
+        var entry = result.entry;
         openGuide(entry.guide, false);
         var parent = entry.target.parentElement;
         while (parent && parent !== entry.guideNode) {
@@ -1069,7 +1108,7 @@
         }
       });
 
-      search.addEventListener('input', function () {
+      function refreshSearch() {
         var q = search.value.trim().toLowerCase();
         var count = 0;
         cards.forEach(function (card) {
@@ -1091,7 +1130,35 @@
           highlightedCommand.classList.remove('search-hit');
           highlightedCommand = null;
         }
-      });
+      }
+      search.addEventListener('input', refreshSearch);
+
+      // Fetch the tiny generated index once; keep all local commands working offline.
+      // The index is built from the 24 Airi manual cards during the Astro build.
+      if (typeof window.fetch === 'function') {
+        window.fetch('/bot-help/airi-search-index.json')
+          .then(function (response) {
+            if (!response.ok) throw new Error('Airi index unavailable');
+            return response.json();
+          })
+          .then(function (payload) {
+            if (!payload || !Array.isArray(payload.tools)) throw new Error('Invalid Airi index');
+            airiTools = payload.tools.filter(function (tool) {
+              return typeof tool.id === 'string' && /^tool-[a-z0-9-]+$/.test(tool.id) &&
+                typeof tool.title === 'string' && typeof tool.keywords === 'string' &&
+                Array.isArray(tool.commands);
+            });
+            airiSearchReady = true;
+            if (search.value.trim()) refreshSearch();
+          })
+          .catch(function () {
+            // A remote index failure should never break the six core help categories.
+            airiSearchReady = true;
+            if (search.value.trim()) refreshSearch();
+          });
+      } else {
+        airiSearchReady = true;
+      }
 
       var hash = window.location.hash.replace(/^#/, '');
       if (hash === 'guide-gallery-upload') openGuide('gallery', true, 'gallery-contribute');
