@@ -261,6 +261,14 @@
 :root[data-theme="dark"] .demo-copy { background: #aa4078; color: #fff; }
 :root[data-theme="dark"] .demo-copy:hover { background: #bd4f89; }
 :root[data-theme="dark"] #toast { background: #4a3451; color: #fff; }
+/* Keep navigation and theme selection comfortable on tablets and narrow laptops. */
+@media (min-width: 581px) and (max-width: 840px) {
+  .nav-inner { gap: 10px; }
+  .nav-inner .brand { font-size: 14px; }
+  .nav-inner .nav-links { gap: 10px; }
+  .nav-inner .nav-links a[href="#features"],
+  .nav-inner .nav-links a[href="#faq"] { display: none; }
+}
 @media (max-width: 580px) {
   .theme-control label { display: none; }
   .theme-control select { min-width: 94px; min-height: 34px; font-size: 12px; padding: 5px; }
