@@ -442,8 +442,8 @@
         <button class="feature" type="button" data-open="chat" data-keywords="ai 聊天 对话 问答 看图 识图 回复 消息 @ 聊天" aria-controls="detail-chat" aria-expanded="false" style="--icon-bg:#ffeaf2">
           <span class="feature-icon" aria-hidden="true">💬</span><span class="feature-title">AI 聊天</span><span class="feature-sub">陪你聊天 · 回答问题 · 看图</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
-        <button class="feature" type="button" data-open="games" data-keywords="游戏 原神 星穹铁道 星铁 绝区零 鸣潮 异环 崩坏3 崩坏三 米游社 库街区 社区 自动签到 扫码登录 绑定 uid 世界计划 pjsk steam 抽卡 签到 面板 体力" aria-controls="detail-games" aria-expanded="false" style="--icon-bg:#fff1df">
-          <span class="feature-icon" aria-hidden="true">🎮</span><span class="feature-title">游戏工具</span><span class="feature-sub">角色面板 · 抽卡记录 · 签到</span><span class="feature-foot">查看玩法 ↗</span>
+        <button class="feature" type="button" data-open="games" data-keywords="终末地 明日方舟 EndUID end zmd 终末地签到 终末地登录 终末地抽卡 游戏 原神 星穹铁道 星铁 绝区零 鸣潮 异环 崩坏3 崩坏三 米游社 库街区 社区 自动签到 扫码登录 绑定 uid 世界计划 pjsk steam 抽卡 签到 面板 体力" aria-controls="detail-games" aria-expanded="false" style="--icon-bg:#fff1df">
+          <span class="feature-kicker">新接入 · 终末地</span><span class="feature-icon" aria-hidden="true">🎮</span><span class="feature-title">游戏工具</span><span class="feature-sub">终末地 · 角色面板 · 抽卡 · 签到</span><span class="feature-foot">查看玩法 ↗</span>
         </button>
         <button class="feature" type="button" data-open="voice" data-keywords="语音 爱莉 朗读 tts 说话 日语 声音 voice.list 随机语音 语音列表" aria-controls="detail-voice" aria-expanded="false" style="--icon-bg:#f1eaff">
           <span class="feature-icon" aria-hidden="true">🎤</span><span class="feature-title">语音互动</span><span class="feature-sub">爱莉语音 · AI 语音朗读</span><span class="feature-foot">查看玩法 ↗</span>
@@ -569,6 +569,11 @@
         <section id="detail-games" class="guide" data-guide="games" hidden aria-label="游戏查询和社区自动签到使用帮助">
           <div class="detail-header"><div><span class="section-label">GAMES</span><h3>🎮 游戏助手：查询、绑定和签到</h3></div><button class="close-detail" type="button" aria-label="收起帮助" data-close>×</button></div>
           <p class="detail-desc">小浅子可以帮你查看角色资料、面板、抽卡、部分游戏的社区签到。<strong>先选择游戏，再按需要绑定自己的账号。</strong></p>
+          <div class="game-update" role="note">
+            <span class="game-update-label">NEW · EndUID</span>
+            <div><strong>《明日方舟：终末地》已加入游戏工具</strong><p>私聊登录后可查询数据、使用抽卡记录和签到功能。下方有新手教程与可复制指令。</p></div>
+            <a href="#enduid-guide" class="game-update-link" data-enduid-jump>查看教程 ↗</a>
+          </div>
           <div class="guide-caption">① 先查看对应游戏的帮助（这些指令不需要 /）</div>
           <div class="commands">
             <div class="command-item"><span class="command-title">原神</span><div class="cmd-row"><span class="cmd">gs帮助</span><button class="copy" type="button" data-copy="gs帮助">复制</button></div></div>
@@ -577,6 +582,7 @@
             <div class="command-item"><span class="command-title">崩坏 3</span><div class="cmd-row"><span class="cmd">bbb帮助</span><button class="copy" type="button" data-copy="bbb帮助">复制</button></div></div>
             <div class="command-item"><span class="command-title">鸣潮（前缀是 ww，不是 waves）</span><div class="cmd-row"><span class="cmd">ww帮助</span><button class="copy" type="button" data-copy="ww帮助">复制</button></div></div>
             <div class="command-item"><span class="command-title">异环</span><div class="cmd-row"><span class="cmd">nte帮助</span><button class="copy" type="button" data-copy="nte帮助">复制</button></div></div>
+            <div class="command-item"><span class="command-title">明日方舟：终末地（EndUID）</span><div class="cmd-row"><span class="cmd">end帮助</span><button class="copy" type="button" data-copy="end帮助">复制</button></div></div>
           </div>
           <p class="example-note">也支持《世界计划》玩家资料、Steam 等部分查询功能；不同游戏的登录和查询方式不同，以对应功能的帮助与 Bot 实际回复为准。</p>
           <div class="guide-caption">② 什么是「绑定 UID」？</div>
@@ -585,7 +591,7 @@
             <li>选择对应游戏的绑定命令，把自己的 UID 接在命令后面。<strong>例如原神：</strong><span class="inline-command">gs绑定uid123456789</span>。</li>
             <li><strong>上面的 123456789 只是格式示例，不是你的 UID。</strong>请换成你游戏里的真实数字再发；不要直接照抄示例号码。</li>
           </ol>
-          <p class="example-note">不同游戏的命令前缀不同：原神 <strong>gs</strong>、星铁 <strong>sr</strong>、绝区零 <strong>zzz</strong>、崩坏 3 <strong>bbb</strong>。例如崩坏 3 使用 <span class="inline-command">bbb绑定uid</span> 后接自己的 UID。各游戏的 UID 不能混用。</p>
+          <p class="example-note">不同游戏的命令前缀不同：原神 <strong>gs</strong>、星铁 <strong>sr</strong>、绝区零 <strong>zzz</strong>、崩坏 3 <strong>bbb</strong>。例如崩坏 3 使用 <span class="inline-command">bbb绑定uid</span> 后接自己的 UID。各游戏的 UID 不能混用。<strong>终末地使用账号授权登录</strong>，不需要照搬上面的米游社 UID 绑定步骤。</p>
           <div class="howto">
             <details>
               <summary>🎁 米游社：原神 / 星铁 / 绝区零 / 崩坏 3 自动签到</summary>
@@ -630,6 +636,26 @@
                 </ol>
                 <div class="code-options"><span class="code-pill"><code>nte登录</code><button class="copy" type="button" data-copy="nte登录">复制</button></span><span class="code-pill"><code>nte开启自动签到</code><button class="copy" type="button" data-copy="nte开启自动签到">复制</button></span><span class="code-pill"><code>nte签到</code><button class="copy" type="button" data-copy="nte签到">复制</button></span></div>
                 <p class="howto-note">发送“开启”并不代表立即领取当天奖励；自动任务会按照 Bot 的定时设置运行。账号失效时需重新登录。</p>
+              </div>
+            </details>
+            <details id="enduid-guide">
+              <summary>🛰️ 明日方舟：终末地（EndUID）· 登录、抽卡与每日签到</summary>
+              <div class="howto-body">
+                <p class="example-note">终末地已接入 <strong>EndUID</strong>。和米游社、库街区不同，它使用森空岛相关的账号授权；<strong>建议在 QQ 私聊中操作</strong>。</p>
+                <ol class="howto-steps">
+                  <li><strong>先登录：</strong>私聊小浅子发送 <span class="inline-command">end登录</span>，打开 Bot 返回的限时网页，按提示完成授权。也可发送 <span class="inline-command">end扫码登录</span>，使用森空岛 App 扫码。</li>
+                  <li><strong>查看功能：</strong>登录后发送 <span class="inline-command">end帮助</span> 查看可用查询指令；发送 <span class="inline-command">end签到</span> 可手动尝试当天签到。</li>
+                  <li><strong>自动签到：</strong>管理员目前已开启已登录账号的定时签到，服务器计划在每天 <strong>12:02（北京时间）</strong>自动尝试执行。登录成功、凭据仍有效才可能签到成功，不等于游戏内任务自动完成。</li>
+                  <li><strong>看抽卡记录：</strong>在已取得或导入抽卡记录后，可发送 <span class="inline-command">end抽卡页面</span> 获取临时网页链接，查看更详细的记录。</li>
+                </ol>
+                <div class="code-options">
+                  <span class="code-pill"><code>end帮助</code><button class="copy" type="button" data-copy="end帮助">复制</button></span>
+                  <span class="code-pill"><code>end登录</code><button class="copy" type="button" data-copy="end登录">复制</button></span>
+                  <span class="code-pill"><code>end扫码登录</code><button class="copy" type="button" data-copy="end扫码登录">复制</button></span>
+                  <span class="code-pill"><code>end签到</code><button class="copy" type="button" data-copy="end签到">复制</button></span>
+                  <span class="code-pill"><code>end抽卡页面</code><button class="copy" type="button" data-copy="end抽卡页面">复制</button></span>
+                </div>
+                <p class="howto-note">💡 也支持 <strong>zmd</strong> 前缀（如 <span class="inline-command">zmd帮助</span>），无需添加 /。登录链接请勿转发他人；不要在 QQ 群公开发送手机号、验证码或凭据。当前为管理员全局开启自动签到，个人关闭指令不一定能覆盖全局开关；如需退出自动任务，请联系管理员。</p>
               </div>
             </details>
           </div>
@@ -836,7 +862,7 @@
           </div>
           <p class="howto-note">⚠️ 此节点当前关闭了自动发送的内置总帮助，不代表具体功能不可用。国服查询可按 Haruki 规则在命令前加 <span class="inline-command">cn</span>，例如 <span class="inline-command">/cn个人信息</span>。<a href="https://neo.haruki.seiunx.com/bot-help/index.html" target="_blank" rel="noopener noreferrer" style="color:#b84f82;text-decoration:underline">查看 Haruki 官方完整指令文档</a>。</p>
         </div></details>
-        <details><summary>🎮 GsCore 游戏服务（原神、鸣潮等）</summary><div class="howto-body">
+        <details><summary>🎮 GsCore 游戏服务（原神、鸣潮、终末地等）</summary><div class="howto-body">
           <p class="node-info">GsCore 通过小浅子的游戏适配器提供面板、抽卡、签到等功能。它是<strong>游戏服务</strong>，并不是单独需要登录的 QQ Bot 账号。</p>
           <p class="example-note">想看对应游戏的全部指令，发送：</p>
           <div class="code-options">
@@ -846,8 +872,9 @@
             <span class="code-pill"><code>bbb帮助</code><button class="copy" type="button" data-copy="bbb帮助">复制</button></span>
             <span class="code-pill"><code>ww帮助</code><button class="copy" type="button" data-copy="ww帮助">复制</button></span>
             <span class="code-pill"><code>nte帮助</code><button class="copy" type="button" data-copy="nte帮助">复制</button></span>
+            <span class="code-pill"><code>end帮助</code><button class="copy" type="button" data-copy="end帮助">复制</button></span>
           </div>
-          <p class="howto-note">这些命令<strong>不需要 /</strong>。要学习 UID 绑定和米游社/库街区签到，可回到上方「游戏工具」分类查看分步教程。</p>
+          <p class="howto-note">这些命令<strong>不需要 /</strong>。要学习 UID 绑定、米游社/库街区签到或终末地森空岛登录，可回到上方「游戏工具」分类查看分步教程。</p>
         </div></details>
         <details><summary>🌸 Airi 专属节点 · 24 项功能手册</summary><div class="howto-body">
           <p class="node-info">Airi 节点另外提供<strong>游戏综合查询、签到与收藏、娱乐抽签、实用工具、棋类桌游</strong>等功能。部分功能需要 Airi 节点积分或特定群聊授权。</p>
@@ -866,7 +893,7 @@
       <div class="faq-grid">
         <details id="command-troubleshooting"><summary>命令发送后没有回复？按这几步检查</summary>
           <ol class="troubleshoot-steps">
-            <li><strong>核对前缀：</strong>例如 <code>/查看贡献</code>、<code>/查看画廊</code>、<code>/上传airi</code> 要带斜杠；<code>看airi</code> 通常不用。注意空格与命令写法。</li>
+            <li><strong>核对前缀：</strong>例如 <code>/查看贡献</code>、<code>/查看画廊</code>、<code>/上传airi</code> 要带斜杠；<code>看airi</code> 通常不用。游戏命令如 <code>end帮助</code>、<code>ww帮助</code> 不带斜杠。注意空格与命令写法。</li>
             <li><strong>确认使用场景：</strong>群聊中与 AI 聊天要真正 @机器人；上传图片需要<strong>回复那条图片消息</strong>，不能单独发送上传命令。</li>
             <li><strong>检查服务状态：</strong>确认机器人仍在 QQ 群内、没有离线；部分游戏和远程节点服务可能暂时不可用。</li>
             <li><strong>检查权限与限制：</strong>部分群不允许上传，或存在调用频率限制。<code>/查看贡献</code> 只查询自己的 QQ 投稿记录，新功能启用前的旧图不会计入。</li>

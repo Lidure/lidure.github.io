@@ -45,8 +45,8 @@ test('gallery distinguishes batch random images from overview collage, numbered 
   assert.match(html, /回复那条图片消息/);
 });
 
-test('six game help commands include BBBUID and correct WW alias', () => {
-  for (const command of ['gs帮助', 'sr帮助', 'zzz帮助', 'bbb帮助', 'ww帮助', 'nte帮助']) {
+test('seven game help commands include EndUID, BBBUID and correct WW alias', () => {
+  for (const command of ['gs帮助', 'sr帮助', 'zzz帮助', 'bbb帮助', 'ww帮助', 'nte帮助', 'end帮助']) {
     assert.ok(has(command), 'Missing game help command ' + command);
   }
   assert.ok(!html.includes('waves帮助'), 'Incorrect help command leaked');
@@ -74,6 +74,25 @@ test('Wuthering Waves and NTE have full sign-in flows', () => {
     assert.ok(has(command), 'Missing game sign-in command '+command);
   }
   assert.equal((html.match(/<summary>.*自动签到<\/summary>/g) || []).length, 3);
+});
+
+
+test('EndUID onboarding explains private login, safe scheduled sign-in and temporary gacha pages', () => {
+  const games = html.split('<section id="detail-games"')[1].split('<section id="detail-voice"')[0];
+  assert.match(games, /id="enduid-guide"/);
+  assert.match(games, /12:02（北京时间）/);
+  assert.match(games, /终末地使用账号授权登录/);
+  assert.match(games, /管理员全局开启自动签到/);
+  assert.match(games, /登录链接请勿转发他人/);
+  for (const command of ['end登录', 'end扫码登录', 'end帮助', 'end签到', 'end抽卡页面']) {
+    assert.ok(has(command), 'Missing EndUID command ' + command);
+    assert.match(games, new RegExp('data-copy="' + command + '"'));
+  }
+  const gameButton = html.match(/<button class="feature" type="button" data-open="games"[^>]+>/)?.[0] || '';
+  assert.match(gameButton, /终末地/);
+  const css = readFileSync(path.join(root, '..', 'dist', 'bot-help', 'theme.css'), 'utf8');
+  assert.match(css, /:root\[data-theme="dark"\] \.game-update/);
+  assert.match(css, /@media \(max-width: 580px\)[\s\S]*?\.game-update/);
 });
 
 test('voice, playful interactions and image search contain actionable commands', () => {

@@ -380,3 +380,46 @@
   .topbar-inner .brand > span:not(.brand-mark) { display: none; }
   .topbar-inner .back { margin-left: auto; padding: 7px 9px; font-size: 11px; }
 }
+
+/* EndUID onboarding: one compact announcement, consistent with both help themes. */
+.game-update {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 12px 16px;
+  padding: 16px 18px; margin: 0 0 22px;
+  background: linear-gradient(105deg, #fff1f7, #f7f2ff);
+  border: 1px solid #ead2e3; border-radius: 17px;
+}
+.game-update-label {
+  display: inline-flex; align-items: center; padding: 5px 10px;
+  border: 1px solid #e7c5d8; border-radius: 999px;
+  background: #fff9fd; color: #bc548b; font-size: 11px; font-weight: 850;
+  letter-spacing: .35px; white-space: nowrap;
+}
+.game-update > div { flex: 1 1 280px; min-width: 0; }
+.game-update strong { display: block; color: #704b65; font-size: 14px; }
+.game-update p { margin: 4px 0 0; color: #74697c; font-size: 13px; line-height: 1.65; }
+.game-update-link {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 9px 12px; min-height: 42px; color: #ad4e80;
+  background: #fff; border: 1px solid #e9cadc;
+  border-radius: 11px; font-weight: 800; font-size: 12px;
+}
+.game-update-link:hover { background: #fff4fa; }
+:root[data-theme="dark"] .game-update {
+  background: linear-gradient(110deg, #39283b, #302840);
+  border-color: #74506f;
+}
+:root[data-theme="dark"] .game-update-label {
+  background: #492e49; border-color: #825675; color: #ffd1e8;
+}
+:root[data-theme="dark"] .game-update strong { color: #f9e4f1; }
+:root[data-theme="dark"] .game-update p { color: #d0c0d0; }
+:root[data-theme="dark"] .game-update-link {
+  background: #47324a; border-color: #73536f; color: #ffc5e2;
+}
+:root[data-theme="dark"] .game-update-link:hover { background: #563c56; }
+@media (max-width: 580px) {
+  .game-update { padding: 14px; gap: 9px; }
+  .game-update > div { flex-basis: 100%; }
+  .game-update p { font-size: 13px; }
+  .game-update-link { width: 100%; }
+}
