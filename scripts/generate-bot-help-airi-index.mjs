@@ -23,7 +23,7 @@ function decodeText(value) {
 
 const tools = [];
 const seen = new Set();
-for (const match of html.matchAll(/<article\\b[^>]*\\bdata-tool="[^"]+"[^>]*>/g)) {
+for (const match of html.matchAll(/<article\b[^>]*\bdata-tool="[^"]+"[^>]*>/g)) {
   const tag = match[0];
   const slug = getAttr(tag, 'data-tool');
   const id = getAttr(tag, 'id');
@@ -34,10 +34,10 @@ for (const match of html.matchAll(/<article\\b[^>]*\\bdata-tool="[^"]+"[^>]*>/g)
   const closing = html.indexOf('</article>', match.index + tag.length);
   if (closing < 0) throw new Error('Missing closing article for ' + id);
   const body = html.slice(match.index + tag.length, closing);
-  const title = decodeText(body.match(/<h3>([^<]+)<\\/h3>/)?.[1] || '');
+  const title = decodeText(body.match(/<h3>([^<]+)<\/h3>/)?.[1] || '');
   if (!title) throw new Error('Missing Airi tool title: ' + id);
   const commands = [...new Set(
-    [...body.matchAll(/\\bdata-copy="([^"]+)"/g)].map(m => decodeText(m[1]))
+    [...body.matchAll(/\bdata-copy="([^"]+)"/g)].map(m => decodeText(m[1]))
   )].filter(Boolean);
   tools.push({
     id,
