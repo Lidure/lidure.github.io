@@ -57,6 +57,18 @@
       </div>
       <nav id="gallery-manage-categories" class="gallery-manage-categories" aria-label="图库分类"></nav>
       <button id="gallery-manage-categories-toggle" class="gallery-manage-categories-toggle" type="button" aria-controls="gallery-manage-categories" aria-expanded="false" hidden>展开全部分类</button>
+      <div class="gallery-manage-sort-toolbar">
+        <label for="gallery-manage-sort">排序方式</label>
+        <select id="gallery-manage-sort" aria-label="图库排序方式">
+          <option value="time_desc">时间倒序（按编号近似）</option>
+          <option value="time_asc">时间正序（按编号近似）</option>
+          <option value="index_desc">编号：从大到小</option>
+          <option value="index_asc">编号：从小到大</option>
+          <option value="name_asc">文件名：A–Z</option>
+          <option value="name_desc">文件名：Z–A</option>
+        </select>
+        <span>云端文件树不含逐图上传时间，时间排序按全局编号近似。</span>
+      </div>
       <div id="gallery-manage-move-bar" class="gallery-manage-move-bar" hidden>
         <div class="gallery-manage-move-heading">
           <span class="gallery-manage-move-symbol" aria-hidden="true">⇄</span>
