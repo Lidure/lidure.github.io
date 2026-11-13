@@ -19,7 +19,19 @@
         <p class="gallery-filter-kicker">Collections</p>
         <h2 id="gallery-filter-title">按分类浏览</h2>
       </div>
-      <p>选择一个收藏夹，下面只展示这一类图片。</p>
+      <p>切换「全部」或单个分类，按喜欢的顺序浏览。</p>
+    </div>
+    <div class="gallery-sort-toolbar">
+      <label for="gallery-sort">排序方式</label>
+      <select id="gallery-sort" aria-label="画廊排序方式">
+        <option value="time_desc">时间倒序（按编号近似）</option>
+        <option value="time_asc">时间正序（按编号近似）</option>
+        <option value="index_desc">编号：从大到小</option>
+        <option value="index_asc">编号：从小到大</option>
+        <option value="name_asc">文件名：A–Z</option>
+        <option value="name_desc">文件名：Z–A</option>
+      </select>
+      <span>云端没有逐图上传时间，时间排序按全局编号近似。</span>
     </div>
     <nav id="gallery-category-tabs" class="gallery-category-tabs" aria-label="图库分类"></nav>
     <button
