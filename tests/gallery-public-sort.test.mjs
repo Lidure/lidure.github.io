@@ -76,7 +76,7 @@ test('public gallery has an explicit All filter and sort selection', async () =>
 test('All uses empty sentinel, never colliding with a literal 分类“全部”', async () => {
   const controller = await readFile(new URL('../src/lib/gallery-browser-controller.mjs', import.meta.url), 'utf8');
   assert.match(controller, /category:\s*''\s*,\s*images:\s*state\.categories\.flatMap/);
-  assert.match(controller, /state\.category \? state\.categories\.find/);
+  assert.match(controller, /state\.category\s*\?\s*state\.categories\.find/);
   const example = [...categories, { category: '全部', images: [{ path: 'gallery/全部/8.png', category: '全部', filename: '8.png' }] }];
   assert.equal(example.find(entry => entry.category === '全部').images.length, 1);
   assert.equal(example.flatMap(entry => entry.images).length, 5);
