@@ -27,6 +27,7 @@ import {
 } from './gallery-upload-transaction.mjs';
 import { commitGitHubDeleteTransaction } from './gallery-delete-transaction.mjs';
 import { previewCloudMove, confirmCloudMove, CLOUD_MOVE_MAX } from './gallery-move-transaction.mjs';
+import { sortManagedImages } from './gallery-manage-sort.mjs';
 
 const PAGE_SIZE = 24;
 const collator = new Intl.Collator('zh-CN', { numeric: true, sensitivity: 'base' });
@@ -138,6 +139,7 @@ export function initGalleryManage(root, {
   const syncButton = root.querySelector('#gallery-manage-sync');
   const categoryNav = root.querySelector('#gallery-manage-categories');
   const categoriesToggle = root.querySelector('#gallery-manage-categories-toggle');
+  const sortSelect = root.querySelector('#gallery-manage-sort');
   const grid = root.querySelector('#gallery-manage-grid');
   const pager = root.querySelector('#gallery-manage-pager');
   const moveBar = root.querySelector('#gallery-manage-move-bar');
@@ -159,13 +161,14 @@ export function initGalleryManage(root, {
   const dialogTitle = root.querySelector('#gallery-manage-dialog-title');
   const dialogBody = root.querySelector('#gallery-manage-dialog-body');
 
-  if (!status || !count || !connectButton || !syncButton || !categoryNav || !grid || !pager
+  if (!status || !count || !connectButton || !syncButton || !categoryNav || !sortSelect || !grid || !pager
     || !categorySelect || !categoryNew || !dropzone || !fileInput || !uploadQueue || !uploadStart
     || !writeChip || !dialog || !dialogCard || !dialogTitle || !dialogBody) return () => {};
 
   const state = {
     categories: [],
     selectedCategory: '',
+    sortMode: 'time_desc',
     categoriesExpanded: false,
     page: 1,
     connected: false,
@@ -258,8 +261,10 @@ export function initGalleryManage(root, {
   }
 
   function currentImages() {
-    if (!state.selectedCategory) return flatImages(state.categories);
-    return state.categories.find(item => item.category === state.selectedCategory)?.images || [];
+    const images = !state.selectedCategory
+      ? flatImages(state.categories)
+      : state.categories.find(item => item.category === state.selectedCategory)?.images || [];
+    return sortManagedImages(images, state.sortMode);
   }
 
   function renderCategorySelect() {
@@ -1184,6 +1189,11 @@ export function initGalleryManage(root, {
   if (moveOpen) listen(moveOpen, 'click', () => {
     if (!state.connected || state.busy || !state.moveMode || !state.selectedCategory) return;
     void requestMove([...state.moveSelection], state.selectedCategory, moveOpen);
+  });
+  listen(sortSelect, 'change', () => {
+    state.sortMode = sortSelect.value;
+    state.page = 1;
+    renderGrid();
   });
   if (categoriesToggle) listen(categoriesToggle, 'click', onCategoriesToggle);
   listen(win, 'resize', updateCategoryToggle);
