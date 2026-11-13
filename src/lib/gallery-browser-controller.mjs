@@ -243,7 +243,7 @@ export function initGalleryBrowser(root, options = {}) {
       tile.classList.remove('is-error', 'is-retrying');
       img.hidden = false;
       fallback.hidden = true;
-      tile.setAttribute('aria-label', `打开 ${item.filename}`);
+      tile.setAttribute('aria-label', `打开 ${item.category} 分类的 ${item.filename}`);
     }
 
     function showError() {
