@@ -163,6 +163,47 @@
   text-align: right;
 }
 
+/* Read-only public gallery controls: the Cloud manifest has no upload timestamps. */
+.gallery-sort-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 15px;
+  color: var(--standard-muted);
+  font-size: .8rem;
+}
+.gallery-sort-toolbar label {
+  font-weight: 700;
+  color: var(--standard-text);
+  white-space: nowrap;
+}
+.gallery-sort-toolbar select {
+  max-width: 100%;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--standard-line);
+  border-radius: 11px;
+  background: var(--standard-card-soft);
+  color: var(--standard-text);
+  font: inherit;
+  cursor: pointer;
+}
+.gallery-sort-toolbar select:focus-visible {
+  outline: 2px solid var(--standard-accent);
+  outline-offset: 2px;
+}
+.gallery-sort-toolbar span {
+  flex: 1 1 235px;
+  font-size: .73rem;
+  line-height: 1.5;
+}
+@media (max-width: 720px) {
+  .gallery-sort-toolbar { margin-top: 11px; gap: 7px; }
+  .gallery-sort-toolbar select { flex: 1 1 190px; min-width: 0; }
+  .gallery-sort-toolbar span { flex-basis: 100%; }
+}
+
 .gallery-category-tabs {
   display: flex;
   flex-wrap: wrap;
