@@ -633,3 +633,40 @@ html.gallery-manage-dialog-open { overflow: hidden; }
     font-size: .65rem;
   }
 }
+
+
+/* Native blog management page: ordering applies before All/category pagination. */
+.gallery-manage-sort-toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 9px 12px;
+  margin: 0 0 16px;
+  color: var(--standard-muted);
+  font-size: .79rem;
+}
+.gallery-manage-sort-toolbar label {
+  font-weight: 650;
+  color: var(--standard-text);
+  white-space: nowrap;
+}
+.gallery-manage-sort-toolbar select {
+  max-width: 100%;
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--standard-line);
+  border-radius: 10px;
+  background: var(--standard-card-bg);
+  color: var(--standard-text);
+  font: inherit;
+  cursor: pointer;
+}
+.gallery-manage-sort-toolbar span {
+  flex: 1 1 200px;
+  font-size: .73rem;
+  line-height: 1.45;
+}
+@media (max-width: 620px) {
+  .gallery-manage-sort-toolbar select { flex: 1 1 180px; }
+  .gallery-manage-sort-toolbar span { flex-basis: 100%; }
+}
