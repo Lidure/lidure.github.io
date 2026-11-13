@@ -9,6 +9,7 @@ import {
   clearGalleryManifestCache,
   loadGalleryManifest,
 } from './gallery-manifest-client.mjs';
+import { sortManagedImages } from './gallery-manage-sort.mjs';
 
 function textButton(doc, label, onClick, options = {}) {
   const button = doc.createElement('button');
@@ -33,15 +34,17 @@ export function initGalleryBrowser(root, options = {}) {
 
   const tabs = root.querySelector('#gallery-category-tabs');
   const categoriesToggle = root.querySelector('#gallery-categories-toggle');
+  const sortSelect = root.querySelector('#gallery-sort');
   const grid = root.querySelector('#gallery-grid');
   const pager = root.querySelector('#gallery-pager');
   const refresh = root.querySelector('#gallery-refresh');
   const notice = root.querySelector('#gallery-notice');
-  if (!tabs || !grid || !pager || !refresh || !notice) return () => {};
+  if (!tabs || !grid || !pager || !refresh || !notice || !sortSelect) return () => {};
 
   const state = {
     categories: [],
     category: '',
+    sortMode: 'time_desc',
     categoriesExpanded: false,
     page: 1,
     pageSize: galleryPageSizeForWidth(win.innerWidth),
@@ -55,6 +58,7 @@ export function initGalleryBrowser(root, options = {}) {
   let resizeTimer = null;
   const preloads = new Set();
   const imageRetryTimers = new Set();
+  const sortedCategories = new Map();
 
   function setNotice(message = '', kind = '') {
     notice.textContent = message;
@@ -63,7 +67,17 @@ export function initGalleryBrowser(root, options = {}) {
   }
 
   function currentCategory() {
-    return state.categories.find((entry) => entry.category === state.category) || state.categories[0] || null;
+    // The empty key represents the virtual All tab, not a real repository folder.
+    // Keep sorted arrays cached across page changes so large galleries stay fast.
+    const key = JSON.stringify([state.category, state.sortMode]);
+    if (sortedCategories.has(key)) return sortedCategories.get(key);
+    const category = state.category
+      ? state.categories.find((entry) => entry.category === state.category)
+      : { category: '', images: state.categories.flatMap((entry) => entry.images || []) };
+    if (!category) return null;
+    const ordered = { ...category, images: sortManagedImages(category.images, state.sortMode) };
+    sortedCategories.set(key, ordered);
+    return ordered;
   }
 
   function updateCategoryToggle() {
@@ -86,7 +100,7 @@ export function initGalleryBrowser(root, options = {}) {
     categoriesToggle.setAttribute('aria-expanded', String(state.categoriesExpanded));
     categoriesToggle.textContent = state.categoriesExpanded
       ? '收起分类 ↑'
-      : `展开全部分类（${state.categories.length}） ↓`;
+      : `展开全部分类（${state.categories.length + 1}） ↓`;
   }
 
   function onCategoriesToggle() {
@@ -146,10 +160,15 @@ export function initGalleryBrowser(root, options = {}) {
 
   function renderTabs() {
     tabs.replaceChildren();
-    for (const entry of state.categories) {
+    const totalImages = state.categories.reduce((sum, entry) => sum + entry.images.length, 0);
+    const categories = [
+      { category: '', label: '全部', images: { length: totalImages } },
+      ...state.categories.map(entry => ({ ...entry, label: entry.category })),
+    ];
+    for (const entry of categories) {
       const button = textButton(
         doc,
-        `${entry.category} · ${entry.images.length}`,
+        `${entry.label} · ${entry.images.length}`,
         () => {
           const changed = state.category !== entry.category;
           state.categoriesExpanded = false;
@@ -177,7 +196,7 @@ export function initGalleryBrowser(root, options = {}) {
     tile.type = 'button';
     tile.className = 'gallery-tile';
     tile.dataset.galleryPath = item.path;
-    tile.setAttribute('aria-label', `打开 ${item.filename}`);
+    tile.setAttribute('aria-label', `打开 ${item.category} 分类的 ${item.filename}`);
 
     const img = doc.createElement('img');
     img.alt = item.filename;
@@ -187,7 +206,7 @@ export function initGalleryBrowser(root, options = {}) {
 
     const meta = doc.createElement('span');
     meta.className = 'gallery-tile-meta';
-    meta.textContent = item.filename;
+    meta.textContent = state.category ? item.filename : `${item.category} · ${item.filename}`;
 
     const fallback = doc.createElement('span');
     fallback.className = 'gallery-tile-fallback';
@@ -347,8 +366,9 @@ export function initGalleryBrowser(root, options = {}) {
       });
       if (state.disposed) return;
       state.categories = result.categories;
-      if (!state.categories.some((entry) => entry.category === state.category)) {
-        state.category = state.categories[0]?.category || '';
+      sortedCategories.clear();
+      if (state.category && !state.categories.some((entry) => entry.category === state.category)) {
+        state.category = '';
         state.page = 1;
       }
       if (result.stale) {
@@ -361,6 +381,7 @@ export function initGalleryBrowser(root, options = {}) {
       if (error?.name === 'AbortError' || state.disposed) return;
       tabs.replaceChildren();
       state.categories = [];
+      sortedCategories.clear();
       state.categoriesExpanded = false;
       updateCategoryToggle();
       grid.replaceChildren();
@@ -391,7 +412,16 @@ export function initGalleryBrowser(root, options = {}) {
     }, 120);
   }
 
+  function onSortChange() {
+    state.sortMode = sortSelect.value;
+    state.page = 1;
+    sortedCategories.clear();
+    cancelPrefetch();
+    render();
+  }
+
   refresh.addEventListener('click', onRefresh);
+  sortSelect.addEventListener('change', onSortChange);
   categoriesToggle?.addEventListener('click', onCategoriesToggle);
   win.addEventListener('resize', onResize);
   load();
@@ -400,6 +430,7 @@ export function initGalleryBrowser(root, options = {}) {
     if (state.disposed) return;
     state.disposed = true;
     refresh.removeEventListener('click', onRefresh);
+    sortSelect.removeEventListener('change', onSortChange);
     categoriesToggle?.removeEventListener('click', onCategoriesToggle);
     win.removeEventListener('resize', onResize);
     if (resizeTimer != null) win.clearTimeout(resizeTimer);
