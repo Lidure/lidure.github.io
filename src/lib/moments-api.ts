@@ -216,19 +216,51 @@ async function requestReadJson<T>(path: string, options: RequestOptions = {}): P
   throw lastError;
 }
 
-export async function fetchMoments(options: { limit?: number; cursor?: string; signal?: AbortSignal } = {}) {
-  const params = new URLSearchParams();
-  params.set('limit', String(options.limit ?? 200));
-  if (options.cursor) params.set('cursor', options.cursor);
+type MomentsPage = { items: MomentApiItem[]; nextCursor: string | null };
+const momentsCache = new Map<string, { data: MomentsPage; savedAt: number }>();
+const momentsRequests = new Map<string, Promise<MomentsPage>>();
+let momentsGeneration = 0;
 
-  const data = await requestReadJson<{ items?: MomentApiItem[]; nextCursor?: string | null }>(
-    `/moments?${params.toString()}`,
-    { signal: options.signal },
-  );
-  return {
-    items: Array.isArray(data.items) ? data.items : [],
-    nextCursor: data.nextCursor ?? null,
-  };
+function momentsQuery(options: { limit?: number; cursor?: string }) {
+  const params = new URLSearchParams({ limit: String(options.limit ?? 200) });
+  if (options.cursor) params.set('cursor', options.cursor);
+  return `/moments?${params.toString()}`;
+}
+
+export function getCachedMoments(options: { limit?: number; cursor?: string } = {}) {
+  const cached = momentsCache.get(momentsQuery(options));
+  return cached && Date.now() - cached.savedAt < 5 * 60_000
+    ? structuredClone(cached.data) : null;
+}
+
+function invalidateMomentsCache() {
+  momentsGeneration += 1;
+  momentsCache.clear();
+  momentsRequests.clear();
+}
+
+export async function fetchMoments(options: { limit?: number; cursor?: string; signal?: AbortSignal } = {}) {
+  options.signal?.throwIfAborted();
+  const key = momentsQuery(options);
+  let pending = momentsRequests.get(key);
+  if (!pending) {
+    const generation = momentsGeneration;
+    // One consumer leaving the page must not cancel another consumer's request.
+    pending = requestReadJson<{ items?: MomentApiItem[]; nextCursor?: string | null }>(key)
+      .then((data) => {
+        const page = { items: Array.isArray(data.items) ? data.items : [], nextCursor: data.nextCursor ?? null };
+        if (generation === momentsGeneration) {
+          momentsCache.set(key, { data: structuredClone(page), savedAt: Date.now() });
+        }
+        return page;
+      }).finally(() => {
+        if (momentsRequests.get(key) === pending) momentsRequests.delete(key);
+      });
+    momentsRequests.set(key, pending);
+  }
+  const data = await pending;
+  options.signal?.throwIfAborted();
+  return structuredClone(data);
 }
 
 export async function login(password: string, options: { signal?: AbortSignal } = {}) {
@@ -292,6 +324,7 @@ export async function createMoment(input: CreateMomentRequest, options: { signal
     signal: options.signal,
   });
 
+  invalidateMomentsCache();
   if (!data.item) {
     throw new MomentApiError('发布成功，但 API 没有返回新动态。', 'API_ERROR');
   }
@@ -304,6 +337,7 @@ export async function deleteMoment(momentId: string, options: { signal?: AbortSi
     credentials: 'include',
     signal: options.signal,
   });
+  invalidateMomentsCache();
 }
 
 export async function setMomentPinned(
@@ -322,6 +356,7 @@ export async function setMomentPinned(
     },
   );
 
+  invalidateMomentsCache();
   if (!data.item) {
     throw new MomentApiError('置顶状态已更新，但 API 没有返回动态。', 'API_ERROR');
   }

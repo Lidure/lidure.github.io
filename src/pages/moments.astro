@@ -114,6 +114,7 @@ import '../styles/moments-life-wall.css';
     createMoment as createMomentViaApi,
     deleteMoment as deleteMomentViaApi,
     fetchMoments,
+    getCachedMoments,
     getSession,
     login,
     logout,
@@ -795,16 +796,24 @@ import '../styles/moments-life-wall.css';
     }
     document.addEventListener('astro:before-swap', cleanupPageState, { once: true, signal });
 
+    let hasVisibleMoments = false;
+    const cachedMoments = getCachedMoments();
+    if (cachedMoments) {
+      if (cachedMoments.items.length) syncMoments(cachedMoments.items);
+      else renderListMessage('暂时还没有记录。');
+      hasVisibleMoments = true;
+    }
     const loadMoments = async () => {
       try {
         const items = await fetchMomentsFromApi(signal);
         if (signal.aborted) return;
         if (items.length === 0) renderListMessage('暂时还没有记录。');
         else syncMoments(items);
+        hasVisibleMoments = true;
       } catch (err) {
         if (signal.aborted) return;
         console.warn('Failed to fetch moments from API:', err);
-        renderListMessage('加载失败，可以稍后再试。', 'error-state');
+        if (!hasVisibleMoments) renderListMessage('加载失败，可以稍后再试。', 'error-state');
         setMomentsRetryVisible(true);
       }
     };

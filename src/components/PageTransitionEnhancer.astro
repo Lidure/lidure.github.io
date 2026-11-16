@@ -176,7 +176,8 @@
     window.__pageTransitionEnhancerBound = true;
 
     document.addEventListener('astro:before-preparation', function () {
-      beginLeave();
+      // Keep the current page readable while the next document is fetched.
+      resetTransitionState();
       startProgressBar();
     });
 
