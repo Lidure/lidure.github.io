@@ -169,7 +169,7 @@ const miniData={
  still:{title:'脚步声',hint:'它正在门外。不要触碰门，安静等待脚步声完全消失。',goal:8,cute:false}
 };
 function cgSVG(kind){
- const flower=(x,y,i)=>'<g class="cg-float" transform="translate('+x+' '+y+')"><svg x="-100" y="-125" width="200" height="250" viewBox="0 0 240 300">'+plantSVG(i).replace(/^<svg[^>]*>|<\/svg>$/g,'')+'</svg></g>';
+ const flower=(x,y,i)=>'<g transform="translate('+x+' '+y+')"><g class="cg-float"><svg x="-100" y="-125" width="200" height="250" viewBox="0 0 240 300">'+plantSVG(i).replace(/^<svg[^>]*>|<\/svg>$/g,'')+'</svg></g></g>';
  const garden='<rect width="800" height="450" fill="#b7e4f5"/><circle cx="688" cy="85" r="39" fill="#ffe6a0"/><path d="M0 250Q180 125 400 245T800 240V450H0Z" fill="#c5e69a"/><path d="M0 310Q200 240 400 310T800 285V450H0Z" fill="#8fca6f"/><g fill="#fff9dd"><ellipse cx="145" cy="85" rx="70" ry="22"/><ellipse cx="110" cy="65" rx="34" ry="27"/><ellipse cx="160" cy="60" rx="35" ry="31"/></g>';
  if(kind==='cgWelcome'||kind==='cgLoop'){
  const extra=kind==='cgLoop'?'<g class="cg-extra"><path d="M598 337V205Q600 141 644 145Q691 143 692 205V337Z" fill="#535c50"/><ellipse cx="630" cy="202" rx="10" ry="16" fill="#141d16"/><ellipse cx="659" cy="202" rx="10" ry="16" fill="#141d16"/><path d="M629 229Q645 242 661 229" stroke="#182018" stroke-width="4" fill="none"/></g><rect class="cg-dark" width="800" height="450" fill="#17261b" opacity="0"/>':'';
@@ -210,7 +210,7 @@ function interPick(i){
 function interDone(){if(!inter||inter.done)return;inter.done=true;inter.age=0;clues.add(inter.kind==='petals'?'花瓣纪念卡':inter.kind==='odd'?'异常表情记录':'静默通行证');$('interHint').textContent='完成！已获得新的纪念记录。';$('interSkip').textContent='继续';interArt.querySelectorAll('button').forEach(b=>b.disabled=true);interPaint()}
 function interPaint(){
  if(!inter)return;const c=cgData[inter.kind],m=miniData[inter.kind];let ratio=c?inter.age/c.duration:inter.done?1:inter.kind==='still'?inter.age/m.goal:inter.count/m.goal;
- $('interFill').style.width=Math.min(100,ratio*100)+'%';$('interCount').textContent=c?Math.ceil(Math.max(0,c.duration-inter.age))+' 秒':inter.kind==='still'?Math.floor(Math.min(m.goal,inter.age))+' / '+m.goal+' 秒':inter.count+' / '+m.goal;
+ $('interFill').style.width=Math.min(100,ratio*100)+'%';$('interCount').textContent=c?Math.ceil(Math.max(0,c.duration-inter.age))+' 秒':inter.kind==='still'?(inter.done?m.goal:Math.floor(Math.min(m.goal,inter.age)))+' / '+m.goal+' 秒':inter.count+' / '+m.goal;
 }
 function interTick(dt){
  if(!inter)return false;inter.age+=dt;
